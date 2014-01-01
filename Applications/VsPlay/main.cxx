@@ -89,6 +89,7 @@ int main(int argc, char** argv)
   vsApplication app(args.qtArgc(), args.qtArgv());
 
   app.setCopyright(VSPLAY_COPY_YEAR, "Kitware, Inc.");
+  app.setUserManualLocation("vsPlay.html");
 
   // Register metatypes
   QTE_REGISTER_METATYPE(QHostAddress);

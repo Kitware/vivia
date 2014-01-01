@@ -42,6 +42,15 @@ class QTVG_COMMON_EXPORT vgApplication : public QApplication
   Q_PROPERTY(QString copyrightOrganization READ copyrightOrganization
                                            WRITE setCopyrightOrganization)
 
+  /// Location of application user manual.
+  ///
+  /// This specifies the file name or location of the application's user
+  /// manual.
+  ///
+  /// \sa userManualLocation(), setUserManualLocation()
+  Q_PROPERTY(QString userManualLocation READ userManualLocation
+                                        WRITE setUserManualLocation)
+
 public:
   enum HelpMenuEntry
   {
@@ -85,6 +94,25 @@ public:
 
   /// \copydoc setCopyright(const QString&, const QString&)
   void setCopyright(int year, const QString& organization);
+
+  /// Get location of application user manual.
+  ///
+  /// The returns the absolute path to the application's user manual.
+  ///
+  /// \sa userManualLocation, setUserManualLocation()
+  static QString userManualLocation();
+
+  /// Set location of application user manual.
+  ///
+  /// This method will resolve non-absolute paths so that the stored value is
+  /// always a complete absolute path. If a name without path is given
+  /// (recommended), the user manual is assumed to be in a well known relative
+  /// location with respect to the location of the application executable.
+  ///
+  /// The result of specifying a relative path is not specified.
+  ///
+  /// \sa userManualLocation, userManualLocation()
+  static void setUserManualLocation(const QString&);
 
   /// Create standard help menu actions.
   ///

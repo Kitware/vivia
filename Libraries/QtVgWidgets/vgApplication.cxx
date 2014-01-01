@@ -7,7 +7,10 @@
 #include "vgApplication.h"
 
 #include "vgAboutAction.h"
+#include "vgUserManualAction.h"
 
+#include <QDir>
+#include <QFileInfo>
 #include <QMenu>
 #include <QVariant>
 
@@ -28,6 +31,36 @@ QString getProperty(QObject* obj, const char* name, const char* fallback)
   return (value.isNull() ? obj->property(fallback) : value).toString();
 }
 
+//-----------------------------------------------------------------------------
+bool hasPath(const QFileInfo& fi)
+{
+  return (fi.path() == "." ? fi.filePath() != fi.fileName() : true);
+}
+
+//-----------------------------------------------------------------------------
+QString resolveUserManualLocation(const QString& path)
+{
+  const QFileInfo fi(path);
+  if (!fi.isAbsolute())
+    {
+    if (hasPath(fi))
+      {
+      // Non-empty relative path specified... according to the API
+      // specification, this is undefined behavior; we'll take it to mean
+      // relative to the current directory
+      return fi.absoluteFilePath();
+      }
+    else
+      {
+      QFileInfo aefi(QApplication::applicationFilePath());
+      QDir dd(aefi.absolutePath() + "/../doc/user");
+      return dd.canonicalPath() + "/" + path;
+      }
+    }
+
+  return path;
+}
+
 } // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
@@ -36,6 +69,7 @@ class vgApplicationPrivate
 public:
   QString CopyrightYear;
   QString CopyrightOrganization;
+  QString UserManualLocation;
 };
 
 QTE_IMPLEMENT_D_FUNC(vgApplication)
@@ -125,12 +159,37 @@ void vgApplication::setCopyright(int year, const QString& organization)
 }
 
 //-----------------------------------------------------------------------------
+QString vgApplication::userManualLocation()
+{
+  WITH_VGAPPLICATION_D_CONST() { return d->UserManualLocation; }
+
+  const QCoreApplication* const app = QCoreApplication::instance();
+  return app->property("userManualLocation").toString();
+}
+
+//-----------------------------------------------------------------------------
+void vgApplication::setUserManualLocation(const QString& path)
+{
+  const QString& fullPath = resolveUserManualLocation(path);
+
+  WITH_VGAPPLICATION_D()
+    {
+    d->UserManualLocation = fullPath;
+    return;
+    }
+  QCoreApplication::instance()->setProperty("userManualLocation", fullPath);
+}
+
+//-----------------------------------------------------------------------------
 void vgApplication::setupHelpMenu(
   QMenu* menu, vgApplication::HelpMenuEntries entries)
 {
+  if (entries.testFlag(vgApplication::UserManualAction))
+    {
+    menu->addAction(new vgUserManualAction(menu));
+    }
   if (entries.testFlag(vgApplication::AboutAction))
     {
     menu->addAction(new vgAboutAction(menu));
     }
-  // TODO 'user manual' action
 }

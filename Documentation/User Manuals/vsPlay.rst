@@ -257,6 +257,10 @@ Tools Menu
 Help Menu
 ---------
 
+.. TODO: use 'help-manual' icon
+:icon:`blank` User Manual
+  Opens the vsPlay user manual (i.e. this document).
+
 :icon:`vsPlay` About Video Stream Player
   Shows copyright and version information about the application.
 

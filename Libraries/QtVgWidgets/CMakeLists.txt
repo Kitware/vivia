@@ -13,6 +13,7 @@ set(qtvgWidgetsSources
     vgMixerItem.cxx
     vgMixerWidget.cxx
     vgTextEditDialog.cxx
+    vgUserManualAction.cxx
     vgVideoScrubber.cxx
 )
 
@@ -27,6 +28,7 @@ set(qtvgWidgetsMocHeaders
     vgMixerItem.h
     vgMixerWidget.h
     vgTextEditDialog.h
+    vgUserManualAction.h
     vgVideoScrubber.h
 )
 
@@ -38,6 +40,7 @@ set(qtVgWidgetsInstallHeaders
   vgFrameSpinBox.h
   vgMixerWidget.h
   vgTextEditDialog.h
+  vgUserManualAction.h
   vgVideoScrubber.h
 )
 
