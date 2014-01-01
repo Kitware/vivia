@@ -10,8 +10,10 @@ Overview
 The vsPlay application is a tool designed to support the visualization and
 exploitation of computer vision algorithms applied to motion imagery, with a
 focus on narrow to medium FOV video at 480p or 720p resolution and frame rates
-from 5 Hz to 30 Hz. The core algorithm support focuses on object detection and
-tracking and event detection.
+from 5 Hz to 30 Hz. (Other formats are supported |--| there are no imposed
+restrictions on the video format |--| but functionality and/or performance may
+be reduced.) The core algorithm support focuses on object detection and
+tracking, and event detection.
 
 The core functionality of vsPlay can be divided into a number of components:
 
@@ -140,6 +142,7 @@ highlighted.
 Additionally, vsPlay supports user-defined regions, which are simply free-form
 regions that may be drawn on the video. These may be used as simple
 annotations, or by other algorithms or visualization features.
+See `Annotation Regions`_ for more details.
 
 To help reduce clutter, vsPlay supports the user of user regions as either
 filters or selectors. A filter region hides other visualizations that are
@@ -150,17 +153,106 @@ type may be used, including combinations of both filter and selector regions.
 Archived Data Support
 =====================
 
+There are two modes of data acquisition supported by vsPlay; archived and
+streaming. Archived data acquisition involves loading stored or precomputed
+data from archive files, which is useful for looking at data that was recorded
+or computed at an earlier time. The three main data classes (video, tracks,
+descriptors) each have a 'load from archive' action that is available when
+suitable plugins have been loaded.
+
+Video data provides imagery, and may include meta data about the imagery, such
+as the time at which the imagery was captured, geospatial information about the
+imagery, and homography information to spatially relate consecutive video
+frames when camera motion is present. Track data provides basic object
+detection information, which is presented in vsPlay as track entities.
+Descriptors is a general categorization that covers "everything else", and
+includes track object classifications and event detections. In some cases,
+additional data types may be defined by distribution specific plugins.
+
+The exact set of supported file formats may vary by distribution. A typical
+vsPlay distribution includes support for at least the following data formats:
+
+* **Video**
+
+ - KWA archives
+
+* **Tracks**
+
+ - Generic CSV
+
+ - Kitware KW18
+
+* **Descriptors**
+
+ - Kitware / VisGUI Saved Result Sets
+
+ - Kitware Descriptor XML
+
+ - Kitware P/V/O's
+
+Some supported formats may provide more than one data type.
+
 External Process Support
 ========================
+
+Another option for data acquisition is to obtain it from a live system. When
+these options are available, they are added to the respective menus. A data
+source may provide more than one data type; many external data providers will
+provide all three data types (video, tracks and descriptors).
+
+The most common use of external process support is to allow a vsPlay instance
+to connect to a live video feed and/or external detection algorithms. In some
+cases, the ability to interact with such systems may also be available upon
+connecting to the external process / system.
+
+The nature of such systems can vary widely, and as such the availability of
+external data providers is usually distribution specific.
 
 Integrated Algorithms
 =====================
 
+In addition to external processes, vsPlay also supports the execution of
+algorithms within its own process space. As the vsPlay application itself does
+not provide any significant computer vision algorithms, most such algorithms
+would be provided as add-ons, and hence are distribution specific.
+
+As an exception, the standard vsPlay distribution provides a very rudimentary
+event detection system in the form of "tripwires". These are a type of
+annotation region (similar to selector / filter regions, created and
+manipulated using the same tools) that interact with tracks to detect simple
+boundary crossing. Open tripwires generate a "tripwire" event whenever a track
+crosses the region. Closed tripwires generate an "entering" or "leaving" event
+when a track enters or leaves the region, respectively.
+
 Supplemental Tools
 ==================
 
+Classification Filters
+----------------------
+
+Ruler Tool
+----------
+
+Annotation Regions
+------------------
+
+Manual Event Creation
+---------------------
+
 Supplemental Visualizations
 ===========================
+
+Track List
+----------
+
+Event List
+----------
+
+Event Information
+-----------------
+
+Region List
+-----------
 
 Appendix I: Menu Actions
 ========================
