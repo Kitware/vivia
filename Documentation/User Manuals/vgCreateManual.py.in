@@ -1,0 +1,66 @@
+#!@PYTHON_EXECUTABLE@
+
+import os
+import shutil
+import sys
+
+from docutils import nodes, utils
+from docutils.core import Publisher
+from docutils.parsers.rst import roles
+
+icon_paths = []
+image_dest = None
+
+#------------------------------------------------------------------------------
+def copy_icon(name):
+  global icon_paths, image_dest
+
+  for p in icon_paths:
+    src = os.path.join(p, name)
+    if os.path.exists(src):
+      shutil.copy(src, image_dest)
+      return
+
+  print('warning: icon "%s" not found' % name)
+
+#==============================================================================
+class IconRole:
+
+  #----------------------------------------------------------------------------
+  def __init__(self):
+    self.name = 'icon'
+
+  #----------------------------------------------------------------------------
+  def __call__(self, role, rawtext, text, lineno, inliner,
+               options={}, content=[]):
+    roles.set_classes(options)
+    uri = utils.unescape(text) + '.png'
+    copy_icon(uri)
+    options['uri'] = 'images/' + uri
+    options['alt'] = utils.unescape(text)
+    node = nodes.image(rawtext, **options)
+    return [node], []
+
+#==============================================================================
+
+# Register our custom directive
+roles.register_canonical_role('icon', IconRole())
+
+# Prepare arguments
+args = [
+  '--time',
+  '--smart-quotes=yes',
+  '--stylesheet=@STYLESHEET@',
+  '--traceback',
+  sys.argv[1],
+  sys.argv[2],
+]
+
+icon_paths = sys.argv[3:]
+image_dest = os.path.join(os.path.dirname(sys.argv[2]), 'images')
+os.path.exists(image_dest) or os.mkdir(image_dest)
+
+# Do the conversion
+pub = Publisher(None, None, None)
+pub.set_components('standalone', 'restructuredtext', 'html')
+pub.publish(args)

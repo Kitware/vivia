@@ -22,7 +22,8 @@ option(VISGUI_ENABLE_PYTHON         "Enable VisGUI Python bindings"         OFF)
 option(VISGUI_DISABLE_FIXUP_BUNDLE  "Disable install fixup bundle utility"  OFF)
 #   ...General features
 option(BUILD_TESTING                "Build tests"                           OFF)
-option(BUILD_DOCUMENTATION          "Build documentation"                   OFF)
+option(BUILD_SDK_DOCUMENTATION      "Build SDK documentation"               OFF)
+option(BUILD_USER_DOCUMENTATION     "Build user documentation"              OFF)
 
 # Include core CMake support code.
 include(CMake/functions.cmake)
@@ -147,6 +148,7 @@ add_subdirectory(Web)
 add_subdirectory(Applications)
 add_subdirectory(Plugins)
 add_subdirectory(Tools)
+add_subdirectory(Documentation)
 
 # Install rules need to be in a separate directory
 add_subdirectory(CMake/InstallRules)
