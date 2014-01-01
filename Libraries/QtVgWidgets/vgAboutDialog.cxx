@@ -1,10 +1,11 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vgAboutDialog.h"
+#include "vgApplication.h"
 
 #include <QAction>
 #include <QClipboard>
@@ -32,29 +33,28 @@ const char* clipTextTemplate =
 //-----------------------------------------------------------------------------
 QString genBuildDisplayString()
 {
-  QString str = QString::fromLocal8Bit(GetVisguiSha1()).left(12);
-  QString status = QString::fromLocal8Bit(GetVisguiStatus());
+  const QString& str = QString::fromLocal8Bit(GetVisguiSha1()).left(12);
+  const QString& status = QString::fromLocal8Bit(GetVisguiStatus());
   return (status.isEmpty() ? str : str + " *");
 }
 
 //-----------------------------------------------------------------------------
 QString genBuildCopyString()
 {
-  QString hash = QString::fromLocal8Bit(GetVisguiSha1());
-  QString status = QString::fromLocal8Bit(GetVisguiStatus());
+  const QString& hash = QString::fromLocal8Bit(GetVisguiSha1());
+  const QString& status = QString::fromLocal8Bit(GetVisguiStatus());
   return QString("%2 (%1)").arg(status.isEmpty() ? "clean" : "dirty")
                            .arg(hash);
 }
 
 //-----------------------------------------------------------------------------
-QString genText(
-  QString formatStr, QString copyrightOrganization, QString buildIdentifier)
+QString genText(QString formatStr, const QString& buildIdentifier)
 {
-  formatStr.replace("@APP_TITLE@", qApp->applicationName());
-  formatStr.replace("@APP_VERSION@", qApp->applicationVersion());
+  formatStr.replace("@APP_TITLE@", vgApplication::applicationName());
+  formatStr.replace("@APP_VERSION@", vgApplication::applicationVersion());
   formatStr.replace("@QT_VERSION@", QString::fromLocal8Bit(qVersion()));
-  formatStr.replace("@COPY_YEAR@", qApp->property("COPY_YEAR").toString());
-  formatStr.replace("@APP_ORGANIZATION@", copyrightOrganization);
+  formatStr.replace("@COPY_YEAR@", vgApplication::copyrightYear());
+  formatStr.replace("@APP_ORGANIZATION@", vgApplication::copyrightOrganization());
   formatStr.replace("@BUILD@", buildIdentifier);
   return formatStr;
 }
@@ -82,15 +82,9 @@ vgAboutDialog::vgAboutDialog(QWidget* parent, Qt::WindowFlags f) :
   qtUtil::setStandardIcons(d->UI.buttonBox);
   this->setWindowTitle(QString("About %1").arg(qApp->applicationName()));
 
-  // Get copyright organization name
-  QString organization = qApp->property("COPY_ORGANIZATION").toString();
-  organization.isEmpty() && (organization = qApp->organizationName(), false);
-
   // Replace placeholders in templates with real information
-  d->UI.label->setText(
-    genText(d->UI.label->text(), organization, genBuildDisplayString()));
-  d->copyText =
-    genText(clipTextTemplate, organization, genBuildCopyString());
+  d->UI.label->setText(genText(d->UI.label->text(), genBuildDisplayString()));
+  d->copyText = genText(clipTextTemplate, genBuildCopyString());
 
   // Load application about icon
   QIcon icon = qApp->windowIcon();
