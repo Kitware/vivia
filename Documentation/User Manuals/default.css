@@ -8,6 +8,13 @@ p {
   text-align: justify;
 }
 
+img {
+  position: relative;
+  bottom: -webkit-calc(0.35em - 8px);
+  bottom:    -moz-calc(0.35em - 8px);
+  bottom:         calc(0.35em - 8px);
+}
+
 a {
   text-decoration: none;
   color: #37c;
@@ -59,15 +66,18 @@ h1.title {
   padding: 0.2em;
   border-top: 0.1em solid #aaa;
   border-bottom: 0.1em solid #aaa;
+  text-shadow: 0 0.04em 0.15em #777;
 }
 
 h1, h1 a, h1 a:hover {
   text-decoration: none;
   color: #036;
+/*   text-shadow: 0 0.06em 0.18em #89b; */
 }
 
 h2, h2 a, h2 a:hover {
   margin-left: 0.5em;
   text-decoration: none;
   color: #049;
+/*   text-shadow: 0 0.1em 0.25em #89b; */
 }
