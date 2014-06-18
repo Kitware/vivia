@@ -81,3 +81,32 @@ h2, h2 a, h2 a:hover {
   color: #049;
 /*   text-shadow: 0 0.1em 0.25em #89b; */
 }
+
+.action {
+  background: #f4f4f4;
+  padding-left: 0.3em;
+  padding-right: 0.3em;
+  border: 1px solid #eee;
+  border-radius: 0.4em;
+}
+
+.notice {
+  position: relative;
+  margin-left: 4em;
+  margin-right: 4em;
+  padding: 0.3em 0.5em 0.3em 1.5em;
+  background: #eee;
+  border: 1px solid #ccc;
+  text-align: justify;
+}
+
+.notice:before {
+  content: ' ';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0.8em;
+  background: #37c;
+  border-right: 1px solid #ccc;
+}

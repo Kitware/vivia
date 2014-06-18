@@ -76,14 +76,17 @@ frame.
 
 The current video time is displayed in the status bar. For video with embedded
 time information, this shows the "wall clock time" corresponding to when the
-currently visible video imagery was recorded. An estimate of the ground
-sampling distance is also displayed, if available.
+currently visible video imagery was recorded. An estimate of the
+`ground sample distance`_ is also displayed, if available.
 
 If the video includes geospatial reference information, moving the mouse over
 the video view additionally shows the estimated world location of the area
-under the cursor. Note that this information is based on the meta data embedded
-in the video, and is often inaccurate. (The degree of inaccuracy varies
-depending on the video source, but is usually on the order of several meters.)
+under the cursor.
+
+.. notice::
+   Video geospatial information is based on the meta data embedded in the
+   video, and is often inaccurate. (The degree of inaccuracy varies depending
+   on the video source, but is usually on the order of several meters.)
 
 "Real Time" Playback
 --------------------
@@ -124,8 +127,9 @@ The primary two visualizations supported are object detection and tracking
 ("tracks") and event detection. Each has three available display options that
 may be controlled independently:
 
-* "Tracks" (Tracks |->| Show Tracks) are displayed as a polyline that follows
-  the historic location of the object using the estimated ground center point.
+* "Tracks" (:action:`- Tracks` |->| :action:`track-show Show Tracks`) are
+  displayed as a polyline that follows the historic location of the object
+  using the estimated ground center point.
 
 * Detection boxes ("heads") show an outline of the detection on the current
   frame.
@@ -153,7 +157,7 @@ type may be used, including combinations of both filter and selector regions.
 Archived Data Support
 =====================
 
-There are two modes of data acquisition supported by vsPlay; archived and
+There are two modes of data acquisition supported by vsPlay: archived and
 streaming. Archived data acquisition involves loading stored or precomputed
 data from archive files, which is useful for looking at data that was recorded
 or computed at an earlier time. The three main data classes (video, tracks,
@@ -162,12 +166,13 @@ suitable plugins have been loaded.
 
 Video data provides imagery, and may include meta data about the imagery, such
 as the time at which the imagery was captured, geospatial information about the
-imagery, and homography information to spatially relate consecutive video
-frames when camera motion is present. Track data provides basic object
-detection information, which is presented in vsPlay as track entities.
-Descriptors is a general categorization that covers "everything else", and
-includes track object classifications and event detections. In some cases,
-additional data types may be defined by distribution specific plugins.
+imagery, and homography (stabilization) information to spatially relate
+consecutive video frames when camera motion is present. Track data provides
+basic object detection information, which is presented in vsPlay as track
+entities. Descriptors is a general categorization that covers "everything
+else", and includes track object type classifications and event detections. In
+some cases, additional data types may be defined by distribution specific
+plugins.
 
 The exact set of supported file formats may vary by distribution. A typical
 vsPlay distribution includes support for at least the following data formats:
@@ -350,6 +355,7 @@ Help Menu
 ---------
 
 .. TODO: use 'help-manual' icon
+
 :icon:`blank` User Manual
   Opens the vsPlay user manual (i.e. this document).
 
@@ -364,3 +370,6 @@ identical to the corresponding menu action.
 
 .. |->| unicode:: U+02192 .. right arrow
 .. |--| unicode:: U+02014 .. em dash
+
+.. _ground sample distance:
+   http://en.wikipedia.org/wiki/Ground_sample_distance

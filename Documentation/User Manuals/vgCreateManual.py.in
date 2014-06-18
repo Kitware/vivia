@@ -1,12 +1,13 @@
 #!@PYTHON_EXECUTABLE@
 
 import os
+import re
 import shutil
 import sys
 
 from docutils import nodes, utils
 from docutils.core import Publisher
-from docutils.parsers.rst import roles
+from docutils.parsers.rst import Directive, directives, roles
 
 icon_paths = []
 image_dest = None
@@ -42,9 +43,68 @@ class IconRole:
     return [node], []
 
 #==============================================================================
+class ActionRole:
+
+  #----------------------------------------------------------------------------
+  def __init__(self):
+    self.name = 'icon'
+
+  #----------------------------------------------------------------------------
+  def __call__(self, role, rawtext, text, lineno, inliner,
+               options={}, content=[]):
+    roles.set_classes(options)
+    icon, text = re.split('\s', text, 1)
+
+    if icon in ['-', 'blank']:
+      node = nodes.strong(rawtext, utils.unescape(text), classes=['action'])
+
+    else:
+      uri = utils.unescape(icon) + '.png'
+      text = utils.unescape(text)
+      copy_icon(uri)
+      options['uri'] = 'images/' + uri
+      options['alt'] = utils.unescape(icon)
+      node = nodes.strong(rawtext, '', classes=['action'])
+      node += nodes.image(rawtext, **options)
+      node += nodes.Text(' ', ' ')
+      node += nodes.Text(text, text)
+
+    return [node], []
+
+#==============================================================================
+class NoticeDirective(Directive):
+
+  final_argument_whitespace = True
+  option_spec = {'class': directives.class_option,
+                  'name': directives.unchanged}
+  has_content = True
+
+  #----------------------------------------------------------------------------
+  def run(self):
+    roles.set_classes(self.options)
+
+    self.assert_has_content()
+    text = '\n'.join(self.content)
+
+    admonition_node = nodes.admonition(text, **self.options)
+    self.add_name(admonition_node)
+
+    if not 'classes' in self.options:
+      admonition_node['classes'] += ['notice']
+
+    textnodes, messages = self.state.inline_text('', self.lineno)
+    admonition_node += messages
+
+
+    self.state.nested_parse(self.content, self.content_offset, admonition_node)
+    return [admonition_node]
+
+#==============================================================================
 
 # Register our custom directive
 roles.register_canonical_role('icon', IconRole())
+roles.register_canonical_role('action', ActionRole())
+directives.register_directive('notice', NoticeDirective)
 
 # Prepare arguments
 args = [
