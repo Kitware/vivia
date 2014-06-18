@@ -39,6 +39,8 @@ foreach(app vsPlay)
       "${_out}"
       "${visGUI_SOURCE_DIR}/Icons/16x16"
       "${visGUI_SOURCE_DIR}/Icons/22x22"
+      "${visGUI_SOURCE_DIR}/Plugins/VspUiExtensions/EventCreationTools/Icons/16x16"
+      "${visGUI_SOURCE_DIR}/Plugins/VspUiExtensions/EventCreationTools/Icons/22x22"
   )
   list(APPEND outputs "${_out}")
 endforeach()

@@ -127,9 +127,8 @@ The primary two visualizations supported are object detection and tracking
 ("tracks") and event detection. Each has three available display options that
 may be controlled independently:
 
-* "Tracks" (:action:`- Tracks` |->| :action:`track-show Show Tracks`) are
-  displayed as a polyline that follows the historic location of the object
-  using the estimated ground center point.
+* "Trails" are displayed as a polyline that follows the historic location of
+  the object using the estimated ground center point.
 
 * Detection boxes ("heads") show an outline of the detection on the current
   frame.
@@ -141,7 +140,7 @@ may be controlled independently:
 
 Events support the first style of visualization only for events that are
 associated with a track, in which case the corresponding track segment is
-highlighted.
+highlighted. Events are colored based on the highest confidence classification.
 
 Additionally, vsPlay supports user-defined regions, which are simply free-form
 regions that may be drawn on the video. These may be used as simple
@@ -149,10 +148,38 @@ annotations, or by other algorithms or visualization features.
 See `Annotation Regions`_ for more details.
 
 To help reduce clutter, vsPlay supports the user of user regions as either
-filters or selectors. A filter region hides other visualizations that are
-contained within the filter region. A selector region is the inverse; hiding
-visualizations that are *outside* the selector region. Multiple regions of each
-type may be used, including combinations of both filter and selector regions.
+filters or selectors. A Filter region hides other visualizations that are
+contained within the filter region. A Selector region is the inverse; hiding
+visualizations that are *outside* the Selector region. Multiple regions of each
+type may be used, including combinations of both Filter and Selector regions.
+
+Track Coloring Modes
+--------------------
+
+To aid in visualization and identification, vsPlay provides several modes for
+coloring "track" entities, which can be selected and configured via
+:action:`- Tracks` |->| :action:`track-color Change Color(s)`.
+
+The most trivial is single color mode, in which all tracks use the same color.
+The default mode is Object Classification, which assigns colors to each track
+based on the classification with the highest confidence score (similar to event
+coloring), using the default color if classifications are not available.
+
+Dynamic Data mode colors individual sections of the track based on variable
+data which has been provided with the track. The availability and exact nature
+of such data depends on the provider, and might include for example computed
+velocity or per-state detection confidence metrics.
+
+Override options are provided which allow the coloring normally provided by the
+preceding modes to be overridden depending on the source component of the
+track's identifier. This can be used to visually differentiate tracks with
+different sources.
+
+Except for Dynamic Data mode, each mode provides a set of three colors. The Pen
+color is used when drawing geometry (e.g. trails and heads) on the video, for
+the swatches in the list views, and so forth. The Fore and Back colors are used
+for labels associated with the detection, where such labels reflect the
+detection classification coloring (e.g. in the main view).
 
 Archived Data Support
 =====================
@@ -223,7 +250,7 @@ would be provided as add-ons, and hence are distribution specific.
 
 As an exception, the standard vsPlay distribution provides a very rudimentary
 event detection system in the form of "tripwires". These are a type of
-annotation region (similar to selector / filter regions, created and
+annotation region (similar to Selector / Filter regions, created and
 manipulated using the same tools) that interact with tracks to detect simple
 boundary crossing. Open tripwires generate a "tripwire" event whenever a track
 crosses the region. Closed tripwires generate an "entering" or "leaving" event
@@ -235,11 +262,107 @@ Supplemental Tools
 Classification Filters
 ----------------------
 
+Tracks and Events in vsPlay both implement a concept of "classification". A
+classification is information about the detection, usually provided by the
+detecting algorithm (or, in some cases, by the operator). Track classification
+is optional, and identifies the type of entity being tracked (currently,
+"Person", "Vehicle", or "Other"). Event classification is mandatory (events
+without a classification are not displayed in the main view), and is broken
+into groups. Some classifications (e.g. those related to the in-process
+tripwire algorithm) are built in, while others are dynamically defined. Event
+classifications might include 'vehicle making U-turn', 'person walking', or
+'person juggling flaming batons'.
+
+The term "classification" is used instead of "type" to indicate that the
+classification is an estimate, which as a consequence has an associated
+confidence score and may not be unique (i.e. an entity may have several
+classifications with varying confidence scores).
+
+Detection classifications and confidences are used as a primary means of
+filtering, via the Filters panel (:action:`- Events` |->| :action:`filter-show
+Show Filter Window`). The panel provides a collapsible list of controls for
+known classifications and allows the user to individually select general
+visibility and threshold levels for each. (Event groups also provide a
+convenience visibility toggle for all events in the the group.) Filters are
+low-pass by default, causing detections for which the corresponding
+classification is below the specified threshold to be hidden. This can be
+inverted using the check box adjacent to the threshold spin box.
+
+.. notice::
+   Event classification filters are hidden initially, and are only made visible
+   when their use is relevant (i.e. detections containing event classifications
+   are available or expected to become available).
+
+The default threshold for track classifications is 0.0. The default threshold
+for event classifications is 0.1. The :action:`load Load` and :action:`save
+Save` tool buttons at the bottom of the panel allow filter settings to be
+loaded from or saved to a file. The threshold for all event classifications may
+also be changed globally via :action:`- Events` |->| :action:`- Set Threshold`.
+
+The thresholds and visibility states work together to determine the most
+appropriate classification for a detection, if any, which may then be displayed
+to the user in a label or the respective detection list, and to choose the
+color in which to display the detection in other views. A detection that has
+no classification that passes the filters may be hidden (or shown only if a
+respective "show hidden" option is selected). Otherwise, the classification
+with the highest confidence *that is not excluded by the filters* is used. Be
+aware that this classification might *not* be the classification with the
+highest score when filters are not considered.
+
 Ruler Tool
 ----------
 
+The ruler tool is used to measure distances on a video. When active, a line is
+drawn over the video, providing two handles at either end which may be dragged
+to change the measurement points. If the video provides a
+`ground sample distance`_ estimate, the estimated physical distance between the
+selected points (in meters) is also displayed.
+
 Annotation Regions
 ------------------
+
+The vsPlay application allows the user to create arbitrary contours, or
+regions, which are stabilized with respect to the video imagery (when the video
+includes stabilization information). Regions may be managed using the
+`Region List`_, and come in four styles:
+
+* An Annotation region is used to draw markings on video, in order to visually
+  call attention to some item or otherwise "make notes". While these typically
+  serve no other purpose, distribution specific add-on components may make
+  additional use of them.
+
+* A Tripwire region is used by the built-in tripwire detection algorithm, which
+  will generate events whenever a track crosses the boundary. Closed boundaries
+  generate 'enter' and 'exit' events, while open boundaries generate 'tripwire'
+  events.
+
+* A Filter region is used to exclude detections from an area of video.
+  Detections (and portions of detections) within a filter are hidden.
+
+* A Selector region is a conceptual opposite of a filter; rather than hiding
+  detections within the region, detections that are *not* contained in a
+  selector are hidden.
+
+Multiple Filter and Selector regions may be active at any time. A detection is
+visible if it is within one or more Selector regions (or if no Selector regions
+are active), is not within a Filter region, and is not hidden by non-spatial
+filters or display options. By default, filtered regions of the video are
+dimmed to indicate the action of spatial filtering.
+
+Regions are created using the :action:`path-draw Draw` action. When drawing,
+click to add individual points, or hold the left mouse button to draw freehand
+shapes. When done, click the right mouse button to enter edit mode, which
+allows points to be moved or deleted. Right click a second time to complete the
+region. The :action:`path-close Close Path` action may be used at any time to
+end drawing and create a closed region by connecting the start and end points.
+
+.. notice::
+   Some region types (Filters, Selectors) must be closed, and will be closed
+   automatically when editing is concluded. If the region does not contain
+   enough points, the region will not be created.
+
+Regions may be drawn while the video is playing. In this case, the region in
+progress will be stabilized in the same manner as completed regions.
 
 Manual Event Creation
 ---------------------
@@ -339,17 +462,148 @@ Video Menu
 Tracks Menu
 -----------
 
+:icon:`track-show` Show Tracks
+  Toggles display of object tracking detection trails.
+
+:icon:`track-show-boxes` Show Entity Boxes
+  Toggles display of object tracking detection heads.
+
+:icon:`track-show-id` Show ID's
+  Toggles display of labels showing the track identifier for tracking
+  detections.
+
+:icon:`track-show-pvo` Show PVO's
+  Toggles display of labels showing the track object-type classification for
+  tracking detections.
+
+:icon:`track-color` Change Color(s)
+  Allows changing the track coloring mode and colors.
+
+:icon:`blank` Set Trail Length
+  Sets the size of the historic window for which trails are displayed.
+
+:icon:`track-list` Show Track List
+  Toggles visibility of the `Track List`_ panel.
+
+:icon:`load-tracks` Load Archive
+  Load tracks from a file on disk. The available formats may depend on what
+  plugins are available.
+
 Events Menu
 -----------
+
+:icon:`blank` Show All Person Events
+  Sets the `Classification Filters`_ visibility state for all event types in
+  the Person group to **on**.
+
+:icon:`blank` Hide All Person Events
+  Sets the `Classification Filters`_ visibility state for all event types in
+  the Person group to **off**.
+
+:icon:`blank` Show All Vehicle Events
+  Sets the `Classification Filters`_ visibility state for all event types in
+  the Vehicle group to **on**.
+
+:icon:`blank` Hide All Vehicle Events
+  Sets the `Classification Filters`_ visibility state for all event types in
+  the Vehicle group to **off**.
+
+:icon:`load` Load Filter Settings
+  Loads `Classification Filters`_ settings from a file on disk.
+
+:icon:`save` Save Filter Settings
+  Saves `Classification Filters`_ settings to a file on disk.
+
+:icon:`blank` Set Threshold
+  Sets the threshold for all event `Classification Filters`_ to a specified
+  value.
+
+:icon:`filter-show` Show Filter Window
+  Toggles visibility of the `Classification Filters`_ panel.
+
+:icon:`event-show-tracks` Show Event Tracks
+  Toggles display of object event detection trails for events associated with
+  one or more tracks.
+
+:icon:`event-show-boxes` Show Event Boxes
+  Toggles display of object event detection heads.
+
+:icon:`event-show-label` Show Labels
+  Toggles display of labels showing the event type classification for event
+  detections. The classification(s) with the highest confidence are shown, in
+  descending order of confidence.
+
+:icon:`event-show-probability` Show Probability
+  Toggles display of the confidence score in the event classification labels.
+
+:icon:`blank` Show Event List
+  Toggles visibility of the `Event List`_ panel for unadjudicated events.
+
+:icon:`blank` Show Verified Event List
+  Toggles visibility of the `Event List`_ panel for Verified events.
+
+:icon:`blank` Show Rejected Event List
+  Toggles visibility of the `Event List`_ panel for Rejected events.
+
+:icon:`blank` Show Event Info
+  Toggles visibility of the `Event Information`_ panel.
 
 Descriptors Menu
 ----------------
 
+:icon:`load-events` Load Archive
+  Load descriptors from a file on disk. The available formats may depend on
+  what plugins are available.
+
 Regions Menu
 ------------
 
+:icon:`path-draw` Draw
+  Starts or cancel region drawing.
+
+:icon:`path-close` Close Path
+  Completes region drawing by closing the start and end points of the path to
+  form a closed region.
+
+:icon:`path-clear` Clear Selected
+  Removes the user regions which are currently selected in the `Region List`_.
+
+:icon:`path-clear-all` Clear All
+  Removes all user regions.
+
+:icon:`mask-show-filtering` Show Filter Mask
+  Toggles visibility of the spatial filtering mask.
+
+.. TODO: Not implemented yet
+.. :icon:`mask-color` Change Mask Color
+..   Changes the color of the spatial filtering mask.
+
+:icon:`path-list` Show Region List
+  Toggles visibility of the `Region List`_ panel.
+
 Tools Menu
 ----------
+
+:icon:`measure` Show Ruler
+  Toggles display of the `Ruler Tool`_.
+
+:icon:`blank` Create Event Menu
+  :icon:`event-draw` Draw Event
+    Creates a new manual event by drawing a free-form shape.
+
+  :icon:`event-create-box` Create Boxed Event
+    Creates a new manual event by drawing a rectangle.
+
+  :icon:`event-create-quick` Create Event (Quick)
+    Creates a new manual event using the previous shape.
+
+  :icon:`blank` Create Full Frame Event
+    Creates a new manual event with no location.
+
+  :icon:`blank` <*Event Types*>
+    Selects the type of manual event to be created by the above tools.
+
+.. TODO: query formulation, KML export, report generation
 
 Help Menu
 ---------
@@ -367,6 +621,10 @@ Appendix II: Tool Bar Actions
 
 Most of the tool bar actions duplicate menu actions. The function of these is
 identical to the corresponding menu action.
+
+:icon:`blank` Region Type
+  Select the type of region to be drawn (combo box next to the
+  :action:`path-draw Draw` action).
 
 .. |->| unicode:: U+02192 .. right arrow
 .. |--| unicode:: U+02014 .. em dash
