@@ -17,13 +17,13 @@ tracking, and event detection.
 
 The core functionality of vsPlay can be divided into a number of components:
 
-* Video playback
-* Video overlay visualization
-* Archived data support
-* External process support
-* Integrated algorithms
-* Supplemental tools
-* Supplemental visualizations
+* `Video Playback`_
+* `Video Overlay Visualization`_
+* `Archived Data Support`_
+* `External Process Support`_
+* `Integrated Algorithms`_
+* `Supplemental Tools`_
+* `Supplemental Visualizations`_
 
 Additional functionality may be provided through the use of plug-in modules,
 which may substantially change the functionality of the application. The
@@ -49,6 +49,9 @@ be rearranged and/or detached as desired by the user, and will remember their
 locations between executions. By default, all tool bars are visible at the top
 of the main window, and a selection of secondary views are docked to the left
 and right of the video view.
+
+In addition to video-related items described in the next section, the status
+bar also shows the status of any active video, track or descriptor sources.
 
 Video Playback
 ==============
@@ -81,12 +84,23 @@ currently visible video imagery was recorded. An estimate of the
 
 If the video includes geospatial reference information, moving the mouse over
 the video view additionally shows the estimated world location of the area
-under the cursor.
+under the cursor. The :action:`- Copy Location` action on the video view pop-up
+context menu (accessed by right clicking on the video view) allows this
+information to be copied to the system clipboard.
 
 .. notice::
    Video geospatial information is based on the meta data embedded in the
    video, and is often inaccurate. (The degree of inaccuracy varies depending
    on the video source, but is usually on the order of several meters.)
+
+Immediately below the video view is the "playback scrubber" area. A "scrubber"
+control fills most of the space and indicates the relative position within the
+available video. As the name suggests, this control is interactive and may be
+used to quickly seek within the video. To the left is an indicator which
+displays either the current playback rate as a fractional number, "**P**" if
+the video is paused, or "**S**" if the video is stopped. To the right, a spin
+box shows the current frame number, and allows selection of specific frames by
+number, if frame numbers are available for the video.
 
 "Real Time" Playback
 --------------------
@@ -276,7 +290,8 @@ classifications might include 'vehicle making U-turn', 'person walking', or
 The term "classification" is used instead of "type" to indicate that the
 classification is an estimate, which as a consequence has an associated
 confidence score and may not be unique (i.e. an entity may have several
-classifications with varying confidence scores).
+classifications with varying confidence scores). Confidence scores normally run
+from 0.0 ("no confidence") to 1.0 ("absolute confidence").
 
 Detection classifications and confidences are used as a primary means of
 filtering, via the Filters panel (:action:`- Events` |->| :action:`filter-show
@@ -367,20 +382,217 @@ progress will be stabilized in the same manner as completed regions.
 Manual Event Creation
 ---------------------
 
+Manual event creation allows the user to create events in addition to those
+obtained from other sources. A manually created event consists of a single,
+optional location region, duration, and event type. There are four modes
+available for creating manual events:
+
+:icon:`event-draw` Draw Event
+  This mode allows the user to draw a freehand event region. The controls are
+  the same as used to draw `Annotation Regions`_. Upon completion, the user is
+  given the option to immediately provide a note for the event.
+
+:icon:`event-create-box` Create Boxed Event
+  This mode allows the user to draw a rectangular region. A box is initially
+  defined by left clicking once for opposite corners, or by dragging a shape.
+  The rectangle may then be modified, and is finalized by right clicking. Upon
+  completion, the user is given the option to immediately provide a note for
+  the event.
+
+:icon:`event-create-quick` Create Event (Quick)
+  This mode allows the user to quickly create an event with a rectangular
+  region using either shape of the most recently created boxed event, or a
+  default rectangle in case no boxed event was previously created. In this
+  mode, the shape may not be modified, and is placed by a single left click.
+
+:icon:`blank` Create Full Frame Event.
+  This mode instantly creates an event that does not have an associated spatial
+  region. This is most useful when precise spatial localization of the event is
+  less important than the ability to create the event quickly, such as when an
+  operator is manually recording activity in a live video feed, or if precise
+  spatial localization is simply not relevant to the event.
+
+All modes create an event whose start and end time is initially equal to the
+time of the currently displayed video frame. The start and end time may be
+altered with the :action:`- Set Event Start` and :action:`- Set Event End`
+actions accessed from the pop-up context menu for the event in the `Event
+List`_. For convenience, the most recently used mode is shown in the tool bar;
+other modes may be selected by clicking on the adjacent drop-down indicator.
+
+To cancel event creation, select the creation action again. By default, video
+playback is paused during event creation, and automatically resumed on
+completion. However, the video controls remain available during event creation
+and may be used as desired. The classification of the manual event is selected
+from the configured set of manual event types and is automatically set to the
+currently selected manual event type. This may be changed via either the
+:action:`- Tools` |->| :action:`- Create Event` menu, or by the combo box in
+the tool bar adjacent to the manual event creation action.
+
 Supplemental Visualizations
 ===========================
 
 Track List
 ----------
 
+The track list (:action:`- Tracks` |->| :action:`track-list Show Track List`)
+provides a detailed list view of currently available tracks which allows quick
+perusal of various pertinent information such as the current classification and
+corresponding confidence score, start time, and end time, and allows sorting of
+the track list by the same. Additional actions are provided by a pop-up context
+menu, which is accessed by right clicking on a list item or list selection:
+
+:icon:`blank` Show
+  Sets the visibility state of the selected track(s) to **on**. The track may
+  still be hidden by other filters.
+
+:icon:`blank` Hide
+  Sets the visibility state of the selected track(s) to **off**. Tracks so
+  hidden are not displayed in the video view, regardless of other filters.
+
+:icon:`playback-skip-backward` Jump to Start
+  Jumps the video (temporally) to the start time of the selected track. If
+  :action:`view-track Focus on Target` is checked, the video view is also
+  centered on the track's start position.
+
+:icon:`playback-skip-forward` Jump to End
+  Jumps the video (temporally) to the end time of the selected track. If
+  :action:`view-track Focus on Target` is checked, the video view is also
+  centered on the track's end position.
+
+.. TODO: document track start/stop following actions
+
+Double clicking on a track in the "End Time" column jumps to the end of the
+track; double clicking in any other column jumps to the start. A tool bar below
+the list allows quickly setting the visibility state for all tracks, as well as
+toggling if hidden tracks (including filtered tracks) are displayed in the
+list.
+
 Event List
 ----------
+
+The event list provides a detailed list view of currently available events
+which allows for quick perusal of various pertinent information such as the
+current classification and corresponding confidence score, start time, end
+time, and initial portion of an associated note (if any). Like the `Track
+List`_, events may be sorted by any of these values.
+
+.. notice::
+   The event ID number is assigned internally by vsPlay based on the order in
+   which events are received, and does not have any meaning beyond a mechanism
+   for providing internally distinct identifiers.
+
+Additional actions are provided by a pop-up context menu, which is accessed by
+right clicking on a list item or list selection:
+
+:icon:`blank` Show
+  Sets the visibility state of the selected event(s) to **on**. The event may
+  still be hidden by other filters.
+
+:icon:`blank` Hide
+  Sets the visibility state of the selected event(s) to **off**. Events so
+  hidden are not displayed in the video view, regardless of other filters.
+
+:icon:`playback-skip-backward` Jump to Start
+  Jumps the video (temporally) to the start time of the selected event. If
+  :action:`view-track Focus on Target` is checked, the video view is also
+  centered on the event's start position.
+
+:icon:`playback-skip-forward` Jump to End
+  Jumps the video (temporally) to the end time of the selected event. If
+  :action:`view-track Focus on Target` is checked, the video view is also
+  centered on the event's end position.
+
+:icon:`blank` Set Event Start
+  For `manual events`_, sets the start time of the event to the earlier of the
+  event's original time (i.e. the time for which the event has a defined
+  region) and the current video time.
+
+:icon:`blank` Set Event End
+  For `manual events`_, sets the end time of the event to the later of the
+  event's original time (i.e. the time for which the event has a defined
+  region) and the current video time.
+
+:icon:`blank` Rate As
+  This menu provides options for the user to make an adjudication of the
+  selected events. This rating has two components: relevancy and validity. An
+  event's relevance classifies it according to some criteria, while its
+  validity reflects the correctness of the detection.
+
+  :icon:`apply` Unrated / Verified
+    Marks the selected event(s) as valid, but not interesting according to the
+    relevancy criteria.
+
+  :icon:`okay` Relevant / Verified
+    Marks the selected event(s) as both valid and relevant to the relevancy
+    criteria.
+
+  :icon:`cancel` Not Relevant / Verified
+    Marks the selected event(s) as valid, but not relevant (or detracting from)
+    the relevancy criteria.
+
+  :icon:`delete` Not Relevant / Rejected
+    Marks the selected event(s) as both not relevant and not valid. The event
+    is additionally hidden.
+
+.. TODO: document purpose of star (also report generation, etc.)
+.. :icon:`blank` Add Star
+..  Marks the selected events as starred.
+
+.. :icon:`blank` Remove Star
+..  Marks the selected events as not starred.
+
+:icon:`edit` Edit Note
+  Edits the note associated with the event.
+
+Double clicking on an event in the "End Time" column jumps to the end of the
+event; double clicking in any other column jumps to the start. A tool bar below
+the list allows quickly setting the visibility state for all events, as well as
+toggling if hidden events (including filtered events) are displayed in the
+list.
+
+There are actually three event lists available, each having similar
+functionality and differing only in what subset of events they show:
+
+* The "main" Event List (:action:`- Events` |->| :action:`- Show Event List`)
+  shows events which have not been adjudicated (rated).
+
+* The Verified Event List (:action:`- Events` |->| :action:`- Show Verified
+  Event List`) shows events which have been Verified.
+
+* The Rejected Event List (:action:`- Events` |->| :action:`- Show Rejected
+  Event List`) shows events which have been Rejected.
+
+The validity rating of events may also be changed by dragging them between the
+above lists.
 
 Event Information
 -----------------
 
+The Event Information panel (:action:`- Events` |->| :action:`- Show Event
+Info`) shows detailed information about the currently selected event, including
+the start and end times, duration, note, and complete list of classifiers. To
+conserve space, only the first part of the note is shown, with a tool tip used
+to provide the complete text, and the classifier list is hidden. (Click to
+expand the **Details** section to see the classifier list.)
+
 Region List
 -----------
+
+The region list (:action:`- Regions` |->| :action:`path-list Show Region List`)
+provides a list view of user created regions along with some minimal management
+functions. Within the list view itself, regions may be shown or hidden by
+toggling the check box next to the region name. The name and type of the region
+may also be changed by editing the respective column of the item (by
+double-clicking or pressing the edit key |--| usually **F2**). Hiding Filter
+and Selector regions disables their participation in spatial filtering.
+
+Additional options are provided by a pop-up context menu, accessed by right
+clicking on a list item or list selection, including the ability to convert a
+region to a manual event. (See also `Manual Event Creation`_.)
+
+A tool bar below the list provides actions to remove either the selected
+regions or all regions, and to toggle visibility of hidden regions within the
+region list.
 
 Appendix I: Menu Actions
 ========================
@@ -448,7 +660,7 @@ Video Menu
   Resets the zoom and pan of the video view so that the entire video frame is
   visible and centered, with minimal padding.
 
-:icon:`blank` Set Live Offset...
+:icon:`blank` Set Live Offset
   Sets the offset that is applied to `"Live" Playback`_ mode.
 
 :icon:`blank` Resampling Mode
@@ -579,7 +791,7 @@ Regions Menu
 :icon:`mask-show-filtering` Show Filter Mask
   Toggles visibility of the spatial filtering mask.
 
-.. TODO: Not implemented yet
+.. TODO: not implemented yet
 .. :icon:`mask-color` Change Mask Color
 ..   Changes the color of the spatial filtering mask.
 
@@ -600,7 +812,7 @@ Tools Menu
     Creates a new manual event by drawing a rectangle.
 
   :icon:`event-create-quick` Create Event (Quick)
-    Creates a new manual event using the previous shape.
+    Creates a new manual event using the previous or default box shape.
 
   :icon:`blank` Create Full Frame Event
     Creates a new manual event with no location.
@@ -633,6 +845,8 @@ identical to the corresponding menu action.
 
 .. |->| unicode:: U+02192 .. right arrow
 .. |--| unicode:: U+02014 .. em dash
+
+.. _manual events: `Manual Event Creation`_
 
 .. _ground sample distance:
    http://en.wikipedia.org/wiki/Ground_sample_distance
