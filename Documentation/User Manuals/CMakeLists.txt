@@ -1,4 +1,17 @@
 find_package(PythonInterp REQUIRED)
+execute_process(
+  COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/FindDocUtils.py
+
+  RESULT_VARIABLE DOCUTILS_FOUND
+)
+if(NOT DOCUTILS_FOUND EQUAL 0)
+  message(FATAL_ERROR
+    "Failed to import docutils. Please ensure that docutils is installed"
+    " and that ${PYTHON_EXECUTABLE} is able to find it"
+    " (adjusting your PYTHONPATH if necessary)."
+  )
+endif()
 
 set(configure_file_script
   "${visGUI_SOURCE_DIR}/CMake/configure-file-script.cmake"
