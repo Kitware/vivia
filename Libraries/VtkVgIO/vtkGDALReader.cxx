@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -535,10 +535,16 @@ bool vtkGDALReader::vtkGDALReaderInternal::GetGeoCornerPoint(GDALDataset* datase
 //-----------------------------------------------------------------------------
 const double* vtkGDALReader::vtkGDALReaderInternal::GetGeoCornerPoints()
 {
-  this->GetGeoCornerPoint(this->GDALData, 0,
-                          0,
-                          0,
-                          &this->CornerPoints[0]);
+  if (!this->GetGeoCornerPoint(this->GDALData, 0,
+                               0,
+                               0,
+                               &this->CornerPoints[0]))
+    {
+    return 0;
+    }
+
+  // If the first call succeeds, each additional call should as well
+  // (this->GDALData hasn't changed).
   this->GetGeoCornerPoint(this->GDALData, 0,
                           0,
                           this->Reader->RasterDimensions[1],
