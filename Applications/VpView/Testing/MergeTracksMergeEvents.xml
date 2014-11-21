@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pqevents>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionOpenFile" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" object="QFileDialog"/>
+ <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuView" />
+ <pqevent object="vpMainWindow/menubar/menuView" command="activate" arguments="actionDisplayAOIOutline" />
+ <pqevent command="activate" arguments="" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/hideAllButton"/>
+ <pqevent command="set_tab" arguments="2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar"/>
+ <pqevent command="setCurrent" arguments="0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="setCheckState" arguments="0.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="setCurrent" arguments="1.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="setCheckState" arguments="1.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="activate" arguments="menuTools" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionMergeTracks" object="vpMainWindow/menubar/menuTools/menuAnnotation"/>
+ <pqevent command="set_int" arguments="10" object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0"/>
+ <pqevent command="activate" arguments="" object="vpMainWindow/vpMergeTracksDialog/groupTracks/advancedOptions"/>
+ <pqevent command="set_boolean" arguments="false" object="1QDialog0/1QCheckBox0"/>
+ <pqevent command="set_boolean" arguments="true" object="1QDialog0/1QCheckBox1"/>
+ <pqevent command="activate" arguments="0x400" object="1QDialog0/1QDialogButtonBox0"/>
+ <pqevent command="mousePress" arguments="(0.636,0.08,1,1,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseMove" arguments="(0.636,0.08,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseRelease" arguments="(0.636,0.08,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mousePress" arguments="(0.56,0.208,1,1,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseMove" arguments="(0.56,0.208,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseRelease" arguments="(0.56,0.208,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="setCurrent" arguments="0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="activate" arguments="0x400" object="vpMainWindow/vpMergeTracksDialog/buttonBox"/>
+ <pqevent command="activate" arguments="0x4000" object="vpMainWindow/vpMergeTracksDialog/1QMessageBox0/qt_msgbox_buttonbox"/>
+ <pqevent command="setCurrent" arguments="" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="setCurrent" arguments="107.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="activate" arguments="0x200000" object="vpMainWindow/vpMergeTracksDialog/buttonBox"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionViewEvents" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="set_int" arguments="37" object="vpMainWindow/centralwidget/currentFrame/1ctkRangeSlider0"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionDisplayFullVolume" object="vpMainWindow/menubar/menuDisplay"/>
+</pqevents>

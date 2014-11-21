@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<typesystem package="@TYPESYSTEM_NAME@">
+
+  @EXTRA_TYPESYSTEMS@
+
+  <primitive-type name="bool"/>
+  <primitive-type name="double"/>
+  <primitive-type name="float"/>
+  <primitive-type name="unsigned long long"/>
+  <primitive-type name="long long"/>
+  <primitive-type name="short"/>
+  <primitive-type name="signed short"/>
+  <primitive-type name="signed short int"/>
+  <primitive-type name="unsigned short int"/>
+  <primitive-type name="unsigned short"/>
+  <primitive-type name="char"/>
+  <primitive-type name="signed char"/>
+  <primitive-type name="unsigned char"/>
+  <primitive-type name="int"/>
+  <primitive-type name="signed int"/>
+  <primitive-type name="unsigned int"/>
+  <primitive-type name="signed long"/>
+  <primitive-type name="signed long int"/>
+  <primitive-type name="long"/>
+  <primitive-type name="unsigned long int"/>
+  <primitive-type name="unsigned long"/>
+
+  <primitive-type name="std::string"/>
+
+  <container-type name="std::vector" type="vector">
+    <include file-name="vector" location="global"/>
+
+    <conversion-rule>
+
+      <native-to-target>
+      %INTYPE::size_type vectorSize = %in.size();
+      PyObject* %out = PyList_New((int) vectorSize);
+      for (%INTYPE::size_type idx = 0; idx &lt; vectorSize; ++idx) {
+        %INTYPE_0 cppItem(%in[idx]);
+        PyList_SET_ITEM(%out, idx, %CONVERTTOPYTHON[%INTYPE_0](cppItem));
+      }
+      return %out;
+      </native-to-target>
+
+      <target-to-native>
+
+        <add-conversion type="PySequence">
+        Shiboken::AutoDecRef seq(PySequence_Fast(%in, 0));
+        Py_ssize_t vectorSize = PySequence_Fast_GET_SIZE(seq.object());
+        %out.reserve(vectorSize);
+        for (Py_ssize_t idx = 0; idx &lt; vectorSize; ++idx ) {
+          PyObject* pyItem = PySequence_Fast_GET_ITEM(seq.object(), idx);
+          %OUTTYPE_0 cppItem = %CONVERTTOCPP[%OUTTYPE_0](pyItem);
+          %out.push_back(cppItem);
+        }
+        </add-conversion>
+
+      </target-to-native>
+
+    </conversion-rule>
+  </container-type>
+
+  <container-type name="std::map" type="map">
+    <include file-name="map" location="global"/>
+
+    <conversion-rule>
+
+      <native-to-target>
+      PyObject* %out = PyDict_New();
+      %INTYPE::const_iterator it;
+      for (it = %in.begin(); it != %in.end(); ++it) {
+        %INTYPE_0 key = it->first;
+        %INTYPE_1 value = it->second;
+        PyDict_SetItem(%out,
+                       %CONVERTTOPYTHON[%INTYPE_0](key),
+                       %CONVERTTOPYTHON[%INTYPE_1](value));
+      }
+      return %out;
+      </native-to-target>
+
+      <target-to-native>
+
+        <add-conversion type="PyDict">
+        PyObject* key;
+        PyObject* value;
+        Py_ssize_t pos = 0;
+        while (PyDict_Next(%in, &amp;pos, &amp;key, &amp;value)) {
+          %OUTTYPE_0 cppKey = %CONVERTTOCPP[%OUTTYPE_0](key);
+          %OUTTYPE_1 cppValue = %CONVERTTOCPP[%OUTTYPE_1](value);
+          %out.insert(%OUTTYPE::value_type(cppKey, cppValue));
+        }
+        </add-conversion>
+
+      </target-to-native>
+
+    </conversion-rule>
+  </container-type>
+
+  <container-type name="std::set" type="set">
+    <include file-name="set" location="global"/>
+
+    <conversion-rule>
+
+      <native-to-target>
+      PyObject* %out = PySet_New(0);
+      %INTYPE::const_iterator it;
+      for (it = %in.begin(); it != %in.end(); ++it) {
+        %INTYPE_0 value = *it;
+        PyObject* pyValue = %CONVERTTOPYTHON[%INTYPE_0](value);
+        PySet_Add(%out, pyValue);
+      }
+      return %out;
+      </native-to-target>
+
+      <target-to-native>
+
+        <add-conversion type="PySet">
+        Shiboken::AutoDecRef iter(PyObject_GetIter(%in));
+        if (iter.object()) {
+          PyObject* item;
+          while ((item = PyIter_Next(iter))) {
+            %OUTTYPE_0 cppItem = %CONVERTTOCPP[%OUTTYPE_0](item);
+            %out.insert(cppItem);
+            Py_DECREF(item);
+          }
+        }
+        </add-conversion>
+
+        <add-conversion type="PySequence">
+        Shiboken::AutoDecRef seq(PySequence_Fast(%in, 0));
+        Py_ssize_t vectorSize = PySequence_Fast_GET_SIZE(seq.object());
+        for (Py_ssize_t idx = 0; idx &lt; vectorSize; ++idx) {
+          PyObject* pyItem = PySequence_Fast_GET_ITEM(seq.object(), idx);
+          %OUTTYPE_0 cppItem = %CONVERTTOCPP[%OUTTYPE_0](pyItem);
+          %out.insert(cppItem);
+        }
+        </add-conversion>
+
+      </target-to-native>
+
+    </conversion-rule>
+  </container-type>
+
+  <template name="hash_vgTimeStamp">
+  inline static long vgPyHash(double value)
+  {
+    char* p = reinterpret_cast&lt;char*&gt;(&amp;value);
+    long* l = reinterpret_cast&lt;long*&gt;(p + sizeof(double) - sizeof(long));
+    return *l;
+  }
+  inline static long vgPyHash(const vgTimeStamp&amp; ts)
+  {
+    return ts.FrameNumber ^ vgPyHash(ts.Time);
+  }
+  </template>
+
+  <value-type name="vgTimeStamp" hash-function="vgPyHash">
+    <inject-code class="native" position="beginning">
+      <insert-template name="hash_vgTimeStamp"/>
+    </inject-code>
+  </value-type>
+
+  <namespace-type name="vg">
+    <enum-type name="SeekMode"/>
+  </namespace-type>
+
+  <namespace-type name="vgGeodesy">
+    <enum-type name="GCS"/>
+  </namespace-type>
+
+  @EXTRA_OBJECTS@
+
+</typesystem>

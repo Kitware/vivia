@@ -1,0 +1,84 @@
+/*ckwg +5
+ * Copyright 2012 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+/**
+\page vdfUpdates Data Node Update Mechanism
+
+\brief Explanation of data node update options, responses, and signal
+       flow/timing.
+
+\section vdfUpdatesOverview Overview
+
+The VisGUI data framework defines a means for data providers to service
+multiple consumers, using an asynchronous model for maximum responsiveness.
+
+Providing data to multiple consumers requires that updates and available data
+be managed on a per-consumer basis. This is facilitated by the use of a node
+proxy object, vdfNodeProxy, through which all update requests are processed,
+and which is used to select the active data set of a node.
+
+\subsection vdfUpdateTiming Update Timing
+
+Although some data nodes may support synchronous updates, updating of data
+nodes is defined as an asynchronous process. Consumers (typically scene nodes)
+issues requests to obtain data for a specified time stamp and wait for a
+response. In order to improve performance, data nodes may discard outstanding
+requests on the receipt of a new request, such that only the most recent
+request is actually processed.
+
+Data nodes which can update synchronously will simply emit a response to an
+update request immediately, without unwinding the call stack.
+
+\section vdfUpdateRequestIds Request Identifiers
+
+An optional request identifier may be associated with any request. The use of
+a request identifier ensures that a reply will be issued for any outstanding
+requests so that the user knows when the request has been satisfied (either
+directly, or by completion of a later request which superseded the identified
+request). This can be useful when some action, such as updating an interface
+indicator, should be taken when the request has been satisfied.
+
+\section vdfUpdateModesAndResponses Modes and Responses
+
+In addition to \ref vdfSelectors, node update requests may specify additional
+options controlling the manner in which the update will take place:
+
+\li vdf::UpdateIncremental \n
+    Inform the node that we will accept multiple updates as data becomes
+    available. If this flag is not set, the node will not report progress on
+    the update until the update is complete.
+\li vdf::UpdateFastest \n
+    Requests that the node make \em some data available as quickly as possible,
+    even if it is not the best data. Usually this is used in combination with
+    vdf::UpdateIncremental, in which case the node will continue to make better
+    data available until the best data is available.
+
+Once an update request is made, the node has several options for responding.
+Most importantly, it is not guaranteed that the node will respond at all (for
+example, if the update requires sensing a network request for which no response
+is ever received). This is doubly true for requests without a valid identifier,
+which may be silently discarded.
+
+The node may also signal vdfNodeProxy::UpdateDiscarded if it decides that
+nothing needs to be done for a request (typically, if the same request is made
+more than once, or if the request otherwise would not change the available
+data).
+
+Requests that change the available data will signal either
+vdfNodeProxy::UpdateDataAvailable or vdfNodeProxy::UpdateCompleted when new
+data is available and ready for use. Incremental updates may be for lower
+quality data (e.g. imagery sources providing lower resolution than requested or
+image tiles only partially covering a requested area, or video sources
+providing a key frame which is near a requested time when a better match will
+be made available later). Once vdfNodeProxy::UpdateCompleted is signaled, the
+request is complete, and no additional data pertaining to the request will be
+made available.
+
+If something goes wrong during an update, the node may indicate this by
+signaling vdfNodeProxy::UpdateFailed.
+
+*/
+// kate: hl c++

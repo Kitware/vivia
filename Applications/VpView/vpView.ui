@@ -1,0 +1,1614 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vpMainWindow</class>
+ <widget class="QMainWindow" name="vpMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>749</width>
+    <height>689</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VisGUI View</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QStatusBar QLabel { padding-left: 4px; padding-right: 4px }</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QVTKWidget" name="renderFrame" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>6</number>
+      </property>
+      <property name="rightMargin">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="playbackSpeed">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>P</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="minFrameCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Min Frame</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="minFrame">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>10000</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="minTime">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>00:00:00.000</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="vgFrameScrubber" name="currentFrame" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>749</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionOpenFile"/>
+    <addaction name="actionImportProject"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportTracks"/>
+    <addaction name="actionExportEvents"/>
+    <addaction name="actionExportSceneElements"/>
+    <addaction name="separator"/>
+    <addaction name="actionExportFilters"/>
+    <addaction name="actionExportGraphModel"/>
+    <addaction name="separator"/>
+    <addaction name="actionImportFilters"/>
+    <addaction name="actionImportGraphModel"/>
+    <addaction name="separator"/>
+    <addaction name="actionSaveRenderedImages"/>
+    <addaction name="actionWebExport"/>
+    <addaction name="actionExportImageTimeStamps"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <widget class="QMenu" name="menuCamera">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Viewport</string>
+     </property>
+     <addaction name="actionViewportZoomExtents"/>
+     <addaction name="actionViewportZoomAOI"/>
+     <addaction name="separator"/>
+     <addaction name="actionViewportBookmark"/>
+     <addaction name="actionViewportRestore"/>
+     <addaction name="separator"/>
+     <addaction name="actionViewportCopyViewExtentsToClipboard"/>
+     <addaction name="actionViewportCopyExtendedInfoToClipboard"/>
+    </widget>
+    <addaction name="separator"/>
+    <addaction name="actionShowHideTimelineView"/>
+    <addaction name="action3DView"/>
+    <addaction name="separator"/>
+    <addaction name="menuCamera"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowHideObjectTags"/>
+    <addaction name="actionDisplayOverview"/>
+    <addaction name="actionDisplayAOIOutline"/>
+    <addaction name="actionDisplayEventLegend"/>
+   </widget>
+   <widget class="QMenu" name="menuPlayback">
+    <property name="title">
+     <string>&amp;Playback</string>
+    </property>
+    <addaction name="actionPlay"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionReverse"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreviousFrame"/>
+    <addaction name="actionNextFrame"/>
+    <addaction name="separator"/>
+    <addaction name="actionFastBackward"/>
+    <addaction name="actionFastForward"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoop"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <widget class="QMenu" name="menuAnnotation">
+     <property name="title">
+      <string>Annotation</string>
+     </property>
+     <addaction name="actionCreateTrack"/>
+     <addaction name="actionCreateEvent"/>
+     <addaction name="actionCreateSceneElement"/>
+     <addaction name="separator"/>
+     <addaction name="actionMergeTracks"/>
+    </widget>
+    <addaction name="actionConfigure"/>
+    <addaction name="actionDatabaseQuery"/>
+    <addaction name="separator"/>
+    <addaction name="menuAnnotation"/>
+    <addaction name="separator"/>
+    <addaction name="actionAdjudicationMode"/>
+    <addaction name="actionExitFollowMode"/>
+    <addaction name="separator"/>
+    <addaction name="actionExternalProcess"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuDisplay">
+    <property name="title">
+     <string>Display</string>
+    </property>
+    <widget class="QMenu" name="menuEventDisplay">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Show Events Until</string>
+     </property>
+     <addaction name="actionShowEventsUntilEventEnd"/>
+     <addaction name="actionShowEventsUntilTrackEnd"/>
+    </widget>
+    <widget class="QMenu" name="menuIcon_Size">
+     <property name="title">
+      <string>Icon Size</string>
+     </property>
+     <addaction name="actionIconSizeSmall"/>
+     <addaction name="actionIconSizeMedium"/>
+     <addaction name="actionIconSizeLarge"/>
+    </widget>
+    <addaction name="actionViewTracks"/>
+    <addaction name="actionViewTrackHeads"/>
+    <addaction name="actionViewEvents"/>
+    <addaction name="actionViewEventIcons"/>
+    <addaction name="actionViewActivities"/>
+    <addaction name="actionViewSceneElements"/>
+    <addaction name="separator"/>
+    <addaction name="actionDisplayFullVolume"/>
+    <addaction name="menuEventDisplay"/>
+    <addaction name="actionSetTrackTrailLength"/>
+    <addaction name="separator"/>
+    <addaction name="actionRandomEventColors"/>
+    <addaction name="separator"/>
+    <addaction name="actionChangeTrackColors"/>
+    <addaction name="actionPreviousAttribute"/>
+    <addaction name="actionNextAttribute"/>
+    <addaction name="separator"/>
+    <addaction name="menuIcon_Size"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewNormalcyCues"/>
+    <addaction name="actionViewSwapNormalcyScaling"/>
+    <addaction name="separator"/>
+    <addaction name="actionIncreaseIconXOffset"/>
+    <addaction name="actionDecreaseIconXOffset"/>
+    <addaction name="actionIncreaseIconYOffset"/>
+    <addaction name="actionDecreaseIconYOffset"/>
+    <addaction name="separator"/>
+    <addaction name="actionIncreaseOverlayTransparency"/>
+    <addaction name="actionDecreaseOverlayTransparency"/>
+    <addaction name="separator"/>
+    <addaction name="actionIncreaseSceneElementTransparency"/>
+    <addaction name="actionDecreaseSceneElementTransparency"/>
+    <addaction name="separator"/>
+    <addaction name="actionSetFrameOffset"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuView"/>
+   <addaction name="menuDisplay"/>
+   <addaction name="menuPlayback"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>Tool Bar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>22</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionFastBackward"/>
+   <addaction name="actionReverse"/>
+   <addaction name="actionPreviousFrame"/>
+   <addaction name="actionPause"/>
+   <addaction name="actionNextFrame"/>
+   <addaction name="actionPlay"/>
+   <addaction name="actionFastForward"/>
+  </widget>
+  <widget class="QDockWidget" name="objectInfoDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Object Info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="vpObjectInfoPanel" name="objectInfoWidget"/>
+  </widget>
+  <widget class="QDockWidget" name="sessionViewDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Tree View</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="sessionViewDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vpSessionView" name="sessionView"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="eventOptionDock">
+   <property name="windowTitle">
+    <string>Filtering Options</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QScrollArea" name="eventOptionDockScrollArea">
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="eventOptionDockContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>255</width>
+       <height>104</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>4</number>
+      </property>
+      <property name="margin">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="pvoGroupBox">
+        <property name="title">
+         <string>Tracks</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_11">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="vgMixerWidget" name="pvoFilter" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="normalcyGroupBox">
+        <property name="title">
+         <string>Events</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="vgMixerWidget" name="normalcyFilter" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="saliencyGroupBox">
+        <property name="title">
+         <string>Activities</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="vgMixerWidget" name="saliencyFilter" native="true">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>438</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="displayOptionsDock">
+   <property name="windowTitle">
+    <string>Display Options</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QScrollArea" name="displayOptionsDockScrollArea">
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="widgetResizable">
+     <bool>true</bool>
+    </property>
+    <widget class="QWidget" name="displayOptionsDockContents">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>234</width>
+       <height>122</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <property name="margin">
+       <number>4</number>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="eventsGroup">
+        <property name="title">
+         <string>Events</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <item>
+          <widget class="vpEntityConfigWidget" name="eventConfig" native="true"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="activitiesGroup">
+        <property name="title">
+         <string>Activities</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="vpEntityConfigWidget" name="activityConfig" native="true"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>69</width>
+          <height>133</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="normalcyMapsDock">
+   <property name="windowTitle">
+    <string>Normalcy Maps</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="normalcyMapsDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_9">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QScrollArea" name="normalcyMapsScrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="normalcyMapsScrollAreaContent">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>135</width>
+          <height>236</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_10">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="vgMixerWidget" name="normalcyMapsFilter" native="true"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="spatialFiltersDock">
+   <property name="windowTitle">
+    <string>Spatial Filters</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_12">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="spatialFilterTree">
+       <property name="editTriggers">
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="spatialFilterToolBar">
+       <property name="windowTitle">
+        <string>Spatial Filter Tool Bar</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonFollowStyle</enum>
+       </property>
+       <addaction name="actionSpatialFilterAdd"/>
+       <addaction name="separator"/>
+       <addaction name="actionSpatialFilterRemoveSelected"/>
+       <addaction name="actionSpatialFilterRemoveAll"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="temporalFiltersDock">
+   <property name="windowTitle">
+    <string>Temporal Filters</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout_13">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QTreeWidget" name="temporalFilterTree">
+       <property name="editTriggers">
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Start Frame</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string> End Frame</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="temporalFilterToolBar">
+       <property name="windowTitle">
+        <string>Temporal Filter Tool Bar</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonFollowStyle</enum>
+       </property>
+       <addaction name="actionTemporalFilterAdd"/>
+       <addaction name="separator"/>
+       <addaction name="actionTemporalFilterSetStart"/>
+       <addaction name="actionTemporalFilterSetEnd"/>
+       <addaction name="separator"/>
+       <addaction name="actionTemporalFilterRemoveSelected"/>
+       <addaction name="actionTemporalFilterRemoveAll"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="graphModelDock">
+   <property name="windowTitle">
+    <string>Graph Model</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_3">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="vpGraphModelWidget" name="graphModelWidget" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <action name="actionOpenFile">
+   <property name="text">
+    <string>&amp;Open Project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionDisplayEventLegend">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Event &amp;Legend</string>
+   </property>
+  </action>
+  <action name="actionViewEventIcons">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Event &amp;Icons</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionViewSwapNormalcyScaling">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Swap Normalcy Scaling</string>
+   </property>
+  </action>
+  <action name="actionViewTracks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Tracks</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionViewEvents">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Events</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionViewActivities">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Activities</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionPlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Play</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionLoop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Loop Playback</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionPreviousFrame">
+   <property name="text">
+    <string>P&amp;revious Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionNextFrame">
+   <property name="text">
+    <string>&amp;Next Frame</string>
+   </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
+  </action>
+  <action name="actionIncreaseIconXOffset">
+   <property name="text">
+    <string>Increase Icon X Offset</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionDecreaseIconXOffset">
+   <property name="text">
+    <string>Decrease Icon X Offset</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionIncreaseIconYOffset">
+   <property name="text">
+    <string>Increase Icon Y Offset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionDecreaseIconYOffset">
+   <property name="text">
+    <string>Decrease Icon Y Offset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+  </action>
+  <action name="actionIncreaseOverlayTransparency">
+   <property name="text">
+    <string>Increase Overlay Transparency</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
+   </property>
+  </action>
+  <action name="actionDecreaseOverlayTransparency">
+   <property name="text">
+    <string>Decrease Overlay Transparency</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+T</string>
+   </property>
+  </action>
+  <action name="actionDisplayOverview">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Overview</string>
+   </property>
+  </action>
+  <action name="actionAdjudicationMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ad&amp;judication Mode</string>
+   </property>
+  </action>
+  <action name="actionDisplayAOIOutline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>AOI O&amp;utline</string>
+   </property>
+  </action>
+  <action name="actionRandomEventColors">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Random Event Colors</string>
+   </property>
+  </action>
+  <action name="actionViewTrackHeads">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Track Heads</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionShowHideTimelineView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Timeline View</string>
+   </property>
+  </action>
+  <action name="actionShowHideObjectTags">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Object Tags</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionDisplayFullVolume">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Show Full Volume</string>
+   </property>
+  </action>
+  <action name="actionExportEvents">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Events</string>
+   </property>
+  </action>
+  <action name="actionExitFollowMode">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Exit Follow Mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionConfigure">
+   <property name="text">
+    <string>Configure</string>
+   </property>
+  </action>
+  <action name="actionDatabaseQuery">
+   <property name="text">
+    <string>Database Query</string>
+   </property>
+  </action>
+  <action name="actionSaveRenderedImages">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save Rendered Images</string>
+   </property>
+  </action>
+  <action name="actionIconSizeSmall">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Small</string>
+   </property>
+  </action>
+  <action name="actionIconSizeMedium">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Medium</string>
+   </property>
+   <property name="toolTip">
+    <string>Medium</string>
+   </property>
+  </action>
+  <action name="actionIconSizeLarge">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Large</string>
+   </property>
+  </action>
+  <action name="actionViewNormalcyCues">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Normalcy Cues</string>
+   </property>
+  </action>
+  <action name="action3DView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;3D View</string>
+   </property>
+  </action>
+  <action name="actionSpatialFilterRemoveSelected">
+   <property name="text">
+    <string>Clear S&amp;elected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove selected filters</string>
+   </property>
+  </action>
+  <action name="actionSpatialFilterRemoveAll">
+   <property name="text">
+    <string>Clear &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all filters</string>
+   </property>
+  </action>
+  <action name="actionViewportBookmark">
+   <property name="text">
+    <string>Bookmark</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+K</string>
+   </property>
+  </action>
+  <action name="actionViewportRestore">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Restore</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+K</string>
+   </property>
+  </action>
+  <action name="actionViewportZoomExtents">
+   <property name="text">
+    <string>Zoom Image Extents</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
+  </action>
+  <action name="actionViewportZoomAOI">
+   <property name="text">
+    <string>Zoom AOI</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetShortcut</enum>
+   </property>
+  </action>
+  <action name="actionViewportCopyViewExtentsToClipboard">
+   <property name="text">
+    <string>Copy View Extents To Clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+X</string>
+   </property>
+  </action>
+  <action name="actionTemporalFilterRemoveAll">
+   <property name="text">
+    <string>Clear &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all filters</string>
+   </property>
+  </action>
+  <action name="actionTemporalFilterRemoveSelected">
+   <property name="text">
+    <string>Clear S&amp;elected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove selected filters</string>
+   </property>
+  </action>
+  <action name="actionTemporalFilterAdd">
+   <property name="text">
+    <string>Add</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a new filter</string>
+   </property>
+  </action>
+  <action name="actionExportTracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Tracks</string>
+   </property>
+  </action>
+  <action name="actionShowEventsUntilEventEnd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>End of Event</string>
+   </property>
+  </action>
+  <action name="actionShowEventsUntilTrackEnd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>End of Track</string>
+   </property>
+  </action>
+  <action name="actionExportGraphModel">
+   <property name="text">
+    <string>Export Graph Model</string>
+   </property>
+  </action>
+  <action name="actionImportGraphModel">
+   <property name="text">
+    <string>Import Graph Model</string>
+   </property>
+  </action>
+  <action name="actionCreateEvent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Create Event...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+E</string>
+   </property>
+  </action>
+  <action name="actionCreateTrack">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Create Track</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+T</string>
+   </property>
+  </action>
+  <action name="actionMergeTracks">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Merge Tracks...</string>
+   </property>
+   <property name="toolTip">
+    <string>Merge Tracks</string>
+   </property>
+  </action>
+  <action name="actionSetTrackTrailLength">
+   <property name="text">
+    <string>Set Track Trail Length...</string>
+   </property>
+  </action>
+  <action name="actionChangeTrackColors">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Change Track Color(s)...</string>
+   </property>
+  </action>
+  <action name="actionNextAttribute">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Next Attribute</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+]</string>
+   </property>
+  </action>
+  <action name="actionPreviousAttribute">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Previous Attribute</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+[</string>
+   </property>
+  </action>
+  <action name="actionWebExport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Assets for Web</string>
+   </property>
+  </action>
+  <action name="actionSetFrameOffset">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set Frame Offset...</string>
+   </property>
+  </action>
+  <action name="actionAutoUpdate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vpView.qrc">
+     <normaloff>:/icons/16x16/refresh</normaloff>:/icons/16x16/refresh</iconset>
+   </property>
+   <property name="text">
+    <string>Auto Update</string>
+   </property>
+  </action>
+  <action name="actionExportImageTimeStamps">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Image Timestamps</string>
+   </property>
+  </action>
+  <action name="actionViewportCopyExtendedInfoToClipboard">
+   <property name="text">
+    <string>Copy Extended Info To Clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+I</string>
+   </property>
+  </action>
+  <action name="actionImportProject">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Import Project</string>
+   </property>
+  </action>
+  <action name="actionReverse">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Re&amp;verse</string>
+   </property>
+   <property name="toolTip">
+    <string>Play reversed</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+F5</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Pa&amp;use</string>
+   </property>
+   <property name="toolTip">
+    <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionFastForward">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fast &amp;Forward</string>
+   </property>
+   <property name="toolTip">
+    <string>Fast forward</string>
+   </property>
+   <property name="shortcut">
+    <string>&gt;</string>
+   </property>
+  </action>
+  <action name="actionFastBackward">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fast &amp;Backward</string>
+   </property>
+   <property name="toolTip">
+    <string>Fast backward</string>
+   </property>
+   <property name="shortcut">
+    <string>&lt;</string>
+   </property>
+  </action>
+  <action name="actionSpatialFilterAdd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Add</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a new spatial filter</string>
+   </property>
+  </action>
+  <action name="actionExportFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Filters</string>
+   </property>
+  </action>
+  <action name="actionImportFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Import Filters</string>
+   </property>
+  </action>
+  <action name="actionViewSceneElements">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Scene Elements</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionCreateSceneElement">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Create Scene Element...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create Scene Element</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionExportSceneElements">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Scene Elements</string>
+   </property>
+  </action>
+  <action name="actionExternalProcess">
+   <property name="text">
+    <string>External Process</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionIncreaseSceneElementTransparency">
+   <property name="text">
+    <string>Increase Scene Element Transparency</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionDecreaseSceneElementTransparency">
+   <property name="text">
+    <string>Decrease Scene Element Transparency</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+S</string>
+   </property>
+  </action>
+  <action name="actionExecuteExternalProcess">
+   <property name="text">
+    <string>Execute Process</string>
+   </property>
+   <property name="toolTip">
+    <string>Execute currently configured external process</string>
+   </property>
+  </action>
+  <action name="actionTemporalFilterSetStart">
+   <property name="text">
+    <string>Set Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Set start frame of filter to current frame</string>
+   </property>
+  </action>
+  <action name="actionTemporalFilterSetEnd">
+   <property name="text">
+    <string>Set End</string>
+   </property>
+   <property name="toolTip">
+    <string>Set end frame of filter to current frame</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vgFrameScrubber</class>
+   <extends>QWidget</extends>
+   <header location="global">vgFrameScrubber.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vgMixerWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">vgMixerWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpObjectInfoPanel</class>
+   <extends>QWidget</extends>
+   <header>vpObjectInfoPanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpSessionView</class>
+   <extends>QTabWidget</extends>
+   <header>vpSessionView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpEntityConfigWidget</class>
+   <extends>QWidget</extends>
+   <header>vpEntityConfigWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpGraphModelWidget</class>
+   <extends>QWidget</extends>
+   <header>vpGraphModelWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/vpView.qrc"/>
+ </resources>
+ <connections/>
+</ui>

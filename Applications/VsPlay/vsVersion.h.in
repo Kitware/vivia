@@ -1,0 +1,8 @@
+#ifndef _vsplay_version_H
+#define _vsplay_version_H
+
+#define VSPLAY_VERSION_STR "@VSPLAY_VERSION_STR@"
+
+#define VSPLAY_COPY_YEAR @VSPLAY_COPY_YEAR@
+
+#endif

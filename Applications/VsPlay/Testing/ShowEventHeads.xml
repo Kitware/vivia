@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5.index" />
+  <pqevent object="MainWindow/actionVideoStop" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuTracks" />
+  <pqevent object="MainWindow/menubar/menuTracks" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_reconciled_tracks.kw18" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuDescriptors"/>
+  <pqevent object="MainWindow/menubar/menuDescriptors" command="activate" arguments="&amp;Load Archive"/>
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_KWSOTI.xml"/>
+  <pqevent object="MainWindow" command="pause" arguments="2000" />
+  <pqevent object="MainWindow/actionTracksShow" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/actionTracksShowBoxes" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/actionEventsTracksShow" command="set_boolean" arguments="false"/>
+  <pqevent object="MainWindow/actionEventsBoxesShow" command="set_boolean" arguments="true"/>
+  <pqevent object="MainWindow/actionEventsLabelsShow" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/actionEventsProbabilityShow" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="4,1"/>
+  <pqevent command="mousePress" arguments="(0.444,0.45,1,1,0)" object="MainWindow/centralwidget/renderFrame"/>
+  <pqevent command="mouseMove" arguments="(0.698,0.806,1,0,0)" object="MainWindow/centralwidget/renderFrame"/>
+  <pqevent command="mouseRelease" arguments="(0.698,0.806,1,0,0)" object="MainWindow/centralwidget/renderFrame"/>
+  <pqevent object="MainWindow/centralwidget/frame" command="set_int" arguments="100"/>
+  <pqevent object="MainWindow" command="invokeMethod" arguments="flushPendingSeeks,int,30000" />
+</pqevents>

@@ -1,0 +1,66 @@
+<RCC>
+  <qresource prefix="icons/16x16">
+    <file alias="pin">16x16/pin.png</file>
+    <file alias="add">16x16/add.png</file>
+    <file alias="arrow-down">16x16/arrow-down.png</file>
+    <file alias="arrow-up">16x16/arrow-up.png</file>
+    <file alias="blank">16x16/blank.png</file>
+    <file alias="browse">16x16/browse.png</file>
+    <file alias="clear">16x16/clear.png</file>
+    <file alias="configure">16x16/configure.png</file>
+    <file alias="delete">16x16/delete.png</file>
+    <file alias="edit-location">16x16/edit-location.png</file>
+    <file alias="edit-number">16x16/edit-number.png</file>
+    <file alias="edit-query">16x16/edit-query.png</file>
+    <file alias="load">16x16/load.png</file>
+    <file alias="load-query">16x16/load-query.png</file>
+    <file alias="load-video">16x16/load-video.png</file>
+    <file alias="new-query">16x16/new-query.png</file>
+    <file alias="open-video-external">16x16/open-video-external.png</file>
+    <file alias="path-draw">16x16/path-draw.png</file>
+    <file alias="quit">16x16/quit.png</file>
+    <file alias="refresh">16x16/refresh.png</file>
+    <file alias="remove">16x16/remove.png</file>
+    <file alias="save">16x16/save.png</file>
+    <file alias="save-query">16x16/save-query.png</file>
+    <file alias="search">16x16/search.png</file>
+    <file alias="star">16x16/star.png</file>
+    <file alias="star-off">16x16/star-off.png</file>
+    <file alias="viqui">16x16/viqui.png</file>
+  </qresource>
+  <qresource prefix="icons/22x22">
+    <file alias="arrow-up">22x22/arrow-up.png</file>
+    <file alias="arrow-down">22x22/arrow-down.png</file>
+    <file alias="arrow-down-multi">22x22/arrow-down-multi.png</file>
+    <file alias="clear">22x22/clear.png</file>
+    <file alias="configure">22x22/configure.png</file>
+    <file alias="delete">22x22/delete.png</file>
+    <file alias="edit-query">22x22/edit-query.png</file>
+    <file alias="load">22x22/load.png</file>
+    <file alias="load-query">22x22/load-query.png</file>
+    <file alias="new-query">22x22/new-query.png</file>
+    <file alias="open-video-external">22x22/open-video-external.png</file>
+    <file alias="quit">22x22/quit.png</file>
+    <file alias="save">22x22/save.png</file>
+    <file alias="save-query">22x22/save-query.png</file>
+    <file alias="show-boxes">22x22/track-show-boxes.png</file>
+    <file alias="view-reset">22x22/view-reset.png</file>
+    <file alias="view-track">22x22/view-track.png</file>
+  </qresource>
+  <qresource prefix="icons/32x32">
+    <file alias="data-providers">32x32/data-providers.png</file>
+    <file alias="display">32x32/display.png</file>
+    <file alias="iqr">32x32/iqr.png</file>
+    <file alias="qf">32x32/qf.png</file>
+    <file alias="viqui">32x32/viqui.png</file>
+  </qresource>
+  <qresource prefix="icons/48x48">
+    <file alias="viqui">48x48/viqui.png</file>
+  </qresource>
+  <qresource prefix="icons/64x64">
+    <file alias="viqui">64x64/viqui.png</file>
+  </qresource>
+  <qresource prefix="icons/128x128">
+    <file alias="viqui">128x128/viqui.png</file>
+  </qresource>
+</RCC>

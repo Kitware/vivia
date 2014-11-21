@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuTools" />
+  <pqevent object="vpMainWindow/menubar/menuTools" command="activate" arguments="actionConfigure" />
+  <pqevent object="vpMainWindow/vpConfigureDialog/pageChooser" command="mousePress" arguments="1,1,0,22,36,/1:0" />
+  <pqevent object="vpMainWindow/vpConfigureDialog/pageChooser" command="mouseRelease" arguments="1,0,0,22,36,/1:0" />
+  <pqevent object="vpMainWindow/vpConfigureDialog/buttons/1QPushButton1" command="activate" arguments="" />
+</pqevents>

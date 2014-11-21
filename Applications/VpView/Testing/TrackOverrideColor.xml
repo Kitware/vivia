@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pqevents>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionOpenFile" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219-track-color.prj" object="QFileDialog"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionDisplayAOIOutline" object="vpMainWindow/menubar/menuView"/>
+ <pqevent command="activate" arguments="actionViewTracks" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionViewTrackHeads" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="set_int" arguments="21" object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0"/>
+</pqevents>

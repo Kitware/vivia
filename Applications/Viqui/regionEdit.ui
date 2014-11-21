@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vqRegionEditDialog</class>
+ <widget class="QDialog" name="vqRegionEditDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>374</width>
+    <height>198</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Edit Region</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QRadioButton" name="vicinity">
+     <property name="toolTip">
+      <string>Define a region by providing a center coordinate and region size.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Vicinity</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="crsLabel">
+        <property name="text">
+         <string>Coordinate System:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="crs"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="location"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="locationLabel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;Specify the region center, in latitude/longitude or UTM coordinates. See example coordinate specifications below.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Good:&lt;/b&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;13:20:22W 45:12:59N&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;13d20'22&quot;W,45d12'59&quot;N&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;13.339444W 45.216389N&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;+13d20'22&quot; -45d12'59&quot;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;17N 12345.43 67890.98&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Bad:&lt;/b&gt;
+&lt;table&gt;
+&lt;tr&gt;&lt;td&gt;13:20W 45:12N&lt;/td&gt;&lt;td&gt;&lt;i&gt;Must specify seconds&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;13d22sW 45d59sN&lt;/td&gt;&lt;td&gt;&lt;i&gt;Must specify minutes&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td&gt;13d20'22&quot;W 45d12'59&quot;N (WGS '84)&lt;/td&gt;&lt;td&gt;&lt;i&gt;Do not include coordinate system&lt;/i&gt;&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Location Center:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="diameterLabel">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Define the size of the region. The region will be an approximate square whose sides are equal to this number, centered around the specified point.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Location Diameter:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QComboBox" name="diameterPreset">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="diameter">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="decimals">
+           <number>0</number>
+          </property>
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>9999.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>10.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="diameterUnits">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QRadioButton" name="mgrs">
+     <property name="toolTip">
+      <string>Define a region by giving its MGRS specification.</string>
+     </property>
+     <property name="text">
+      <string>&amp;MGRS</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>76</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="mgrsLocation">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vqRegionEditDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vqRegionEditDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mgrs</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mgrsLocation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>74</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>75</x>
+     <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>vicinity</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>70</x>
+     <y>22</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

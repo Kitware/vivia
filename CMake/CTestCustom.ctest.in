@@ -1,0 +1,14 @@
+set(CTEST_CUSTOM_WARNING_EXCEPTION
+  ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  "jmem_src"
+  "TPL/libkml"
+  "TPL/vidtk"
+  "TPL/vxl"
+  "vgl_polygon"
+  "kml/dom"
+)
+
+set(CTEST_CUSTOM_COVERAGE_EXCLUDE
+  ${CTEST_CUSTOM_COVERAGE_EXCLUDE}
+  ".*moc_.*cxx"
+)

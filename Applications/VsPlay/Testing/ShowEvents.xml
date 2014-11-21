@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5.index" />
+  <pqevent object="MainWindow/actionVideoStop" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuTracks" />
+  <pqevent object="MainWindow/menubar/menuTracks" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_reconciled_tracks.kw18" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuDescriptors"/>
+  <pqevent object="MainWindow/menubar/menuDescriptors" command="activate" arguments="&amp;Load Archive"/>
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_KWSOTI.xml"/>
+  <pqevent object="MainWindow" command="pause" arguments="2000" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuEvents" />
+  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsPersonEnableAll" />
+  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsVehicleEnableAll" />
+  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventProbabilityThresholdSet" />
+  <pqevent object="MainWindow/1qtDoubleInputDialog0/1QDialogButtonBox0" command="activate" arguments="0x400" />
+  <pqevent object="MainWindow/actionTracksShow" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/actionTracksShowBoxes" command="set_boolean" arguments="false" />
+  <pqevent object="MainWindow/actionEventsTracksShow" command="set_boolean" arguments="true"/>
+  <pqevent object="MainWindow/actionEventsBoxesShow" command="set_boolean" arguments="true"/>
+  <pqevent object="MainWindow/actionEventsLabelsShow" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/actionEventsProbabilityShow" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="5,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="5,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="4,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="4,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="3,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="3,0"/>
+  <pqevent object="MainWindow/filterDock/filterDockContents/filterDockScrollArea/qt_scrollarea_viewport/filterDockScrollAreaContents/filter" command="mixer_set_state" arguments="5,1"/>
+  <pqevent object="MainWindow/centralwidget/frame" command="set_int" arguments="900"/>
+  <pqevent object="MainWindow" command="invokeMethod" arguments="flushPendingSeeks,int,30000" />
+</pqevents>

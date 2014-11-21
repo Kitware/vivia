@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="icons/16x16">
+    <file alias="apply">16x16/apply.png</file>
+    <file alias="cancel">16x16/cancel.png</file>
+    <file alias="close">16x16/close.png</file>
+    <file alias="okay">16x16/okay.png</file>
+    <file alias="reset">16x16/reset.png</file>
+  </qresource>
+  <qresource prefix="icons/22x22">
+    <file alias="apply">22x22/apply.png</file>
+    <file alias="cancel">22x22/cancel.png</file>
+    <file alias="close">22x22/close.png</file>
+    <file alias="okay">22x22/okay.png</file>
+    <file alias="reset">22x22/reset.png</file>
+  </qresource>
+</RCC>

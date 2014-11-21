@@ -1,0 +1,29 @@
+QUERY, 1;
+# Query Type
+# Query ID [, Stream ID Limit ]
+# Descriptors [, Tracks ] | Entity Type
+#  Descriptor name, Module name, Instance ID, Confidence, Values, Region, Track ID's
+#   Frame Number, Time, Image Region { { Top, Left }, { Bottom, Right } }
+#   Source, Serial Number
+#  Track ID, Classification Entries, Trajectory States
+#   Source, Serial Number
+#   Type, Probability
+#   Frame Number, Time, Image Point X, Image Point Y,
+#   Image Box, Image Object Points, World Location
+#    { Top, Left }, { Bottom, Right }
+#    X, Y
+#    [ GCS, Easting, Northing ]
+# { [ Temporal Lower, Temporal Upper [, Temporal Filter ] ] },
+# { [ GCS, Geospatial Limit Points [, Geospatial Filter ] ] }
+#   { Easting, Northing }
+# [ Similarity Threshold, [ IQR Model ] ]
+RETRIEVAL;
+"QUERY-EXAMPLE-24680";
+TRACKS;
+[ 1313790109000000, 1313847211000000, CONTAINS_WHOLLY ],
+  [ 4269,
+    [ [ 42.8, -73.7 ],
+      [ 42.9, -73.7 ],
+      [ 42.9, -73.8 ],
+      [ 42.8, -73.8 ] ],
+    INTERSECTS ];

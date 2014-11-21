@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pqevents>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionOpenFile" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219+vsl.prj" object="QFileDialog"/>
+ <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="set_int" arguments="25" />
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionViewTracks" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionChangeTrackColors" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="set_boolean" arguments="true" object="vpTrackColorDialog/colorByStateAttribute"/>
+ <pqevent command="set_string" arguments="Interval" object="vpTrackColorDialog/groupBox_2/attributeGroup"/>
+ <pqevent command="activate" arguments="0x2000000" object="vpTrackColorDialog/buttonBox"/>
+ <pqevent command="activate" arguments="0x400" object="vpTrackColorDialog/buttonBox"/>
+ <pqevent command="mousePress" arguments="(0.322,0.378,1,1,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseMove" arguments="(0.616,0.836,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseRelease" arguments="(0.616,0.836,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+</pqevents>

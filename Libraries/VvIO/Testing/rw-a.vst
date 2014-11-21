@@ -1,0 +1,27 @@
+TRACKS;
+# Track ID, Classification Entries, Trajectory States
+#  Source, Serial Number
+#  Type, Probability
+#  Frame Number, Time, Image Point X, Image Point Y,
+#  Image Box, Image Object Points, World Location
+#   { Top, Left }, { Bottom, Right }
+#   X, Y
+#   [ GCS, Easting, Northing ]
+[ 0, 1 ],
+  [ [ "Person", 0.8 ],
+    [ "Vehicle", 0.2 ] ],
+  [ [ 26, 1222116851008654, 434.5, 241, [ [ 231, 428 ], [ 241, 441 ] ],
+      [ [ 428, 231 ], [ 441, 231 ], [ 441, 241 ], [ 428, 241 ] ],
+      [ 4269, 38.2117, -81.481 ] ]
+    ];
+[ 0, 2 ],
+  [ [ "Other", 0.1 ],
+    [ "Person", 0.6 ],
+    [ "Vehicle", 0.3 ] ],
+  [ [ 30, 1222116851409054, 434.5, 241, [ [ 231, 428 ], [ 241, 441 ] ],
+      [ [ 428, 231 ], [ 441, 231 ], [ 441, 241 ], [ 428, 241 ] ],
+      [ 4269, 38.2117, -81.481 ] ],
+    [ 31, 1222116851509154, 434.5, 241, [ [ 231, 428 ], [ 241, 441 ] ],
+      [ [ 428, 231 ], [ 441, 231 ], [ 441, 241 ], [ 428, 241 ] ],
+      [ 4269, 38.2117, -81.481 ] ]
+    ];

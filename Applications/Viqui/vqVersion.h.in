@@ -1,0 +1,7 @@
+#ifndef __vqVersion_h
+#define __vqVersion_h
+
+#define VIQUI_VERSION_STR "@VIQUI_VERSION_STR@"
+#define VIQUI_COPY_YEAR @VIQUI_COPY_YEAR@
+
+#endif // __vqVersion_h

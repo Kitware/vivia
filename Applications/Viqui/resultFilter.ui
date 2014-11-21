@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vqResultFilterDialog</class>
+ <widget class="QDialog" name="vqResultFilterDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>337</width>
+    <height>162</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Result Filters</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="2">
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QCheckBox" name="threshold">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>&amp;Threshold</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QComboBox" name="thresholdPreset">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QDoubleSpinBox" name="thresholdValue">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="maximum">
+          <double>1.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.010000000000000</double>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="clear">
+     <property name="text">
+      <string>&amp;Clear</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../Icons/viqui.qrc">
+       <normaloff>:/icons/16x16/clear</normaloff>:/icons/16x16/clear</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../Icons/viqui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vqResultFilterDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>310</x>
+     <y>143</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vqResultFilterDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>149</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>threshold</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>thresholdPreset</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>142</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>threshold</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>thresholdValue</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>75</x>
+     <y>13</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>246</x>
+     <y>21</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

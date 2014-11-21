@@ -1,0 +1,14 @@
+/*ckwg +5
+ * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+#ifndef __vpVersion_h
+#define __vpVersion_h
+
+#define VPVIEW_VERSION_STR "@VPVIEW_VERSION_STR@"
+
+#define VPVIEW_COPY_YEAR @VPVIEW_COPY_YEAR@
+
+#endif // __vpVersion_h

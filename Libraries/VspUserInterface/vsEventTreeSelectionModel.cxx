@@ -1,0 +1,120 @@
+/*ckwg +5
+ * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+#include "vsEventTreeSelectionModel.h"
+
+#include "vsEventTreeModel.h"
+#include "vsEventTreeView.h"
+
+//-----------------------------------------------------------------------------
+vsEventTreeSelectionModel::vsEventTreeSelectionModel(
+  vsEventTreeModel* model, QObject* parent) :
+  QItemSelectionModel(model, parent),
+  EventTreeModel(model)
+{
+  connect(this, SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+          this, SLOT(updateSelection()));
+}
+
+//-----------------------------------------------------------------------------
+vsEventTreeSelectionModel::~vsEventTreeSelectionModel()
+{
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vsEventTreeSelectionModel::eventIdFromIndex(
+  const QModelIndex& index) const
+{
+  const QModelIndex ii =
+    this->EventTreeModel->index(index.row(), vsEventTreeModel::IdColumn);
+  return this->model()->data(ii).value<vtkIdType>();
+}
+
+//-----------------------------------------------------------------------------
+QSet<vtkIdType> vsEventTreeSelectionModel::selectedEvents() const
+{
+  QSet<vtkIdType> selectedIds;
+  foreach (QModelIndex i, this->selectedRows())
+    {
+    selectedIds.insert(this->eventIdFromIndex(i));
+    }
+  return selectedIds;
+}
+
+//-----------------------------------------------------------------------------
+int vsEventTreeSelectionModel::selectedEventCount() const
+{
+  return this->selectedRows().count();
+}
+
+//-----------------------------------------------------------------------------
+void vsEventTreeSelectionModel::updateSelection()
+{
+  emit this->selectionChanged(this->selectedEvents());
+}
+
+//-----------------------------------------------------------------------------
+void vsEventTreeSelectionModel::selectEvent(
+  vtkIdType eventId, SelectionFlags mode)
+{
+  QModelIndex index = this->EventTreeModel->indexOfEvent(eventId);
+
+  if (mode & Current)
+    {
+    // Just having the 'current' flag does not seem sufficient to actually set
+    // the current index... so call setCurrentIndex directly
+    this->setCurrentIndex(index, mode | Rows);
+    }
+  else
+    {
+    this->select(index, mode | Rows);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vsEventTreeSelectionModel::setSelectedEvents(QSet<vtkIdType> selectedIds)
+{
+  QItemSelection selection;
+  foreach (vtkIdType id, selectedIds)
+    {
+    QModelIndex index = this->EventTreeModel->indexOfEvent(id);
+    if (index.isValid())
+      {
+      selection.select(index, index);
+      }
+    }
+  this->select(selection, ClearAndSelect | Rows);
+}
+
+//-----------------------------------------------------------------------------
+void vsEventTreeSelectionModel::setCurrentEvent(vtkIdType currentId)
+{
+  if (currentId != -1)
+    {
+    QModelIndex index = this->EventTreeModel->indexOfEvent(currentId);
+    if (index.isValid())
+      {
+      this->setCurrentIndex(index, Current | Rows);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+QModelIndexList vsEventTreeSelectionModel::selectedRows(
+  QTreeView* view, int column) const
+{
+  QModelIndexList globalSelection = this->selectedRows(column);
+  QModelIndexList viewSelection;
+  foreach(const QModelIndex& i, globalSelection)
+    {
+    if (!view->isRowHidden(i.row(), i.parent()))
+      {
+      viewSelection.append(i);
+      }
+    }
+
+  return viewSelection;
+}

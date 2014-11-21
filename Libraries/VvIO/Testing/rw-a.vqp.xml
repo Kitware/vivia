@@ -1,0 +1,46 @@
+<!DOCTYPE VVXML>
+<xml>
+  <query threshold="0.1" type="similarity" id="QUERY-EXAMPLE-12345">
+    <stream_limit value="file:///example/path/to/video.mpg"/>
+    <track source="0" serial_number="1">
+      <classification type="Person" value="0.8"/>
+      <classification type="Vehicle" value="0.2"/>
+      <trajectory_state x="434.5" y="241" bbox_bottom="241" bbox_top="231" frame_number="26" time="1222116851008654" bbox_right="441" bbox_left="428">
+        <world_location gcs="4269" easting="-81.48100000000001" northing="38.2117"/>
+        <image_object_point x="428" y="231"/>
+        <image_object_point x="441" y="231"/>
+        <image_object_point x="441" y="241"/>
+        <image_object_point x="428" y="241"/>
+      </trajectory_state>
+    </track>
+    <descriptor instance_id="0" confidence="0.3" module="sample" name="TEST1">
+      <value_vector>
+        <value data="1"/>
+        <value data="42"/>
+      </value_vector>
+      <value_vector>
+        <value data="3.1416"/>
+      </value_vector>
+      <region right="440" left="430" bottom="240" frame_number="13" time="1302035289300000" top="230"/>
+      <region right="440" left="430" bottom="240" frame_number="14" time="1302035289400000" top="230"/>
+      <region right="440" left="430" bottom="240" frame_number="15" time="1302035289500000" top="230"/>
+      <track source="0" serial_number="1"/>
+      <track source="0" serial_number="2"/>
+    </descriptor>
+    <descriptor instance_id="1" confidence="0.1" module="sample" name="TEST2">
+      <value_vector>
+        <value data="2"/>
+        <value data="37"/>
+        <value data="2.71828"/>
+      </value_vector>
+      <region right="360" left="350" bottom="120" frame_number="27" time="1302035290700000" top="110"/>
+      <region right="360" left="350" bottom="120" frame_number="28" time="1302035290800000" top="110"/>
+      <region right="360" left="350" bottom="120" frame_number="29" time="1302035290900000" top="110"/>
+      <region right="360" left="350" bottom="120" frame_number="30" time="1302035291000000" top="110"/>
+      <region right="360" left="350" bottom="120" frame_number="31" time="1302035291100000" top="110"/>
+      <track source="0" serial_number="1"/>
+      <track source="0" serial_number="2"/>
+    </descriptor>
+    <iqr_model data="SGVsbG8sIHdvcmxkIQ=="/>
+  </query>
+</xml>

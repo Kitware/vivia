@@ -1,0 +1,8 @@
+OverviewFile=stab_00000.mrj
+DataSetSpecifier=stab_*.mrj
+OverviewSpacing=-1
+OverviewOrigin=-9116 -5891
+AnalysisDimensions=892 1311
+TracksFile=clif-tracks-sample/tracks.kw18
+EventsFile=clif-tracks-sample/clif_events.txt
+IconsFile=clif-tracks-sample/demo_icons.txt

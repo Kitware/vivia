@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pqevents>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionOpenFile" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" object="QFileDialog"/>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionImportProject" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219-offset.prj" object="importProjectDialog"/>
+ <pqevent command="activate" arguments="0x400" object="1QInputDialog0/1QDialogButtonBox0"/>
+ <pqevent command="activate" arguments="" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/hideAllButton"/>
+ <pqevent command="set_tab" arguments="1" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar"/>
+ <pqevent command="mousePress" arguments="1,1,0,9,25" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree/qt_scrollarea_vcontainer/1QScrollBar0"/>
+ <pqevent command="mouseMove" arguments="1,0,0,3,105" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree/qt_scrollarea_vcontainer/1QScrollBar0"/>
+ <pqevent command="mouseRelease" arguments="1,0,0,3,105" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree/qt_scrollarea_vcontainer/1QScrollBar0"/>
+ <pqevent command="setCurrent" arguments="2460.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="2460.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="expand" arguments="2460.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="2460.0.0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="2460.0.0.0,0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="set_tab" arguments="2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar"/>
+ <pqevent command="set_string" arguments="Sort By Name" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackSortType"/>
+ <pqevent command="setCurrent" arguments="0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="setCheckState" arguments="0.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/trackTab/trackTree"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionViewTrackHeads" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionViewTracks" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionViewEvents" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="mousePress" arguments="(0.424,0.404,1,1,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseMove" arguments="(0.484,0.464,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseRelease" arguments="(0.484,0.464,1,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="spin" arguments="up" object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0"/>
+ <pqevent command="mousePress" arguments="(0.524,0.5,2,2,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseMove" arguments="(0.524,0.5,2,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+ <pqevent command="mouseRelease" arguments="(0.524,0.5,2,0,0)" object="vpMainWindow/centralwidget/renderFrame"/>
+</pqevents>

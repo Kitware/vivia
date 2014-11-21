@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="vpMainWindow/menubar/menuFile" command="activate" arguments="actionOpenFile" />
+  <pqevent object="QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuView" />
+  <pqevent object="vpMainWindow/menubar/menuView" command="activate" arguments="actionDisplayAOIOutline" />
+  <pqevent object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar" command="set_tab" arguments="1" />
+  <pqevent object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree" command="setCurrent" arguments="634.0" />
+  <pqevent object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/hideAllButton" command="activate" arguments="" />
+  <pqevent object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree" command="setCheckState" arguments="634.0,2" />
+  <pqevent object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/1QSplitter0/1QStackedWidget0/vpObjectSelectionPanel/showUncheckedItems" command="set_boolean" arguments="false" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="set_int" arguments="210" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuDisplay" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewEvents" />
+  <pqevent object="vpMainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.308,0.54,1,1,0)" />
+  <pqevent object="vpMainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.536,0.994,1,0,0)" />
+  <pqevent object="vpMainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.536,0.994,1,0,0)" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="spin" arguments="up" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="spin" arguments="up" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="spin" arguments="up" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="spin" arguments="up" />
+  <pqevent command="set_tab" arguments="0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar"/>
+</pqevents>

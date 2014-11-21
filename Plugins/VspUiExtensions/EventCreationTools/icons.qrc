@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="icons/16x16">
+    <file alias="event-create-box">Icons/16x16/event-create-box.png</file>
+    <file alias="event-create-quick">Icons/16x16/event-create-quick.png</file>
+    <file alias="event-draw">Icons/16x16/event-draw.png</file>
+  </qresource>
+  <qresource prefix="icons/22x22">
+    <file alias="event-create-box">Icons/22x22/event-create-box.png</file>
+    <file alias="event-create-quick">Icons/22x22/event-create-quick.png</file>
+    <file alias="event-draw">Icons/22x22/event-draw.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="vpMainWindow/menubar/menuFile" command="activate" arguments="actionOpenFile" />
+  <pqevent object="QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuView" />
+  <pqevent object="vpMainWindow/menubar/menuView" command="activate" arguments="actionDisplayAOIOutline" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="set_int" arguments="25" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuDisplay" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewTracks" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewTrackHeads" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewEvents" />
+</pqevents>

@@ -1,0 +1,9 @@
+{
+  "osm_map_layers": [
+    {
+      "name": "kitware_osm",
+      "type": "OSM",
+      "urls": [ "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.png" ]
+    }
+  ]
+}

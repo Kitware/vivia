@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qtNormalcyDialog</class>
+ <widget class="QDialog" name="qtNormalcyDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>480</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Normalcy View</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+   <item>
+    <widget class="QVTKWidget" name="qvtkRenderWidget" native="true"/>
+   </item>
+   <item>
+    <widget class="QFrame" name="frame">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="renderStyleLabel">
+        <property name="text">
+         <string>Render Style</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="renderStyleCombo">
+        <item>
+         <property name="text">
+          <string>Default</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="warpScaleLabel">
+        <property name="text">
+         <string>Warp Scale</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="warpScaleSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header>QVTKWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

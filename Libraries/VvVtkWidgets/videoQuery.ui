@@ -1,0 +1,594 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VideoQueryDialog</class>
+ <widget class="QDialog" name="VideoQueryDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>936</width>
+    <height>572</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Video Query</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_5">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QVBoxLayout" name="widgetLayout">
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QSplitter" name="splitter">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="QGroupBox" name="videoPlayerGroup">
+         <property name="title">
+          <string>Query Video</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QWidget" name="videoPlayerWidget" native="true">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>150</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="videoLocation">
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="chooseVideo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Choose exemplar video...</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vgvideo.qrc">
+                <normaloff>:/icons/16x16/load-video</normaloff>:/icons/16x16/load-video</iconset>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="reprocessVideo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>Reprocess exemplar video</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vgvideo.qrc">
+                <normaloff>:/icons/16x16/refresh</normaloff>:/icons/16x16/refresh</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="infoWidget" native="true">
+         <layout class="QGridLayout" name="gridLayout_2" rowstretch="2,0,0,0">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0" colspan="3">
+           <widget class="QTabWidget" name="selectionTabs">
+            <property name="currentIndex">
+             <number>0</number>
+            </property>
+            <widget class="QWidget" name="trackTab">
+             <attribute name="title">
+              <string>Track Interval</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="0" column="0" colspan="3">
+               <widget class="vvDescriptorInfoTree" name="trackDescriptors">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                </property>
+                <property name="uniformRowHeights">
+                 <bool>true</bool>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <property name="allColumnsShowFocus">
+                 <bool>true</bool>
+                </property>
+                <property name="expandsOnDoubleClick">
+                 <bool>false</bool>
+                </property>
+                <property name="groupByStyle" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <column>
+                 <property name="text">
+                  <string notr="true">1</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="showAll">
+                <property name="toolTip">
+                 <string>Turn on the visibility state of all tracks and descriptors</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Show All</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="hideAll">
+                <property name="toolTip">
+                 <string>Turn off the visibility state of all tracks and descriptors</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Hide All</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="hideAllDescriptors">
+                <property name="toolTip">
+                 <string>Turn off the visibility state of all descriptors</string>
+                </property>
+                <property name="text">
+                 <string>Hide All &amp;Descriptors</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QPushButton" name="setStartTimeToCurrentFrame">
+                <property name="toolTip">
+                 <string>Set the start time constraint of the selected track(s) to the time of the currently displayed video frame</string>
+                </property>
+                <property name="text">
+                 <string>Set Start &amp;Time Constraint</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QPushButton" name="setEndTimeToCurrentFrame">
+                <property name="toolTip">
+                 <string>Set the end time constraint of the selected track(s) to the time of the currently displayed video frame</string>
+                </property>
+                <property name="text">
+                 <string>Set &amp;End Time Constraint</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QPushButton" name="clearTimeConstraints">
+                <property name="toolTip">
+                 <string>Remove time constraint(s) from the selected track(s)</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Clear Time Constraints</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="videoRegionTab">
+             <attribute name="title">
+              <string>Video Region</string>
+             </attribute>
+             <layout class="QGridLayout" name="gridLayout_3">
+              <item row="0" column="0" colspan="4">
+               <widget class="vvDescriptorInfoTree" name="regionDescriptors">
+                <property name="editTriggers">
+                 <set>QAbstractItemView::NoEditTriggers</set>
+                </property>
+                <property name="selectionMode">
+                 <enum>QAbstractItemView::ExtendedSelection</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>true</bool>
+                </property>
+                <property name="allColumnsShowFocus">
+                 <bool>true</bool>
+                </property>
+                <property name="expandsOnDoubleClick">
+                 <bool>false</bool>
+                </property>
+                <property name="groupByStyle" stdset="0">
+                 <bool>true</bool>
+                </property>
+                <column>
+                 <property name="text">
+                  <string>Name</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string notr="true">Region</string>
+                 </property>
+                </column>
+                <column>
+                 <property name="text">
+                  <string>Time</string>
+                 </property>
+                </column>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="addKeyframe">
+                <property name="toolTip">
+                 <string>Create a new keyframe for the currently displayed video frame</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Add</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../Icons/vgvideo.qrc">
+                  <normaloff>:/icons/16x16/add</normaloff>:/icons/16x16/add</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="removeKeyframes">
+                <property name="toolTip">
+                 <string>Remove selected keyframe(s)</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Remove</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../Icons/vgvideo.qrc">
+                  <normaloff>:/icons/16x16/remove</normaloff>:/icons/16x16/remove</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="loadKeyframes">
+                <property name="toolTip">
+                 <string>Load keyframes from a file, replacing current keyframes</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Load</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../Icons/vgvideo.qrc">
+                  <normaloff>:/icons/16x16/load</normaloff>:/icons/16x16/load</iconset>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QPushButton" name="saveKeyframes">
+                <property name="toolTip">
+                 <string>Save keyframes to a file</string>
+                </property>
+                <property name="text">
+                 <string>&amp;Save</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="../../Icons/vgvideo.qrc">
+                  <normaloff>:/icons/16x16/save</normaloff>:/icons/16x16/save</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="moveToSelected">
+              <property name="toolTip">
+               <string>Add highlighted descriptors to selection</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vgvideo.qrc">
+                <normaloff>:/icons/22x22/arrow-down</normaloff>:/icons/22x22/arrow-down</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="moveToAvailable">
+              <property name="toolTip">
+               <string>Remove highlighted descriptors from selection</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vgvideo.qrc">
+                <normaloff>:/icons/22x22/arrow-up</normaloff>:/icons/22x22/arrow-up</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>16</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QToolButton" name="clearSelected">
+              <property name="toolTip">
+               <string>Clear selected descriptors</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vgvideo.qrc">
+                <normaloff>:/icons/22x22/clear</normaloff>:/icons/22x22/clear</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0" colspan="3">
+           <widget class="QGroupBox" name="selectedGroup">
+            <property name="title">
+             <string>Selected</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="vvDescriptorInfoTree" name="selectedDescriptors">
+               <property name="selectionMode">
+                <enum>QAbstractItemView::ExtendedSelection</enum>
+               </property>
+               <property name="groupByStyle" stdset="0">
+                <bool>true</bool>
+               </property>
+               <column>
+                <property name="text">
+                 <string notr="true">1</string>
+                </property>
+               </column>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="groupByStyle">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;If checked, descriptor lists will group descriptors by descriptor style. Descriptors with multiple styles will appear in each applicable group.&lt;/p&gt;
+&lt;p&gt;If unchecked, no grouping will be done.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>&amp;Group descriptors by style</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QDialogButtonBox" name="buttonBox">
+            <property name="standardButtons">
+             <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="useMetadata">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;If checked, metadata descriptors associated with the selected descriptors will be automatically included in the query.&lt;/p&gt;
+&lt;p&gt;If unchecked, no metadata descriptors will be included in the query.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Use &amp;metadata in query</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QStatusBar" name="statusbar"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vvDescriptorInfoTree</class>
+   <extends>QTreeWidget</extends>
+   <header>vvDescriptorInfoTree.h</header>
+   <slots>
+    <slot>setGroupByStyle(bool)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/vgvideo.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>VideoQueryDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>794</x>
+     <y>578</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>456</x>
+     <y>664</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>VideoQueryDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>875</x>
+     <y>577</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>643</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupByStyle</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>trackDescriptors</receiver>
+   <slot>setGroupByStyle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>364</x>
+     <y>536</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>597</x>
+     <y>142</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupByStyle</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>regionDescriptors</receiver>
+   <slot>setGroupByStyle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>364</x>
+     <y>536</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>597</x>
+     <y>157</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>groupByStyle</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>selectedDescriptors</receiver>
+   <slot>setGroupByStyle(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>364</x>
+     <y>536</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>597</x>
+     <y>447</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

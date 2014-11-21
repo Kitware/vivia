@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfigureDialog</class>
+ <widget class="QDialog" name="ConfigureDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>582</width>
+    <height>415</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure - VisGUI Query Interface</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="2">
+    <widget class="QListWidget" name="pageChooser">
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="flow">
+      <enum>QListView::LeftToRight</enum>
+     </property>
+     <property name="gridSize">
+      <size>
+       <width>92</width>
+       <height>72</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Data Providers</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/viqui.qrc">
+        <normaloff>:/icons/32x32/data-providers</normaloff>:/icons/32x32/data-providers</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Display</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/viqui.qrc">
+        <normaloff>:/icons/32x32/display</normaloff>:/icons/32x32/display</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Query Formulation</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/viqui.qrc">
+        <normaloff>:/icons/32x32/qf</normaloff>:/icons/32x32/qf</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>IQR</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/viqui.qrc">
+        <normaloff>:/icons/32x32/iqr</normaloff>:/icons/32x32/iqr</iconset>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <layout class="QHBoxLayout" name="sectionLayout">
+     <item>
+      <widget class="QLabel" name="sectionPrefix">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Configure</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="section">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="sectionIcon">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap resource="../../Icons/viqui.qrc">:/icons/22x22/configure</pixmap>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="1">
+    <widget class="QStackedWidget" name="settingsPager">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="pageDataProviders">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupQueryServer">
+         <property name="title">
+          <string>Query Server</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::ExpandingFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="toolTip">
+             <string>The URI of the query server.</string>
+            </property>
+            <property name="text">
+             <string>Server URI:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="queryServerUriLayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="queryServerUri"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="queryServerUriEdit">
+              <property name="icon">
+               <iconset resource="../../Icons/viqui.qrc">
+                <normaloff>:/icons/16x16/edit-location</normaloff>:/icons/16x16/edit-location</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="toolTip">
+             <string>The location where query formulation will place video output.</string>
+            </property>
+            <property name="text">
+             <string>Video URI:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="queryVideoUriLayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="queryVideoUri"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="queryVideoUriPickLocalDir">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/viqui.qrc">
+                <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupVideoProviders">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>List of URI's that will be used to access video for query results.</string>
+         </property>
+         <property name="title">
+          <string>Video Providers</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0" rowspan="4" colspan="3">
+           <widget class="QListWidget" name="videoProviders">
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="videoProviderUp">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/22x22/arrow-up</normaloff>:/icons/22x22/arrow-up</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QToolButton" name="videoProviderDown">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/22x22/arrow-down</normaloff>:/icons/22x22/arrow-down</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QToolButton" name="videoProviderDelete">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/22x22/delete</normaloff>:/icons/22x22/delete</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>22</width>
+              <height>22</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QPushButton" name="videoProviderAddUri">
+            <property name="text">
+             <string>Add &amp;URI...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="videoProviderAddLocalArchive">
+            <property name="text">
+             <string>Add Local &amp;Archive...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/16x16/load-video</normaloff>:/icons/16x16/load-video</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageDisplay">
+      <layout class="QFormLayout" name="formLayout_3">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="toolTip">
+          <string>Number of results to display at a time.</string>
+         </property>
+         <property name="text">
+          <string>Results per Page:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="resultsPerPage">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>5</number>
+         </property>
+         <property name="maximum">
+          <number>9999</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_7">
+         <property name="toolTip">
+          <string>When viewing results, also show this much video (seconds) before and after the result.</string>
+         </property>
+         <property name="text">
+          <string>Result Clip Padding:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QDoubleSpinBox" name="resultClipPadding">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="maximum">
+          <double>30.000000000000000</double>
+         </property>
+         <property name="singleStep">
+          <double>0.500000000000000</double>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupResultColoring">
+         <property name="title">
+          <string>Result Coloring</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="vvScoreGradientWidget" name="resultColoring" native="true"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageQueryFormulation">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QFormLayout" name="formLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_5">
+           <property name="toolTip">
+            <string>The location where descriptors from query formulation will be cached.</string>
+           </property>
+           <property name="text">
+            <string>Cache URI:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <layout class="QHBoxLayout" name="queryCacheUriLayout">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="queryCacheUri"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="queryCacheUriPickLocalDir">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../Icons/viqui.qrc">
+               <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupPredefinedQueries">
+         <property name="title">
+          <string>Predefined Queries</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_8">
+            <property name="toolTip">
+             <string>The directory containing query plans for the Predefined Query option.</string>
+            </property>
+            <property name="text">
+             <string>Location:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="predefinedQueryLayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="predefinedQueryUri"/>
+            </item>
+            <item>
+             <widget class="QToolButton" name="predefinedQueryUriPickLocalDir">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/viqui.qrc">
+                <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupDescriptorTypes">
+         <property name="title">
+          <string>Registered Descriptors</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0" colspan="3">
+           <widget class="QTreeWidget" name="descriptors">
+            <property name="editTriggers">
+             <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::ExtendedSelection</enum>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="uniformRowHeights">
+             <bool>true</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Name</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Groups</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="addDescriptor">
+            <property name="text">
+             <string>&amp;Add Descriptor</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/16x16/add</normaloff>:/icons/16x16/add</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="removeDescriptors">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>&amp;Remove Descriptor(s)</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../Icons/viqui.qrc">
+              <normaloff>:/icons/16x16/delete</normaloff>:/icons/16x16/delete</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageIqr">
+      <layout class="QFormLayout" name="formLayout_2">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_2">
+         <property name="toolTip">
+          <string>Number of results to request per query (IQR will be limited to this set).</string>
+         </property>
+         <property name="text">
+          <string>Working Set Size:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="iqrWorkingSetSize">
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>100</number>
+         </property>
+         <property name="maximum">
+          <number>999999999</number>
+         </property>
+         <property name="singleStep">
+          <number>100</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="toolTip">
+          <string>Number of results for which IQR should request feedback.</string>
+         </property>
+         <property name="text">
+          <string>Refinement Set Size:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="iqrRefinementSetSize">
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>999999999</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttons">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vvScoreGradientWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">vvScoreGradientWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/viqui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttons</sender>
+   <signal>accepted()</signal>
+   <receiver>ConfigureDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>rejected()</signal>
+   <receiver>ConfigureDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pageChooser</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>settingsPager</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pageChooser</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>section</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>329</x>
+     <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

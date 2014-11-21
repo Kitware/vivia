@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<typesystem package="@TYPESYSTEM_NAME@">
+
+  @EXTRA_TYPESYSTEMS@
+
+  <template name="hash_vvTrackState">
+  inline static long vvPyHash(const %CPPTYPE&amp; in) {
+    return vgPyHash(in.TimeStamp);
+  }
+  </template>
+
+  <template name="hash_vvDescriptorRegionEntry">
+  inline static long vvPyHash(const %CPPTYPE&amp; in) {
+    return vgPyHash(in.TimeStamp);
+  }
+  </template>
+
+  <namespace-type name="vvUserData">
+    <enum-type name="Flag" flags="Flags"/>
+    <value-type name="Data"/>
+  </namespace-type>
+
+  <value-type name="vvTrackState" hash-function="vvPyHash">
+    <inject-code class="native" position="beginning">
+      <insert-template name="hash_vgTimeStamp"/>
+      <insert-template name="hash_vvTrackState"/>
+    </inject-code>
+  </value-type>
+
+  <value-type name="vvDescriptor">
+    <enum-type name="CompareMode"/>
+  </value-type>
+
+  <value-type name="vvDescriptorRegionEntry" hash-function="vvPyHash">
+    <inject-code class="native" position="beginning">
+      <insert-template name="hash_vgTimeStamp"/>
+      <insert-template name="hash_vvDescriptorRegionEntry"/>
+    </inject-code>
+  </value-type>
+
+  <object-type name="vvDatabaseQuery">
+    <enum-type name="QueryType"/>
+    <enum-type name="IntersectionType"/>
+  </object-type>
+  <object-type name="vvRetrievalQuery">
+    <enum-type name="EntityType"/>
+  </object-type>
+  <object-type name="vvSimilarityQuery"/>
+
+  <value-type name="vvHeader">
+    <enum-type name="FileType"/>
+  </value-type>
+  <object-type name="vvReader">
+    <enum-type name="Format"/>
+  </object-type>
+
+  <namespace-type name="vvIqr">
+    <enum-type name="Classification"/>
+  </namespace-type>
+
+  <namespace-type name="vvJson"/>
+
+  @EXTRA_OBJECTS@
+
+</typesystem>

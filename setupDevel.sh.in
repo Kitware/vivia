@@ -1,0 +1,15 @@
+#!/bin/bash
+
+add_library_path() {
+  if [ -n "$1" ]; then
+    dir="$(dirname "$1")"
+
+    LD_LIBRARY_PATH="$dir:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export LD_LIBRARY_PATH
+  fi
+}
+
+add_library_path "@LIBJSON_LIBRARY@"
+add_library_path "@GeographicLib_LIBRARY@"
+add_library_path "@GDAL_LIBRARY@"
+add_library_path "@PROJ4_LIBRARY@"

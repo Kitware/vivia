@@ -1,0 +1,25 @@
+#!/bin/bash
+
+prefix=$(cd "${BASH_SOURCE%/*}/.."; pwd)
+
+LD_LIBRARY_PATH=$prefix/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+LD_LIBRARY_PATH=$prefix/lib@LIB_SUFFIX@:$LD_LIBRARY_PATH
+
+PYTHONPATH=$prefix/lib@LIB_SUFFIX@${PYTHONPATH:+:$PYTHONPATH}
+PYTHONPATH=$prefix/lib@LIB_SUFFIX@/@PYTHON_SHORT@/site-packages:$PYTHONPATH
+PYTHONPATH=$prefix/lib/@PYTHON_SHORT@/site-packages:$PYTHONPATH
+
+PATH=$prefix/bin:$PATH
+export PYTHONPATH LD_LIBRARY_PATH PATH
+
+data=$prefix/share/VisGUI/www
+common_content=$data/content
+app_data=$data/apps/@APPLICATION@
+app_content=$app_data/content
+script=$app_data/bin/@SERVER_PYTHON_SCRIPT@
+
+exec pvpython $script \
+  --port ${PORT:-8080} \
+  --content $common_content \
+  --app-content $app_content \
+  "$@"

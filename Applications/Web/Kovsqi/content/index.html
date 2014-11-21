@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<!-- saved from url=(0055)http://twitter.github.com/bootstrap/examples/fluid.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Kitware Online Vision Systems Query Interface</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Include local javascript -->
+    <script src="/js/autobahn.min.js"></script>
+    <script src="/js/hammer.min.js"></script>
+    <script src="/js/jquery-1.8.2.min.js"></script>
+    <script src="/js/jquery-ui-1.10.0.min.js"></script>
+    <script src="/js/jquery.hammer.min.js"></script>
+    <script src="/js/gl-matrix-min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-contextmenu.js"></script>
+    <script src="/js/OpenLayers.js"></script>
+
+    <script src="/js/paraview-all.js"></script>
+    <script src="/js/paraview.ui.pipeline.js"></script>
+    <script src="/js/paraview.ui.toolbar.vcr.js"></script>
+    <script src="/js/paraview.ui.toolbar.viewport.js"></script>
+
+    <script src="/js/visgui.js"></script>
+
+    <!-- Le styles -->
+    <link href="/css/bootstrap.css" rel="stylesheet" />
+    <link href="/css/visgui.css" rel="stylesheet" />
+    <link href="/css/jquery-ui-1.10.0.css" rel="stylesheet" />
+    <script>
+      // Global variable.
+      var vgweb = null;
+
+      // Initialize.
+      var vgWebInitialize = function () {
+        vgweb.parseConfig('config.json', function(config) {
+          vgweb.initializeView(config);
+          vgweb.startSession();
+        });
+      };
+
+      // Shutdown.
+      var vgWebShutdown = function () {
+        vgweb.endSession();
+      };
+
+      // As soon as document is ready to be manipulated
+      // create vgweb instance and initialize it.
+      $( document ).ready(function() {
+        vgweb = new vgWeb();
+        vgWebInitialize();
+      });
+
+    </script>
+  </head>
+
+  <body onbeforeunload="vgWebShutdown()" onunload="vgWebShutdown()">
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Kovsqi</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li><a href="#" onclick="javascript:$('#query-file-input').click();">Open query</a></li>
+              <li><a href="#" onclick="javascript:vgweb.refineResults();">Refine</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid main-content">
+      <div class="row-fluid">
+        <div class="span6" id="map-placeholder">
+          <div id="map-canvas"></div>
+        </div>
+        <div class="span6">
+          <div class="row-fluid">
+            <div class="well sidebar-nav videoContainer">
+              <div class="container-fluid">
+                <div class="row-fluid">
+                  <div class="span12">
+                    <div class='videoPlayer' id='queryVideoPlayer'>
+                      <div class="video-timestamp">00:00:00</div>
+                    </div>
+                    <div class='videoPlayerController' id='videoPlayerController'>
+                      <div id="video-scrubber"></div>
+                      <button class="btn btn-mini" id='play' onclick=vgweb.runAnimation()>
+                        <img alt="Play" src="/images/icons/playback-play.png" />
+                      </button>
+                      <button class="btn btn-mini" id='stop' onclick=vgweb.stopAnimation()>
+                        <img alt="Stop" src="/images/icons/playback-stop.png" />
+                      </button>
+                      <div class="video-control-separator"></div>
+                      <button class="btn btn-mini active" id='toggle_trails' data-toggle="button" onclick=vgweb.toggleTrails()>
+                        <img title="Toggle visibility of trails" alt="Trails" src="/images/icons/show-trails.png" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row-fluid">
+                  <div class="span12">
+                    <div class="accordion" id="metadata-accordion">
+                      <div class="accordion-group">
+                        <div class="accordion-heading">
+                          <a class="accordion-toggle" data-toggle="collapse" data-parent="#metadata-accordion" href="#metadata-collapsible">
+                            Video Metadata
+                          </a>
+                        </div>
+                        <div id="metadata-collapsible" class="accordion-body collapse">
+                          <div class="accordion-inner">
+                            <table id="table-videometadata" class="table table-striped table-hover">
+                              <thead>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Source</th>
+                                  <th>Start Time</th>
+                                  <th>End Time</th>
+                                </tr>
+                              </thead>
+                            </table>
+                            <div class="btn-group track-toggle" data-toggle="buttons-radio">
+                              <button type="button" class="btn btn-primary">Show All</button>
+                              <button type="button" class="btn btn-primary">Hide All</button>
+                            </div>
+                            <div class="btn-group" data-toggle="buttons-checkbox">
+                              <button type="button" class="btn btn-primary">Hide All Events</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> <!--/well (video)-->
+          </div> <!--/row-->
+          <div class="row-fluid">
+            <div id="results">
+              <div class="well sidebar-nav query-results">
+                <div class="container-fluid">
+                  <div class="row-fluid">
+                    <div class="span12">
+                      <ul class="results-tabs nav nav-tabs">
+                        <li class="active"><a href="#results-tab" data-toggle="tab">Results</a></li>
+                        <li><a href="#feedback-tab" data-toggle="tab">Feedback Requests</a></li>
+                      </ul>
+                      <div class="tab-content">
+                        <div class="tab-pane active" id="results-tab">
+                          <div id="table-results">
+                            <div class="row-fluid result-table-header">
+                              <div class="span2 result-col col-number relevant">#</div>
+                              <div class="span2 result-col col-rank">Rank</div>
+                              <div class="span2 result-col col-score">Score</div>
+                              <div class="span2 result-col col-color">Color</div>
+                              <div class="span2 result-col col-start-time">Start Time</div>
+                              <div class="span2 result-col col-end-time">End Time</div>
+                            </div>
+                            <div id="active-results">
+                            <!-- TEMPLATE: Query result row. -->
+                              <div id="template-result-row" class="row-fluid" style="display: none;">
+                                <div class="span2 result-col col-number"></div>
+                                <div class="span2 result-col col-rank"></div>
+                                <div class="span2 result-col col-score"></div>
+                                <div class="span2 result-col col-color">
+                                  <div class="visgui-color-swatch"></div>
+                                </div>
+                                <div class="span2 result-col col-start-time"></div>
+                                <div class="span2 result-col col-end-time"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="tab-pane" id="feedback-tab">
+                          <div id="table-feedback">
+                            <div class="row-fluid result-table-header">
+                              <div class="span2 result-col col-number relevant">#</div>
+                              <div class="span2 result-col col-rank">Rank</div>
+                              <div class="span2 result-col col-score">Preference</div>
+                              <div class="span2 result-col col-color">Color</div>
+                              <div class="span2 result-col col-start-time">Start Time</div>
+                              <div class="span2 result-col col-end-time">End Time</div>
+                            </div>
+                            <div id="active-feedback-requests">
+                            <!-- TEMPLATE: Feedback request row. -->
+                              <div id="template-feedback-row" class="row-fluid" style="display: none;">
+                                <div class="span2 result-col col-number"></div>
+                                <div class="span2 result-col col-rank"></div>
+                                <div class="span2 result-col col-score"></div>
+                                <div class="span2 result-col col-color">
+                                  <div class="visgui-color-swatch"></div>
+                                </div>
+                                <div class="span2 result-col col-start-time"></div>
+                                <div class="span2 result-col col-end-time"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div> <!-- /tab-content -->
+                    </div>
+                  </div>
+                </div>
+              </div><!--/well (query results)-->
+            </div>
+          </div><!--/row-->
+        </div>
+      </div>
+    </div>
+
+    <!--<div class="span4">
+      <footer class="kw-footer">
+        <p>© Kitware 2013</p>
+      </footer>
+    </div>-->
+    </div>
+  </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+
+
+</body></html>
+
+<!-- Hidden form for uploading query plan files. -->
+<input class="hide" type="file" accept=".vqp" id="query-file-input" onchange="vgweb.querySelected();"/>
+
+<!-- Modal dialog: generic loading message -->
+<div id="loading-dialog" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+    <h3>Please Wait</h3>
+  </div>
+  <div class="modal-body">
+    <p>
+      <img src="/images/icons/loading.gif"/>
+      <span class="loading-message"></span>
+    </p>
+  </div>
+</div>
+
+<!-- Result row action menu template. -->
+<div id="result-context-menu">
+  <ul class="dropdown-menu" role="menu">
+    <li><a class="rate-relevant-action" tabindex="-1" href="#">Rate as Relevant</a></li>
+    <li><a class="rate-not-relevant-action" tabindex="-1" href="#">Rate as Not Relevant</a></li>
+    <li><a class="remove-rating-action" tabindex="-1" href="#">Remove Rating</a></li>
+    <li class="divider"></li>
+    <li><a class="view-tracking-clip-action" tabindex="-1" href="#">View Tracking Clip(s)</a></li>
+  </ul>
+</div>

@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="icons/16x16">
+    <file alias="add">16x16/add.png</file>
+    <file alias="arrow-down">16x16/arrow-down.png</file>
+    <file alias="arrow-up">16x16/arrow-up.png</file>
+    <file alias="browse">16x16/browse.png</file>
+    <file alias="delete">16x16/delete.png</file>
+    <file alias="search">16x16/search.png</file>
+  </qresource>
+  <qresource prefix="icons/22x22">
+    <file alias="arrow-down">22x22/arrow-down.png</file>
+    <file alias="arrow-up">22x22/arrow-up.png</file>
+    <file alias="delete">22x22/delete.png</file>
+  </qresource>
+</RCC>

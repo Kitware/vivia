@@ -1,0 +1,2 @@
+string(REPLACE " " ";" CONFIGURE_ARGS "${CONFIGURE_ARGS}")
+configure_file("${INPUT_FILE}" "${OUTPUT_FILE}" ${CONFIGURE_ARGS})

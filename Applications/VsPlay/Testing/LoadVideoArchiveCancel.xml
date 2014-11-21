@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="cancelled" arguments="" />
+</pqevents>

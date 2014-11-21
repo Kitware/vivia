@@ -1,0 +1,38 @@
+/*ckwg +5
+ * Copyright 2012 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+/**
+\mainpage VisGUI Data Framework Documentation
+
+The VisGUI Data Framework (VDF) provides a framework for managing large and
+heterogeneous data sets in a hierarchical manner.
+
+Global data sets may consist of several logical data groupings (e.g. videos
+with associated tracks and events) as well as additional loosely-related data
+(e.g. cartographic imagery providers). Using a tree to represent related data
+is convenient and sensible. Using a generic base node class, along with a root
+node, allows users to maintain a single structure containing all of the above
+mentioned data elements.
+
+VDF uses QObject as an ancestor class for nodes. This provides a number of conveniences, such as the ability for nodes to respond to events, notification
+of node destruction via the QObject::destroyed() signal, automatic reaping of
+child nodes on destruction of the parent, and tracking of node relationships
+using QObject's parenting.
+
+The base node class, vdfNodeBase, also provides some common functionality, such
+as the ability for the user to supply a meaningful name to a node, and to
+globally toggle visibility of associated data in all active views. Additional
+functionality not visible to end users includes reference counting of views
+that are using a node, allowing derived node classes to create and destroy
+resources on demand in order to conserve resources, and improved notification
+of child creation.
+
+\par Further Reading
+\li \ref vdfUpdates
+\li \ref vdfNodeTypes
+
+*/
+// kate: hl c++

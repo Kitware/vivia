@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="vpMainWindow/menubar/menuFile" command="activate" arguments="actionOpenFile" />
+  <pqevent object="QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuDisplay" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewTracks" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewTrackHeads" />
+  <pqevent object="vpMainWindow/menubar/menuDisplay" command="activate" arguments="actionViewEvents" />
+  <pqevent object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0" command="set_int" arguments="240" />
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuView" />
+  <pqevent object="vpMainWindow/menubar/menuView" command="activate" arguments="action3DView" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/viewer3dWidget/qvtkWidget" command="mousePress" arguments="(0.608997,0.774799,1,1,0)" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/viewer3dWidget/qvtkWidget" command="mouseMove" arguments="(0.482699,0.493298,1,0,0)" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/viewer3dWidget/qvtkWidget" command="mouseRelease" arguments="(0.482699,0.493298,1,0,0)" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/graphDisplayGroupBox/groupBox/edgeColorModeComboBox" command="set_string" arguments="RoleBased" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/graphDisplayGroupBox/groupBox/edgeThicknessModeComboBox" command="set_string" arguments="Thick" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/graphDisplayGroupBox/groupBox/edgeThicknessModeComboBox" command="set_string" arguments="Thicker" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/graphDisplayGroupBox/groupBox_2/nodeHeightComboBox" command="set_string" arguments="Start Time" />
+  <pqevent object="vpMainWindow/vpQtViewer3dDialog/graphDisplayGroupBox/groupBox/edgeThicknessModeComboBox" command="set_string" arguments="Thin" />
+</pqevents>

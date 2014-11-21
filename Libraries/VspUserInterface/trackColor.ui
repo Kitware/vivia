@@ -1,0 +1,867 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vsTrackColorDialog</class>
+ <widget class="QDialog" name="vsTrackColorDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>288</width>
+    <height>482</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Track Color</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="defaultLabel">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;The default color is used if Single Color mode is selected, or mode-based coloring fails (e.g. a track has no object classification or dynamic data).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Default Color:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="qtColorButton" name="defaultColor">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Default track pen color. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="defaultColorFore">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Default track label text color.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="defaultColorBack">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Default track label background color.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QRadioButton" name="singleColor">
+       <property name="toolTip">
+        <string>Use the same color for all tracks.</string>
+       </property>
+       <property name="text">
+        <string>&amp;Single Color</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QRadioButton" name="colorByToc">
+       <property name="toolTip">
+        <string>Color tracks by their object classification, if available.</string>
+       </property>
+       <property name="text">
+        <string>Color by Object &amp;Classification</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="personLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Person:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="qtColorButton" name="personColor">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Person. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="personColorFore">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label text color for tracks classified as Person.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="personColorBack">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label background color for tracks classified as Person.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="vehicleLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Vehicle:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="qtColorButton" name="vehicleColor">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Vehicle. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="vehicleColorFore">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label text color for tracks classified as Vehicle.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="vehicleColorBack">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label background color for tracks classified as Vehicle.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="otherLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Other:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="qtColorButton" name="otherColor">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Other. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="otherColorFore">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label text color for tracks classified as Other.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qtColorButton" name="otherColorBack">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Track label background color for tracks classified as Other.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <widget class="QRadioButton" name="colorByData">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Color tracks by their dynamic data, if available. The color used will vary between the minimum and maximum colors depending on the data for a given track segment.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>Color by Dynamic &amp;Data</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="dataSetLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Data Set:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QComboBox" name="dataSet">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Data set to use for dynamic coloring.</string>
+       </property>
+       <property name="insertPolicy">
+        <enum>QComboBox::InsertAlphabetically</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
+      <widget class="QLabel" name="minimumLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Minimum:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="1">
+      <widget class="qtColorButton" name="minimumColor">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track geomoetry color to represent the minimum value in the data value range.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="0">
+      <widget class="QLabel" name="maximumLabel">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Maximum:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="9" column="1">
+      <widget class="qtColorButton" name="maximumColor">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track geomoetry color to represent the maximum value in the data value range.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="10" column="0" colspan="2">
+      <widget class="QGroupBox" name="colorBySource">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>160</height>
+        </size>
+       </property>
+       <property name="title">
+        <string>&amp;Override Color by Track Source</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" colspan="2">
+         <widget class="QTreeWidget" name="sourceColors">
+          <property name="alternatingRowColors">
+           <bool>true</bool>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>false</bool>
+          </property>
+          <property name="uniformRowHeights">
+           <bool>true</bool>
+          </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="allColumnsShowFocus">
+           <bool>true</bool>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>50</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Source</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Pen</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Fore</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Back</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="addSource">
+          <property name="text">
+           <string>&amp;Add</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../Icons/vsp.qrc">
+            <normaloff>:/icons/16x16/add</normaloff>:/icons/16x16/add</iconset>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QPushButton" name="removeSource">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>&amp;Remove</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../Icons/vsp.qrc">
+            <normaloff>:/icons/16x16/delete</normaloff>:/icons/16x16/delete</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>18</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qtColorButton</class>
+   <extends>QPushButton</extends>
+   <header location="global">qtColorButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/vsp.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vsTrackColorDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>214</x>
+     <y>361</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vsTrackColorDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>214</x>
+     <y>361</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>218</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>personLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>65</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>89</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>personColor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>122</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>personColorFore</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>122</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>personColorBack</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>121</x>
+     <y>73</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>122</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>vehicleLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>72</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>82</x>
+     <y>118</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>otherLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>36</x>
+     <y>65</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>54</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>vehicleColor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>vehicleColorFore</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>vehicleColorBack</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>171</x>
+     <y>74</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>148</x>
+     <y>122</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>otherColor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>otherColorFore</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByToc</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>otherColorBack</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>194</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>150</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>minimumLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>184</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>91</x>
+     <y>243</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maximumLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>178</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>66</x>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>minimumColor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>154</x>
+     <y>243</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>maximumColor</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>187</x>
+     <y>177</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>154</x>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dataSetLabel</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>47</x>
+     <y>182</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>47</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>colorByData</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>dataSet</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>203</x>
+     <y>179</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>173</x>
+     <y>203</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,1942 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1069</width>
+    <height>608</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Video Stream Player</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../../Icons/vsp.qrc">
+    <normaloff>:/icons/16x16/vsPlay</normaloff>:/icons/16x16/vsPlay</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0" colspan="4">
+     <widget class="QVTKWidget" name="renderFrame" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="playbackMode">
+      <property name="minimumSize">
+       <size>
+        <width>32</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::RichText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="vgVideoScrubber" name="scrubber" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Frame</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="vgFrameSpinBox" name="frame">
+      <property name="frame">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+      <property name="maximum">
+       <number>0</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1069</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuVideo">
+    <property name="title">
+     <string>&amp;Video</string>
+    </property>
+    <widget class="QMenu" name="menuVideoResampling">
+     <property name="title">
+      <string>R&amp;esampling Mode</string>
+     </property>
+     <addaction name="actionVideoSampleNearest"/>
+     <addaction name="actionVideoSampleLinear"/>
+     <addaction name="actionVideoSampleBicubic"/>
+    </widget>
+    <addaction name="actionVideoPlay"/>
+    <addaction name="actionVideoPause"/>
+    <addaction name="actionVideoPlayReversed"/>
+    <addaction name="actionVideoFastBackward"/>
+    <addaction name="actionVideoFastForward"/>
+    <addaction name="separator"/>
+    <addaction name="actionVideoStop"/>
+    <addaction name="actionVideoResume"/>
+    <addaction name="actionVideoSpeedDecrease"/>
+    <addaction name="actionVideoSpeedIncrease"/>
+    <addaction name="actionVideoFrameBackward"/>
+    <addaction name="actionVideoFrameForward"/>
+    <addaction name="actionVideoSkipBackward"/>
+    <addaction name="actionVideoSkipForward"/>
+    <addaction name="actionVideoPlayLive"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewReset"/>
+    <addaction name="separator"/>
+    <addaction name="actionVideoLiveOffsetSet"/>
+    <addaction name="menuVideoResampling"/>
+    <addaction name="actionVideoMaskShowTracking"/>
+    <addaction name="actionVideoMaskSetColorTracking"/>
+    <addaction name="separator"/>
+    <addaction name="actionWriteRenderedImages"/>
+    <addaction name="actionSaveScreenshot"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuTracks">
+    <property name="title">
+     <string>&amp;Tracks</string>
+    </property>
+    <addaction name="actionTracksShow"/>
+    <addaction name="actionTracksShowBoxes"/>
+    <addaction name="actionTracksShowId"/>
+    <addaction name="actionTracksShowPvo"/>
+    <addaction name="actionTracksColor"/>
+    <addaction name="actionTracksTrailLengthSet"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowTracksShow"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuDescriptors">
+    <property name="title">
+     <string>&amp;Descriptors</string>
+    </property>
+    <widget class="QMenu" name="menuAlerts">
+     <property name="title">
+      <string>Alerts</string>
+     </property>
+     <addaction name="actionAlertCreate"/>
+     <addaction name="actionAlertLoad"/>
+     <addaction name="separator"/>
+     <addaction name="actionAlertActivateSelected"/>
+     <addaction name="actionAlertDeactivateSelected"/>
+     <addaction name="separator"/>
+     <addaction name="actionAlertRemoveSelected"/>
+     <addaction name="actionAlertRemoveAll"/>
+     <addaction name="separator"/>
+     <addaction name="actionWindowAlertShow"/>
+    </widget>
+    <addaction name="menuAlerts"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuEvents">
+    <property name="title">
+     <string>&amp;Events</string>
+    </property>
+    <addaction name="actionEventsPersonEnableAll"/>
+    <addaction name="actionEventsPersonDisableAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionEventsVehicleEnableAll"/>
+    <addaction name="actionEventsVehicleDisableAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionEventFiltersLoad"/>
+    <addaction name="actionEventFiltersSave"/>
+    <addaction name="actionEventProbabilityThresholdSet"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowFilterShow"/>
+    <addaction name="actionEventsTracksShow"/>
+    <addaction name="actionEventsBoxesShow"/>
+    <addaction name="actionEventsLabelsShow"/>
+    <addaction name="actionEventsProbabilityShow"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowEventsShow"/>
+    <addaction name="actionWindowVerifiedEventsShow"/>
+    <addaction name="actionWindowRejectedEventsShow"/>
+    <addaction name="actionWindowEventInfoShow"/>
+   </widget>
+   <widget class="QMenu" name="menuDraw">
+    <property name="title">
+     <string>&amp;Regions</string>
+    </property>
+    <addaction name="actionRegionDraw"/>
+    <addaction name="actionRegionClose"/>
+    <addaction name="actionRegionRemoveSelected"/>
+    <addaction name="actionRegionRemoveAll"/>
+    <addaction name="separator"/>
+    <addaction name="actionVideoMaskShowFiltering"/>
+    <addaction name="actionVideoMaskSetColorFiltering"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowRegionShow"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>T&amp;ools</string>
+    </property>
+   </widget>
+   <addaction name="menuVideo"/>
+   <addaction name="menuTracks"/>
+   <addaction name="menuEvents"/>
+   <addaction name="menuDescriptors"/>
+   <addaction name="menuDraw"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="videoToolBar">
+   <property name="windowTitle">
+    <string>Video</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionVideoFastBackward"/>
+   <addaction name="actionVideoPlayReversed"/>
+   <addaction name="actionVideoPause"/>
+   <addaction name="actionVideoPlay"/>
+   <addaction name="actionVideoFastForward"/>
+   <addaction name="separator"/>
+   <addaction name="actionVideoStop"/>
+   <addaction name="actionVideoSpeedDecrease"/>
+   <addaction name="actionVideoSpeedIncrease"/>
+   <addaction name="actionVideoPlayLive"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewReset"/>
+   <addaction name="actionFollowEvent"/>
+  </widget>
+  <widget class="QToolBar" name="visualizationToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>Visualization</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionTracksShow"/>
+   <addaction name="actionTracksShowBoxes"/>
+   <addaction name="actionTracksShowId"/>
+   <addaction name="actionTracksShowPvo"/>
+   <addaction name="separator"/>
+   <addaction name="actionEventsTracksShow"/>
+   <addaction name="actionEventsBoxesShow"/>
+   <addaction name="actionEventsLabelsShow"/>
+   <addaction name="actionEventsProbabilityShow"/>
+   <addaction name="separator"/>
+   <addaction name="actionVideoMaskShowTracking"/>
+   <addaction name="actionVideoMaskShowFiltering"/>
+  </widget>
+  <widget class="QDockWidget" name="filterDock">
+   <property name="minimumSize">
+    <size>
+     <width>250</width>
+     <height>151</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Filters</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="filterDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QScrollArea" name="filterDockScrollArea">
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="filterDockScrollAreaContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>342</width>
+          <height>85</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QCheckBox" name="groundTruthVisible">
+           <property name="text">
+            <string>Ground Truth</string>
+           </property>
+           <property name="checked">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="vgMixerWidget" name="filter" native="true"/>
+         </item>
+         <item>
+          <spacer name="filterDockSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>62</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="filterToolBar">
+       <property name="windowTitle">
+        <string>Filter Tool Bar</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonFollowStyle</enum>
+       </property>
+       <addaction name="actionEventFiltersLoad"/>
+       <addaction name="actionEventFiltersSave"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="drawingToolBar">
+   <property name="windowTitle">
+    <string>Drawing</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+   <addaction name="actionRegionDraw"/>
+   <addaction name="actionRegionClose"/>
+   <addaction name="actionRegionRemoveAll"/>
+  </widget>
+  <widget class="QDockWidget" name="regionDock">
+   <property name="windowTitle">
+    <string>Regions</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="regionDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsRegionList" name="regionTree">
+       <property name="editTriggers">
+        <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Type</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="regionToolBar">
+       <property name="windowTitle">
+        <string>Region Tool Bar</string>
+       </property>
+       <addaction name="actionRegionRemoveSelected"/>
+       <addaction name="actionRegionRemoveAll"/>
+       <addaction name="separator"/>
+       <addaction name="actionRegionShowHidden"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="eventsDock">
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Events</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="eventDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsEventTreeWidget" name="eventTree" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="verifiedEventsDock">
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Verified Events</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="verifiedDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsEventTreeWidget" name="verifiedEventTree" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="rejectedEventsDock">
+   <property name="minimumSize">
+    <size>
+     <width>150</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Rejected Events</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="rejectedDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsEventTreeWidget" name="rejectedEventTree" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="alertDock">
+   <property name="windowTitle">
+    <string>Alerts</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="alertDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsAlertList" name="alertTree">
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Status</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Matches</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="alertToolBar">
+       <property name="windowTitle">
+        <string>Region Tool Bar</string>
+       </property>
+       <property name="toolButtonStyle">
+        <enum>Qt::ToolButtonIconOnly</enum>
+       </property>
+       <addaction name="actionAlertCreate"/>
+       <addaction name="actionAlertLoad"/>
+       <addaction name="separator"/>
+       <addaction name="actionAlertActivateSelected"/>
+       <addaction name="actionAlertDeactivateSelected"/>
+       <addaction name="separator"/>
+       <addaction name="actionAlertRemoveSelected"/>
+       <addaction name="actionAlertRemoveAll"/>
+       <addaction name="separator"/>
+       <addaction name="actionAlertShowInactive"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="eventInfoDock">
+   <property name="windowTitle">
+    <string>Event Info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="eventInfoDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsEventInfoWidget" name="eventInfo" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="tracksDock">
+   <property name="windowTitle">
+    <string>Tracks</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="trackDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_9">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vsTrackTreeWidget" name="trackTree" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolsToolBar">
+   <property name="windowTitle">
+    <string>Tools</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="actionVideoPause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-pause</normaloff>:/icons/16x16/playback-pause</iconset>
+   </property>
+   <property name="text">
+    <string>Pa&amp;use</string>
+   </property>
+   <property name="toolTip">
+    <string>Pause video playback</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/quit</normaloff>:/icons/16x16/quit</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit the application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionViewReset">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/view-reset</normaloff>:/icons/16x16/view-reset</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Reset View</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset the view to the full video image</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+  </action>
+  <action name="actionTracksShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-show</normaloff>:/icons/16x16/track-show</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Show Tracks</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of tracks</string>
+   </property>
+   <property name="shortcut">
+    <string>T</string>
+   </property>
+  </action>
+  <action name="actionTracksShowBoxes">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-show-boxes</normaloff>:/icons/16x16/track-show-boxes</iconset>
+   </property>
+   <property name="text">
+    <string>Show Entity &amp;Boxes</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of entity bounding boxes</string>
+   </property>
+   <property name="shortcut">
+    <string>B</string>
+   </property>
+  </action>
+  <action name="actionWindowFilterShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/filter-show</normaloff>:/icons/16x16/filter-show</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;Filter Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the event filter window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, F</string>
+   </property>
+  </action>
+  <action name="actionEventsPersonEnableAll">
+   <property name="text">
+    <string>Show All Person Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable display of all person events</string>
+   </property>
+   <property name="shortcut">
+    <string>S, P</string>
+   </property>
+  </action>
+  <action name="actionEventsVehicleEnableAll">
+   <property name="text">
+    <string>Show All Vehicle Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable display of all vehicle events</string>
+   </property>
+   <property name="shortcut">
+    <string>S, V</string>
+   </property>
+  </action>
+  <action name="actionEventsPersonDisableAll">
+   <property name="text">
+    <string>Hide All Person Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable display of all person events</string>
+   </property>
+   <property name="shortcut">
+    <string>H, P</string>
+   </property>
+  </action>
+  <action name="actionEventsVehicleDisableAll">
+   <property name="text">
+    <string>Hide All Vehicle Events</string>
+   </property>
+   <property name="toolTip">
+    <string>Disable display of all vehicle events</string>
+   </property>
+   <property name="shortcut">
+    <string>H, V</string>
+   </property>
+  </action>
+  <action name="actionEventProbabilityThresholdSet">
+   <property name="text">
+    <string>Set &amp;Threshold...</string>
+   </property>
+   <property name="toolTip">
+    <string>Set the probability threshold for filtering events</string>
+   </property>
+   <property name="shortcut">
+    <string>O</string>
+   </property>
+  </action>
+  <action name="actionEventsLabelsShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/event-show-label</normaloff>:/icons/16x16/event-show-label</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;Labels</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of event labels</string>
+   </property>
+   <property name="shortcut">
+    <string>L</string>
+   </property>
+  </action>
+  <action name="actionRegionDraw">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/path-draw</normaloff>:/icons/16x16/path-draw</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Draw</string>
+   </property>
+   <property name="toolTip">
+    <string>Draw regions of interest using lines and polylines</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+  </action>
+  <action name="actionRegionRemoveAll">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/path-clear-all</normaloff>:/icons/16x16/path-clear-all</iconset>
+   </property>
+   <property name="text">
+    <string>Clear &amp;All</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all user regions of interest</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
+  </action>
+  <action name="actionRegionRemoveSelected">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/path-clear</normaloff>:/icons/16x16/path-clear</iconset>
+   </property>
+   <property name="text">
+    <string>Clear &amp;Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove selected user regions of interest</string>
+   </property>
+  </action>
+  <action name="actionRegionClose">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/path-close</normaloff>:/icons/16x16/path-close</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close Path</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the region of interest path being drawn</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionWindowRegionShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/path-list</normaloff>:/icons/16x16/path-list</iconset>
+   </property>
+   <property name="text">
+    <string>Show Region &amp;List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the region list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, R</string>
+   </property>
+  </action>
+  <action name="actionEventsProbabilityShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/event-show-probability</normaloff>:/icons/16x16/event-show-probability</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;Probability</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of event probability scores</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
+  </action>
+  <action name="actionEventFiltersLoad">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/load</normaloff>:/icons/16x16/load</iconset>
+   </property>
+   <property name="text">
+    <string>L&amp;oad Filter Settings...</string>
+   </property>
+   <property name="iconText">
+    <string>Load</string>
+   </property>
+   <property name="toolTip">
+    <string>Load event filter settings from a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, F</string>
+   </property>
+  </action>
+  <action name="actionEventFiltersSave">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/save</normaloff>:/icons/16x16/save</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save Filter Settings...</string>
+   </property>
+   <property name="iconText">
+    <string>Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save event filter settings to a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S, F</string>
+   </property>
+  </action>
+  <action name="actionTracksShowId">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-show-id</normaloff>:/icons/16x16/track-show-id</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;ID's</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of track ID's</string>
+   </property>
+  </action>
+  <action name="actionTracksShowPvo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-show-pvo</normaloff>:/icons/16x16/track-show-pvo</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;PVO's</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of track P/V/O scores</string>
+   </property>
+  </action>
+  <action name="actionTracksTrailLengthSet">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set &amp;Trail Length...</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+T</string>
+   </property>
+  </action>
+  <action name="actionVideoFastBackward">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-fast-backward</normaloff>:/icons/16x16/playback-fast-backward</iconset>
+   </property>
+   <property name="text">
+    <string>Fast &amp;Backward</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video backwards at an accelerated rate</string>
+   </property>
+   <property name="shortcut">
+    <string>&lt;</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoPlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-play</normaloff>:/icons/16x16/playback-play</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Play</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video at normal speed</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoFastForward">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-fast-forward</normaloff>:/icons/16x16/playback-fast-forward</iconset>
+   </property>
+   <property name="text">
+    <string>Fast &amp;Forward</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video forwards at an accelerated rate</string>
+   </property>
+   <property name="shortcut">
+    <string>&gt;</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoFrameBackward">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-frame-backward</normaloff>:/icons/16x16/playback-frame-backward</iconset>
+   </property>
+   <property name="text">
+    <string>Frame &amp;Backward</string>
+   </property>
+   <property name="toolTip">
+    <string>Step video one frame backward</string>
+   </property>
+   <property name="shortcut">
+    <string>[</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoFrameForward">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-frame-forward</normaloff>:/icons/16x16/playback-frame-forward</iconset>
+   </property>
+   <property name="text">
+    <string>Frame &amp;Forward</string>
+   </property>
+   <property name="toolTip">
+    <string>Step video one frame forward</string>
+   </property>
+   <property name="shortcut">
+    <string>]</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoStop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-stop</normaloff>:/icons/16x16/playback-stop</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop video playback and reset to beginning</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionWindowEventsShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Event List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the event list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, E</string>
+   </property>
+  </action>
+  <action name="actionWindowVerifiedEventsShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Verified Event List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the verified event list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, V</string>
+   </property>
+  </action>
+  <action name="actionWindowRejectedEventsShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Rejected Event List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the rejected event list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, J</string>
+   </property>
+  </action>
+  <action name="actionAlertCreate">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/new-alert</normaloff>:/icons/16x16/new-alert</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Create Alert</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Alert</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionAlertLoad">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/load-alert</normaloff>:/icons/16x16/load-alert</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Load Alert</string>
+   </property>
+   <property name="toolTip">
+    <string>Load a saved alert</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O, A</string>
+   </property>
+  </action>
+  <action name="actionAlertRemoveSelected">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/alert-clear</normaloff>:/icons/16x16/alert-clear</iconset>
+   </property>
+   <property name="text">
+    <string>Clear &amp;Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove selected alerts, including corresponding events</string>
+   </property>
+  </action>
+  <action name="actionAlertRemoveAll">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/alert-clear-all</normaloff>:/icons/16x16/alert-clear-all</iconset>
+   </property>
+   <property name="text">
+    <string>Cl&amp;ear All</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove all alerts and alert events</string>
+   </property>
+  </action>
+  <action name="actionAlertActivateSelected">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/alert-activate</normaloff>:/icons/16x16/alert-activate</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Activate Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Activate selected alerts</string>
+   </property>
+  </action>
+  <action name="actionAlertDeactivateSelected">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/alert-deactivate</normaloff>:/icons/16x16/alert-deactivate</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Deactivate Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Deactivate selected alerts</string>
+   </property>
+  </action>
+  <action name="actionAlertShowInactive">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show Inactive</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of inactive alerts in the alert list</string>
+   </property>
+  </action>
+  <action name="actionWindowAlertShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/alert-list</normaloff>:/icons/16x16/alert-list</iconset>
+   </property>
+   <property name="text">
+    <string>Show Alert Lis&amp;t</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the alert list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, A</string>
+   </property>
+  </action>
+  <action name="actionVideoMaskShowFiltering">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/mask-show-filtering</normaloff>:/icons/16x16/mask-show-filtering</iconset>
+   </property>
+   <property name="text">
+    <string>Show Filter &amp;Mask </string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the filter-region mask</string>
+   </property>
+  </action>
+  <action name="actionVideoMaskSetColorTracking">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/mask-color</normaloff>:/icons/16x16/mask-color</iconset>
+   </property>
+   <property name="text">
+    <string>Change Mask &amp;Color...</string>
+   </property>
+   <property name="toolTip">
+    <string>Change the color used to visualize the tracking mask</string>
+   </property>
+  </action>
+  <action name="actionVideoMaskShowTracking">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/mask-show-tracking</normaloff>:/icons/16x16/mask-show-tracking</iconset>
+   </property>
+   <property name="text">
+    <string>Show Tracking &amp;Mask</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the tracking mask</string>
+   </property>
+  </action>
+  <action name="actionVideoMaskSetColorFiltering">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/mask-color</normaloff>:/icons/16x16/mask-color</iconset>
+   </property>
+   <property name="text">
+    <string>Change Mask &amp;Color...</string>
+   </property>
+   <property name="toolTip">
+    <string>Change the color used to visualize the filtering mask</string>
+   </property>
+  </action>
+  <action name="actionRegionShowHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show Hidden</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of hidden regions in the region list</string>
+   </property>
+  </action>
+  <action name="actionWriteRenderedImages">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Write Rendered Images</string>
+   </property>
+   <property name="toolTip">
+    <string>Write an image to specified directory each time the view updates</string>
+   </property>
+  </action>
+  <action name="actionWindowEventInfoShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Event &amp;Info</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, I</string>
+   </property>
+  </action>
+  <action name="actionVideoSampleNearest">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Nearest</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>videoSampling</string>
+   </property>
+  </action>
+  <action name="actionVideoSampleLinear">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Linear</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>videoSampling</string>
+   </property>
+  </action>
+  <action name="actionVideoSampleBicubic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Bicubic</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>videoSampling</string>
+   </property>
+  </action>
+  <action name="actionEventsBoxesShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/event-show-boxes</normaloff>:/icons/16x16/event-show-boxes</iconset>
+   </property>
+   <property name="text">
+    <string>Show Event &amp;Boxes</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of event computation boxes</string>
+   </property>
+  </action>
+  <action name="actionFormulateQuery">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/22x22/new-query</normaloff>:/icons/22x22/new-query</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Formulate Query</string>
+   </property>
+   <property name="toolTip">
+    <string>Formulate a query using current data sources</string>
+   </property>
+  </action>
+  <action name="actionFollowEvent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/icons/22x22/view-track</normaloff>:/icons/22x22/view-track</iconset>
+   </property>
+   <property name="text">
+    <string>actionFollowEvent</string>
+   </property>
+   <property name="toolTip">
+    <string>Allow the camera to follow  ( pan ) an event</string>
+   </property>
+  </action>
+  <action name="actionSaveScreenshot">
+   <property name="text">
+    <string>Save Screenshot</string>
+   </property>
+   <property name="toolTip">
+    <string>Save a screenshot of the current view</string>
+   </property>
+  </action>
+  <action name="actionVideoPlayReversed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-play-reverse</normaloff>:/icons/16x16/playback-play-reverse</iconset>
+   </property>
+   <property name="text">
+    <string>Play Re&amp;versed</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video backwards at normal speed</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoResume">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Res&amp;ume</string>
+   </property>
+   <property name="toolTip">
+    <string>Resume playback at the previous rate and direction</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Space</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoSpeedIncrease">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-speed-increase</normaloff>:/icons/16x16/playback-speed-increase</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Increase Speed</string>
+   </property>
+   <property name="toolTip">
+    <string>Increase playback speed</string>
+   </property>
+   <property name="shortcut">
+    <string>]</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoSpeedDecrease">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-speed-decrease</normaloff>:/icons/16x16/playback-speed-decrease</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Decrease Speed</string>
+   </property>
+   <property name="toolTip">
+    <string>Decrease playback speed</string>
+   </property>
+   <property name="shortcut">
+    <string>[</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoSkipForward">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-skip-forward</normaloff>:/icons/16x16/playback-skip-forward</iconset>
+   </property>
+   <property name="text">
+    <string>Skip F&amp;orward</string>
+   </property>
+   <property name="toolTip">
+    <string>Skip the video forward a few seconds</string>
+   </property>
+   <property name="shortcut">
+    <string>&gt;</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoSkipBackward">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-skip-backward</normaloff>:/icons/16x16/playback-skip-backward</iconset>
+   </property>
+   <property name="text">
+    <string>Skip B&amp;ackward</string>
+   </property>
+   <property name="toolTip">
+    <string>Skip the video backward a few seconds</string>
+   </property>
+   <property name="shortcut">
+    <string>&lt;</string>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionWindowTracksShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-list</normaloff>:/icons/16x16/track-list</iconset>
+   </property>
+   <property name="text">
+    <string>Show Track &amp;List</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, T</string>
+   </property>
+  </action>
+  <action name="actionEventsTracksShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/event-show-tracks</normaloff>:/icons/16x16/event-show-tracks</iconset>
+   </property>
+   <property name="text">
+    <string>Show Event Tr&amp;acks</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of event track segments</string>
+   </property>
+  </action>
+  <action name="actionTracksColor">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/track-color</normaloff>:/icons/16x16/track-color</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Change Color(s)...</string>
+   </property>
+   <property name="toolTip">
+    <string>Set track coloring options</string>
+   </property>
+  </action>
+  <action name="actionVideoPlayLive">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/playback-play-live</normaloff>:/icons/16x16/playback-play-live</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Live</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video at head of stream</string>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+     <weight>50</weight>
+     <italic>false</italic>
+     <bold>false</bold>
+    </font>
+   </property>
+   <property name="priority">
+    <enum>QAction::NormalPriority</enum>
+   </property>
+   <property name="actionGroup" stdset="0">
+    <string>playbackActions</string>
+   </property>
+   <property name="displayGroup" stdset="0">
+    <string>Video Playback</string>
+   </property>
+  </action>
+  <action name="actionVideoLiveOffsetSet">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set Live Offset...</string>
+   </property>
+   <property name="toolTip">
+    <string>Set Offset from Live for &quot;Live&quot; mode</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vgMixerWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">vgMixerWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vgFrameSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header location="global">vgFrameSpinBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>vsEventTreeWidget</class>
+   <extends>QWidget</extends>
+   <header>vsEventTreeWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vsAlertList</class>
+   <extends>QTreeWidget</extends>
+   <header>vsAlertList.h</header>
+   <slots>
+    <slot>removeSelected()</slot>
+    <slot>removeAll()</slot>
+    <slot>activateSelected()</slot>
+    <slot>deactivateSelected()</slot>
+    <slot>setShowInactive(bool)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>vsRegionList</class>
+   <extends>QTreeWidget</extends>
+   <header>vsRegionList.h</header>
+   <slots>
+    <slot>removeSelected()</slot>
+    <slot>removeAll()</slot>
+    <slot>setShowHidden(bool)</slot>
+   </slots>
+  </customwidget>
+  <customwidget>
+   <class>vgVideoScrubber</class>
+   <extends>QWidget</extends>
+   <header location="global">vgVideoScrubber.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vsEventInfoWidget</class>
+   <extends>QWidget</extends>
+   <header>vsEventInfoWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vsTrackTreeWidget</class>
+   <extends>QWidget</extends>
+   <header>vsTrackTreeWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/vsp.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionEventsLabelsShow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionEventsProbabilityShow</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionTracksShow</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionTracksTrailLengthSet</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlertActivateSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>alertTree</receiver>
+   <slot>activateSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlertDeactivateSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>alertTree</receiver>
+   <slot>deactivateSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlertRemoveSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>alertTree</receiver>
+   <slot>removeSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlertRemoveAll</sender>
+   <signal>triggered()</signal>
+   <receiver>alertTree</receiver>
+   <slot>removeAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAlertShowInactive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>alertTree</receiver>
+   <slot>setShowInactive(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>732</x>
+     <y>487</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRegionRemoveSelected</sender>
+   <signal>triggered()</signal>
+   <receiver>regionTree</receiver>
+   <slot>removeSelected()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>730</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRegionRemoveAll</sender>
+   <signal>triggered()</signal>
+   <receiver>regionTree</receiver>
+   <slot>removeAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>730</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionRegionShowHidden</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>regionTree</receiver>
+   <slot>setShowHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>730</x>
+     <y>297</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

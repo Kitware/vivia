@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>videoView</class>
+ <widget class="QWidget" name="videoView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>432</width>
+    <height>356</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QToolBar" name="toolBar">
+     <addaction name="actionPlay"/>
+     <addaction name="actionPause"/>
+     <addaction name="actionStop"/>
+     <addaction name="separator"/>
+     <addaction name="actionFramePrevious"/>
+     <addaction name="actionFrameNext"/>
+     <addaction name="separator"/>
+     <addaction name="actionDecreaseSpeed"/>
+     <addaction name="actionIncreaseSpeed"/>
+     <addaction name="separator"/>
+     <addaction name="actionResetView"/>
+     <addaction name="actionFollowEvent"/>
+     <addaction name="separator"/>
+     <addaction name="actionShowRegion"/>
+    </widget>
+   </item>
+   <item>
+    <widget class="QVTKWidget" name="renderWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>60</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="vgFrameScrubber" name="frameScrubber" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="playbackSpeedLabel">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Playback speed of the current video clip</string>
+       </property>
+       <property name="text">
+        <string>1x</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="frameNumber">
+       <property name="toolTip">
+        <string>Frame number of the currently displayed frame</string>
+       </property>
+       <property name="text">
+        <string>( 0 )</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="elapsedTime">
+       <property name="text">
+        <string>00:00:00.000</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <action name="actionPlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-play</normaloff>:/icons/22x22/playback-play</iconset>
+   </property>
+   <property name="text">
+    <string>Play</string>
+   </property>
+   <property name="toolTip">
+    <string>Play video</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-pause</normaloff>:/icons/22x22/playback-pause</iconset>
+   </property>
+   <property name="text">
+    <string>Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Pause video playback</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-stop</normaloff>:/icons/22x22/playback-stop</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop (and rewind) video</string>
+   </property>
+  </action>
+  <action name="actionFramePrevious">
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-frame-backward</normaloff>:/icons/22x22/playback-frame-backward</iconset>
+   </property>
+   <property name="text">
+    <string>Previous Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Step video one frame backward</string>
+   </property>
+  </action>
+  <action name="actionFrameNext">
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-frame-forward</normaloff>:/icons/22x22/playback-frame-forward</iconset>
+   </property>
+   <property name="text">
+    <string>Next Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Step video one frame forward</string>
+   </property>
+  </action>
+  <action name="actionFollowEvent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/view-track</normaloff>:/icons/22x22/view-track</iconset>
+   </property>
+   <property name="text">
+    <string>Follow Event</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle automatic tracking (zoom and pan) of the event</string>
+   </property>
+  </action>
+  <action name="actionShowRegion">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/show-boxes</normaloff>:/icons/22x22/show-boxes</iconset>
+   </property>
+   <property name="text">
+    <string>Show Region</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle visibility of the event region outline</string>
+   </property>
+  </action>
+  <action name="actionResetView">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/view-reset</normaloff>:/icons/22x22/view-reset</iconset>
+   </property>
+   <property name="text">
+    <string>Reset View</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset view to show the entire frame</string>
+   </property>
+  </action>
+  <action name="actionIncreaseSpeed">
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-speed-increase</normaloff>:/icons/22x22/playback-speed-increase</iconset>
+   </property>
+   <property name="text">
+    <string>Increase Speed</string>
+   </property>
+   <property name="toolTip">
+    <string>Increase playback speed</string>
+   </property>
+  </action>
+  <action name="actionDecreaseSpeed">
+   <property name="icon">
+    <iconset resource="../../Icons/vgvideo.qrc">
+     <normaloff>:/icons/22x22/playback-speed-decrease</normaloff>:/icons/22x22/playback-speed-decrease</iconset>
+   </property>
+   <property name="text">
+    <string>Decrease Speed</string>
+   </property>
+   <property name="toolTip">
+    <string>Decrease playback speed</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vgFrameScrubber</class>
+   <extends>QWidget</extends>
+   <header location="global">vgFrameScrubber.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/vgvideo.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>actionFollowEvent</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionResetView</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

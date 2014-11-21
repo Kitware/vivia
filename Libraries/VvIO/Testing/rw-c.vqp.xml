@@ -1,0 +1,12 @@
+<!DOCTYPE VVXML>
+<xml>
+  <query requested_entities="tracks" type="retrieval" id="QUERY-EXAMPLE-24680">
+    <temporal_limit mode="contains_wholly" lower="1313790109000000" upper="1313847211000000"/>
+    <spatial_limit gcs="4269" mode="intersects">
+      <coordinate easting="-73.7" northing="42.8"/>
+      <coordinate easting="-73.7" northing="42.90000000000001"/>
+      <coordinate easting="-73.8" northing="42.90000000000001"/>
+      <coordinate easting="-73.8" northing="42.8"/>
+    </spatial_limit>
+  </query>
+</xml>

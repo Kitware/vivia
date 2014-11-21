@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5.index" />
+  <pqevent object="MainWindow/actionVideoStop" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/centralwidget/frame" command="set_int" arguments="638" />
+  <pqevent object="MainWindow" command="invokeMethod" arguments="flushPendingSeeks,int,30000" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.44,0.442,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.706,0.624,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.706,0.624,1,0,0)" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="actionViewReset" />
+</pqevents>

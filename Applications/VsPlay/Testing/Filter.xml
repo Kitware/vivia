@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuVideo" />
+  <pqevent object="MainWindow/menubar/menuVideo" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5.index" />
+  <pqevent object="MainWindow/actionVideoStop" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/menubar" command="activate" arguments="menuTracks" />
+  <pqevent object="MainWindow/menubar/menuTracks" command="activate" arguments="&amp;Load Archive" />
+  <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_reconciled_tracks.kw18" />
+  <pqevent object="MainWindow/actionTracksShow" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/actionTracksShowBoxes" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/actionTracksShowId" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/actionTracksShowPvo" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/centralwidget/frame" command="set_int" arguments="758" />
+  <pqevent object="MainWindow" command="invokeMethod" arguments="flushPendingSeeks,int,30000" />
+  <pqevent object="MainWindow/drawingToolBar/regionType" command="set_string" arguments="Filter" />
+  <pqevent object="MainWindow/actionRegionDraw" command="set_boolean" arguments="true" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.77605,0.530378,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.77605,0.530378,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.77605,0.530378,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.713841,0.559934,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.713841,0.559934,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.713841,0.559934,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.696734,0.671593,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.696734,0.671593,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.696734,0.671593,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.754277,0.72578,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.754277,0.72578,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.754277,0.72578,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.856921,0.714286,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.860031,0.702791,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.860031,0.702791,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.835148,0.543514,1,1,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.835148,0.543514,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.835148,0.543514,1,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mousePress" arguments="(0.835148,0.543514,2,2,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.835148,0.543514,2,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.835148,0.543514,2,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseDblClick" arguments="2,2,0,537,331" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseMove" arguments="(0.835148,0.543514,2,0,0)" />
+  <pqevent object="MainWindow/centralwidget/renderFrame" command="mouseRelease" arguments="(0.835148,0.543514,2,0,0)" />
+</pqevents>

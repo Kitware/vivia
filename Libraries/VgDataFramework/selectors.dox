@@ -1,0 +1,28 @@
+/*ckwg +5
+ * Copyright 2012 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+/**
+\page vdfSelectors Data Selectors
+
+\brief Use of selectors to control what data is made available to consumers.
+
+The VisGUI data framework uses \em selectors to request data from data nodes.
+In the absence of selectors, a data node will provide all possible data to a
+consumer, or in some cases, no data at all. As this is usually not desired,
+selectors are used to choose the most appropriate data, and to limit data
+according to user preferences or for performance reasons.
+
+Selectors are implemented via the abstract object class vdfSelector, and use
+meta-casting and the vdfSelectorType static meta-object identifier to determine
+their function. This allows the set of possible selectors to be variable, such
+that libraries may define new selectors that are not known to the core library.
+
+The function of selectors is described by their respective class documentation.
+See vdfSelector's subclasses for a list of selectors defined in the core
+library.
+
+*/
+// kate: hl c++

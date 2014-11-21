@@ -1,0 +1,624 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GraphModelWidget</class>
+ <widget class="QWidget" name="GraphModelWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>855</width>
+    <height>839</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QSplitter" name="splitter_2">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QSplitter" name="splitter">
+      <property name="minimumSize">
+       <size>
+        <width>1</width>
+        <height>1</height>
+       </size>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QGroupBox" name="groupBox_3">
+       <property name="title">
+        <string>Properties</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>-56</y>
+             <width>249</width>
+             <height>186</height>
+            </rect>
+           </property>
+           <layout class="QFormLayout" name="formLayout">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Name:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="nameLineEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Description:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="descriptionLineEdit"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Activity ID:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="activityId">
+              <property name="frame">
+               <bool>true</bool>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::UpDownArrows</enum>
+              </property>
+              <property name="maximum">
+               <number>999999999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="toolTip">
+               <string>Maximum spatial extents of activity</string>
+              </property>
+              <property name="text">
+               <string>Max Spatial Window:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QDoubleSpinBox" name="maxSpatialWindow">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="suffix">
+                 <string> m</string>
+                </property>
+                <property name="maximum">
+                 <double>999999999.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pickMaxSpatialWindow">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="toolTip">
+               <string>Maximum temporal extents of activity</string>
+              </property>
+              <property name="text">
+               <string>Max Temporal Window:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="toolTip">
+               <string>The minimum number of observed events that multiple detected activities have must have in common to be considered the same activity</string>
+              </property>
+              <property name="text">
+               <string>Num. Common Events:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="1">
+             <widget class="QSpinBox" name="numCommonEvents">
+              <property name="maximum">
+               <number>999999999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="toolTip">
+               <string>The minimum number of events to consider when forming activities (typically half the number of nodes)</string>
+              </property>
+              <property name="text">
+               <string>Min Num. Events:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QSpinBox" name="minNumEvents">
+              <property name="maximum">
+               <number>999999999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <widget class="QSpinBox" name="maxTemporalWindow">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="suffix">
+                 <string> s</string>
+                </property>
+                <property name="maximum">
+                 <number>999999999</number>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pickMaxTemporalWindow">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>30</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Nodes</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="1">
+         <widget class="QPushButton" name="removeNodeButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Remove</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QFrame" name="frame">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QComboBox" name="eventTypesComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="addNodeButton">
+             <property name="text">
+              <string>Add</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="0" column="0" colspan="2">
+         <widget class="QTreeWidget" name="nodeTreeWidget">
+          <property name="editTriggers">
+           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>false</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Edges</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="primitivesLabel">
+          <property name="text">
+           <string>Primitive:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="3">
+         <widget class="QComboBox" name="primitivesComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" colspan="2">
+         <widget class="QPushButton" name="removeEdgeButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Remove</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0" colspan="4">
+         <widget class="QFrame" name="frame_3">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="parentNodeLabel">
+             <property name="text">
+              <string>Parent:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="childNodeLabel">
+             <property name="text">
+              <string>Child:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QComboBox" name="parentNodesComboBox"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QComboBox" name="childNodesComboBox"/>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="addEdgeButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Add</string>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="4">
+         <widget class="QTreeWidget" name="edgeTreeWidget">
+          <property name="editTriggers">
+           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+          </property>
+          <property name="selectionMode">
+           <enum>QAbstractItemView::ExtendedSelection</enum>
+          </property>
+          <property name="rootIsDecorated">
+           <bool>false</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string notr="true">1</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="autoEdgesButton">
+          <property name="text">
+           <string>Auto</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="autoEdgesCheckBox">
+          <property name="text">
+           <string>Selected</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" colspan="4">
+         <widget class="QStackedWidget" name="parameterWidget">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="page">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="text">
+               <string>Distance parameter:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="distanceParameter">
+              <property name="suffix">
+               <string> m</string>
+              </property>
+              <property name="maximum">
+               <double>999999999.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pickRadius">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>30</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="page_2">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="margin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Time parameter:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QDoubleSpinBox" name="timeParameter">
+              <property name="suffix">
+               <string> s</string>
+              </property>
+              <property name="maximum">
+               <double>999999999.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pickTimeInterval">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>30</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QGroupBox" name="groupBox_4">
+       <property name="title">
+        <string>Graph Display</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Vertex opacity:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QComboBox" name="graphLayoutComboBox"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="showMainWindowOverlay">
+          <property name="text">
+           <string>Show main window overlay</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSlider" name="vertexOpacity">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Vertex size:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="copyCurrentLayoutButton">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Copy To User Layout</string>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QSlider" name="vertexSize">
+          <property name="minimum">
+           <number>50</number>
+          </property>
+          <property name="maximum">
+           <number>1000</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QPushButton" name="resetView">
+          <property name="text">
+           <string>Reset View</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QVTKWidget" name="renderWidget" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>100</height>
+       </size>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>resultInfo</class>
+ <widget class="QWidget" name="resultInfo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>260</width>
+    <height>301</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>260</width>
+         <height>301</height>
+        </rect>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="fieldGrowthPolicy">
+         <enum>QFormLayout::ExpandingFieldsGrow</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="idLabel">
+          <property name="text">
+           <string>Id:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="id">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="relevancyLabel">
+          <property name="text">
+           <string>Relevancy:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="relevancy">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="classificationLabel">
+          <property name="text">
+           <string>Rating:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="classification">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="noteLabel">
+          <property name="text">
+           <string>Note:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="qtSqueezedLabel" name="note">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::PlainText</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="vvQueryInfoLabel" name="descriptorInfo">
+          <property name="text">
+           <string>(no descriptors)</string>
+          </property>
+          <property name="errorText" stdset="0">
+           <string>(no descriptors)</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="qtExpander" name="showDetails">
+          <property name="text">
+           <string>Details</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="missionIdLabel">
+          <property name="text">
+           <string>Mission Id:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="missionId">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="streamIdLabel">
+          <property name="text">
+           <string>Stream Id:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="streamId">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="startTimeLabel">
+          <property name="text">
+           <string>Start:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1">
+         <widget class="QLineEdit" name="startTime">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="endTimelabel">
+          <property name="text">
+           <string>End:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1">
+         <widget class="QLineEdit" name="endTime">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="durationLabel">
+          <property name="text">
+           <string>Duration:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1">
+         <widget class="QLineEdit" name="duration">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="locationLabel">
+          <property name="text">
+           <string>Location:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1">
+         <widget class="QLineEdit" name="location">
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="helpWidget">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="notice">
+         <property name="text">
+          <string>Notice</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignBottom|Qt::AlignHCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="helpLabel">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Select a single result to view detailed information.</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignHCenter|Qt::AlignTop</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vvQueryInfoLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">vvQueryInfoLabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qtExpander</class>
+   <extends>QToolButton</extends>
+   <header location="global">qtExpander.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qtSqueezedLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">qtSqueezedLabel.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vsTrackTreeWidget</class>
+ <widget class="QWidget" name="vsTrackTreeWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>416</width>
+    <height>325</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="vsTrackTreeView" name="tree">
+     <property name="acceptDrops">
+      <bool>true</bool>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::DragDrop</enum>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="rootIsDecorated">
+      <bool>false</bool>
+     </property>
+     <property name="uniformRowHeights">
+      <bool>true</bool>
+     </property>
+     <property name="allColumnsShowFocus">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolBar" name="toolBar">
+     <property name="toolButtonStyle">
+      <enum>Qt::ToolButtonFollowStyle</enum>
+     </property>
+     <addaction name="actionHideAll"/>
+     <addaction name="actionShowAll"/>
+     <addaction name="actionShowHiddenItems"/>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionHideAll">
+   <property name="text">
+    <string>Hide All</string>
+   </property>
+   <property name="toolTip">
+    <string>Set visibility state of all tracks to hidden</string>
+   </property>
+   <property name="shortcut">
+    <string>H, A</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+   <property name="toolTip">
+    <string>Set visibility state of all tracks to shown</string>
+   </property>
+   <property name="shortcut">
+    <string>S, A</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionShowHiddenItems">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Show Hidden</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle visibility of hidden tracks</string>
+   </property>
+   <property name="shortcut">
+    <string>S, H</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionShowSelected">
+   <property name="text">
+    <string>&amp;Show</string>
+   </property>
+   <property name="toolTip">
+    <string>Show selected tracks</string>
+   </property>
+   <property name="shortcut">
+    <string>S, S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionHideSelected">
+   <property name="text">
+    <string>&amp;Hide</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide selected tracks</string>
+   </property>
+   <property name="shortcut">
+    <string>H, S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionJumpToStart">
+   <property name="text">
+    <string>&amp;Jump to Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Seek to the temporal and spatial start of the selected track</string>
+   </property>
+   <property name="shortcut">
+    <string>J</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionJumpToEnd">
+   <property name="text">
+    <string>Jump to &amp;End</string>
+   </property>
+   <property name="toolTip">
+    <string>Seek to the temporal and spatial end of the selected track</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+J</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionFollowTrack">
+   <property name="text">
+    <string>Follow Track</string>
+   </property>
+   <property name="toolTip">
+    <string>Emit geolocation for sensor tracking of object</string>
+   </property>
+  </action>
+  <action name="actionStopFollowingTrack">
+   <property name="text">
+    <string>Stop Following Track</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop following any track</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vsTrackTreeView</class>
+   <extends>QTreeView</extends>
+   <header>vsTrackTreeView.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

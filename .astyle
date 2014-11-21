@@ -1,0 +1,16 @@
+style=vtk
+indent=spaces=2
+extra-headers=foreach;foreach_iter;foreach_child;QTE_FOREACH_ITER
+
+break-closing-brackets
+keep-one-line-blocks
+keep-one-line-statements
+
+indent-preprocessor
+max-instatement-indent=50
+min-conditional-indent=0
+
+pad-oper
+unpad-paren
+pad-header
+align-pointer=type

@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vsViperArchiveImportOptionsDialog</class>
+ <widget class="QDialog" name="vsViperArchiveImportOptionsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>311</width>
+    <height>257</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Import Options</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="timeGroup">
+     <property name="title">
+      <string>Time Source</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QRadioButton" name="timeCurrent">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Use the current video source (or wait for a source to be connected) for time information. Tracks and events will be imported as timing information becomes available.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&amp;Current Video</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="videoLayout">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="videoFile">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="videoBrowse">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Click to browse for a video archive.</string>
+          </property>
+          <property name="text">
+           <string>...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../Icons/vsp.qrc">
+            <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QRadioButton" name="timeArchive">
+        <property name="toolTip">
+         <string>Use timing information from an external video archive.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Archive</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="optionsGroup">
+     <property name="title">
+      <string>Conversion Options</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="1" column="0">
+       <widget class="QLabel" name="frameRateLabel">
+        <property name="toolTip">
+         <string>Frame rate of the XGTF file relative to that of the time source.</string>
+        </property>
+        <property name="text">
+         <string>Frame Rate:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="frameOffsetLabel">
+        <property name="toolTip">
+         <string>Offset by which to adjust the input XGTF frame numbers prior to time mapping.</string>
+        </property>
+        <property name="text">
+         <string>Frame Offset:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="frameOffset">
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="minimum">
+         <number>-500</number>
+        </property>
+        <property name="maximum">
+         <number>500</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="importEvents">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;body&gt;
+&lt;p&gt;If checked, events will be imported from the XGTF.&lt;/p&gt;
+&lt;p&gt;If unchecked, only track information will be imported.&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>&amp;Import Events</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <layout class="QHBoxLayout" name="frameRateLayout">
+        <item>
+         <widget class="QDoubleSpinBox" name="frameRateIn">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="prefix">
+           <string/>
+          </property>
+          <property name="suffix">
+           <string/>
+          </property>
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>3.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="frameRateOut">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="prefix">
+           <string/>
+          </property>
+          <property name="suffix">
+           <string/>
+          </property>
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="maximum">
+           <double>100.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../Icons/vsp.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vsViperArchiveImportOptionsDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>198</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vsViperArchiveImportOptionsDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>198</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeArchive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>videoFile</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>100</x>
+     <y>68</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>timeArchive</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>videoBrowse</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>34</x>
+     <y>69</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>70</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

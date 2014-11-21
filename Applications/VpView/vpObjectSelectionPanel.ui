@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vpObjectSelectionPanel</class>
+ <widget class="QWidget" name="vpObjectSelectionPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>287</width>
+    <height>393</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="vpTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="activityTab">
+      <attribute name="title">
+       <string>Activities</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <property name="margin">
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <widget class="vpTreeView" name="activityTree">
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="activitySortType">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="activitySortDescending">
+         <property name="text">
+          <string>Descending</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="eventTab">
+      <attribute name="title">
+       <string>Events</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="margin">
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <widget class="vpTreeView" name="eventTree">
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="eventSortType">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="eventSortDescending">
+         <property name="text">
+          <string>Descending</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="trackTab">
+      <attribute name="title">
+       <string>Tracks</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <property name="margin">
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <widget class="vpTreeView" name="trackTree">
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="trackSortType">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="trackSortDescending">
+         <property name="text">
+          <string>Descending</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="fseTab">
+      <attribute name="title">
+       <string>Scene Elements</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <property name="margin">
+        <number>6</number>
+       </property>
+       <item row="0" column="0" colspan="2">
+        <widget class="vpTreeView" name="fseTree">
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QComboBox" name="fseSortType">
+         <property name="sizeAdjustPolicy">
+          <enum>QComboBox::AdjustToContents</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="fseSortDescending">
+         <property name="text">
+          <string>Descending</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="showAllButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Show All</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="hideAllButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Hide All</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QCheckBox" name="showUncheckedItems">
+     <property name="text">
+      <string>Show Unchecked</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QCheckBox" name="showExcludedItems">
+     <property name="text">
+      <string>Show Excluded</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vpTreeView</class>
+   <extends>QTreeView</extends>
+   <header>vpTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>vpTabWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,8 @@
+namespace vgPluginLoader
+{
+  extern const char* const builtinPaths[] =
+    {
+    "${CMAKE_INSTALL_PREFIX}",
+    0
+    };
+}

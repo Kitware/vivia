@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vvTrackInfoWidget</class>
+ <widget class="QTabWidget" name="vvTrackInfoWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>462</width>
+    <height>232</height>
+   </rect>
+  </property>
+  <property name="currentIndex">
+   <number>0</number>
+  </property>
+  <widget class="QWidget" name="summaryTab">
+   <attribute name="title">
+    <string>Summary</string>
+   </attribute>
+   <layout class="QGridLayout" name="summaryLayout">
+    <item row="0" column="0">
+     <layout class="QFormLayout" name="nameLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="sourceLabel">
+        <property name="text">
+         <string>Source:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="source">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="serialLabel">
+        <property name="text">
+         <string>Serial Number:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="serial">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <layout class="QFormLayout" name="timeLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="timeStartLabel">
+        <property name="text">
+         <string>Time (Start):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="timeStart">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="timeEndLabel">
+        <property name="text">
+         <string>Time (End):</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="timeEnd">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="timeDurationLabel">
+        <property name="text">
+         <string>Duration:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="timeDuration">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="1">
+     <layout class="QFormLayout" name="dataLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::ExpandingFieldsGrow</enum>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="tocCountLabel">
+        <property name="text">
+         <string>Classification Entries:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="tocCount">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="statesCountLabel">
+        <property name="text">
+         <string>Trajectory States:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="statesCount">
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="tocTab">
+   <attribute name="title">
+    <string>Classification</string>
+   </attribute>
+   <layout class="QVBoxLayout" name="valueLayout">
+    <item>
+     <widget class="QTreeWidget" name="tocEntries">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="uniformRowHeights">
+       <bool>true</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string notr="true">Identifier</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Probability</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="trajectoryTab">
+   <attribute name="title">
+    <string>Trajectory</string>
+   </attribute>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTreeWidget" name="trajectoryStates">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
+      <property name="uniformRowHeights">
+       <bool>true</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="allColumnsShowFocus">
+       <bool>true</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string>Time</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Location</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Region</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

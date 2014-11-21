@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pqevents>
+ <pqevent command="activate" arguments="menuFile" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionOpenFile" object="vpMainWindow/menubar/menuFile"/>
+ <pqevent command="filesSelected" arguments="$VISGUI_DATA_ROOT/CLIF/session23_CLIF_1160x1128+10200+8219.prj" object="QFileDialog"/>
+ <pqevent command="set_int" arguments="20" object="vpMainWindow/centralwidget/currentFrame/1vgFrameSpinBox0"/>
+ <pqevent command="activate" arguments="menuDisplay" object="vpMainWindow/menubar"/>
+ <pqevent command="activate" arguments="actionViewTracks" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionViewTrackHeads" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionViewEvents" object="vpMainWindow/menubar/menuDisplay"/>
+ <pqevent command="activate" arguments="actionDisplayAOIOutline" object="vpMainWindow/menubar/menuView"/>
+ <pqevent command="mixer_set_state" arguments="32,0" object="vpMainWindow/eventOptionDock/eventOptionDockScrollArea/qt_scrollarea_viewport/eventOptionDockContents/normalcyGroupBox/normalcyFilter"/>
+ <pqevent command="mixer_set_state" arguments="7,0" object="vpMainWindow/eventOptionDock/eventOptionDockScrollArea/qt_scrollarea_viewport/eventOptionDockContents/normalcyGroupBox/normalcyFilter"/>
+ <pqevent command="set_tab" arguments="1" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_tabbar"/>
+ <pqevent command="expand" arguments="11.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="8.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="8.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="11.0.0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="11.0.0.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="10.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="10.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="21.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="21.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="23.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="23.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="29.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="29.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="8.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="8.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="11.0.0.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="11.0.0.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCurrent" arguments="30.0" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+ <pqevent command="setCheckState" arguments="30.0,2" object="vpMainWindow/sessionViewDock/sessionViewDockContents/sessionView/projectSplitter/projectPanels/vpObjectSelectionPanel/tabWidget/qt_tabwidget_stackedwidget/eventTab/eventTree"/>
+</pqevents>

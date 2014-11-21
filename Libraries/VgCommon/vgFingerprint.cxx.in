@@ -1,0 +1,21 @@
+#include "vgFingerprint.h"
+
+#define GIT_STATUS "@GIT_STATUS@"
+#define GIT_SHA1 "@GIT_SHA1@"
+
+namespace {
+
+const char *VgGitHash   = GIT_SHA1;
+const char *VgGitStatus = GIT_STATUS;
+
+}
+
+const char* GetVisguiSha1()
+{
+  return VgGitHash;
+}
+
+const char* GetVisguiStatus()
+{
+  return VgGitStatus;
+}

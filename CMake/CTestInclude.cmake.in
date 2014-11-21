@@ -1,0 +1,31 @@
+#------------------------------------------------------------------------------
+# Prepend a path to the specified environment variable
+macro(prepend_environment_path NAME PATH)
+  if("x_$ENV{${NAME}}" STREQUAL "x_")
+    set(ENV{${NAME}} "${PATH}")
+  elseif(WIN32)
+    set(ENV{${NAME}} "${PATH}\\;$ENV{${NAME}}")
+  else()
+    set(ENV{${NAME}} "${PATH}:$ENV{${NAME}}")
+  endif()
+endmacro()
+
+###############################################################################
+
+# Set environment for Python tests
+prepend_environment_path(PYTHONPATH "@visGUI_SOURCE_DIR@/Modules")
+if(WIN32)
+  prepend_environment_path(PYTHONPATH "@CMAKE_RUNTIME_OUTPUT_DIRECTORY@")
+  prepend_environment_path(PATH "@CMAKE_RUNTIME_OUTPUT_DIRECTORY@")
+else()
+  prepend_environment_path(PYTHONPATH "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@")
+  if(APPLE)
+    prepend_environment_path(DYLD_LIBRARY_PATH
+      "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"
+    )
+  else()
+    prepend_environment_path(LD_LIBRARY_PATH
+      "@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"
+    )
+  endif()
+endif()

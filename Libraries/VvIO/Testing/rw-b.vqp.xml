@@ -1,0 +1,29 @@
+<!DOCTYPE VVXML>
+<xml>
+  <query threshold="0" type="similarity" id="QUERY-EXAMPLE-9876">
+    <temporal_limit mode="contains_any" lower="1302213938000000" upper="1302215277000000"/>
+    <spatial_limit gcs="4269" mode="contains_any">
+      <coordinate easting="-81.40000000000001" northing="38.2"/>
+      <coordinate easting="-81.40000000000001" northing="38.3"/>
+      <coordinate easting="-81.60000000000001" northing="38.3"/>
+      <coordinate easting="-81.60000000000001" northing="38.2"/>
+    </spatial_limit>
+    <descriptor instance_id="2" confidence="0.7000000000000001" module="sample" name="TEST3">
+      <value_vector>
+        <value data="3"/>
+      </value_vector>
+      <value_vector>
+        <value data="1.618"/>
+        <value data="9.80665"/>
+      </value_vector>
+      <value_vector>
+        <value data="49"/>
+        <value data="12"/>
+      </value_vector>
+      <region right="190" left="180" bottom="470" frame_number="63" time="1302035294300000" top="460"/>
+      <region right="190" left="180" bottom="470" frame_number="64" time="1302035294400000" top="460"/>
+      <track source="0" serial_number="1"/>
+      <track source="0" serial_number="2"/>
+    </descriptor>
+  </query>
+</xml>

@@ -1,0 +1,9 @@
+<!DOCTYPE VVXML>
+<xml>
+  <geo_poly gcs="4269">
+    <coordinate easting="-81.40000000000001" northing="38.2"/>
+    <coordinate easting="-81.40000000000001" northing="38.3"/>
+    <coordinate easting="-81.60000000000001" northing="38.3"/>
+    <coordinate easting="-81.60000000000001" northing="38.2"/>
+  </geo_poly>
+</xml>

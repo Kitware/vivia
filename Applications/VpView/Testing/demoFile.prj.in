@@ -1,0 +1,9 @@
+OverviewFile=@VISGUI_DATA_ROOT@/Demo/images/refined_im100008.png
+DataSetSpecifier=@VISGUI_DATA_ROOT@/Demo/images/refined_*.png
+OverviewSpacing=-1
+OverviewOrigin=0 0
+AnalysisDimensions=1161 1129
+TracksFile=@VISGUI_DATA_ROOT@/Demo/tracks_unfiltered.kw18
+EventsFile=@VISGUI_DATA_ROOT@/Demo/events.txt
+IconsFile=@VISGUI_DATA_ROOT@/Demo/demo_icons.txt
+ActivitiesFile=@VISGUI_DATA_ROOT@/Demo/activities.txt

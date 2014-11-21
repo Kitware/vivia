@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vsVvqsDatabaseQueryDialog</class>
+ <widget class="QDialog" name="vsVvqsDatabaseQueryDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>258</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Database Retrieval Options</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout_3">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::ExpandingFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="labelServerUri">
+       <property name="toolTip">
+        <string>The URI of the query server.</string>
+       </property>
+       <property name="text">
+        <string>Server URI:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="serverUriLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="serverUri"/>
+       </item>
+       <item>
+        <widget class="QToolButton" name="serverUriEdit">
+         <property name="icon">
+          <iconset resource="../../../Icons/vsp.qrc">
+           <normaloff>:/icons/16x16/edit-location</normaloff>:/icons/16x16/edit-location</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QCheckBox" name="extractClassifiers">
+       <property name="text">
+        <string>Extract Classifiers</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0" colspan="2">
+      <widget class="QGroupBox" name="timeLimit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="title">
+        <string>Restrict to Time</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelTimeLower">
+          <property name="text">
+           <string>Lower Limit (UTC):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QDateTimeEdit" name="timeLower">
+          <property name="maximumDate">
+           <date>
+            <year>2501</year>
+            <month>1</month>
+            <day>4</day>
+           </date>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>1930</year>
+            <month>1</month>
+            <day>1</day>
+           </date>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy-MM-dd hh:mm</string>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+          <property name="timeSpec">
+           <enum>Qt::UTC</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="labelTimeUpper">
+          <property name="text">
+           <string>Upper Limit (UTC):</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QDateTimeEdit" name="timeUpper">
+          <property name="maximumDate">
+           <date>
+            <year>2501</year>
+            <month>1</month>
+            <day>4</day>
+           </date>
+          </property>
+          <property name="minimumDate">
+           <date>
+            <year>1930</year>
+            <month>1</month>
+            <day>1</day>
+           </date>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy-MM-dd hh:mm</string>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+          <property name="timeSpec">
+           <enum>Qt::UTC</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="QGroupBox" name="streamLimit">
+       <property name="title">
+        <string>Restrict to Stream</string>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <layout class="QFormLayout" name="formLayout_2">
+        <item row="0" column="0">
+         <widget class="QLabel" name="labelStreamId">
+          <property name="text">
+           <string>Stream ID:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <layout class="QHBoxLayout" name="streamIdLayout">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="streamId"/>
+          </item>
+          <item>
+           <widget class="QToolButton" name="streamIdSearch">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../../../Icons/vsp.qrc">
+              <normaloff>:/icons/16x16/search-database</normaloff>:/icons/16x16/search-database</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>385</width>
+       <height>63</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../../Icons/vsp.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vsVvqsDatabaseQueryDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>239</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vsVvqsDatabaseQueryDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>292</x>
+     <y>245</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

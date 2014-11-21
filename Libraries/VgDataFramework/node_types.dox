@@ -1,0 +1,44 @@
+/*ckwg +5
+ * Copyright 2012 by Kitware, Inc. All Rights Reserved. Please refer to
+ * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
+ * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
+ */
+
+/**
+\page vdfNodeTypes Types of Data Nodes
+
+\brief Overview of data node classifications.
+
+Data nodes may be broadly categorized by their selectivity and functionality,
+both of which relate to the usage and variability of the data that a node
+provides. selectivity
+
+The selectivity of a node defines the nature of filtering that may be applied
+when accessing a node's data, and may be queried directly via
+vdfNodeBase::supportedSelectors and vdfNodeBase::isSelectorSupported. Selective
+data nodes are capable of delivering a subset of all available data, influenced
+by parameters such as time or location. Consumers use a \em connection, in the
+form of a vdfNodeProxy instance, to interact with nodes and select the data
+they wish to use, and to receive notification when their data is ready.
+
+Node functionality is somewhat more ephemeral, and is generally defined in
+terms of the specific interfaces that the node implements:
+
+\li An interactive data node allows the user to interact with it in some
+    fashion beyond the basic visibility flag shared by all nodes. This might be
+    simple, such as a track data node that allows the user to apply track
+    filters based on track classification (or even to simply hide individual
+    tracks), or very complicated, such as a node that provides an interactive
+    query interface to a database.
+
+\li Dynamic data nodes work in combination with data sources to manage data
+    from streaming input sources. The dynamic data node provides aggregated
+    data for presentation to the user, which is received from data source
+    nodes. This allows the user to toggle visibility for e.g. all track data,
+    all data from a particular data source (which may include several types of
+    data), or a specific type of data from a specific data source. Dynamic data
+    nodes are often created as hidden nodes, and remain hidden until a relevant
+    data source is added to their neighborhood.
+
+*/
+// kate: hl c++

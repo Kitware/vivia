@@ -1,0 +1,4 @@
+<!DOCTYPE VVXML>
+<xml>
+  <event_meta background_color="rgba(0,0,255,0.501961)" foreground_color="#ffffff" name="Example" display_threshold="0.1" pen_color="#ff0000"/>
+</xml>

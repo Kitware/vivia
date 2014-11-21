@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vpConfigureDialog</class>
+ <widget class="QDialog" name="vpConfigureDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>519</width>
+    <height>448</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure - VisGUI View</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" rowspan="2">
+    <widget class="QListWidget" name="pageChooser">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="flow">
+      <enum>QListView::LeftToRight</enum>
+     </property>
+     <property name="gridSize">
+      <size>
+       <width>72</width>
+       <height>72</height>
+      </size>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Data Providers</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/vpView.qrc">
+        <normaloff>:/icons/32x32/data-providers</normaloff>:/icons/32x32/data-providers</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Display</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../Icons/vpView.qrc">
+        <normaloff>:/icons/32x32/display</normaloff>:/icons/32x32/display</iconset>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>User Interface</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QStackedWidget" name="settingsPager">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="pageDataProviders">
+      <layout class="QGridLayout" name="gridLayout_2">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="groupFileSystem">
+         <property name="title">
+          <string>File System</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelOverviewURI">
+            <property name="text">
+             <string>Overview URI:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="overviewURI">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelAnalysisURI">
+            <property name="text">
+             <string>Analysis URI:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="analysisURILayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="analysisURI">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="analysisURIPickLocalDir">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vpView.qrc">
+                <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="labelTrackerURI">
+            <property name="text">
+             <string>Tracker URI:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="trackerURILayout">
+            <property name="spacing">
+             <number>2</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="trackerURI">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="trackerURIPickLocalDir">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../../Icons/vpView.qrc">
+                <normaloff>:/icons/16x16/browse</normaloff>:/icons/16x16/browse</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QGroupBox" name="groupDatabase">
+         <property name="title">
+          <string>Database</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelDatabaseHostname">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Hostname:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="hostnameLayout">
+            <item>
+             <widget class="QLineEdit" name="databaseHostname">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="placeholderText">
+               <string>hostname</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="labelDatabaseServerPort">
+              <property name="text">
+               <string>Port:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="databaseServerPort">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>4</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximum">
+               <number>100000</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelDatabaseName">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Database:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="databaseNameComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="labelDriver">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Driver:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="databaseDriverComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="editable">
+             <bool>true</bool>
+            </property>
+            <item>
+             <property name="text">
+              <string>postgresql</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="labelDatabaseUsername">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Username:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="databaseUsername">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="placeholderText">
+             <string>username</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="labelDatabasePassword">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Password:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="databasePassword">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+            <property name="placeholderText">
+             <string>password</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QCheckBox" name="databaseUseSourceImages">
+            <property name="text">
+             <string>Use source images</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupStreaming">
+         <property name="title">
+          <string>Streaming</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelStreamingUpdateInterval">
+            <property name="text">
+             <string>Minimum update interval:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="streamingUpdateInterval">
+            <property name="minimumSize">
+             <size>
+              <width>4</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="suffix">
+             <string> second(s)</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+            <property name="value">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelStreamingTrackUpdateChunkSize">
+            <property name="text">
+             <string>Track update chunk size:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="streamingTrackUpdateChunkSize">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>4</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="suffix">
+             <string> frame(s)</string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageDisplay">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>Time Handling</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QCheckBox" name="displayUseTimeStampData">
+            <property name="text">
+             <string>Use timestamp data if available</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="displayForceFrameBasedVideoControls">
+            <property name="text">
+             <string>Force frame-based video controls</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Video Playback</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="videoSequentialPlayback">
+            <property name="toolTip">
+             <string>Display each frame for a fixed period of time</string>
+            </property>
+            <property name="text">
+             <string>Sequential</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="videoRealTimePlayback">
+            <property name="toolTip">
+             <string>Playback at a rate determined by frame times (skipping frames if necessary)</string>
+            </property>
+            <property name="text">
+             <string>Real time</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Suggested video rate:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="videoSuggestedFps">
+            <property name="toolTip">
+             <string>&quot;Best guess&quot; fps rate of the input image data. This value is ignored in real time playback mode when image timestamps are being used.</string>
+            </property>
+            <property name="suffix">
+             <string> fps</string>
+            </property>
+            <property name="minimum">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="value">
+             <double>2.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Image Filtering</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QRadioButton" name="displayNoImageFiltering">
+            <property name="text">
+             <string>None</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="displayLinearImageFiltering">
+            <property name="text">
+             <string>Linear</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>Image Corner Point Usage</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QCheckBox" name="displayEnableWorldIfAvailable">
+            <property name="text">
+             <string>World (lat/lon) if available</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="displayTranslateImage">
+            <property name="text">
+             <string>Translate image (ignored if &quot;World&quot; is enabled)</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="trackAttributeConfig">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Track Attribute Config...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageInterface">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="title">
+          <string>General</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QCheckBox" name="uiUseZeroBasedFrameNumbers">
+            <property name="text">
+             <string>Use zero-based frame numbers</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="uiRightClickToEdit">
+            <property name="text">
+             <string>Right-click to edit</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="uiAutoAdvanceFrameDuringCreation">
+            <property name="text">
+             <string>Auto change frame during track (or FSE) creation</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Coordinate Display</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="displayAOIRelativeCoords">
+            <property name="text">
+             <string>AOI relative</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="displayImageRelativeCoords">
+            <property name="text">
+             <string>Image relative</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttons">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok|QDialogButtonBox::Reset</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../Icons/vpView.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttons</sender>
+   <signal>accepted()</signal>
+   <receiver>vpConfigureDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttons</sender>
+   <signal>rejected()</signal>
+   <receiver>vpConfigureDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pageChooser</sender>
+   <signal>currentRowChanged(int)</signal>
+   <receiver>settingsPager</receiver>
+   <slot>setCurrentIndex(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>43</x>
+     <y>201</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>201</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

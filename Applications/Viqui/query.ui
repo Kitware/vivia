@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vqQueryDialog</class>
+ <widget class="QDialog" name="vqQueryDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>415</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>New Query...</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_5">
+   <item row="0" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Query Type</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QComboBox" name="queryType">
+        <item>
+         <property name="text">
+          <string>(Select a query type)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QToolButton" name="editQuery">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="vvQueryInfoLabel" name="queryInfo">
+        <property name="text">
+         <string>(no descriptors)</string>
+        </property>
+        <property name="indent">
+         <number>2</number>
+        </property>
+        <property name="errorText" stdset="0">
+         <string>(no descriptors)</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>328</width>
+       <height>22</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="buttonLoad">
+     <property name="text">
+      <string>Load</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../Icons/viqui.qrc">
+       <normaloff>:/icons/16x16/load</normaloff>:/icons/16x16/load</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="buttonSave">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../../Icons/viqui.qrc">
+       <normaloff>:/icons/16x16/save</normaloff>:/icons/16x16/save</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="title">
+      <string>Query Options</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelRelevancy">
+        <property name="text">
+         <string>Relevancy Threshold:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QSlider" name="relevancySlider">
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QSpinBox" name="relevancySpin">
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QGroupBox" name="timeLimit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Restrict to Time</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="labelTimeLower">
+           <property name="text">
+            <string>Lower Limit (UTC):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QDateTimeEdit" name="timeLower">
+           <property name="displayFormat">
+            <string>yyyy-MM-dd hh:mm</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+           <property name="timeSpec">
+            <enum>Qt::UTC</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="labelTimeUpper">
+           <property name="text">
+            <string>Upper Limit (UTC):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QDateTimeEdit" name="timeUpper">
+           <property name="displayFormat">
+            <string>yyyy-MM-dd hh:mm</string>
+           </property>
+           <property name="calendarPopup">
+            <bool>true</bool>
+           </property>
+           <property name="timeSpec">
+            <enum>Qt::UTC</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
+       <widget class="QGroupBox" name="regionLimit">
+        <property name="title">
+         <string>Restrict to Region</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QLineEdit" name="region">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="placeholderText">
+              <string>(no region is defined)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="pickRegionNumeric">
+             <property name="toolTip">
+              <string>Define region by entering a location numerically</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../Icons/viqui.qrc">
+               <normaloff>:/icons/16x16/edit-number</normaloff>:/icons/16x16/edit-number</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="pickRegionGraphic">
+             <property name="toolTip">
+              <string>Define region by drawing on the context view</string>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="icon">
+              <iconset resource="../../Icons/viqui.qrc">
+               <normaloff>:/icons/16x16/path-draw</normaloff>:/icons/16x16/path-draw</iconset>
+             </property>
+             <property name="popupMode">
+              <enum>QToolButton::InstantPopup</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QRadioButton" name="anyEvent">
+             <property name="toolTip">
+              <string>Select all results for which the event occurs within (or intersecst) the region</string>
+             </property>
+             <property name="text">
+              <string>Any</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="enterEvent">
+             <property name="toolTip">
+              <string>Limit results to events for which the tracked object is crossing into the region</string>
+             </property>
+             <property name="text">
+              <string>Entering</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="exitEvent">
+             <property name="toolTip">
+              <string>Limit results to events for which the tracked object is crossing out of the region</string>
+             </property>
+             <property name="text">
+              <string>Exiting</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="crossEvent">
+             <property name="toolTip">
+              <string>Limit results to events which intersect the region</string>
+             </property>
+             <property name="text">
+              <string>Crossing</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="3">
+       <widget class="QGroupBox" name="useIqrModel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="title">
+         <string>Use Saved Refinement Model</string>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>vvQueryInfoLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">vvQueryInfoLabel.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../../Icons/viqui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>vqQueryDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vqQueryDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relevancySlider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relevancySpin</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>207</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>117</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>relevancySpin</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>relevancySlider</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>207</x>
+     <y>117</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

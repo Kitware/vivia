@@ -1,0 +1,190 @@
+h3.well-header {
+  border-bottom: 1px solid #e0e0e0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.sidebar-nav {
+  padding: 9px 0;
+}
+
+#map-canvas {
+  /* Default height */
+  height: 500px;
+}
+
+@media (max-width: 979px) {
+  /* Enable use of floated navbar text */
+  .navbar-text.pull-right {
+    float: none;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  #map-canvas {
+    margin-bottom: 30px;
+  }
+
+  h3 {
+    padding-left: 10px;
+  }
+
+  .videoPlayerController {
+    padding-top: 6px;
+    padding-left: 6px;
+  }
+}
+
+@media (min-width: 980px) {
+  body {
+    padding-top: 60px;
+  }
+
+  .videoPlayerController {
+    margin-right: 0px;
+    margin-left: 0px;
+    padding-top: 6px;
+  }
+}
+
+@media (max-width: 767px) {
+  div.result-col {
+    width: 16% !important;
+    float: left !important;
+  }
+}
+
+#results .query-results  {
+  overflow-x: hidden;
+}
+
+#active-results,#active-feedback-requests {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.track-toggle {
+  margin-left: 10px;
+}
+
+.videoPlayer {
+  position: relative;
+  margin-right: 0px;
+  margin-left: 0px;
+  height: 270px;
+  width: 100%;
+}
+
+.videoContainer {
+  width: auto;
+}
+
+button#play,button#stop {
+  min-width: 22px;
+  min-height: 22px;
+}
+
+/* Must override bootstrap img max-width */
+#map-canvas img {
+  max-width: none;
+}
+
+label.visgui-query-name {
+  display: inline
+}
+
+button.visgui-query-execute {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+div.visgui-query-label {
+  display: inline;
+}
+
+div.visgui-query-actions {
+  float: right;
+  padding-right: 5px;
+}
+
+div.visgui-color-swatch {
+  height: 20px;
+  border: 1px solid black;
+  max-width: 40px;
+}
+
+div.visgui-result-row {
+  border-top: 1px solid #d7d7d7;
+  cursor: pointer;
+}
+
+div.visgui-result-row:hover {
+  background-color: #f0f0f0;
+}
+
+div.visgui-result-row.highlight,div.visgui-result-row.highlight:hover {
+  background-color: orange;
+}
+
+div.result-col {
+  overflow: hidden;
+  padding-top: 4px;
+  padding-left: 2px;
+}
+
+div.col-number {
+  padding-left: 23px;
+}
+
+div.result-col.relevant {
+  background: url('/images/icons/okay.png') no-repeat 1px 7px;
+}
+
+div.result-col.not-relevant {
+  background: url('/images/icons/cancel.png') no-repeat 1px 7px;
+}
+
+footer.kw-footer {
+  border-top: 1px solid #d7d7d7;
+  padding-top: 6px;
+}
+
+div.query-file-current {
+  display: none;
+  border-top: 1px solid #e3e3e3;
+  margin-top: 8px;
+  padding: 5px 0;
+}
+
+div#metadata-accordion {
+  margin-top: 8px;
+  margin-bottom: 3px;
+}
+
+div#video-scrubber {
+  width: 100%;
+  margin: 6px 0;
+}
+
+div.video-timestamp {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 3;
+  background-color: rgba(255,255,255,0.8);
+  padding: 3px 6px;
+  border-radius: 3px;
+}
+
+div.video-control-separator {
+  width: 10px;
+  display: inline-block;
+}
+
+div.result-table-header {
+  border-bottom: 1px solid #aaa;
+}
+
+.results-tabs {
+  margin-bottom: 10px;
+}

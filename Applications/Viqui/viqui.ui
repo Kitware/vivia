@@ -1,0 +1,1008 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>909</width>
+    <height>795</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VisGUI Query Interface</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QVTKWidget" name="renderFrame" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>909</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuQuery">
+    <property name="title">
+     <string>&amp;Query</string>
+    </property>
+    <widget class="QMenu" name="menuQueryExportResults">
+     <property name="title">
+      <string>E&amp;xport Results</string>
+     </property>
+    </widget>
+    <addaction name="actionQueryNew"/>
+    <addaction name="actionQueryEdit"/>
+    <addaction name="actionQueryRefine"/>
+    <addaction name="separator"/>
+    <addaction name="actionQueryOpen"/>
+    <addaction name="actionGroundTruthOpen"/>
+    <addaction name="actionQuerySave"/>
+    <addaction name="separator"/>
+    <addaction name="actionFindResult"/>
+    <addaction name="actionQuerySaveResults"/>
+    <addaction name="menuQueryExportResults"/>
+    <addaction name="actionGenerateReport"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuLayers">
+    <property name="title">
+     <string>&amp;Layers</string>
+    </property>
+    <widget class="QMenu" name="menuProjectMru">
+     <property name="title">
+      <string>&amp;Recent Projects</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionProjectMruClear"/>
+    </widget>
+    <addaction name="actionLayerManagerShow"/>
+    <addaction name="separator"/>
+    <addaction name="actionProjectOpen"/>
+    <addaction name="menuProjectMru"/>
+    <addaction name="actionProjectSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionLayerAddFile"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <widget class="QMenu" name="menuItemColoring">
+     <property name="title">
+      <string>Item Coloring</string>
+     </property>
+     <addaction name="actionColorByRank"/>
+     <addaction name="actionColorByRelativeScore"/>
+     <addaction name="actionColorByAbsoluteScore"/>
+     <addaction name="separator"/>
+     <addaction name="actionColorShadeDiscrete"/>
+     <addaction name="actionColorShadeLinear"/>
+     <addaction name="actionColorShadeCubic"/>
+    </widget>
+    <widget class="QMenu" name="menuToolViews">
+     <property name="title">
+      <string>&amp;Tool Views</string>
+     </property>
+     <addaction name="actionViewResults"/>
+     <addaction name="actionViewResultInfo"/>
+     <addaction name="actionViewScore"/>
+     <addaction name="actionViewGroundTruth"/>
+     <addaction name="actionViewTimeline"/>
+     <addaction name="actionViewVideo"/>
+     <addaction name="actionViewQueryClip"/>
+    </widget>
+    <addaction name="menuToolViews"/>
+    <addaction name="actionConfigure"/>
+    <addaction name="separator"/>
+    <addaction name="menuItemColoring"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionShowVideoClipsOnContext"/>
+    <addaction name="actionShowOutlinesOnContext"/>
+    <addaction name="actionShowTracksOnContext"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowQueryRegion"/>
+    <addaction name="separator"/>
+    <addaction name="actionFilterResults"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+   </widget>
+   <addaction name="menuQuery"/>
+   <addaction name="menuLayers"/>
+   <addaction name="menuView"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="queryToolBar">
+   <property name="windowTitle">
+    <string>Query Tool Bar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionQueryNew"/>
+   <addaction name="actionQueryEdit"/>
+   <addaction name="actionQueryRefine"/>
+   <addaction name="separator"/>
+   <addaction name="actionQueryOpen"/>
+   <addaction name="actionQuerySaveResults"/>
+   <addaction name="separator"/>
+   <addaction name="actionViewBestResults"/>
+  </widget>
+  <widget class="QToolBar" name="layerToolBar">
+   <property name="windowTitle">
+    <string>Layer Tool Bar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionProjectOpen"/>
+   <addaction name="actionProjectSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionLayerAddFile"/>
+  </widget>
+  <widget class="QDockWidget" name="videoPlayerDock">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>200</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string>Video Player</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="videoPlayerContents">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqVideoPlayer" name="videoPlayer" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="resultDock">
+   <property name="windowTitle">
+    <string>Results</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="resultContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqTreeView" name="resultView">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="resultToolBar">
+       <addaction name="actionFilterResults"/>
+       <addaction name="actionViewResultsHideAll"/>
+       <addaction name="actionViewResultsShowAll"/>
+       <addaction name="actionViewResultsShowHidden"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="scoreDock">
+   <property name="windowTitle">
+    <string>Feedback Requests</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="scoreContents">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqTreeView" name="scoreView">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolBar" name="scoreToolBar">
+       <addaction name="actionViewRefinementHideAll"/>
+       <addaction name="actionViewRefinementShowAll"/>
+       <addaction name="actionViewRefinementShowHidden"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="groundTruthDock">
+   <property name="windowTitle">
+    <string>Ground Truth</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="groundTruthContents">
+    <layout class="QVBoxLayout" name="verticalLayout_5">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqTreeView" name="groundTruthView">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::ExtendedSelection</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="allColumnsShowFocus">
+        <bool>true</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <column>
+        <property name="text">
+         <string notr="true">1</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Event Type:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="groundTruthEventType">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <item>
+          <property name="text">
+           <string>All</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QToolBar" name="groundTruthToolBar">
+       <addaction name="actionViewGroundTruthHideAll"/>
+       <addaction name="actionViewGroundTruthShowAll"/>
+       <addaction name="actionViewGroundTruthShowHidden"/>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="timelineDock">
+   <property name="windowTitle">
+    <string>Timeline</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="timelineContents">
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqTimeline" name="timeline" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="queryClipDock">
+   <property name="windowTitle">
+    <string>Query Clip</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="vqQueryVideoPlayer" name="queryClip"/>
+  </widget>
+  <widget class="QDockWidget" name="resultInfoDock">
+   <property name="windowTitle">
+    <string>Result Info</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout_6">
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="vqResultInfo" name="resultInfo" native="true"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="viewToolBar">
+   <property name="windowTitle">
+    <string>View Tool Bar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionShowVideoClipsOnContext"/>
+   <addaction name="actionShowOutlinesOnContext"/>
+   <addaction name="actionShowTracksOnContext"/>
+   <addaction name="actionAutoZoomOnPlay"/>
+  </widget>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit the application</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionQueryNew">
+   <property name="text">
+    <string>&amp;New...</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new query</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionQuerySaveResults">
+   <property name="text">
+    <string>&amp;Save Results...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the current query result set</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionQueryOpen">
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open a saved query</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionQueryRefine">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Refine</string>
+   </property>
+   <property name="toolTip">
+    <string>Refine the current query</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionProjectSave">
+   <property name="text">
+    <string>&amp;Save Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Save layers to a project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P, S</string>
+   </property>
+  </action>
+  <action name="actionProjectMruClear">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Clear List</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear list of recently opened projects</string>
+   </property>
+  </action>
+  <action name="actionProjectOpen">
+   <property name="text">
+    <string>&amp;Open Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Load layers from a saved project</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P, O</string>
+   </property>
+  </action>
+  <action name="actionLayerAddFile">
+   <property name="text">
+    <string>Add File...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add a layer from a file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L, F</string>
+   </property>
+  </action>
+  <action name="actionLayerManagerShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show Layer Manager</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the Layer Manager</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, L</string>
+   </property>
+  </action>
+  <action name="actionConfigure">
+   <property name="text">
+    <string>&amp;Configure...</string>
+   </property>
+   <property name="toolTip">
+    <string>View or change configuration settings</string>
+   </property>
+  </action>
+  <action name="actionQuerySave">
+   <property name="text">
+    <string>S&amp;ave Query...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the current query</string>
+   </property>
+  </action>
+  <action name="actionViewResults">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Results</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the results list</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, R</string>
+   </property>
+  </action>
+  <action name="actionViewTimeline">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Timeline</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the timeline view</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, T</string>
+   </property>
+  </action>
+  <action name="actionViewScore">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Feedback Requests</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the refinement window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, F</string>
+   </property>
+  </action>
+  <action name="actionColorByRank">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By &amp;Rank</string>
+   </property>
+  </action>
+  <action name="actionColorByRelativeScore">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By R&amp;elative Score</string>
+   </property>
+  </action>
+  <action name="actionColorShadeDiscrete">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Discrete Colors</string>
+   </property>
+  </action>
+  <action name="actionColorShadeLinear">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Continuous Shade (&amp;Linear)</string>
+   </property>
+  </action>
+  <action name="actionViewVideo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Video Player</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the video player window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, V</string>
+   </property>
+  </action>
+  <action name="actionViewQueryClip">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Query Clip</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, Q</string>
+   </property>
+  </action>
+  <action name="actionViewResultsHideAll">
+   <property name="text">
+    <string>Hide All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn off visibility flag of all result items</string>
+   </property>
+  </action>
+  <action name="actionViewResultsShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn on visibility flag of all result items</string>
+   </property>
+  </action>
+  <action name="actionViewResultsShowHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Hidden Items</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of result items whose visibility flag is off</string>
+   </property>
+  </action>
+  <action name="actionViewRefinementHideAll">
+   <property name="text">
+    <string>Hide All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn off visibility flag of all refinement items</string>
+   </property>
+  </action>
+  <action name="actionViewRefinementShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn on visibility flag of all refinement items</string>
+   </property>
+  </action>
+  <action name="actionViewRefinementShowHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Hidden Items</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of refinement items whose visibility flag is off</string>
+   </property>
+  </action>
+  <action name="actionViewBestResults">
+   <property name="text">
+    <string>View Best Results</string>
+   </property>
+   <property name="toolTip">
+    <string>Show clips of the top 10 results</string>
+   </property>
+  </action>
+  <action name="actionShowQueryRegion">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Query Region</string>
+   </property>
+  </action>
+  <action name="actionViewGroundTruthShowHidden">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Hidden Items</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of result items whose visibility flag is off</string>
+   </property>
+  </action>
+  <action name="actionViewGroundTruthShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn on visibility flag of all result items</string>
+   </property>
+  </action>
+  <action name="actionViewGroundTruthHideAll">
+   <property name="text">
+    <string>Hide All</string>
+   </property>
+   <property name="toolTip">
+    <string>Turn off visibility flag of all result items</string>
+   </property>
+  </action>
+  <action name="actionViewGroundTruth">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Ground Truth</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide ground truth results</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, G</string>
+   </property>
+  </action>
+  <action name="actionGroundTruthOpen">
+   <property name="text">
+    <string>Open &amp;Ground Truth...</string>
+   </property>
+  </action>
+  <action name="actionQueryEdit">
+   <property name="text">
+    <string>&amp;Edit Last...</string>
+   </property>
+  </action>
+  <action name="actionViewResultInfo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Result &amp;Info</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, I</string>
+   </property>
+  </action>
+  <action name="actionShowVideoClipsOnContext">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Video &amp;Clips</string>
+   </property>
+  </action>
+  <action name="actionShowOutlinesOnContext">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Video &amp;Outlines</string>
+   </property>
+  </action>
+  <action name="actionShowTracksOnContext">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;Tracks</string>
+   </property>
+  </action>
+  <action name="actionColorByAbsoluteScore">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>By &amp;Absolute Score</string>
+   </property>
+  </action>
+  <action name="actionFilterResults">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Filter Results...</string>
+   </property>
+   <property name="iconText">
+    <string>Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Add or change result filters</string>
+   </property>
+  </action>
+  <action name="actionColorShadeCubic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Continuous Shade (&amp;Cubic)</string>
+   </property>
+  </action>
+  <action name="actionAutoZoomOnPlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>AutoZoom on Play</string>
+   </property>
+  </action>
+  <action name="actionGenerateReport">
+   <property name="text">
+    <string>Generate Report...</string>
+   </property>
+  </action>
+  <action name="actionFindResult">
+   <property name="text">
+    <string>&amp;Find Result...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionExportKml">
+   <property name="text">
+    <string>KML</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QVTKWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QVTKWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vqVideoPlayer</class>
+   <extends>QWidget</extends>
+   <header>vqVideoPlayer.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vqTreeView</class>
+   <extends>QTreeWidget</extends>
+   <header>vqTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vqTimeline</class>
+   <extends>QWidget</extends>
+   <header>vqTimeline.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vqQueryVideoPlayer</class>
+   <extends>QWidget</extends>
+   <header>vqQueryVideoPlayer.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vqResultInfo</class>
+   <extends>QWidget</extends>
+   <header>vqResultInfo.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>303</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

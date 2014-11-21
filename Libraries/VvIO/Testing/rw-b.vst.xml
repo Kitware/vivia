@@ -1,0 +1,6 @@
+<!DOCTYPE VVXML>
+<xml>
+  <track source="0" serial_number="1">
+    <trajectory_state x="434.5" y="241" bbox_bottom="241" bbox_top="231" frame_number="26" time="1222116851008654" bbox_right="441" bbox_left="428"/>
+  </track>
+</xml>

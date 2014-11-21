@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<typesystem package="@TYPESYSTEM_NAME@">
+
+  @EXTRA_TYPESYSTEMS@
+
+  <namespace-type name="vdf">
+    <enum-type name="UpdateFlag" flags="UpdateFlags"/>
+  </namespace-type>
+
+  <interface-type name="vdfAbstractQueryResultSetNode">
+    <enum-type name="SortOrder"/>
+  </interface-type>
+
+  <object-type name="vdfAbstractQuerySessionNode">
+    <primitive-type name="ResultId"/>
+  </object-type>
+
+  <object-type name="vdfNodeProxy">
+    <enum-type name="ProgressType"/>
+  </object-type>
+
+  @EXTRA_OBJECTS@
+
+</typesystem>

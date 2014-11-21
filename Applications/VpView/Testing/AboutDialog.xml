@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuHelp" />
+  <pqevent object="vpMainWindow/menubar/menuHelp" command="activate" arguments="&amp;About VisGUI View" />
+  <pqevent object="vgAboutDialog/label" command="mousePress" arguments="2,2,0,25,136" />
+  <pqevent object="vgAboutDialog/label" command="contextMenu" arguments="" />
+  <pqevent object="vgAboutDialog/1QMenu0" command="activate" arguments="&amp;Copy to clipboard" />
+  <pqevent object="vgAboutDialog/buttonBox/1QPushButton0" command="activate" arguments="" />
+</pqevents>

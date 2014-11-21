@@ -1,0 +1,24 @@
+QUERY;
+# Query ID [, Video URI ]
+# Descriptors
+#  Descriptor name, Module name, Instance ID, Confidence, Values, Region, Track ID's
+#   Frame Number, Time, Image Region { { Top, Left }, { Bottom, Right } }
+#   Source, Serial Number
+# { Temporal Lower, Temporal Upper }, { GCS, Geospatial Limit Points }
+#   { Easting, Northing }
+# [ Similarity Threshold ]
+"QUERY-EXAMPLE-9876";
+[
+  [ "TEST3", "sample", 2, 0.7,
+    [ [ 3 ],
+      [ 1.618, 9.80665 ],
+      [ 49, 12 ] ],
+    [ [ 63, 1302035294300000, [ [ 460, 180 ], [ 470, 190 ] ] ],
+      [ 64, 1302035294400000, [ [ 460, 180 ], [ 470, 190 ] ] ] ],
+    [ [ 0, 1 ], [ 0, 2 ] ] ] ];
+[ 1302213938000000, 1302215277000000 ],
+  [ 4269,
+    [ [ 38.2, -81.4 ],
+      [ 38.3, -81.4 ],
+      [ 38.3, -81.6 ],
+      [ 38.2, -81.6 ] ] ];

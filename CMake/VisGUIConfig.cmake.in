@@ -1,0 +1,6 @@
+# VisGUI include directory and libraries
+set(VisGUI_INCLUDE_DIR @VisGUI_INCLUDE_DIR@)
+
+# Import library targets
+get_filename_component(_SELF_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(${_SELF_DIR}/VisGUIConfigTargets.cmake)

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vgAboutDialog</class>
+ <widget class="QDialog" name="vgAboutDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>492</width>
+    <height>193</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>12</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="image">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>128</width>
+       <height>128</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>128</width>
+       <height>128</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head&gt;&lt;style type=&quot;text/css&quot;&gt;
+p { margin-top: 0px; margin-bottom: 0px; }
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p style=&quot;font-size:14pt; margin-bottom:1em&quot;&gt;@APP_TITLE@&lt;/p&gt;
+&lt;p&gt;Version @APP_VERSION@&lt;/p&gt;
+&lt;p&gt;Using Qt @QT_VERSION@&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;Copyright @COPY_YEAR@ @APP_ORGANIZATION@&lt;/p&gt;
+&lt;p&gt;&amp;nbsp;&lt;/p&gt;
+&lt;p&gt;@BUILD@&lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>11</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>vgAboutDialog</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

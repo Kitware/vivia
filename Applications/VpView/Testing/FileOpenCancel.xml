@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<pqevents>
+  <pqevent object="vpMainWindow/menubar" command="activate" arguments="menuFile" />
+  <pqevent object="vpMainWindow/menubar/menuFile" command="activate" arguments="actionOpenFile" />
+  <pqevent object="QFileDialog" command="cancelled" arguments="" />
+</pqevents>
