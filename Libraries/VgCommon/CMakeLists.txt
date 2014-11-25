@@ -46,8 +46,8 @@ include_directories(
   ${PROJ4_INCLUDE_DIR}
 )
 
-if ("" STREQUAL "")
-  set(GIT_SHA1   "898b62bbfea7a5d03b35e9c1abdc39aa9c2a2891")
+if ("$Format:$" STREQUAL "")
+  set(GIT_SHA1   "$Format:%H$")
   set(GIT_STATUS "<generated tarball>")
 
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vgFingerprint.cxx.in"
