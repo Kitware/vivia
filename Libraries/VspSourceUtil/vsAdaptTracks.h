@@ -16,12 +16,12 @@
 class vtkVgTimeStamp;
 
 struct vvDescriptor;
-struct vvTrackId;
+struct vsTrackId;
 
 class vsEvent;
 
 typedef vgRange<vtkVgTimeStamp> vsTimeInterval;
-typedef QHash<vvTrackId, QMap<vsTimeInterval, void*> > vsEventTrackInfo;
+typedef QHash<vsTrackId, QMap<vsTimeInterval, void*> > vsEventTrackInfo;
 
 extern VSP_SOURCEUTIL_EXPORT void
 vsAddTracks(vsEvent&, const vsEventTrackInfo&);

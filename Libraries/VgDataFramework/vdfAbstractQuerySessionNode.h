@@ -61,11 +61,11 @@ class VG_DATA_FRAMEWORK_EXPORT vdfAbstractQuerySessionNode :
   /// Flag indicating if the node should automatically get feedback requests.
   ///
   /// Executing a query returns a 'normal' result set. In order to improve
-  /// <abbr title="Iterative Query Refinement">IQR</abbr>, the query service
-  /// may be asked to provide a set of feedback requests. This flag controls
-  /// whether this request is made implicitly once the 'normal' results are
-  /// available. When \c true, getFeedbackRequests() is called automatically
-  /// at the appropriate time.
+  /// \abbr{IQR,Iterative Query Refinement}, the query service may be asked to
+  /// provide a set of feedback requests. This flag controls whether this
+  /// request is made implicitly once the 'normal' results are available. When
+  /// \c true, getFeedbackRequests() is called automatically at the appropriate
+  /// time.
   ///
   /// By default, feedbackImplicit is \c true.
   Q_PROPERTY(bool feedbackImplicit READ isFeedbackImplicit
@@ -188,8 +188,8 @@ signals:
   /// iteration of the type designated by \p scoringRequests. Note that this is
   /// usually emitted twice per query iteration; once when all 'regular'
   /// results are ready (with \p scoringRequests = \c false), and once when all
-  /// results for which IQR has requested feedback have been received (with
-  /// \p scoringRequests = \c true).
+  /// results for which \abbr{IQR,Iterative Query Refinement} has requested
+  /// feedback have been received (with \p scoringRequests = \c true).
   void resultSetComplete(bool scoringRequests);
 
   /// Notification when an error occurs while processing a query action.

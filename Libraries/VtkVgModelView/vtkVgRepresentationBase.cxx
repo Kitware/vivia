@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -50,7 +50,8 @@ void vtkVgRepresentationBase::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgRepresentationBase::SetRepresentationMatrix(vtkMatrix4x4* matrix)
+void vtkVgRepresentationBase::SetRepresentationMatrix(
+  const vtkMatrix4x4* matrix)
 {
   if (!matrix || (this->RepresentationMatrix == matrix))
     {

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -80,7 +80,7 @@ void vvClipVideoRepresentation::Update()
         {
         if (this->AutoCenter)
           {
-          this->AutoCenterUpate(frameData);
+          this->AutoCenterUpdate(frameData);
           } // if (this->AutoCenter)
         this->EventRepresentation->Update();
         }
@@ -125,7 +125,8 @@ void vvClipVideoRepresentation::Update()
 }
 
 //-----------------------------------------------------------------------------
-void vvClipVideoRepresentation::AutoCenterUpate(const vtkVgVideoFrameData* frameData)
+void vvClipVideoRepresentation::AutoCenterUpdate(
+  const vtkVgVideoFrameData* frameData)
 {
   // If this is the first time.
   if (!this->VGEventCached)
@@ -166,8 +167,7 @@ void vvClipVideoRepresentation::AutoCenterUpate(const vtkVgVideoFrameData* frame
   if (this->VGEventCached)
     {
     double center[3];
-    this->VGEventCached->GetRegionCenter(frameData->TimeStamp,
-                                         center, true);
+    this->VGEventCached->GetRegionCenter(frameData->TimeStamp, center, true);
 
     emit this->areaOfInterest(center, this->RegionsMaxWidth, this->RegionsMaxHeight);
     }

@@ -135,10 +135,10 @@ vsViperArchiveSourcePrivate::~vsViperArchiveSourcePrivate()
 }
 
 //-----------------------------------------------------------------------------
-vvTrackId vsViperArchiveSourcePrivate::mapTrackId(
-  uint externalId, const QString& type, vvTrackId& newId)
+vsTrackId vsViperArchiveSourcePrivate::mapTrackId(
+  uint externalId, const QString& type, vsTrackId& newId)
 {
-  QHash<uint, vvTrackId>& map = this->ViperTrackIdMap[type];
+  QHash<uint, vsTrackId>& map = this->ViperTrackIdMap[type];
   if (!map.contains(externalId))
     {
     ViperTrack newTrack;
@@ -181,7 +181,7 @@ void vsViperArchiveSourcePrivate::run()
     }
 
   // Extract track information and copy to internal storage in a useful form
-  vvTrackId nextTrackId(vsTrackInfo::GroundTruthSource, 0);
+  vsTrackId nextTrackId(vsTrackInfo::GroundTruthSource, 0, QUuid());
   vidtk::track_xgtf_type oracle;
   for (size_t n = 0, k = xgtfTracks.size(); n < k; ++n)
     {
@@ -194,7 +194,7 @@ void vsViperArchiveSourcePrivate::run()
       // Look up corresponding internal track
       const uint externalId = oracle.external_id();
       const QString type = qtString(oracle.type());
-      vvTrackId tid = this->mapTrackId(externalId, type, nextTrackId);
+      vsTrackId tid = this->mapTrackId(externalId, type, nextTrackId);
       ViperTrack& track = this->ViperTracks[tid];
 
       // Extract event and add to internal track
@@ -256,7 +256,7 @@ void vsViperArchiveSourcePrivate::dispatch(
   TrackIterator tIter = this->ViperTracks.begin();
   while (tIter != this->ViperTracks.end())
     {
-    vvTrackId tid = tIter.key();
+    vsTrackId tid = tIter.key();
     ViperTrack inTrack = tIter.value(), outTrack;
     outTrack.Type = inTrack.Type;
 
@@ -536,7 +536,7 @@ bool vsViperArchiveSourcePrivate::resolve(vtkVgTimeStamp fmdTimeStamp)
     this->updateStatus(vsDataSource::InProcessActive);
 
     // Update all tracks that use this frame
-    foreach (vvTrackId tid, this->PendingTrackFrames[fmdFrame])
+    foreach (vsTrackId tid, this->PendingTrackFrames[fmdFrame])
       {
       Q_ASSERT(this->ViperTracks.contains(tid));
       const ViperTrack& track = this->ViperTracks[tid];
@@ -643,7 +643,7 @@ void vsViperArchiveSourcePrivate::checkClosures()
   const uint lastFrame = this->LastTime.GetFrameNumber();
 
   // Check for track closures
-  foreach (const vvTrackId& tid, this->OpenTracks)
+  foreach (const vsTrackId& tid, this->OpenTracks)
     {
     Q_ASSERT(this->ViperTracks.contains(tid));
     ViperTrack& track = this->ViperTracks[tid];
@@ -742,8 +742,8 @@ vsViperArchiveSource::vsViperArchiveSource(const QUrl& archiveUri) :
           this, SLOT(emitEvent(vsEvent)));
   connect(d, SIGNAL(eventRevoked(vtkIdType)),
           this, SLOT(revokeEvent(vtkIdType)));
-  connect(d, SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)),
-          this, SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)));
+  connect(d, SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)),
+          this, SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)));
 
   d->Status = vsDataSource::ArchivedIdle;
 }

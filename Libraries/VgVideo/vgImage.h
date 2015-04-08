@@ -82,7 +82,7 @@ public:
 protected:
   QTE_DECLARE_SHARED_EPTR(vgImage)
 
-  friend QDataStream& operator>>(QDataStream&, vgImage&);
+  friend VG_VIDEO_EXPORT QDataStream& operator>>(QDataStream&, vgImage&);
 
 private:
   QTE_DECLARE_SHARED(vgImage)

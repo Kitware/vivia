@@ -135,10 +135,7 @@ find_package(Qt4 4.7.0 REQUIRED)
 include(${QT_USE_FILE})
 
 find_package(PROJ4 REQUIRED)
-
-if(VISGUI_ENABLE_VSPLAY OR VISGUI_ENABLE_VIQUI)
-  find_package(KML REQUIRED)
-endif()
+find_package(KML REQUIRED)
 
 if(VISGUI_ENABLE_GDAL)
   find_package(GDAL REQUIRED)

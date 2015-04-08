@@ -200,6 +200,7 @@ void vsEventTreeWidget::setModel(vsEventTreeModel* model)
 void vsEventTreeWidget::setSelectionModel(vsEventTreeSelectionModel* model)
 {
   QTE_D(vsEventTreeWidget);
+
   d->selectionModel = model;
   d->UI.tree->setSelectionModel(model);
 

@@ -41,15 +41,15 @@ vqSettings::vqSettings()
 }
 
 //-----------------------------------------------------------------------------
-qtSettings_implement(queryServerUri, QueryServerUri, QUrl)
-qtSettings_implement(queryVideoUri, QueryVideoUri, QUrl)
-qtSettings_implement(queryCacheUri, QueryCacheUri, QUrl)
-qtSettings_implement(predefinedQueryUri, PredefinedQueryUri, QUrl)
-qtSettings_implement(resultPageCount, ResultPageCount, int)
-qtSettings_implement(resultClipPadding, ResultClipPadding, double)
-qtSettings_implement(scoreGradient, ScoreGradient, vvScoreGradient)
-qtSettings_implement(iqrWorkingSetSize, IqrWorkingSetSize, int)
-qtSettings_implement(iqrRefinementSetSize, IqrRefinementSetSize, int)
+qtSettings_implement(QUrl, queryServerUri, QueryServerUri)
+qtSettings_implement(QUrl, queryVideoUri, QueryVideoUri)
+qtSettings_implement(QUrl, queryCacheUri, QueryCacheUri)
+qtSettings_implement(QUrl, predefinedQueryUri, PredefinedQueryUri)
+qtSettings_implement(int, resultPageCount, ResultPageCount)
+qtSettings_implement(double, resultClipPadding, ResultClipPadding)
+qtSettings_implement(vvScoreGradient, scoreGradient, ScoreGradient)
+qtSettings_implement(int, iqrWorkingSetSize, IqrWorkingSetSize)
+qtSettings_implement(int, iqrRefinementSetSize, IqrRefinementSetSize)
 
 //-----------------------------------------------------------------------------
 QList<QUrl> vqSettings::videoProviders() const

@@ -1,25 +1,26 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vsVideoRequestor.h"
+#include "vgVideoRequestor.h"
+
+#include "vgVideoSource.h"
+#include "vgVideoSourceRequestor.h"
 
 #include <QEventLoop>
 
-#include <vgVideoSourceRequestor.h>
-#include <vgVideoSource.h>
 
 enum { SeekId = 1 };
 
-class vsVideoRequestorPrivate : public vgVideoSource {};
+class vgVideoRequestorPrivate : public vgVideoSource {};
 
 //-----------------------------------------------------------------------------
-class vsVideoRequestorObject : public vgVideoSourceRequestor
+class vgVideoRequestorObject : public vgVideoSourceRequestor
 {
 public:
-  vsVideoRequestorObject(vtkVgVideoFrame& out) : Frame(out) {}
+  vgVideoRequestorObject(vtkVgVideoFrame& out) : Frame(out) {}
 
   virtual void update(vgVideoSeekRequest, vgVtkVideoFramePtr);
 
@@ -30,10 +31,10 @@ public:
   bool Finished;
 };
 
-typedef QSharedPointer<vsVideoRequestorObject> vsVideoRequestorPtr;
+typedef QSharedPointer<vgVideoRequestorObject> vgVideoRequestorPtr;
 
 //-----------------------------------------------------------------------------
-void vsVideoRequestorObject::update(
+void vgVideoRequestorObject::update(
   vgVideoSeekRequest seekRequest, vgVtkVideoFramePtr frame)
 {
   Q_ASSERT(seekRequest.RequestId == SeekId);
@@ -52,30 +53,30 @@ void vsVideoRequestorObject::update(
 }
 
 //-----------------------------------------------------------------------------
-vsVideoRequestor::vsVideoRequestor(vgVideoSource* source)
-  : d_ptr(static_cast<vsVideoRequestorPrivate*>(source))
+vgVideoRequestor::vgVideoRequestor(vgVideoSource* source)
+  : d_ptr(static_cast<vgVideoRequestorPrivate*>(source))
 {
 }
 
 //-----------------------------------------------------------------------------
-vsVideoRequestor::~vsVideoRequestor()
+vgVideoRequestor::~vgVideoRequestor()
 {
 }
 
 //-----------------------------------------------------------------------------
-bool vsVideoRequestor::requestFrame(
+bool vgVideoRequestor::requestFrame(
   vtkVgVideoFrame& out, vtkVgTimeStamp time, vg::SeekMode direction)
 {
-  return vsVideoRequestor::requestFrame(out, this->d_ptr, time, direction);
+  return vgVideoRequestor::requestFrame(out, this->d_ptr, time, direction);
 }
 
 //-----------------------------------------------------------------------------
-bool vsVideoRequestor::requestFrame(
+bool vgVideoRequestor::requestFrame(
   vtkVgVideoFrame& out, vgVideoSource* source,
   vtkVgTimeStamp time, vg::SeekMode direction)
 {
-  vsVideoRequestorPtr requestorPtr(new vsVideoRequestorObject(out));
-  vsVideoRequestorObject& requestor = *requestorPtr.data();
+  vgVideoRequestorPtr requestorPtr(new vgVideoRequestorObject(out));
+  vgVideoRequestorObject& requestor = *requestorPtr.data();
 
   // Build request
   vgVideoSeekRequest request;

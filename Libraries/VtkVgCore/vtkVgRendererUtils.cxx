@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -40,13 +40,15 @@ void vtkVgRendererUtils::ZoomToImageExtents2D(
   if (image)
     {
     int iextents[6];
+    double spacing[3];
     image->GetExtent(iextents);
+    image->GetSpacing(spacing);
     double extents[4] =
       {
-      static_cast<double>(iextents[0]),
-      static_cast<double>(iextents[1]),
-      static_cast<double>(iextents[2]),
-      static_cast<double>(iextents[3]),
+      static_cast<double>(iextents[0]) * spacing[0],
+      static_cast<double>(iextents[1]) * spacing[0],
+      static_cast<double>(iextents[2]) * spacing[1],
+      static_cast<double>(iextents[3]) * spacing[1],
       };
     ZoomToExtents2D(ren, extents, parallelProjection);
     }

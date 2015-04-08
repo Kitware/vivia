@@ -49,6 +49,9 @@ struct vvTrackId
   vvTrackId(int source, long long serialNumber)
     : Source(source), SerialNumber(serialNumber) {}
 
+  inline operator bool() const;
+  inline bool operator!() const;
+
   inline bool operator==(const vvTrackId& other) const;
   inline bool operator<(const vvTrackId& other) const;
 };
@@ -78,11 +81,24 @@ struct vvTrack
 };
 
 //-----------------------------------------------------------------------------
+vvTrackId::operator bool() const
+{
+  return (this->Source != -1 || this->SerialNumber != -1);
+}
+
+//-----------------------------------------------------------------------------
+bool vvTrackId::operator!() const
+{
+  return (this->Source == -1 && this->SerialNumber == -1);
+}
+
+//-----------------------------------------------------------------------------
 bool vvTrackId::operator==(const vvTrackId& other) const
 {
   return (this->SerialNumber == other.SerialNumber &&
           this->Source == other.Source);
 }
+
 //-----------------------------------------------------------------------------
 bool vvTrackId::operator<(const vvTrackId& other) const
 {

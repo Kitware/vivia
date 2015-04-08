@@ -13,6 +13,7 @@
 
 #include "vsDataSource.h"
 #include "vsTrackData.h"
+#include "vsTrackId.h"
 
 class VSP_DATA_EXPORT vsTrackSource : public vsDataSource
 {
@@ -22,10 +23,10 @@ public:
   virtual ~vsTrackSource() {}
 
 signals:
-  void trackUpdated(vvTrackId trackId, vvTrackState state);
-  void trackUpdated(vvTrackId trackId, QList<vvTrackState> states);
-  void trackDataUpdated(vvTrackId trackId, vsTrackData data);
-  void trackClosed(vvTrackId trackId);
+  void trackUpdated(vsTrackId trackId, vvTrackState state);
+  void trackUpdated(vsTrackId trackId, QList<vvTrackState> states);
+  void trackDataUpdated(vsTrackId trackId, vsTrackData data);
+  void trackClosed(vsTrackId trackId);
 
   void destroyed(vsTrackSource*);
 

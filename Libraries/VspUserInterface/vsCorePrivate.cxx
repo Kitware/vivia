@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -215,13 +215,13 @@ void vsCorePrivate::addTrackSource(vsTrackSourcePtr source)
 
   vsTrackSource* sourcePtr = source.data();
   CONNECT_SOURCE(trackUpdated, SLOT, updateTrack,
-                 (vvTrackId, vvTrackState));
+                 (vsTrackId, vvTrackState));
   CONNECT_SOURCE(trackUpdated, SLOT, updateTrack,
-                 (vvTrackId, QList<vvTrackState>));
+                 (vsTrackId, QList<vvTrackState>));
   CONNECT_SOURCE(trackDataUpdated, SLOT, updateTrackData,
-                 (vvTrackId, vsTrackData));
+                 (vsTrackId, vsTrackData));
   CONNECT_SOURCE(trackClosed, SLOT, closeTrack,
-                 (vvTrackId));
+                 (vsTrackId));
   CONNECT_SOURCE(statusChanged, SLOT, updateTrackSourceStatus,
                  (vsDataSource::Status));
   CONNECT_SOURCE(destroyed, SLOT, unregisterTrackSource,
@@ -253,7 +253,7 @@ void vsCorePrivate::addDescriptorSource(vsDescriptorSourcePtr source)
   CONNECT_SOURCE(eventRevoked, SLOT, removeEvent,
                  (vsDescriptorSource*, vtkIdType));
   CONNECT_SOURCE(tocAvailable, SLOT, setTrackClassification,
-                 (vvTrackId, vsTrackObjectClassifier));
+                 (vsTrackId, vsTrackObjectClassifier));
   CONNECT_SOURCE(statusChanged, SLOT, updateDescriptorSourceStatus,
                  (vsDataSource::Status));
   CONNECT_SOURCE(destroyed, SLOT, unregisterDescriptorSource,
@@ -276,6 +276,9 @@ void vsCorePrivate::connectDescriptorInputs(vsDescriptorSource* source)
   this->connectInput(
     source, inputs, vsDescriptorInput::TrackClosure,
     SIGNAL(trackClosed(qint64, vsDescriptorInputPtr)));
+  this->connectInput(
+    source, inputs, vsDescriptorInput::TrackNote,
+    SIGNAL(trackNoteAvailable(qint64, vsDescriptorInputPtr)));
   this->connectInput(
     source, inputs, vsDescriptorInput::TrackObjectClassifier,
     SIGNAL(tocAvailable(qint64, vsDescriptorInputPtr)));
@@ -486,7 +489,7 @@ vvTrack& vsCorePrivate::getVvTrack(const vvTrackId& trackId)
 }
 
 //-----------------------------------------------------------------------------
-vtkVgTrack* vsCorePrivate::track(const vvTrackId& trackId)
+vtkVgTrack* vsCorePrivate::track(const vsTrackId& trackId, bool* created)
 {
   // Select appropriate model
   vtkVgTrackModelCollection* trackModel = this->TrackModel;
@@ -516,13 +519,18 @@ vtkVgTrack* vsCorePrivate::track(const vvTrackId& trackId)
   track->FastDelete();
   this->flushDeferredEvents();
 
+  if (created)
+    {
+    *created = true;
+    }
+
   // Return newly created track
   return track;
 }
 
 //-----------------------------------------------------------------------------
 void vsCorePrivate::deferTrackUpdate(
-  const vvTrackId& trackId, const vvTrackState& state)
+  const vsTrackId& trackId, const vvTrackState& state)
 {
   if (!this->DeferredTrackUpdates.contains(trackId))
     this->DeferredTrackUpdates.insert(trackId, DeferredTrackUpdate());
@@ -550,7 +558,7 @@ void vsCorePrivate::flushDeferredTrackUpdates(const vtkVgTimeStamp& ts)
 
   // Flush any deferred updates that are older than the latest homography we
   // have received
-  foreach (vvTrackId tid, this->DeferredTrackUpdates.keys())
+  foreach (vsTrackId tid, this->DeferredTrackUpdates.keys())
     {
     QList<vvTrackState> states;
     DeferredTrackUpdate& tu = this->DeferredTrackUpdates[tid];
@@ -572,7 +580,7 @@ void vsCorePrivate::flushDeferredTrackUpdates(const vtkVgTimeStamp& ts)
 
 //-----------------------------------------------------------------------------
 void vsCorePrivate::updateTrack(
-  const vvTrackId& trackId, const QList<vvTrackState>& states)
+  const vsTrackId& trackId, const QList<vvTrackState>& states)
 {
   QTE_Q(vsCore);
 
@@ -649,8 +657,8 @@ void vsCorePrivate::updateTrack(
     // Accept the update
     track || (track = this->track(trackId));
     isFirstPoint = isFirstPoint || !track->GetStartFrame().IsValid();
-    track->SetPoint(state.TimeStamp, wp, vtkVgGeoCoord(), object.count() / 3,
-                    object.data());
+    track->SetPoint(state.TimeStamp, wp, state.WorldLocation,
+                    object.count() / 3, object.data());
     this->emitInput(&vsCore::trackUpdated,
                     new vsDescriptorInput(trackId, wstate));
 
@@ -663,9 +671,11 @@ void vsCorePrivate::updateTrack(
         {
         this->FollowedTrackTimeStamp = state.TimeStamp;
 
-        QMap<vgTimeStamp, vtkVgVideoFrameMetaData>::const_iterator iter =
-          this->VideoFrameMetadata.find(this->FollowedTrackTimeStamp);
+        const vgTimeMap<vtkVgVideoFrameMetaData>::const_iterator iter =
+          this->VideoFrameMetadata.find(this->FollowedTrackTimeStamp,
+                                        vg::SeekNearest);
         if (iter != this->VideoFrameMetadata.end() && // How could it == end?
+            iter.key().FuzzyEquals(this->FollowedTrackTimeStamp, 10.0) &&
             iter.value().AreCornerPointsValid())
           {
           vtkSmartPointer<vtkMatrix4x4> imageToLatLonMatrix =
@@ -697,7 +707,7 @@ void vsCorePrivate::updateTrack(
 }
 
 //-----------------------------------------------------------------------------
-void vsCorePrivate::updateTrackData(const vvTrackId &trackId,
+void vsCorePrivate::updateTrackData(const vsTrackId &trackId,
                                     const vsTrackData& data)
 {
   QTE_Q(vsCore);
@@ -724,7 +734,7 @@ void vsCorePrivate::updateTrackData(const vvTrackId &trackId,
 }
 
 //-----------------------------------------------------------------------------
-void vsCorePrivate::closeTrack(const vvTrackId& trackId)
+void vsCorePrivate::closeTrack(const vsTrackId& trackId)
 {
   QTE_Q(vsCore);
 
@@ -788,7 +798,7 @@ bool vsCorePrivate::areEventTracksPresent(const vsEvent& event)
   while (n--)
     {
     vtkVsTrackInfo* ti = vtkVsTrackInfo::SafeDownCast(event->GetTrackInfo(n));
-    if (!ti || !this->TrackModelIdMap.contains(ti->VvTrackId))
+    if (!ti || !this->TrackModelIdMap.contains(ti->LogicalId))
       return false;
     }
   return true;
@@ -822,6 +832,8 @@ void vsCorePrivate::deferEventRegion(
 //-----------------------------------------------------------------------------
 void vsCorePrivate::flushDeferredEventRegions(const vtkVgTimeStamp& ts)
 {
+  QTE_Q(vsCore);
+
   if (!this->LastHomographyTimestamp.IsValid()
       || this->LastHomographyTimestamp < ts)
     {
@@ -840,15 +852,17 @@ void vsCorePrivate::flushDeferredEventRegions(const vtkVgTimeStamp& ts)
     vtkVgEvent* event = e.model->GetEvent(e.modelId);
     if (event)
       {
-      const bool updated = this->addEventRegion(event, e.time, e.region);
-      updateNeeded = updateNeeded || updated;
+      if (this->addEventRegion(event, e.time, e.region))
+        {
+        updateNeeded = true;
+        emit q->eventRegionsChanged(event);
+        }
       }
     }
 
   // Issue an update if any regions were added
   if (updateNeeded)
     {
-    QTE_Q(vsCore);
     emit q->updated();
     }
 }
@@ -916,6 +930,7 @@ void vsCorePrivate::setEventRegions(vtkVgEvent* dst, vtkVgEventBase* src)
 {
   // Convert event regions from image coordinates to stabilized coordinates
   QList<QPair<vtkVgTimeStamp, QPolygonF> > regions;
+  dst->ClearRegions();
   if (src->GetNumberOfRegions())
     {
     vtkVgTimeStamp ts;
@@ -978,8 +993,6 @@ void vsCorePrivate::addDescriptors(
 void vsCorePrivate::addEvent(vsDescriptorSource* source, vsEvent eventBase)
 {
   QHash<int, int>& typeMap = this->UserEventTypeMap[source];
-  bool haveClassifiers =
-    this->ExpectedEventGroups.contains(vsEventInfo::Classifier);
 
   const std::vector<int> classifiers = eventBase->GetClassifierTypes();
 
@@ -1003,12 +1016,22 @@ void vsCorePrivate::addEvent(vsDescriptorSource* source, vsEvent eventBase)
         }
       }
 
-    // If we haven't already seen a classifier event, check if this is one
-    if (!haveClassifiers && classifier > 0)
+    // Ensure that the event group for this event type is shown
+    const vsEventInfo::Group group = vsEventInfo::eventGroup(classifier);
+    switch (group)
       {
-      // The event has a classifier; show the filters
-      this->expectEventGroup(vsEventInfo::Classifier);
-      haveClassifiers = true;
+      case vsEventInfo::Classifier:
+      case vsEventInfo::General:
+      case vsEventInfo::Alert:
+      case vsEventInfo::User:
+        if (!this->ExpectedEventGroups.contains(group))
+          {
+          // Show the filters for the event's group
+          this->expectEventGroup(group);
+          }
+        break;
+      default:
+        break;
       }
     }
 
@@ -1024,7 +1047,7 @@ void vsCorePrivate::addEvent(vsDescriptorSource* source, vsEvent eventBase)
 }
 
 //-----------------------------------------------------------------------------
-void vsCorePrivate::addReadyEvent(
+vtkIdType vsCorePrivate::addReadyEvent(
   vsDescriptorSource* source, vsEvent eventBase)
 {
   QTE_Q(vsCore);
@@ -1039,9 +1062,9 @@ void vsCorePrivate::addReadyEvent(
     vtkVsTrackInfo* ti =
       vtkVsTrackInfo::SafeDownCast(eventPtr->GetTrackInfo(n));
     // Cast must succeed or areEventTracksPresent would have returned false
-    if (ti->VvTrackId.Source == vsTrackInfo::GroundTruthSource)
+    if (ti->LogicalId.Source == vsTrackInfo::GroundTruthSource)
       eventModel = this->GroundTruthEventModel;
-    ti->TrackId = this->TrackModelIdMap.value(ti->VvTrackId);
+    ti->TrackId = this->TrackModelIdMap.value(ti->LogicalId);
     }
 
   // Check if this is an update to a previously seen event
@@ -1063,6 +1086,7 @@ void vsCorePrivate::addReadyEvent(
       this->setEventRegions(theEvent, eventPtr);
       }
 
+    emit q->eventRegionsChanged(theEvent);
     emit q->eventChanged(theEvent);
     emit q->updated();
 
@@ -1076,7 +1100,7 @@ void vsCorePrivate::addReadyEvent(
     ref.inputIds.append(this->emitInput(&vsCore::eventAvailable, input));
 
     // That's it for updated events
-    return;
+    return theEvent->GetId();
     }
 
   // Generate new global ID from source ID
@@ -1108,18 +1132,22 @@ void vsCorePrivate::addReadyEvent(
       }
 
     // Emit notification that the event was added
-    emit q->eventAdded(theEvent);
+    vsEventId eid(eventBase.GetUniqueId(), ref.modelId,
+                  descriptorEventId, source);
+    emit q->eventAdded(theEvent, eid);
     emit q->updated();
 
     // Emit the event to interested descriptors and add to the map
-    vsEventId eid(eventBase.GetUniqueId(), ref.modelId,
-                  descriptorEventId, source);
     qint64 inputId = this->emitInput(&vsCore::eventAvailable,
                                      new vsDescriptorInput(eventBase, eid));
     ref.inputIds.append(inputId);
     eventMap.insert(descriptorEventId, ref);
     this->Events.insert(ref.modelId, eid);
+    return theEvent->GetId();
     }
+
+  // Unable to create event for some reason
+  return -1;
 }
 
 //-----------------------------------------------------------------------------

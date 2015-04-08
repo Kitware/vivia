@@ -40,7 +40,7 @@ public:
 signals:
   void descriptorsAvailable(vsDescriptorList);
   void eventAvailable(vsEvent);
-  void tocAvailable(vvTrackId trackId, vsTrackObjectClassifier toc);
+  void tocAvailable(vsTrackId trackId, vsTrackObjectClassifier toc);
 
 protected slots:
   void processResult(vvQueryResult);

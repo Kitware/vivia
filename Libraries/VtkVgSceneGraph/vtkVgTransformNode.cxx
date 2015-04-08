@@ -5,12 +5,15 @@
  */
 
 #include "vtkVgTransformNode.h"
+
+// VisGUI includes.
 #include "vtkVgNodeVisitorBase.h"
 
 // VTK includes.
 #include <vtkMatrix4x4.h>
 #include <vtkObjectFactory.h>
 
+// C++ includes.
 #include <sstream>
 
 vtkStandardNewMacro(vtkVgTransformNode);
@@ -68,26 +71,25 @@ void vtkVgTransformNode::Update(vtkVgNodeVisitorBase& vtkNotUsed(nodeVisitor))
     this->ComputeBounds();
     }
 
-  // \NOTE:
-  // If the reference frame is RELATIVE and if this node has a parent and if either
-  // its parent state or its state is dirty then only calculate the \c FinalMatrix
-  // using its parent \c FinalMatrix.
-  if (((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Parent->GetDirty()) ||
-      ((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Dirty))
+  // If the reference frame is RELATIVE_REFERENCE and if this node has
+  // a parent and if either its parent state or its state is dirty then
+  // only calculate the \c FinalMatrix using its parent \c FinalMatrix.
+  if (((this->NodeReferenceFrame == vtkVgNodeBase::RELATIVE_REFERENCE) &&
+       this->Parent && this->Parent->GetDirty()) ||
+      ((this->NodeReferenceFrame == vtkVgNodeBase::RELATIVE_REFERENCE) &&
+       this->Parent && this->Dirty))
     {
     this->FinalMatrix->Identity();
 
     if (!this->PreMultiply)
       {
-      vtkMatrix4x4::Multiply4x4(this->Parent->GetFinalMatrix(), this->Matrix,
-                                this->FinalMatrix);
+      vtkMatrix4x4::Multiply4x4(
+        this->Parent->GetFinalMatrix(), this->Matrix, this->FinalMatrix);
       }
     else
       {
-      vtkMatrix4x4::Multiply4x4(this->Matrix, this->Parent->GetFinalMatrix(),
-                                this->FinalMatrix);
+      vtkMatrix4x4::Multiply4x4(
+        this->Matrix, this->Parent->GetFinalMatrix(), this->FinalMatrix);
       }
     }
   else if (this->Dirty)

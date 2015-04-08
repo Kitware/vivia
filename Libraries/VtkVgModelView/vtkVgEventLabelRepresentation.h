@@ -65,6 +65,11 @@ public:
   vtkGetMacro(ShowProbability, bool);
 
   // Description:
+  // Set if the label should include the event note
+  vtkSetMacro(ShowNote, bool);
+  vtkGetMacro(ShowNote, bool);
+
+  // Description:
   // Update all the event actors. Generally called by the application layer.
   virtual void Update();
 
@@ -130,6 +135,7 @@ private:
   bool         ShowId;
   unsigned int ShowClassifiers;
   bool         ShowProbability;
+  bool         ShowNote;
   char*        LabelPrefix;
   enumLocationSourceMode LocationSourceMode;
 

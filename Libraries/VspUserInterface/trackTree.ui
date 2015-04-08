@@ -167,19 +167,61 @@
    </property>
   </action>
   <action name="actionFollowTrack">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/target</normaloff>:/icons/16x16/target</iconset>
+   </property>
    <property name="text">
-    <string>Follow Track</string>
+    <string>&amp;Follow Track</string>
    </property>
    <property name="toolTip">
     <string>Emit geolocation for sensor tracking of object</string>
    </property>
   </action>
-  <action name="actionStopFollowingTrack">
+  <action name="actionCancelFollowing">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/target-cancel</normaloff>:/icons/16x16/target-cancel</iconset>
+   </property>
    <property name="text">
-    <string>Stop Following Track</string>
+    <string>&amp;Cancel Following</string>
    </property>
    <property name="toolTip">
-    <string>Stop following any track</string>
+    <string>Cancel all track and event following</string>
+   </property>
+  </action>
+  <action name="actionAddStar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Add Star</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark selected event(s) as starred</string>
+   </property>
+  </action>
+  <action name="actionRemoveStar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Remove Star</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark selected event(s) as not starred</string>
+   </property>
+  </action>
+  <action name="actionEditNote">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/edit</normaloff>:/icons/16x16/edit</iconset>
+   </property>
+   <property name="text">
+    <string>Edit &amp;Note...</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit event note</string>
    </property>
   </action>
  </widget>
@@ -190,6 +232,8 @@
    <header>vsTrackTreeView.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../Icons/vsp.qrc"/>
+ </resources>
  <connections/>
 </ui>

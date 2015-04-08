@@ -4,13 +4,21 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include <QDir>
-#include <QFileInfo>
+#include "vtkVgTerrainSource.h"
+
+// VisGUI includes
+#include "vtkVgCoordinateTransform.h"
 
 #include <qtKstReader.h>
 #include <qtStlUtil.h>
 
-#include "vtkVQTerrainSource.h"
+#include <vgGeodesy.h>
+#include <vgGeoTypes.h>
+
+#include <vtkVgBaseImageSource.h>
+#include <vtkVgMultiResJpgImageReader2.h>
+#include <vtkVgTerrain.h>
+#include <vtkVgUtil.h>
 
 // VTK includes.
 #include <vtkImageData.h>
@@ -20,18 +28,11 @@
 #include <vtkObjectFactory.h>
 #include <vtksys/SystemTools.hxx>
 
-// VG includes.
-#include <vgGeodesy.h>
-#include <vgGeoTypes.h>
-#include <vtkVgTerrain.h>
-#include <vtkVgBaseImageSource.h>
-#include <vtkVgMultiResJpgImageReader2.h>
-#include <vtkVgUtil.h>
+// Qt includes
+#include <QDir>
+#include <QFileInfo>
 
-// VQ includes.
-#include "vtkVQCoordinateTransform.h"
-
-vtkStandardNewMacro(vtkVQTerrainSource);
+vtkStandardNewMacro(vtkVgTerrainSource);
 
 namespace // anonymous
 {
@@ -67,22 +68,22 @@ inline double dist(const vgPoint2d& a, const vgPoint2d b)
 } // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
-vtkVQTerrainSource::vtkVQTerrainSource() : vtkVgDataSourceBase()
+vtkVgTerrainSource::vtkVgTerrainSource() : vtkVgDataSourceBase()
 {
   this->BaseTile = NULL;
-  this->BaseTileData   = NULL;
+  this->BaseTileData = NULL;
   this->CoordinateTransformMatrix = NULL;
   this->ImageLevel = 4;
 }
 
 //-----------------------------------------------------------------------------
-vtkVQTerrainSource::~vtkVQTerrainSource()
+vtkVgTerrainSource::~vtkVgTerrainSource()
 {
-
+  // Do nothing
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQTerrainSource::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVgTerrainSource::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
@@ -90,7 +91,7 @@ void vtkVQTerrainSource::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
+vtkSmartPointer<vtkVgTerrain> vtkVgTerrainSource::CreateTerrain()
 {
   if (!this->DataSource)
     {
@@ -201,11 +202,12 @@ vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
       // Coordinate transform is wrt to base tile only.
       if (index == 0)
         {
-        vtkVQCoordinateTransform::SmartPtr coordinateTransform(vtkVQCoordinateTransform::SmartPtr::New());
-        coordinateTransform->SetFromPoints(geoTile.Coordinate[0].Longitude, geoTile.Coordinate[0].Latitude,
-                                           geoTile.Coordinate[1].Longitude, geoTile.Coordinate[1].Latitude,
-                                           geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
-                                           geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
+        vtkVgCoordinateTransform::SmartPtr coordinateTransform(vtkVgCoordinateTransform::SmartPtr::New());
+        coordinateTransform->SetFromPoints(
+          geoTile.Coordinate[0].Longitude, geoTile.Coordinate[0].Latitude,
+          geoTile.Coordinate[1].Longitude, geoTile.Coordinate[1].Latitude,
+          geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
+          geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
 
 
         double bounds[6];
@@ -220,11 +222,12 @@ vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
       else
         {
         // Move other tiles into the reference frame of base tile.
-        vtkVQCoordinateTransform::SmartPtr coordinateTransform(vtkVQCoordinateTransform::SmartPtr::New());
-        coordinateTransform->SetToPoints(geoTile.Coordinate[0].Longitude, geoTile.Coordinate[0].Latitude,
-                                         geoTile.Coordinate[1].Longitude, geoTile.Coordinate[1].Latitude,
-                                         geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
-                                         geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
+        vtkVgCoordinateTransform::SmartPtr coordinateTransform(vtkVgCoordinateTransform::SmartPtr::New());
+        coordinateTransform->SetToPoints(
+          geoTile.Coordinate[0].Longitude, geoTile.Coordinate[0].Latitude,
+          geoTile.Coordinate[1].Longitude, geoTile.Coordinate[1].Latitude,
+          geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
+          geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
 
 
         double bounds[6];
@@ -233,9 +236,14 @@ vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
                                            bounds[1], bounds[3],
                                            bounds[1], bounds[2],
                                            bounds[0], bounds[2]);
-        vtkSmartPointer<vtkMatrix4x4> imageToLatLonMatrix = coordinateTransform->GetHomographyMatrix();
-        vtkSmartPointer<vtkMatrix4x4> transformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-        vtkMatrix4x4::Multiply4x4(this->CoordinateTransformMatrix, imageToLatLonMatrix, transformMatrix);
+
+        vtkSmartPointer<vtkMatrix4x4> imageToLatLonMatrix =
+          coordinateTransform->GetHomographyMatrix();
+        vtkSmartPointer<vtkMatrix4x4> transformMatrix =
+          vtkSmartPointer<vtkMatrix4x4>::New();
+
+        vtkMatrix4x4::Multiply4x4(this->CoordinateTransformMatrix,
+                                  imageToLatLonMatrix, transformMatrix);
 
         vtkSmartPointer<vtkMatrix4x4> newMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
         newMatrix->DeepCopy(transformMatrix);
@@ -252,19 +260,9 @@ vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
             }
           transformMatrix->Element[2][2] = 1.0;
           prop->SetUserMatrix(transformMatrix);
-
           newMatrix->Invert();
-
-//          w = newMatrix->Element[3][3];
-//          for (int i = 0; i <4; ++i)
-//            {
-//            for (int j = 0; j <4; ++j)
-//              {
-//              newMatrix->Element[i][j] /= w;
-//              }
-//            }
-          OtherTileTileToBaseMatrices.push_back(transformMatrix);
-          OtherTileBaseToTileMatrices.push_back(newMatrix);
+          this->OtherTileTileToBaseMatrices.push_back(transformMatrix);
+          this->OtherTileBaseToTileMatrices.push_back(newMatrix);
           }
         }
 
@@ -290,7 +288,7 @@ vtkSmartPointer<vtkVgTerrain> vtkVQTerrainSource::CreateTerrain()
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQTerrainSource::SetImageLevel(const int level)
+void vtkVgTerrainSource::SetImageLevel(const int level)
 {
   if (this->ImageLevel != level)
     {
@@ -310,7 +308,7 @@ void vtkVQTerrainSource::SetImageLevel(const int level)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQTerrainSource::SetVisibleScale(const double& scale)
+void vtkVgTerrainSource::SetVisibleScale(const double& scale)
 {
   if (this->BaseTile)
     {
@@ -350,7 +348,7 @@ void vtkVQTerrainSource::SetVisibleScale(const double& scale)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQTerrainSource::SetVisibleExtents(const int extents[4])
+void vtkVgTerrainSource::SetVisibleExtents(const int extents[4])
 {
   if (this->BaseTile)
     {
@@ -380,18 +378,14 @@ void vtkVQTerrainSource::SetVisibleExtents(const int extents[4])
 }
 
 //-----------------------------------------------------------------------------
-vtkMatrix4x4* vtkVQTerrainSource::GetCoordinateTransformMatrix() const
+vtkMatrix4x4* vtkVgTerrainSource::GetCoordinateTransformMatrix() const
 {
   return this->CoordinateTransformMatrix;
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQTerrainSource::Update()
+void vtkVgTerrainSource::Update()
 {
-  // Steps:
-  // Update image source.
-  // update image data.
-
   if (this->BaseTile)
     {
     this->BaseTile->Update();
@@ -406,5 +400,3 @@ void vtkVQTerrainSource::Update()
     this->OtherTilesData[i]->ShallowCopy(this->OtherTiles[i]->GetOutput());
     }
 }
-
-

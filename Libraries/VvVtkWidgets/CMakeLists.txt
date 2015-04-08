@@ -1,5 +1,9 @@
 project(vvVtkWidgets)
 
+###############################################################################
+
+# BEGIN common sources and includes
+
 include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
 )
@@ -9,7 +13,7 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(vgVtkSharedMocHeaders
+set(vvVtkWidgetsMocHeaders
   vvAbstractSimilarityQueryDialog.h
   vvClipVideoRepresentation.h
   vvGenerateReportDialog.h
@@ -20,7 +24,7 @@ set(vgVtkSharedMocHeaders
   vvVideoQueryDialog.h
 )
 
-set(vgVtkSharedSources
+set(vvVtkWidgetsSources
   vvAbstractSimilarityQueryDialog.cxx
   vvClipVideoRepresentation.cxx
   vvEventInfo.cxx
@@ -34,7 +38,7 @@ set(vgVtkSharedSources
   vvVideoQueryDialogPrivate.cxx
 )
 
-set(vgVtkSharedUiFiles
+set(vvVtkWidgetsUiFiles
   generateReport.ui
   videoQuery.ui
   videoView.ui
@@ -58,11 +62,52 @@ set(vvVtkWidgetsInstallHeaders
   ${CMAKE_CURRENT_BINARY_DIR}/ui_videoView.h
 )
 
-qt4_wrap_cpp(mocSources ${vgVtkSharedMocHeaders})
-qt4_wrap_ui(uiSources ${vgVtkSharedUiFiles})
+#END common sources
+
+###############################################################################
+
+# BEGIN OPTIONAL kwppt generator
+
+if (${VISGUI_ENABLE_KWPPT})
+  find_package(KWPowerPointGenerator REQUIRED)
+
+  set(KWPPT_LIBRARY KWPowerPointWrapper)
+
+  list(APPEND vvVtkWidgetsSources
+    vvGeneratePowerPointDialog.cxx
+    vvPowerPointEventSlideGenerator.cxx
+    vvPowerPointSlideGenerator.cxx
+    vvPowerPointTrackSlideGenerator.cxx
+    vvPowerPointWriter.cxx
+  )
+  list(APPEND vvVtkWidgetsMocHeaders
+    vvGeneratePowerPointDialog.h
+    vvPowerPointWriter.h
+  )
+  list(APPEND vvVtkWidgetsInstallHeaders
+    vvGeneratePowerPointDialog.h
+    vvPowerPointEventSlideGenerator.h
+    vvPowerPointExtensionInterface.h
+    vvPowerPointSlideGenerator.h
+    vvPowerPointTrackSlideGenerator.h
+    vvPowerPointWriter.h
+  )
+  list(APPEND vvVtkWidgetsUiFiles
+    generatePowerPoint.ui
+  )
+endif()
+
+#END OPTIONAL kwppt generator
+
+###############################################################################
+
+# BEGIN build rules
+
+qt4_wrap_cpp(mocSources ${vvVtkWidgetsMocHeaders})
+qt4_wrap_ui(uiSources ${vvVtkWidgetsUiFiles})
 
 add_library(${PROJECT_NAME}
-  ${vgVtkSharedSources}
+  ${vvVtkWidgetsSources}
   ${mocSources}
   ${uiSources}
 )
@@ -73,6 +118,7 @@ vg_add_dependencies(${PROJECT_NAME}
   qtVgWidgets
   qtVgCommon
   qtExtensions
+  vgVtkVideo
   vtkVgQtWidgets
   PRIVATE_INTERFACE_TARGETS
   vtkVgModelView
@@ -82,6 +128,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_PRIVATE
   vtkGUISupportQt
   vtkRenderingFreeTypeOpenGL
+  ${KWPPT_LIBRARY}
   LINK_PUBLIC
   ${QT_LIBRARIES}
 )
@@ -89,3 +136,5 @@ vg_add_dependencies(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVtkWidgetsInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VvVtkWidgets)
+
+# END build rules

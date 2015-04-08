@@ -12,7 +12,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if (QtTesting_FOUND)
+if(QtTesting_FOUND AND BUILD_TESTING)
   add_definitions(-DENABLE_QTTESTING)
   include_directories(SYSTEM ${QtTesting_INCLUDE_DIRS})
   set(TESTING_INTERFACES qtTestingSupport)
@@ -36,17 +36,20 @@ set(vspUserInterface_Sources
     vsAlertList.cxx
     vsContourWidget.cxx
     vsDebug.cxx
+    vsEventDataModel.cxx
     vsEventInfoWidget.cxx
     vsEventRatingMenu.cxx
     vsEventTreeModel.cxx
     vsEventTreeSelectionModel.cxx
     vsEventTreeView.cxx
     vsEventTreeWidget.cxx
+    vsNoteTreeWidget.cxx
     vsRegionList.cxx
     vsRegionTypeDelegate.cxx
     vsSettings.cxx
     vsTrackColorDialog.cxx
     vsTrackTreeModel.cxx
+    vsTrackTreeSelectionModel.cxx
     vsTrackTreeView.cxx
     vsTrackTreeWidget.cxx
     vsUiExtensionInterface.cxx
@@ -62,6 +65,7 @@ set(vspUserInterface_Sources
 
 set(vspUserInterface_AMUI
     eventTree.ui
+    noteTree.ui
     trackTree.ui
     vsp.ui
 )
@@ -84,14 +88,17 @@ set(vspUserInterface_MocHeaders
     vsAlertEditor.h
     vsAlertList.h
     vsContourWidget.h
+    vsEventDataModel.h
     vsEventInfoWidget.h
     vsEventTreeModel.h
     vsEventTreeSelectionModel.h
     vsEventTreeView.h
     vsEventTreeWidget.h
+    vsNoteTreeWidget.h
     vsRegionList.h
     vsTrackColorDialog.h
     vsTrackTreeModel.h
+    vsTrackTreeSelectionModel.h
     vsTrackTreeView.h
     vsTrackTreeWidget.h
 # TODO: Everything below should be moved to either plugins or the application
@@ -166,6 +173,7 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkVgCore
   vtkVgModelView
   vgVtkVideo
+  vgGuiFramework
   vspData
   PRIVATE_INTERFACE_TARGETS
   vgCommon

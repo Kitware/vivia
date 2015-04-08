@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -191,6 +191,12 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
     return this->OverrideColor;
     }
 
+  vtkVgTrack* const track = trackInfo.GetTrack();
+  if (track->GetUseCustomColor())
+    {
+    return track->GetCustomColor();
+    }
+
   if (this->ColorHelper)
     {
     const double* const customColor =
@@ -204,7 +210,7 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
   switch (this->ColorMode)
     {
     case TCM_Model:
-      return trackInfo.GetTrack()->GetColor();
+      return track->GetColor();
 
     case TCM_PVO:
       {
@@ -213,7 +219,7 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
         return this->UnclassifiedColor;
         }
 
-      switch (this->GetTrackPVOType(trackInfo.GetTrack()))
+      switch (this->GetTrackPVOType(track))
         {
         case vtkVgTrack::Person:  return this->PersonColor;
         case vtkVgTrack::Vehicle: return this->VehicleColor;
@@ -223,7 +229,7 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
       }
 
     case TCM_Random:
-      return RandomColors[trackInfo.GetTrack()->GetId() % NumRandomColors];
+      return RandomColors[track->GetId() % NumRandomColors];
 
     case TCM_StateAttrs:
       {
@@ -234,7 +240,7 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
       // model color
       if (bits == 0)
         {
-        return trackInfo.GetTrack()->GetColor();
+        return track->GetColor();
         }
 
       // unknown attributes are mapped as scalar 0

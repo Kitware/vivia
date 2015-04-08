@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,6 +25,7 @@
 #include "vtkTextProperty.h"
 #include "vtkTooltipItem.h"
 #include "vtkTransform2D.h"
+#include "vtkVector.h"
 
 #include "vtksys/ios/sstream"
 #include "boost/date_time/posix_time/posix_time.hpp"
@@ -77,6 +78,11 @@ vtkVgChartTimeline::vtkVgChartTimeline()
 {
   this->GetAxis(vtkAxis::BOTTOM)->SetBehavior(vtkAxis::CUSTOM);
   this->GetAxis(vtkAxis::BOTTOM)->SetRange(0.0, 1.0);
+
+  this->GetAxis(vtkAxis::TOP)->SetBehavior(vtkAxis::CUSTOM);
+  this->GetAxis(vtkAxis::TOP)->SetRange(0.0, 1.0);
+  this->GetAxis(vtkAxis::TOP)->GetPen()->SetOpacity(0);
+  this->GetAxis(vtkAxis::TOP)->SetLabelsVisible(false);
 
   // The second x axis is a way to apply a different rendering style for the
   // 'major' date tick marks and labels. The render order for these is not
@@ -340,6 +346,33 @@ void vtkVgChartTimeline::BuildAxis()
 }
 
 //-----------------------------------------------------------------------------
+void vtkVgChartTimeline::SetCurrentTime(double t)
+{
+  vtkAxis* const tAxis = this->GetAxis(vtkAxis::TOP);
+
+  vtkDoubleArray* newPositions = vtkDoubleArray::New();
+  newPositions->SetNumberOfTuples(1);
+  newPositions->InsertNextValue(t);
+
+  tAxis->SetCustomTickPositions(newPositions);
+  tAxis->Update();
+
+  newPositions->FastDelete();
+}
+
+//-----------------------------------------------------------------------------
+vtkAxis* vtkVgChartTimeline::GetAxis(int axisIndex)
+{
+  switch (axisIndex)
+  {
+    case BOTTOM_MAJOR:
+      return this->xAxis2;
+    default:
+      return vtkChartXY::GetAxis(axisIndex);
+  }
+}
+
+//-----------------------------------------------------------------------------
 void vtkVgChartTimeline::Update()
 {
   // Set some reasonable extents if this is the first update and no one
@@ -599,35 +632,37 @@ void vtkVgChartTimeline::ClearSelection()
 //-----------------------------------------------------------------------------
 void vtkVgChartTimeline::MakePointVisible(float x, float y)
 {
-  double min = this->GetAxis(1)->GetMinimum();
-  double max = this->GetAxis(1)->GetMaximum();
+  double min = this->GetAxis(vtkAxis::BOTTOM)->GetMinimum();
+  double max = this->GetAxis(vtkAxis::BOTTOM)->GetMaximum();
   double pad = 0.1 * (max - min);
 
   bool boundsChanged = false;
 
   if (x < min + pad)
     {
-    this->GetAxis(1)->SetRange(x - pad, x - pad + max - min);
+    this->GetAxis(vtkAxis::TOP)->SetRange(x - pad, x - pad + max - min);
+    this->GetAxis(vtkAxis::BOTTOM)->SetRange(x - pad, x - pad + max - min);
     boundsChanged = true;
     }
   else if (x > max - pad)
     {
-    this->GetAxis(1)->SetRange(x + pad - (max - min), x + pad);
+    this->GetAxis(vtkAxis::TOP)->SetRange(x + pad - (max - min), x + pad);
+    this->GetAxis(vtkAxis::BOTTOM)->SetRange(x + pad - (max - min), x + pad);
     boundsChanged = true;
     }
 
-  min = this->GetAxis(0)->GetMinimum();
-  max = this->GetAxis(0)->GetMaximum();
+  min = this->GetAxis(vtkAxis::LEFT)->GetMinimum();
+  max = this->GetAxis(vtkAxis::LEFT)->GetMaximum();
   pad = 0.0; // 0.2 * (max - min);
 
   if (y < min + pad)
     {
-    this->GetAxis(0)->SetRange(y - pad, y - pad + max - min);
+    this->GetAxis(vtkAxis::LEFT)->SetRange(y - pad, y - pad + max - min);
     boundsChanged = true;
     }
   else if (y > max - pad)
     {
-    this->GetAxis(0)->SetRange(y + pad - (max - min), y + pad);
+    this->GetAxis(vtkAxis::LEFT)->SetRange(y + pad - (max - min), y + pad);
     boundsChanged = true;
     }
 
@@ -648,7 +683,8 @@ bool vtkVgChartTimeline::UpdateTooltip(const vtkContextMouseEvent& mouse)
     // recalculate the transform every time the mouse moves. We need access to
     // the private transforms, or at least know when they have been invalidated.
     vtkTransform2D* transform = vtkTransform2D::New();
-    this->CalculatePlotTransform(this->GetAxis(1), this->GetAxis(0), transform);
+    this->CalculatePlotTransform(this->GetAxis(vtkAxis::BOTTOM),
+                                 this->GetAxis(vtkAxis::LEFT), transform);
 
     vtkVector2f position;
     transform->InverseTransformPoints(mouse.GetPos().GetData(),
@@ -683,7 +719,16 @@ bool vtkVgChartTimeline::UpdateTooltip(const vtkContextMouseEvent& mouse)
           int size = ids->GetNumberOfTuples();
           for (int k = 0; k < size; ++k)
             {
-            ostr << plot->GetInput()->GetValueByName(ids->GetValue(k), "Id");
+            vtkVariant label =
+              plot->GetInput()->GetValueByName(ids->GetValue(k), "Label");
+            if (label.IsValid())
+              {
+              ostr << label.ToString();
+              }
+            else
+              {
+              ostr << plot->GetInput()->GetValueByName(ids->GetValue(k), "Id");
+              }
 
             // limit the tooltip to a reasonable size
             if (k + 1 == 16)
@@ -723,8 +768,8 @@ void vtkVgChartTimeline::DoSelect(const vtkContextMouseEvent& mouse,
   if (plots)
     {
     vtkTransform2D* transform = vtkTransform2D::New();
-    this->CalculatePlotTransform(this->GetAxis(1),
-                                 this->GetAxis(0),
+    this->CalculatePlotTransform(this->GetAxis(vtkAxis::BOTTOM),
+                                 this->GetAxis(vtkAxis::LEFT),
                                  transform);
 
     // check within a 5 pixel radius of the click
@@ -753,21 +798,28 @@ void vtkVgChartTimeline::DoSelect(const vtkContextMouseEvent& mouse,
             tol * (1.0 / transform->GetMatrix()->GetElement(0, 0)),
             tol * (1.0 / transform->GetMatrix()->GetElement(1, 1)));
 
-          timelinePlot->SelectIntervals(pos, tolerance);
-          plotChanged = timelinePlot;
-          break;
+          vtkVector2f posv(pos);
+          if (timelinePlot->SelectIntervals(posv, tolerance))
+            {
+            plotChanged = timelinePlot;
+            break;
+            }
           }
         else
           {
-          plot->SelectPoints(min, max);
-          plotChanged = plot;
-          break;
+          if (plot->SelectPoints(min, max))
+            {
+            plotChanged = plot;
+            break;
+            }
           }
         }
       }
     transform->Delete();
     }
 
+  // NOTE: If plotChanged is still not initialized, then I am not sure if the
+  //       code below even should be executed. Leaving it for now for as it is.
   SelectionData sd;
   sd.Plot = plotChanged;
   sd.IsActivation = activate;
@@ -777,11 +829,19 @@ void vtkVgChartTimeline::DoSelect(const vtkContextMouseEvent& mouse,
 }
 
 //-----------------------------------------------------------------------------
+vgRange<double> vtkVgChartTimeline::GetXExtents() const
+{
+  return vgRange<double>(this->MinX, this->MaxX);
+}
+
+//-----------------------------------------------------------------------------
 void vtkVgChartTimeline::SetXExtents(double min, double max)
 {
   this->MinX = std::max(min, this->MinXLimit);
   this->MaxX = std::min(max, this->MaxXLimit);
   this->ExtentsAreValid = true;
+
+  this->GetAxis(vtkAxis::TOP)->SetRange(this->MinX, this->MaxX);
 
   // Show the date that the chart is centered on.
   double center = 0.5 * (this->MinX + this->MaxX);
@@ -789,6 +849,20 @@ void vtkVgChartTimeline::SetXExtents(double min, double max)
   this->SetTitle(boost::gregorian::to_simple_string(pt.date()));
 
   this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+vgRange<double> vtkVgChartTimeline::GetXExtentLimits() const
+{
+  return vgRange<double>(this->MinXLimit, this->MaxXLimit);
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgChartTimeline::SetXExtentLimits(double min, double max)
+{
+  this->MinXLimit = min;
+  this->MaxXLimit = max;
+  this->SetXExtents(this->MinX, this->MaxX);
 }
 
 //-----------------------------------------------------------------------------

@@ -4,7 +4,10 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vtkVQCoordinateTransform.h"
+#include "vtkVgCoordinateTransform.h"
+
+// VisGUI includes
+#include <vtkVgAdapt.h>
 
 // VTK includes.
 #include <vtkMatrix4x4.h>
@@ -15,28 +18,28 @@
 #include <vgl/algo/vgl_h_matrix_2d.h>
 #include <vgl/algo/vgl_h_matrix_2d_compute_linear.h>
 
-#include "vtkVgAdapt.h"
-
-vtkStandardNewMacro(vtkVQCoordinateTransform);
+vtkStandardNewMacro(vtkVgCoordinateTransform);
 
 //-----------------------------------------------------------------------------
-vtkVQCoordinateTransform::vtkVQCoordinateTransform()
+vtkVgCoordinateTransform::vtkVgCoordinateTransform()
 {
+  // Do nothing
 }
 
 //-----------------------------------------------------------------------------
-vtkVQCoordinateTransform::~vtkVQCoordinateTransform()
+vtkVgCoordinateTransform::~vtkVgCoordinateTransform()
 {
+  // Do nothing
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQCoordinateTransform::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVgCoordinateTransform::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQCoordinateTransform::SetFromPoints(double pt1[], double pt2[],
+void vtkVgCoordinateTransform::SetFromPoints(double pt1[], double pt2[],
                                              double pt3[], double pt4[])
 {
   this->FromPoint[0][0] = pt1[0];
@@ -50,7 +53,7 @@ void vtkVQCoordinateTransform::SetFromPoints(double pt1[], double pt2[],
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQCoordinateTransform::SetFromPoints(double x1, double y1,
+void vtkVgCoordinateTransform::SetFromPoints(double x1, double y1,
                                              double x2, double y2,
                                              double x3, double y3,
                                              double x4, double y4)
@@ -66,7 +69,7 @@ void vtkVQCoordinateTransform::SetFromPoints(double x1, double y1,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQCoordinateTransform::SetToPoints(double pt1[], double pt2[],
+void vtkVgCoordinateTransform::SetToPoints(double pt1[], double pt2[],
                                            double pt3[], double pt4[])
 {
   this->ToPoint[0][0] = pt1[0];
@@ -80,7 +83,7 @@ void vtkVQCoordinateTransform::SetToPoints(double pt1[], double pt2[],
 }
 
 //-----------------------------------------------------------------------------
-void vtkVQCoordinateTransform::SetToPoints(double x1, double y1,
+void vtkVgCoordinateTransform::SetToPoints(double x1, double y1,
                                            double x2, double y2,
                                            double x3, double y3,
                                            double x4, double y4)
@@ -96,10 +99,10 @@ void vtkVQCoordinateTransform::SetToPoints(double x1, double y1,
 }
 
 //-----------------------------------------------------------------------------
-vtkSmartPointer<vtkMatrix4x4> vtkVQCoordinateTransform::GetHomographyMatrix()
+vtkSmartPointer<vtkMatrix4x4> vtkVgCoordinateTransform::GetHomographyMatrix()
 {
-  vcl_vector< vgl_homg_point_2d<double> > fromPoints;
-  vcl_vector< vgl_homg_point_2d<double> > toPoints;
+  vcl_vector<vgl_homg_point_2d<double> > fromPoints;
+  vcl_vector<vgl_homg_point_2d<double> > toPoints;
 
   // Add world coordinates to worldPoints
   for (int i = 0; i < 4; ++i)

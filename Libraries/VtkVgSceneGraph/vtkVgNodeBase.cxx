@@ -26,7 +26,7 @@ vtkVgNodeBase::vtkVgNodeBase() : vtkObject(),
   FinalMatrix(NULL),
   Parent(NULL),
   NodeReferenceFrame
-  (RELATIVE),
+  (RELATIVE_REFERENCE),
   VisibleNodeMask
   (VISIBLE_NODE_MASK)
 {

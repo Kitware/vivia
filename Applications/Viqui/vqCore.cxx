@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -102,6 +102,8 @@
 
 #include <vvReportWriter.h>
 
+#include <vtkVgTerrainSource.h>
+
 // Viqui includes
 #include "Backends/vqExporterFactory.h"
 #include "vqArchiveVideoSource.h"
@@ -113,12 +115,11 @@
 #include "vqSettings.h"
 #include "vqTrackingClipViewer.h"
 #include "vqVideoNodeVisitor.h"
-#include "vtkVQCoordinateTransform.h"
+#include "vtkVgCoordinateTransform.h"
 #include "vtkVQTrackingClip.h"
 #include "vtkVQInteractionCallback.h"
 #include "vtkVQBlastLayoutNode.h"
 #include "vtkVQInteractionCallback.h"
-#include "vtkVQTerrainSource.h"
 
 // C/C++ includes
 #include <algorithm>
@@ -217,8 +218,8 @@ bool computeImageToLatLon(
 {
   CHECK_ARG(frameMetaData.worldCornerPoints().GCS != -1, false);
 
-  vtkVQCoordinateTransform::SmartPtr imageToLatLon(
-    vtkVQCoordinateTransform::SmartPtr::New());
+  vtkVgCoordinateTransform::SmartPtr imageToLatLon(
+    vtkVgCoordinateTransform::SmartPtr::New());
 
   imageToLatLon->SetToPoints(
     frameMetaData.worldCornerPoints().UpperLeft.Easting,
@@ -238,7 +239,7 @@ bool computeImageToLatLon(
                                0.0,       0.0);
 
   out = imageToLatLon->GetHomographyMatrix();
-  return true;
+  return !!out;
 }
 
 } // namespace <anonymous>
@@ -444,6 +445,12 @@ vtkVgViewerBase* vqCore::getContextViewer()
 vtkVgInteractorStyleRubberBand2D* vqCore::getContextInteractorStyle()
 {
   return this->ContextInteractorStyle;
+}
+
+//-----------------------------------------------------------------------------
+int vqCore::resultCount() const
+{
+  return this->QueryResults.count();
 }
 
 //-----------------------------------------------------------------------------
@@ -1114,7 +1121,7 @@ void vqCore::setupTracksOnContext()
 void vqCore::selectClipsOnContext(
   int* startScreenPosition, int* endScreenPosition)
 {
-  if (!startScreenPosition || !endScreenPosition)
+  if (!startScreenPosition || !endScreenPosition || !this->ContextVideoRoot)
     {
     return;
     }
@@ -1360,7 +1367,7 @@ void vqCore::addRasterLayer(QUrl uri)
     {
     // Now initialize the terrain source as currently we are using
     // raster to generate a terrain.
-    this->TerrainSource = vtkVQTerrainSource::SmartPtr::New();
+    this->TerrainSource = vtkVgTerrainSource::SmartPtr::New();
     this->TerrainSource->SetDataSource(uri.toEncoded().constData());
 
     // Add the context to the main viewer scene.
@@ -1374,7 +1381,7 @@ void vqCore::addRasterLayer(QUrl uri)
       return;
       }
 
-    terrain->SetNodeReferenceFrame(vtkVgNodeBase::ABSOLUTE);
+    terrain->SetNodeReferenceFrame(vtkVgNodeBase::ABSOLUTE_REFERENCE);
 
     this->ContextSceneRoot->AddChild(terrain);
 
@@ -1403,7 +1410,7 @@ void vqCore::addRasterLayer(QUrl uri)
   else
     {
     QMessageBox::critical(0, "viqui",
-      tr("Supporting adding context layer using local file only."));
+                          "Non-local context files are not supported.");
     }
 }
 
@@ -1502,6 +1509,8 @@ void vqCore::displayResults(int count, int first)
 {
   this->StatusManager->setStatusText(this->InteractionStatusSource,
                                      "Updating result display...");
+
+  this->resetQueryResults(false, false);
 
   QMultiMap<ResultRank, ResultId>::const_iterator
   iter = this->QueryScoreMap.begin(),
@@ -1694,7 +1703,7 @@ vqCore::addResultNode(const vvQueryResult& queryResult, vtkVgVideoNode*& node,
   vtkVgEventRegionRepresentation::SmartPtr
   eventRep(vtkVgEventRegionRepresentation::SmartPtr::New());
 
-  videoNode->SetNodeReferenceFrame(vtkVgNodeBase::RELATIVE);
+  videoNode->SetNodeReferenceFrame(vtkVgNodeBase::RELATIVE_REFERENCE);
   std::string missionId = queryResult.MissionId;
   if (missionId == "-undefined-")
     {
@@ -1772,33 +1781,64 @@ vqCore::addResultNode(const vvQueryResult& queryResult, vtkVgVideoNode*& node,
     const double yDim = arVideoSource->GetVideoHeight();
     foreach (vvDescriptor descriptor, queryResult.Descriptors)
       {
-      vvDescriptorRegionMap::const_iterator regionIter;
-      for (regionIter = descriptor.Region.begin();
-           regionIter != descriptor.Region.end(); regionIter++)
+      if (descriptor.Region.size() > 0)
         {
-        if (regionIter->TimeStamp < startFrame)
+        vvDescriptorRegionMap::const_iterator regionIter;
+        for (regionIter = descriptor.Region.begin();
+             regionIter != descriptor.Region.end(); regionIter++)
           {
-          startFrame = regionIter->TimeStamp;
+          if (regionIter->TimeStamp < startFrame)
+            {
+            startFrame = regionIter->TimeStamp;
+            }
+          if (endFrame < regionIter->TimeStamp)
+            {
+            endFrame = regionIter->TimeStamp;
+            }
+          double region[8];
+          // clockwise from top left
+          region[0] = regionIter->ImageRegion.TopLeft.X;
+          region[1] = yDim - regionIter->ImageRegion.TopLeft.Y - 1;
+          region[2] = regionIter->ImageRegion.BottomRight.X;
+          region[3] = region[1];
+          region[4] = region[2];
+          region[5] = yDim - regionIter->ImageRegion.BottomRight.Y - 1;
+          region[6] = region[0];
+          region[7] = region[5];
+
+          eventBase->AddRegion(regionIter->TimeStamp, 4, region);
           }
-        if (endFrame < regionIter->TimeStamp)
-          {
-          endFrame = regionIter->TimeStamp;
-          }
+        }
+      else
+        {
+        // Handle regionless events; add a region for the first and last frames
+        // (if they are different)
+        // TODO: Add a region for every frame between start and end frames or
+        //       add region interpolation capability to achieve the same effect
+        startFrame.SetTime(static_cast<double>(queryResult.StartTime));
+        endFrame.SetTime(static_cast<double>(queryResult.EndTime));
+
+        const double xDim = arVideoSource->GetVideoWidth();
         double region[8];
         // clockwise from top left
-        region[0] = regionIter->ImageRegion.TopLeft.X;
-        region[1] = yDim - regionIter->ImageRegion.TopLeft.Y - 1;
-        region[2] = regionIter->ImageRegion.BottomRight.X;
+        region[0] = 0;
+        region[1] = yDim - 1;
+        region[2] = xDim - 1;
         region[3] = region[1];
         region[4] = region[2];
-        region[5] = yDim - regionIter->ImageRegion.BottomRight.Y - 1;
+        region[5] = 0;
         region[6] = region[0];
         region[7] = region[5];
 
-        eventBase->AddRegion(regionIter->TimeStamp, 4, region);
+        eventBase->AddRegion(startFrame, 4, region);
+        if (startFrame != endFrame)
+          {
+          eventBase->AddRegion(endFrame, 4, region);
+          }
         }
+
       // If "MergedDescriptors" descriptor, no need to process any other
-      // regions; also, not that we expect this to have been the 1st descriptor
+      // regions (note that we expect this to have been the first descriptor)
       if (descriptor.ModuleName == "MergedDescriptors")
         {
         break;
@@ -3165,13 +3205,13 @@ void vqCore::generateReport(QString path, bool generateVideo)
   vtkSmartPointer<vqArchiveVideoSource> video =
     vtkSmartPointer<vqArchiveVideoSource>::New();
 
-  vtkSmartPointer<vtkVQTerrainSource> terrainSrc;
+  vtkSmartPointer<vtkVgTerrainSource> terrainSrc;
   vtkSmartPointer<vtkVgTerrain> terrain;
 
   // Terrain source doesn't support deep copy at the moment
   if (this->TerrainSource && this->TerrainSource->GetDataSource())
     {
-    terrainSrc = vtkSmartPointer<vtkVQTerrainSource>::New();
+    terrainSrc = vtkSmartPointer<vtkVgTerrainSource>::New();
     terrainSrc->SetDataSource(this->TerrainSource->GetDataSource());
     terrain = terrainSrc->CreateTerrain();
     writer.setContext(terrain, terrainSrc,
@@ -3725,7 +3765,6 @@ void vqCore::setResultFilter(vqResultFilter filter)
     QList<ResultId> scoringRequestIds = this->ScoringRequestNodes.keys();
 
     // Clear and recalculate result display list
-    this->resetQueryResults(false, false);
     this->displayResults(vqSettings().resultPageCount());
 
     qtUtil::mapBound(scoringRequestIds, this,

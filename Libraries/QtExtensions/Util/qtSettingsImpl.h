@@ -9,7 +9,7 @@
 
 #include "qtSettings.h"
 
-#define qtSettings_implement(_name_, _Name_, _type_) \
+#define qtSettings_implement(_type_, _name_, _Name_) \
   _type_ QTSETTINGS_SUBCLASS_NAME::_name_() const { \
     return this->value(key##_Name_).value<_type_>(); \
   } \

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,6 +16,7 @@
 #include <qtGlobal.h>
 
 #include <vgExport.h>
+#include <vgNamespace.h>
 
 #include <vtkVgTimeStamp.h>
 
@@ -29,6 +30,7 @@
 #include <vsSourceFactory.h>
 #include <vsTrackClassifier.h>
 #include <vsTrackData.h>
+#include <vsTrackId.h>
 
 #include "vsAlert.h"
 #include "vsContourWidget.h"
@@ -43,7 +45,6 @@ class vtkVgEventTypeRegistry;
 class vtkVgTrack;
 class vtkVgTrackModel;
 struct vtkVgVideoMetadata;
-
 
 class vsDescriptorSource;
 class vsTrackSource;
@@ -102,8 +103,10 @@ public:
   vtkVgTimeStamp homographyReferenceTime(unsigned int frameNumber,
                                          vtkVgTimeStamp bestGuess) const;
 
-  vvTrackId logicalTrackId(vtkIdType modelTrackId) const;
+  vsTrackId logicalTrackId(vtkIdType modelTrackId) const;
+  vtkIdType modelTrackId(const vsTrackId&) const;
 
+  vsEventId logicalEventId(vtkIdType modelEventId) const;
   vtkIdType modelEventId(vsDescriptorSource* source, vtkIdType sourceId) const;
 
   void getQueryFormulationData(vtkVgTimeStamp start, vtkVgTimeStamp end,
@@ -111,6 +114,21 @@ public:
                                QList<vvDescriptor>& descriptors,
                                bool* canceled);
   std::map<vtkVgTimeStamp, vtkVgVideoMetadata> allMetadata();
+
+  const vtkVgVideoFrameMetaData frameMetadata(const vtkVgTimeStamp& ts,
+                                              vg::SeekMode direction);
+
+#define COORDINATE_CONVERSION(return_type, name) \
+  return_type name(double u, double v, const vtkVgTimeStamp&) const; \
+  return_type name(const double point[2], const vtkVgTimeStamp& ts) const \
+    { return this->name(point[0], point[1], ts); } \
+  return_type name(const vgPoint2d& point, const vtkVgTimeStamp& ts) const \
+    { return this->name(point.X, point.Y, ts); }
+
+  COORDINATE_CONVERSION(vgGeocodedCoordinate, imageToWorld)
+  COORDINATE_CONVERSION(vgGeocodedCoordinate, stabToWorld)
+
+#undef COORDINATE_CONVERSION
 
 signals:
   void updated();
@@ -126,15 +144,19 @@ signals:
 
   void eventGroupExpected(vsEventInfo::Group);
 
-  void eventAdded(vtkVgEvent*);
+  void eventAdded(vtkVgEvent*, vsEventId);
   void eventChanged(vtkVgEvent*);
+  void eventRemoved(vtkIdType);
+
+  void eventRegionsChanged(vtkVgEvent*);
   void eventRatingChanged(vtkVgEvent*, int newRating);
   void eventStatusChanged(vtkVgEvent*, int newStatus);
   void eventNoteChanged(vtkVgEvent*, QString newNote);
-  void eventRemoved(vtkIdType);
 
   void trackAdded(vtkVgTrack*);
   void trackChanged(vtkVgTrack*);
+
+  void trackNoteChanged(vtkVgTrack*, QString newNote);
 
   void contourAdded(vsContour);
   void contourTypeChanged(int id, vsContour::Type);
@@ -161,6 +183,7 @@ signals:
   void       eventAvailable(qint64 id, vsDescriptorInputPtr input);
   void eventRatingAvailable(qint64 id, vsDescriptorInputPtr input);
   void   eventNoteAvailable(qint64 id, vsDescriptorInputPtr input);
+  void   trackNoteAvailable(qint64 id, vsDescriptorInputPtr input);
   void     contourAvailable(qint64 id, vsDescriptorInputPtr input);
   void       queryAvailable(qint64 id, vsDescriptorInputPtr input);
 
@@ -176,6 +199,8 @@ public slots:
   bool setContourType(int, vsContour::Type);
   bool removeContour(int, bool removeEvents = true);
   bool convertContourToEvent(int, int eventType, vtkVgTimeStamp);
+
+  void setTrackNote(vtkIdType, QString note);
 
   void createManualEvent(int eventType, QPolygonF region, vtkVgTimeStamp);
 
@@ -194,17 +219,17 @@ public slots:
   void addSources(vsSourceFactoryPtr);
 
   void startFollowingTrack(vtkIdType trackId);
-  void stopFollowingTrack();
+  void cancelFollowing();
 
 protected slots:
   void addMetadata(QList<vtkVgVideoFrameMetaData> metadata);
 
   void updateTrackSourceStatus(vsDataSource::Status);
   void unregisterTrackSource(vsTrackSource*);
-  void updateTrack(vvTrackId trackId, vvTrackState state);
-  void updateTrack(vvTrackId trackId, QList<vvTrackState> state);
-  void updateTrackData(vvTrackId trackId, vsTrackData data);
-  void closeTrack(vvTrackId trackId);
+  void updateTrack(vsTrackId trackId, vvTrackState state);
+  void updateTrack(vsTrackId trackId, QList<vvTrackState> state);
+  void updateTrackData(vsTrackId trackId, vsTrackData data);
+  void closeTrack(vsTrackId trackId);
 
   void updateDescriptorSourceStatus(vsDataSource::Status);
   void unregisterDescriptorSource(vsDescriptorSource*);
@@ -218,7 +243,7 @@ protected slots:
   void addDescriptors(vsDescriptorSource*, vsDescriptorList);
   void addEvent(vsDescriptorSource*, vsEvent);
   void removeEvent(vsDescriptorSource*, vtkIdType);
-  void setTrackClassification(vvTrackId trackId, vsTrackObjectClassifier toc);
+  void setTrackClassification(vsTrackId trackId, vsTrackObjectClassifier toc);
 
   void flushUpdateSignals();
 

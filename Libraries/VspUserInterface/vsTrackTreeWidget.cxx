@@ -5,17 +5,39 @@
  */
 
 #include "vsTrackTreeWidget.h"
+#include "ui_trackTree.h"
+#include "am_trackTree.h"
 
 #include <QContextMenuEvent>
 #include <QMenu>
 
+#include <qtScopedValueChange.h>
+
+#include <vgTextEditDialog.h>
+
 #include "vsTrackTreeModel.h"
+#include "vsTrackTreeSelectionModel.h"
 
 //-----------------------------------------------------------------------------
-vsTrackTreeWidget::vsTrackTreeWidget(QWidget* parent) : QWidget(parent)
+class vsTrackTreeWidgetPrivate
 {
-  this->UI.setupUi(this);
-  this->AM.setupActions(this->UI, this);
+public:
+  Ui::vsTrackTreeWidget UI;
+  Am::vsTrackTreeWidget AM;
+
+  QMenu* ContextMenu;
+};
+
+QTE_IMPLEMENT_D_FUNC(vsTrackTreeWidget)
+
+//-----------------------------------------------------------------------------
+vsTrackTreeWidget::vsTrackTreeWidget(QWidget* parent) :
+  QWidget(parent), d_ptr(new vsTrackTreeWidgetPrivate)
+{
+  QTE_D(vsTrackTreeWidget);
+
+  d->UI.setupUi(this);
+  d->AM.setupActions(d->UI, this);
 
   // Add all actions as actions of this widget, so shortcuts will work
   foreach (QObject* object, this->children())
@@ -25,53 +47,59 @@ vsTrackTreeWidget::vsTrackTreeWidget(QWidget* parent) : QWidget(parent)
       this->addAction(action);
     }
 
-  connect(this->UI.actionHideAll, SIGNAL(triggered()),
-          this->UI.tree, SLOT(hideAllItems()));
-  connect(this->UI.actionShowAll, SIGNAL(triggered()),
-          this->UI.tree, SLOT(showAllItems()));
-  connect(this->UI.actionHideSelected, SIGNAL(triggered()),
-          this->UI.tree, SLOT(hideSelectedItems()));
-  connect(this->UI.actionShowSelected, SIGNAL(triggered()),
-          this->UI.tree, SLOT(showSelectedItems()));
+  connect(d->UI.actionHideAll, SIGNAL(triggered()),
+          d->UI.tree, SLOT(hideAllItems()));
+  connect(d->UI.actionShowAll, SIGNAL(triggered()),
+          d->UI.tree, SLOT(showAllItems()));
+  connect(d->UI.actionHideSelected, SIGNAL(triggered()),
+          d->UI.tree, SLOT(hideSelectedItems()));
+  connect(d->UI.actionShowSelected, SIGNAL(triggered()),
+          d->UI.tree, SLOT(showSelectedItems()));
+  connect(d->UI.actionAddStar, SIGNAL(triggered()),
+          this, SLOT(addStar()));
+  connect(d->UI.actionRemoveStar, SIGNAL(triggered()),
+          this, SLOT(removeStar()));
+  connect(d->UI.actionEditNote, SIGNAL(triggered()),
+          this, SLOT(editNote()));
 
   // Connect signal and slot and sync GUI state with underlying model state
-  connect(this->UI.actionShowHiddenItems, SIGNAL(toggled(bool)),
-          this->UI.tree, SLOT(setHiddenItemsShown(bool)));
+  connect(d->UI.actionShowHiddenItems, SIGNAL(toggled(bool)),
+          d->UI.tree, SLOT(setHiddenItemsShown(bool)));
 
-  this->UI.tree->setHiddenItemsShown(
-    this->UI.actionShowHiddenItems->isChecked());
+  d->UI.tree->setHiddenItemsShown(
+    d->UI.actionShowHiddenItems->isChecked());
 
-  connect(this->UI.actionJumpToStart, SIGNAL(triggered()),
-          this->UI.tree, SLOT(jumpToSelectedStart()));
-  connect(this->UI.actionJumpToEnd, SIGNAL(triggered()),
-          this->UI.tree, SLOT(jumpToSelectedEnd()));
-  connect(this->UI.actionFollowTrack, SIGNAL(triggered()),
-          this->UI.tree, SLOT(followSelectedTrack()));
+  connect(d->UI.actionJumpToStart, SIGNAL(triggered()),
+          d->UI.tree, SLOT(jumpToSelectedStart()));
+  connect(d->UI.actionJumpToEnd, SIGNAL(triggered()),
+          d->UI.tree, SLOT(jumpToSelectedEnd()));
+  connect(d->UI.actionFollowTrack, SIGNAL(triggered()),
+          d->UI.tree, SLOT(followSelectedTrack()));
 
-  connect(this->UI.tree, SIGNAL(selectionChanged(QList<vtkIdType>)),
-          this, SLOT(setActionsEnabled()));
-
-  connect(this->UI.tree, SIGNAL(selectionChanged(QList<vtkIdType>)),
-          this, SIGNAL(selectionChanged(QList<vtkIdType>)));
-
-  connect(this->UI.tree, SIGNAL(jumpToTrack(vtkIdType, bool)),
+  connect(d->UI.tree, SIGNAL(jumpToTrack(vtkIdType, bool)),
           this, SIGNAL(jumpToTrack(vtkIdType, bool)));
 
-  connect(this->UI.tree, SIGNAL(trackFollowingRequested(vtkIdType)),
+  connect(d->UI.tree, SIGNAL(trackFollowingRequested(vtkIdType)),
           this, SIGNAL(trackFollowingRequested(vtkIdType)));
 
-  connect(this->UI.actionStopFollowingTrack, SIGNAL(triggered()),
+  connect(d->UI.actionCancelFollowing, SIGNAL(triggered()),
           this, SIGNAL(trackFollowingCanceled()));
 
-  this->contextMenu = new QMenu(this);
-  this->contextMenu->addAction(this->UI.actionShowSelected);
-  this->contextMenu->addAction(this->UI.actionHideSelected);
-  this->contextMenu->addAction(this->UI.actionJumpToStart);
-  this->contextMenu->addAction(this->UI.actionJumpToEnd);
-  this->contextMenu->addAction(this->UI.actionFollowTrack);
-  this->contextMenu->addAction(this->UI.actionStopFollowingTrack);
+  d->ContextMenu = new QMenu(this);
+  d->ContextMenu->addAction(d->UI.actionShowSelected);
+  d->ContextMenu->addAction(d->UI.actionHideSelected);
+  d->ContextMenu->addAction(d->UI.actionJumpToStart);
+  d->ContextMenu->addAction(d->UI.actionJumpToEnd);
+  d->ContextMenu->addAction(d->UI.actionFollowTrack);
+  d->ContextMenu->addAction(d->UI.actionCancelFollowing);
+  d->ContextMenu->addSeparator();
+  d->ContextMenu->addAction(d->UI.actionAddStar);
+  d->ContextMenu->addAction(d->UI.actionRemoveStar);
+  d->ContextMenu->addSeparator();
+  d->ContextMenu->addAction(d->UI.actionEditNote);
 
-  this->setActionsEnabled();
+  qtScopedBlockSignals bs(this);
+  this->updateSelectionStatus(QSet<vtkIdType>());
 }
 
 //-----------------------------------------------------------------------------
@@ -82,9 +110,11 @@ vsTrackTreeWidget::~vsTrackTreeWidget()
 //-----------------------------------------------------------------------------
 void vsTrackTreeWidget::contextMenuEvent(QContextMenuEvent* event)
 {
-  if (this->UI.tree->isAncestorOf(this->childAt(event->pos())))
+  QTE_D(vsTrackTreeWidget);
+
+  if (d->UI.tree->isAncestorOf(this->childAt(event->pos())))
     {
-    this->contextMenu->exec(event->globalPos());
+    d->ContextMenu->exec(event->globalPos());
     return;
     }
 
@@ -94,29 +124,83 @@ void vsTrackTreeWidget::contextMenuEvent(QContextMenuEvent* event)
 //-----------------------------------------------------------------------------
 void vsTrackTreeWidget::setModel(vsTrackTreeModel* model)
 {
-  this->UI.tree->setModel(model);
+  QTE_D(vsTrackTreeWidget);
+  d->UI.tree->setModel(model);
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeWidget::setSelectionModel(vsTrackTreeSelectionModel* model)
+{
+  QTE_D(vsTrackTreeWidget);
+
+  d->UI.tree->setSelectionModel(model);
+
+  connect(model, SIGNAL(selectionChanged(QSet<vtkIdType>)),
+          this, SLOT(updateSelectionStatus(QSet<vtkIdType>)));
 }
 
 //-----------------------------------------------------------------------------
 void vsTrackTreeWidget::selectTrack(vtkIdType trackId)
 {
-  this->UI.tree->selectTrack(trackId);
+  QTE_D(vsTrackTreeWidget);
+  d->UI.tree->selectTrack(trackId);
 }
 
 //-----------------------------------------------------------------------------
-void vsTrackTreeWidget::setActionsEnabled()
+void vsTrackTreeWidget::updateSelectionStatus(QSet<vtkIdType> selection)
 {
-  int count = this->UI.tree->selectedTrackCount();
-  this->UI.actionHideSelected->setEnabled(count > 0);
-  this->UI.actionShowSelected->setEnabled(count > 0);
-  this->UI.actionJumpToStart->setEnabled(count == 1);
-  this->UI.actionJumpToEnd->setEnabled(count == 1);
-  this->UI.actionFollowTrack->setEnabled(count == 1);
-  this->UI.actionStopFollowingTrack->setEnabled(true);
+  QTE_D(vsTrackTreeWidget);
+
+  const int count = selection.count();
+
+  d->UI.actionHideSelected->setEnabled(count > 0);
+  d->UI.actionShowSelected->setEnabled(count > 0);
+  d->UI.actionAddStar->setEnabled(count > 0);
+  d->UI.actionRemoveStar->setEnabled(count > 0);
+  d->UI.actionJumpToStart->setEnabled(count == 1);
+  d->UI.actionJumpToEnd->setEnabled(count == 1);
+  d->UI.actionFollowTrack->setEnabled(count == 1);
+  d->UI.actionEditNote->setEnabled(count == 1);
+  d->UI.actionCancelFollowing->setEnabled(true);
+
+  emit this->selectionChanged(selection);
 }
 
 //-----------------------------------------------------------------------------
 void vsTrackTreeWidget::setHiddenItemsShown(bool enable)
 {
-  this->UI.actionShowHiddenItems->setChecked(enable);
+  QTE_D(vsTrackTreeWidget);
+  d->UI.actionShowHiddenItems->setChecked(enable);
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeWidget::addStar()
+{
+  QTE_D(vsTrackTreeWidget);
+  d->UI.tree->setSelectedItemsStarred(true);
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeWidget::removeStar()
+{
+  QTE_D(vsTrackTreeWidget);
+  d->UI.tree->setSelectedItemsStarred(false);
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeWidget::editNote()
+{
+  QTE_D(vsTrackTreeWidget);
+
+  const QModelIndex i = d->UI.tree->selectionModel()->selectedRows().first();
+  const QModelIndex n =
+    d->UI.tree->model()->index(i.row(), vsTrackTreeModel::NoteColumn);
+  QString note = d->UI.tree->model()->data(n).toString();
+
+  bool ok = false;
+  note = vgTextEditDialog::getText(this, "Edit Track Note", note, &ok);
+  if (ok)
+    {
+    d->UI.tree->model()->setData(n, note, Qt::DisplayRole);
+    }
 }

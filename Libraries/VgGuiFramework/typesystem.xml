@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<typesystem package="@TYPESYSTEM_NAME@">
+
+  @EXTRA_TYPESYSTEMS@
+
+  <namespace-type name="vgf">
+    <enum-type name="ItemType" flags="ItemTypes"/>
+    <enum-type name="ItemDataRole"/>
+    <enum-type name="JumpFlag" flags="JumpFlags"/>
+    <function name="itemTypeIcon"/>
+  </namespace-type>
+
+  @EXTRA_OBJECTS@
+
+</typesystem>

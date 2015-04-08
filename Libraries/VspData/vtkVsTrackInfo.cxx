@@ -10,14 +10,14 @@ vtkImplementMetaObject(vtkVsTrackInfo, vtkVgEventTrackInfoBase);
 
 //-----------------------------------------------------------------------------
 vtkVsTrackInfo::vtkVsTrackInfo(
-  vvTrackId tid, const vtkVgTimeStamp& start, const vtkVgTimeStamp& end)
-  : vtkVgEventTrackInfoBase(-1, start, end), VvTrackId(tid)
+  vsTrackId tid, const vtkVgTimeStamp& start, const vtkVgTimeStamp& end)
+  : vtkVgEventTrackInfoBase(-1, start, end), LogicalId(tid)
 {
 }
 
 //-----------------------------------------------------------------------------
 vtkVsTrackInfo::vtkVsTrackInfo(const vtkVsTrackInfo& other)
-  : vtkVgEventTrackInfoBase(other), VvTrackId(other.VvTrackId)
+  : vtkVgEventTrackInfoBase(other), LogicalId(other.LogicalId)
 {
 }
 
@@ -35,12 +35,12 @@ vtkVgEventTrackInfoBase* vtkVsTrackInfo::Clone() const
 //-----------------------------------------------------------------------------
 const char* vtkVsTrackInfo::CheckValid() const
 {
-  if (this->VvTrackId.Source < 0)
+  if (this->LogicalId.Source < 0)
     {
     return "Only non-negative track sources are allowed.\n";
     }
 
-  if (this->VvTrackId.SerialNumber < 0)
+  if (this->LogicalId.SerialNumber < 0)
     {
     return "Only non-negative track serial numbers are allowed.\n";
     }

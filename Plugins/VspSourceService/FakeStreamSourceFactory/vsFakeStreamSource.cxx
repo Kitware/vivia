@@ -49,15 +49,15 @@ void vsFakeStreamSourcePrivate::run()
   this->updateStatus(vsDataSource::StreamingPending);
 
   QTE_Q(vsFakeStreamSource);
-  connect(this, SIGNAL(trackUpdated(vvTrackId, vvTrackState)),
+  connect(this, SIGNAL(trackUpdated(vsTrackId, vvTrackState)),
           q->trackSource().data(),
-          SIGNAL(trackUpdated(vvTrackId, vvTrackState)));
-  connect(this, SIGNAL(trackClosed(vvTrackId)),
+          SIGNAL(trackUpdated(vsTrackId, vvTrackState)));
+  connect(this, SIGNAL(trackClosed(vsTrackId)),
           q->trackSource().data(),
-          SIGNAL(trackClosed(vvTrackId)));
-  connect(this, SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)),
+          SIGNAL(trackClosed(vsTrackId)));
+  connect(this, SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)),
           q->descriptorSource().data(),
-          SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)));
+          SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)));
   connect(this, SIGNAL(eventAvailable(vsEvent)),
           q->descriptorSource().data(),
           SLOT(emitEvent(vsEvent)));
@@ -227,9 +227,9 @@ void vsFakeStreamSourcePrivate::addArchiveSourceFactory(
     foreach (vsTrackSourcePtr ts, factory->trackSources())
       {
       REDIRECT(ts, trackUpdated, queueTrackUpdate,
-               (vvTrackId, vvTrackState));
+               (vsTrackId, vvTrackState));
       REDIRECT(ts, trackUpdated, queueTrackUpdate,
-               (vvTrackId, QList<vvTrackState>));
+               (vsTrackId, QList<vvTrackState>));
       connect(ts.data(), SIGNAL(statusChanged(vsDataSource::Status)),
               this, SLOT(sourceStatusChanged()));
       this->CurrentDataSources.append(ts);
@@ -238,7 +238,7 @@ void vsFakeStreamSourcePrivate::addArchiveSourceFactory(
     foreach (vsDescriptorSourcePtr ds, factory->descriptorSources())
       {
       REDIRECT(ds, tocAvailable, queueTrackClassifier,
-               (vvTrackId, vsTrackObjectClassifier));
+               (vsTrackId, vsTrackObjectClassifier));
       REDIRECT(ds, eventAvailable, queueEvent,
                (vsDescriptorSource*, vsEvent));
       connect(ds.data(), SIGNAL(statusChanged(vsDataSource::Status)),
@@ -276,7 +276,7 @@ void vsFakeStreamSourcePrivate::sourceStatusChanged()
 
 //-----------------------------------------------------------------------------
 void vsFakeStreamSourcePrivate::queueTrackUpdate(
-  vvTrackId id, vvTrackState state)
+  vsTrackId id, vvTrackState state)
 {
   this->TrackUpdates[id].insert(state.TimeStamp, state);
   this->flushData(this->LastFrameReleased);
@@ -284,7 +284,7 @@ void vsFakeStreamSourcePrivate::queueTrackUpdate(
 
 //-----------------------------------------------------------------------------
 void vsFakeStreamSourcePrivate::queueTrackUpdate(
-  vvTrackId id, QList<vvTrackState> states)
+  vsTrackId id, QList<vvTrackState> states)
 {
   foreach (const vvTrackState& state, states)
     {
@@ -294,7 +294,7 @@ void vsFakeStreamSourcePrivate::queueTrackUpdate(
 
 //-----------------------------------------------------------------------------
 void vsFakeStreamSourcePrivate::queueTrackClassifier(
-  vvTrackId id, vsTrackObjectClassifier toc)
+  vsTrackId id, vsTrackObjectClassifier toc)
 {
   this->Tocs.insert(id, toc);
   this->flushData(this->LastFrameReleased);
@@ -446,7 +446,7 @@ void vsFakeStreamSourcePrivate::flush(vtkVgTimeStamp next)
 void vsFakeStreamSourcePrivate::flushData(vtkVgTimeStamp next)
 {
   // Emit track updates
-  foreach (vvTrackId tid, this->TrackUpdates.keys())
+  foreach (vsTrackId tid, this->TrackUpdates.keys())
     {
     TrackStateMap& map = this->TrackUpdates[tid];
     TrackStateMap::iterator iter = map.begin();

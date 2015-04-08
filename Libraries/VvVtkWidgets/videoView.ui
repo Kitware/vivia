@@ -188,7 +188,7 @@
    </property>
    <property name="icon">
     <iconset resource="../../Icons/vgvideo.qrc">
-     <normaloff>:/icons/22x22/view-track</normaloff>:/icons/22x22/view-track</iconset>
+     <normaloff>:/icons/22x22/view-zoom-target</normaloff>:/icons/22x22/view-zoom-target</iconset>
    </property>
    <property name="text">
     <string>Follow Event</string>

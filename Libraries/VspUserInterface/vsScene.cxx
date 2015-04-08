@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -57,10 +57,13 @@
 #include <vgMixerWidget.h>
 #include <vgTextEditDialog.h>
 
+#include <vsDisplayInfo.h>
+
 #include "vsAlertList.h"
 #include "vsContourWidget.h"
 #include "vsCore.h"
 #include "vsDebug.h"
+#include "vsEventDataModel.h"
 #include "vsEventRatingMenu.h"
 #include "vsEventTreeModel.h"
 #include "vsEventTreeSelectionModel.h"
@@ -70,6 +73,7 @@
 #include "vsSettings.h"
 #include "vsTrackInfo.h"
 #include "vsTrackTreeModel.h"
+#include "vsTrackTreeSelectionModel.h"
 #include "vsTrackTreeWidget.h"
 
 QTE_IMPLEMENT_D_FUNC(vsScene)
@@ -117,6 +121,11 @@ vsScene::vsScene(vsCore* core, QObject* parent)
 
   connect(core, SIGNAL(manualEventCreated(vtkIdType)),
           this, SLOT(startQuickNoteTimer(vtkIdType)));
+
+  connect(core, SIGNAL(trackNoteChanged(vtkVgTrack*, QString)),
+          this, SLOT(updateTrackNotes()));
+  connect(core, SIGNAL(eventNoteChanged(vtkVgEvent*, QString)),
+          this, SLOT(updateEventNotes()));
 
   // Connect video player
   connect(&d->VideoPlayer, SIGNAL(frameAvailable(vtkVgVideoFrame, qint64)),
@@ -180,8 +189,17 @@ void vsScene::setupUi(QVTKWidget* renderWidget)
   d->ImageActor->SetPosition(0.0, 0.0, -0.2);
 
   // Set up track and event display
-  d->setupRepresentations(d->NormalGraph);
-  d->setupRepresentations(d->GroundTruthGraph, 1.5f);
+  vsSettings settings;
+  d->setupRepresentations(d->NormalGraph,
+                          settings.normalTrackHeadWidth(),
+                          settings.normalTrackTrailWidth(),
+                          settings.normalEventHeadWidth(),
+                          settings.normalEventTrailWidth());
+  d->setupRepresentations(d->GroundTruthGraph,
+                          settings.groundTruthTrackHeadWidth(),
+                          settings.groundTruthTrackTrailWidth(),
+                          settings.groundTruthEventHeadWidth(),
+                          settings.groundTruthEventTrailWidth());
 
   // Add to renderer; tracks go *after* events so that translucent events will
   // mask underlying tracks...
@@ -346,7 +364,7 @@ void vsScene::setupEventTree(
           d->Core, SLOT(setEventStatus(vtkIdType, int)));
   connect(d->EventTreeModel, SIGNAL(eventNoteChanged(vtkIdType, QString)),
           d->Core, SLOT(setEventNote(vtkIdType, QString)));
-  connect(d->Core, SIGNAL(eventAdded(vtkVgEvent*)),
+  connect(d->Core, SIGNAL(eventAdded(vtkVgEvent*, vsEventId)),
           d->EventTreeModel, SLOT(addEvent(vtkVgEvent*)));
   connect(d->Core, SIGNAL(eventChanged(vtkVgEvent*)),
           d->EventTreeModel, SLOT(updateEvent(vtkVgEvent*)));
@@ -392,13 +410,15 @@ void vsScene::setupTrackTree(vsTrackTreeWidget* tree)
 
   d->TrackTreeModel =
     new vsTrackTreeModel(d->Core, this, d->TrackFilter, this);
-
-  d->updateTrackTreeColors();
+  d->TrackTreeSelectionModel =
+    new vsTrackTreeSelectionModel(d->TrackTreeModel, this);
 
   connect(d->Core, SIGNAL(trackAdded(vtkVgTrack*)),
           d->TrackTreeModel, SLOT(addTrack(vtkVgTrack*)));
   connect(d->Core, SIGNAL(trackChanged(vtkVgTrack*)),
           d->TrackTreeModel, SLOT(updateTrack(vtkVgTrack*)));
+  connect(d->TrackTreeModel, SIGNAL(trackNoteChanged(vtkIdType, QString)),
+          d->Core, SLOT(setTrackNote(vtkIdType, QString)));
   connect(tree, SIGNAL(jumpToTrack(vtkIdType, bool)),
           this, SLOT(jumpToTrack(vtkIdType, bool)));
   connect(this, SIGNAL(pickedTrack(vtkIdType)),
@@ -406,9 +426,40 @@ void vsScene::setupTrackTree(vsTrackTreeWidget* tree)
   connect(tree, SIGNAL(trackFollowingRequested(vtkIdType)),
           d->Core, SLOT(startFollowingTrack(vtkIdType)));
   connect(tree, SIGNAL(trackFollowingCanceled()),
-          d->Core, SLOT(stopFollowingTrack()));
+          d->Core, SLOT(cancelFollowing()));
+
+  connect(d->TrackTreeSelectionModel, SIGNAL(selectionChanged(QSet<vtkIdType>)),
+          this, SLOT(updateTrackSelection(QSet<vtkIdType>)));
 
   tree->setModel(d->TrackTreeModel);
+  tree->setSelectionModel(d->TrackTreeSelectionModel);
+}
+
+//-----------------------------------------------------------------------------
+QAbstractItemModel* vsScene::eventDataModel()
+{
+  QTE_D(vsScene);
+
+  if (!d->EventDataModel)
+    {
+    d->EventDataModel = new vsEventDataModel(this, this);
+
+    connect(d->Core, SIGNAL(eventAdded(vtkVgEvent*, vsEventId)),
+            d->EventDataModel, SLOT(addEvent(vtkVgEvent*, vsEventId)));
+    connect(d->Core, SIGNAL(eventChanged(vtkVgEvent*)),
+            d->EventDataModel, SLOT(updateEvent(vtkVgEvent*)));
+    connect(d->Core, SIGNAL(eventRemoved(vtkIdType)),
+            d->EventDataModel, SLOT(removeEvent(vtkIdType)));
+
+    connect(d->Core, SIGNAL(eventStatusChanged(vtkVgEvent*, int)),
+            d->EventDataModel, SLOT(updateEvent(vtkVgEvent*)));
+    connect(d->Core, SIGNAL(eventRatingChanged(vtkVgEvent*, int)),
+            d->EventDataModel, SLOT(updateEvent(vtkVgEvent*)));
+    connect(d->Core, SIGNAL(eventNoteChanged(vtkVgEvent*, QString)),
+            d->EventDataModel, SLOT(updateEvent(vtkVgEvent*)));
+    }
+
+  return d->EventDataModel;
 }
 
 //-----------------------------------------------------------------------------
@@ -527,7 +578,7 @@ void vsScene::setEventThreshold(int type, double threshold)
       break;
     }
 
-  if (vsEventInfo::eventGroups(type).testFlag(vsEventInfo::Alert))
+  if (vsEventInfo::eventGroup(type) == vsEventInfo::Alert)
     {
     // When an alert's threshold changes, notify the alert list so that the
     // editor will have the current threshold
@@ -597,7 +648,7 @@ void vsScene::jumpToEvent()
 {
   QTE_D(vsScene);
 
-  CHECK_ARG(d->FollowEventEnabled);
+  CHECK_ARG(d->ZoomOnTarget);
 
   vtkVgEvent* event = d->findEvent(d->PendingJumpEventId);
   d->PendingJumpEventId = -1;
@@ -612,6 +663,25 @@ void vsScene::jumpToEvent()
   else
     {
     // \TODO handle track-less events
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::jumpToItem(vgfItemReference itemRef, vgf::JumpFlags flags)
+{
+  vtkIdType id = static_cast<vtkIdType>(itemRef.InternalId);
+
+  switch (itemRef.Type)
+    {
+    case vgf::TrackItem:
+      this->jumpToTrack(id, flags.testFlag(vgf::JumpToEndTime));
+      break;
+    case vgf::EventItem:
+      this->jumpToEvent(id, flags.testFlag(vgf::JumpToEndTime));
+      break;
+    default:
+      qWarning() << "vsScene::jumpToItem: Unknown item type" << itemRef.Type;
+      break;
     }
 }
 
@@ -640,7 +710,7 @@ void vsScene::jumpToTrack()
 {
   QTE_D(vsScene);
 
-  CHECK_ARG(d->FollowEventEnabled);
+  CHECK_ARG(d->ZoomOnTarget);
 
   this->jumpToTrack(d->findTrack(d->PendingJumpTrackId));
   d->PendingJumpTrackId = -1;
@@ -667,12 +737,72 @@ void vsScene::jumpToTrack(vtkIdType trackId, bool jumpToEnd)
 }
 
 //-----------------------------------------------------------------------------
+void vsScene::setTrackSelection(
+  QSet<vtkIdType> selectedIds, vtkIdType currentId)
+{
+  QTE_D(vsScene);
+  d->TrackTreeSelectionModel->setSelectedTracks(selectedIds);
+  d->TrackTreeSelectionModel->setCurrentTrack(currentId);
+}
+
+//-----------------------------------------------------------------------------
 void vsScene::setEventSelection(
   QSet<vtkIdType> selectedIds, vtkIdType currentId)
 {
   QTE_D(vsScene);
   d->EventTreeSelectionModel->setSelectedEvents(selectedIds);
   d->EventTreeSelectionModel->setCurrentEvent(currentId);
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::updateTrackSelection(QSet<vtkIdType> selectedIds)
+{
+  QTE_D(vsScene);
+
+  QSet<vtkVgTrack*> selectedTracks;
+  vtkVgTrack* track = 0;
+  bool modified = false;
+
+  // Build new set of selected tracks
+  foreach (vtkIdType id, selectedIds)
+    {
+    if ((track = d->findTrack(id)))
+      {
+      selectedTracks.insert(track);
+      }
+    }
+
+  // Turn off selected color of tracks that are no longer selected
+  foreach (track, d->SelectedTracks)
+    {
+    if (!selectedTracks.contains(track))
+      {
+      track->UseCustomColorOff();
+      modified = true;
+      }
+    }
+
+  // Turn on selected color for newly selected tracks
+  foreach (track, selectedTracks)
+    {
+    if (!d->SelectedTracks.contains(track))
+      {
+      track->SetCustomColor(d->SelectionColor.constData().array);
+      track->UseCustomColorOn();
+      modified = true;
+      }
+    }
+
+  if (modified)
+    {
+    d->SelectedTracks = selectedTracks;
+
+    d->NormalGraph.TrackModel->Modified();
+    d->GroundTruthGraph.TrackModel->Modified();
+    this->postUpdate();
+
+    emit this->selectedTracksChanged(selectedIds);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -708,7 +838,7 @@ void vsScene::updateEventSelection(QSet<vtkIdType> selectedIds)
     {
     if (!d->SelectedEvents.contains(event))
       {
-      event->SetCustomColor(d->EventSelectedColor.constData().array);
+      event->SetCustomColor(d->SelectionColor.constData().array);
       event->UseCustomColorOn();
       modified = true;
       }
@@ -1315,18 +1445,20 @@ double vsScene::trackTrailLength() const
 }
 
 //-----------------------------------------------------------------------------
-void vsScene::setEventSelectedColor(QColor color)
+void vsScene::setSelectionColor(QColor color)
 {
   QTE_D(vsScene);
-  d->EventSelectedColor = color;
-  // \TODO update event colors
+  d->SelectionColor = color;
+  // TODO update track/event colors
+  emit this->trackSceneUpdated();
+  emit this->eventSceneUpdated();
 }
 
 //-----------------------------------------------------------------------------
-QColor vsScene::eventSelectedColor() const
+QColor vsScene::selectionColor() const
 {
   QTE_D_CONST(vsScene);
-  return d->EventSelectedColor.toQColor();
+  return d->SelectionColor.toQColor();
 }
 
 //-----------------------------------------------------------------------------
@@ -1408,6 +1540,43 @@ void vsScene::setEventProbabilityVisible(bool visibility)
   d->GroundTruthGraph.EventLabelRepresentation->SetShowProbability(
     visibility);
   this->postUpdate();
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::setNotesVisible(bool visibility)
+{
+  QTE_D(vsScene);
+  d->NormalGraph.TrackLabelRepresentation->SetShowNote(visibility);
+  d->NormalGraph.EventLabelRepresentation->SetShowNote(visibility);
+  d->GroundTruthGraph.TrackLabelRepresentation->SetShowNote(visibility);
+  d->GroundTruthGraph.EventLabelRepresentation->SetShowNote(visibility);
+  this->postUpdate();
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::updateTrackNotes()
+{
+  QTE_D(vsScene);
+
+  if (d->NormalGraph.TrackLabelRepresentation->GetShowNote())
+    {
+    d->NormalGraph.TrackLabelRepresentation->Modified();
+    d->GroundTruthGraph.TrackLabelRepresentation->Modified();
+    this->postUpdate();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::updateEventNotes()
+{
+  QTE_D(vsScene);
+
+  if (d->NormalGraph.EventLabelRepresentation->GetShowNote())
+    {
+    d->NormalGraph.EventLabelRepresentation->Modified();
+    d->GroundTruthGraph.EventLabelRepresentation->Modified();
+    this->postUpdate();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1674,6 +1843,7 @@ void vsScene::updateVideoFrame(vtkVgVideoFrame frame, qint64 requestId)
   // Pass along metadata
   emit this->transformChanged(d->CurrentTransformQt);
   emit this->videoMetadataUpdated(metadata, requestId);
+  emit this->currentTimeChanged(metadata.Time.GetRawTimeStamp());
 }
 
 //-----------------------------------------------------------------------------
@@ -1701,7 +1871,7 @@ void vsScene::onLeftClick()
         idx, vs::VerifiedEvent, vsEventTreeModel::StatusRole);
       }
 
-    // \TODO handle ctrl to multi-select?
+    // TODO handle ctrl to multi-select?
     d->EventTreeSelectionModel->selectEvent(eventId);
     emit this->pickedEvent(eventId);
     return;
@@ -1713,7 +1883,7 @@ void vsScene::onLeftClick()
                           d->GroundTruthGraph.EventRepresentation, x, y);
   if (eventId != -1)
     {
-    // \TODO handle ctrl to multi-select?
+    // TODO handle ctrl to multi-select?
     d->EventTreeSelectionModel->selectEvent(eventId);
     emit this->pickedEvent(eventId);
     return;
@@ -1725,6 +1895,8 @@ void vsScene::onLeftClick()
                                     d->NormalGraph.TrackRepresentation, x, y);
   if (trackId != -1)
     {
+    // TODO handle ctrl to multi-select?
+    d->TrackTreeSelectionModel->selectTrack(trackId);
     emit this->pickedTrack(trackId);
     return;
     }
@@ -1735,6 +1907,8 @@ void vsScene::onLeftClick()
                           d->GroundTruthGraph.TrackRepresentation, x, y);
   if (trackId != -1)
     {
+    // TODO handle ctrl to multi-select?
+    d->TrackTreeSelectionModel->selectTrack(trackId);
     emit this->pickedTrack(trackId);
     return;
     }
@@ -1771,9 +1945,14 @@ void vsScene::onRightClick()
 
   int x, y;
   interactor->GetEventPosition(x, y);
-  vtkIdType eventId = this->tryPick(d->NormalGraph.EventLabelRepresentation,
-                                    d->NormalGraph.EventHeadRepresentation,
-                                    d->NormalGraph.EventRepresentation, x, y);
+  const vtkIdType trackId =
+    this->tryPick(d->NormalGraph.TrackLabelRepresentation,
+                  d->NormalGraph.TrackHeadRepresentation,
+                  d->NormalGraph.TrackRepresentation, x, y);
+  const vtkIdType eventId =
+    this->tryPick(d->NormalGraph.EventLabelRepresentation,
+                  d->NormalGraph.EventHeadRepresentation,
+                  d->NormalGraph.EventRepresentation, x, y);
 
   // Ctrl-RMB to give negative feedback and reject the event
   if (interactor->GetControlKey())
@@ -1799,12 +1978,20 @@ void vsScene::onRightClick()
   if (d->CurrentFrameTime.IsValid())
     {
     copyLocation = menu.addAction("&Copy Location");
+    }
+
+  // Handle context menu for tracks
+  QAction* followTrack = 0;
+  if (trackId != -1)
+    {
     menu.addSeparator();
+    followTrack = menu.addAction("&Follow Track");
     }
 
   // Handle context menu for events
   if (eventId != -1)
     {
+    menu.addSeparator();
     vsEventRatingMenu::buildMenu(&menu);
 
     QAction* unrated =
@@ -1856,6 +2043,10 @@ void vsScene::onRightClick()
     {
     // Generate location text and copy to clipboard
     qApp->clipboard()->setText(d->buildLocationTextFromDisplay(x, y));
+    }
+  else if (choice == followTrack)
+    {
+    d->Core->startFollowingTrack(trackId);
     }
 }
 
@@ -1921,11 +2112,21 @@ void vsScene::setEventStatus(vtkVgEvent* event, int newStatus)
 }
 
 //-----------------------------------------------------------------------------
-void vsScene::setFollowEvent(bool state)
+void vsScene::setZoomOnTarget(bool state)
 {
   QTE_D(vsScene);
 
-  d->FollowEventEnabled = state;
+  d->ZoomOnTarget = state;
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::setTrackDisplayState(vtkIdType trackId, bool state)
+{
+  QTE_D(vsScene);
+
+  d->NormalGraph.TrackModel->SetTrackDisplayState(trackId, state);
+  d->GroundTruthGraph.TrackModel->SetTrackDisplayState(trackId, state);
+  this->postUpdate();
 }
 
 //-----------------------------------------------------------------------------
@@ -1953,12 +2154,60 @@ bool vsScene::trackVisibility(vtkIdType trackId)
 }
 
 //-----------------------------------------------------------------------------
-void vsScene::setTrackDisplayState(vtkIdType trackId, bool state)
+vsDisplayInfo vsScene::trackDisplayInfo(vtkIdType trackId)
 {
   QTE_D(vsScene);
 
-  d->NormalGraph.TrackModel->SetTrackDisplayState(trackId, state);
-  d->GroundTruthGraph.TrackModel->SetTrackDisplayState(trackId, state);
+  vsDisplayInfo di;
+  vtkVgTrackInfo trackInfo = d->trackInfo(trackId);
+  vtkVgTrack* const track = trackInfo.GetTrack();
+  if (track)
+    {
+    di.DisplayState = trackInfo.GetDisplayTrack();
+    di.BestClassification = d->TrackFilter->GetBestClassifier(track);
+    di.Visible = di.DisplayState && (di.BestClassification != -1);
+
+    if (track->GetUseCustomColor())
+      {
+      double color[3];
+      track->GetCustomColor(color);
+      di.Color = vgColor(color);
+      }
+    else
+      {
+      const vsTrackInfo* const dti = d->trackColorHelper()->infoForTrack(track);
+      if (dti)
+        {
+        di.Color = vgColor(dti->pcolor);
+        }
+      else if (di.BestClassification != -1)
+        {
+        const vgColor& fallbackColor = d->TrackColors[vtkVgTrack::Unclassified];
+        di.Color = d->TrackColors.value(di.BestClassification, fallbackColor);
+        }
+      }
+
+    if (di.BestClassification < 0 ||
+        di.BestClassification >= vtkVgTrack::Unclassified)
+      {
+      di.Confidence = -1.0;
+      }
+    else
+      {
+      di.Confidence = track->GetPVO()[di.BestClassification];
+      }
+    }
+
+  return di;
+}
+
+//-----------------------------------------------------------------------------
+void vsScene::setEventDisplayState(vtkIdType eventId, bool state)
+{
+  QTE_D(vsScene);
+
+  d->NormalGraph.EventModel->SetEventDisplayState(eventId, state);
+  d->GroundTruthGraph.EventModel->SetEventDisplayState(eventId, state);
   this->postUpdate();
 }
 
@@ -1987,13 +2236,37 @@ bool vsScene::eventVisibility(vtkIdType eventId)
 }
 
 //-----------------------------------------------------------------------------
-void vsScene::setEventDisplayState(vtkIdType eventId, bool state)
+vsDisplayInfo vsScene::eventDisplayInfo(vtkIdType eventId)
 {
   QTE_D(vsScene);
 
-  d->NormalGraph.EventModel->SetEventDisplayState(eventId, state);
-  d->GroundTruthGraph.EventModel->SetEventDisplayState(eventId, state);
-  this->postUpdate();
+  vsDisplayInfo di;
+  vtkVgEventInfo eventInfo = d->eventInfo(eventId);
+  vtkVgEvent* const event = eventInfo.GetEvent();
+  if (event)
+    {
+    const int type = d->EventFilter->GetBestClassifier(event);
+    di.DisplayState = eventInfo.GetDisplayEvent();
+    di.BestClassification = type;
+    di.Visible = di.DisplayState && (di.BestClassification != -1);
+    di.Confidence = (type == -1 ? 0.0 : event->GetProbability(type));
+
+    double color[3];
+    if (event->GetUseCustomColor())
+      {
+      event->GetCustomColor(color);
+      di.Color = vgColor(color);
+      }
+    else if (type != -1)
+      {
+      const vgEventType& et =
+        d->Core->eventTypeRegistry()->GetTypeById(di.BestClassification);
+      et.GetColor(color[0], color[1], color[2]);
+      di.Color = vgColor(color);
+      }
+    }
+
+  return di;
 }
 
 //-----------------------------------------------------------------------------
@@ -2087,11 +2360,16 @@ void vsScene::updateTrackColors(
       }
     }
 
-  d->updateTrackClassifierColors();
-  d->updateTrackSourceColors();
-  d->updateTrackTreeColors();
+  d->updateTrackColors();
   this->postUpdate();
 }
+
+//-----------------------------------------------------------------------------
+QList<vtkVgTrack*> vsScene::trackList() const
+  {
+  QTE_D_CONST(vsScene);
+  return d->TrackTreeModel->trackList();
+  }
 
 //-----------------------------------------------------------------------------
 QList<vsEventUserInfo> vsScene::eventList() const

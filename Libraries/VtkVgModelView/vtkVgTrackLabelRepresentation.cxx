@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -73,7 +73,9 @@ vtkVgTrackLabelRepresentation::vtkVgTrackLabelRepresentation()
   this->Visible = 1;
   this->ShowName = true;
   this->ShowProbability = false;
+  this->ShowNote = false;
   this->LabelPrefix = 0;
+  this->LabelColorHelper = 0;
   this->Internal = new vtkInternal;
 
   this->Internal->Picker = vtkSmartPointer<vtkPropPicker>::New();
@@ -277,9 +279,11 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
     actor->AutoCenterXOn();
 
     std::ostringstream ostr;
+    bool hasLabel = false;
 
     if (this->LabelPrefix)
       {
+      hasLabel = true;
       ostr << this->LabelPrefix;
       }
 
@@ -294,6 +298,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
         {
         ostr << 'T' << track->GetId();
         }
+      hasLabel = true;
       }
 
     if (this->ShowProbability)
@@ -304,7 +309,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
       // show PVO from top to bottom if the track isn't unclassified
       if (PVO[0] != 0.0 || PVO[1] != 0.0 || PVO[2] != 0.0)
         {
-        if (this->ShowName)
+        if (hasLabel)
           {
           ostr << ' ';
           }
@@ -312,10 +317,32 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
         ostr.setf(ios::fixed, ios::floatfield);
         ostr.precision(2);
         ostr << "(P:" << PVO[0] << ", V:" << PVO[1] << ", O:" << PVO[2] << ')';
+        hasLabel = true;
         }
       }
 
+    if (this->ShowNote)
+      {
+      const char* const note = track->GetNote();
+      if (note && *note)
+        {
+        if (hasLabel)
+          {
+          ostr << '\n';
+          }
+        ostr << note;
+        hasLabel = true;
+        }
+      }
+
+    actor->SetVisibility(hasLabel);
     actor->SetText(ostr.str().c_str());
+    }
+
+  if (!actor->GetVisibility())
+    {
+    // If label is not visible, not much point updating position
+    return;
     }
 
   vtkIdType npts, *pts, trackPointId;
@@ -356,7 +383,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
 
     // Now that we have a good anchor point in world space, transform it back
     // to model space before setting the actor position.
-    const vgPoint2d point = { 0.5 * (minX + maxX), minY };
+    const vgPoint2d point(0.5 * (minX + maxX), minY);
     vtkVgApplyHomography(point, this->Internal->InvRepresentationMatrix,
                          labelPosition);
     labelPosition[2] = 0.0;

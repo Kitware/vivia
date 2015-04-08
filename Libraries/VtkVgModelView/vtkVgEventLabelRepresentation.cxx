@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -66,6 +66,7 @@ vtkVgEventLabelRepresentation::vtkVgEventLabelRepresentation()
   this->ShowId = true;
   this->ShowClassifiers = 1;
   this->ShowProbability = false;
+  this->ShowNote = false;
   this->LabelPrefix = 0;
   this->LocationSourceMode = LSM_Track;
   this->Internal = new vtkInternal;
@@ -238,7 +239,7 @@ bool vtkVgEventLabelRepresentation::GetPositionBasedOnRegion(vtkVgEvent* event,
 
     // Now that we have a good anchor point in world space, transform it back
     // to model space before setting the actor position.
-    const vgPoint2d point = { 0.5 * (minX + maxX), minY };
+    const vgPoint2d point(0.5 * (minX + maxX), minY);
     vtkVgApplyHomography(point, this->Internal->InvRepresentationMatrix,
                          labelPosition);
     labelPosition[2] = 0.0;
@@ -347,6 +348,15 @@ void vtkVgEventLabelRepresentation::ShowEventAnnotation(vtkVgEvent* event,
           }
         }
       }
+
+  if (this->ShowNote)
+    {
+    const char* const note = event->GetNote();
+    if (note && *note)
+      {
+      ostr << '\n' << note;
+      }
+    }
 
     actor->SetText(ostr.str().c_str());
     }

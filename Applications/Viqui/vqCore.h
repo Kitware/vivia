@@ -56,7 +56,7 @@ class vtkVgTrackNode;
 class vtkVgTransformNode;
 class vtkVgTripWireManager;
 class vtkVgViewerBase;
-class vtkVQTerrainSource;
+class vtkVgTerrainSource;
 class vtkVQTrackingClip;
 class vtkVgVideoNode;
 
@@ -104,6 +104,8 @@ public:
   void setQueryServer(const QUrl&);
 
   bool isQuerySessionActive() const;
+
+  int resultCount() const;
 
   QList<vtkVgVideoNode*> queryResultNodes();
   QList<vtkVgVideoNode*> scoringRequestNodes();
@@ -362,7 +364,7 @@ protected:
   vtkSmartPointer<vtkTimerLog>                      TimerLog;
   vtkVgTimeStamp                                    ApplicationTimeStamp;
 
-  vtkSmartPointer<vtkVQTerrainSource>               TerrainSource;
+  vtkSmartPointer<vtkVgTerrainSource>               TerrainSource;
 
   vtkSmartPointer<vtkVgTransformNode>               ContextSceneRoot;
   vtkSmartPointer<vtkVgTransformNode>               ContextVideoRoot;

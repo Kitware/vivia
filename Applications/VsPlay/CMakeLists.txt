@@ -16,7 +16,7 @@ endif()
 
 # BEGIN core libraries and includes
 
-if (QtTesting_FOUND)
+if(QtTesting_FOUND AND BUILD_TESTING)
   include_directories(${qtTestingSupport_SOURCE_DIR})
   add_definitions(-DENABLE_QTTESTING)
   set(QT_TESTING_SUPPORT_LIBRARIES qtTestingSupport ${QtTesting_LIBRARIES})

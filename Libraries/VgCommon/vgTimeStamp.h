@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -23,6 +23,8 @@ struct vgTimeStamp
   inline bool IsValid() const;
   inline bool HasTime() const;
   inline bool HasFrameNumber() const;
+
+  inline bool FuzzyEquals(const vgTimeStamp&, double tol = 1e-5) const;
 
   inline bool operator==(const vgTimeStamp&) const;
   inline bool operator!=(const vgTimeStamp&) const;
@@ -81,6 +83,36 @@ bool vgTimeStamp::HasTime() const
 bool vgTimeStamp::HasFrameNumber() const
 {
   return this->FrameNumber != InvalidFrameNumber();
+}
+
+//-----------------------------------------------------------------------------
+bool vgTimeStamp::FuzzyEquals(const vgTimeStamp& other, double tol) const
+{
+  if (this->IsValid() != other.IsValid())
+    {
+    // Valid time stamp never matches invalid time stamp
+    return false;
+    }
+
+  if (this->HasTime() && other.HasTime())
+    {
+    const double delta = this->Time - other.Time;
+    if (delta > tol || delta < -tol)
+      {
+      // Times differ by more than allowed value; result is false
+      return false;
+      }
+    else if (!(this->HasFrameNumber() && other.HasFrameNumber()))
+      {
+      // Times are within tolerance and one or both is missing frame number;
+      // result is true
+      return true;
+      }
+    }
+
+  // Times are both within tolerance (and both have frame numbers) or missing;
+  // result is true if frame numbers match
+  return this->FrameNumber == other.FrameNumber;
 }
 
 //-----------------------------------------------------------------------------

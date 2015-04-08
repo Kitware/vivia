@@ -54,17 +54,24 @@ vsReportGeneratorInterface::vsReportGeneratorInterface(
   QObject(window),
   d_ptr(new vsReportGeneratorInterfacePrivate(window, scene, core))
 {
-  QAction* const actionGenerateReport = new QAction("Generate Report", this);
-  QAction* const actionExportKml = new QAction("Export KML", this);
-
   qtPrioritizedMenuProxy* menu = window->toolsMenu();
+
+#ifdef ENABLE_KML_EXPORT
+  QAction* const actionExportKml = new QAction("Export KML...", this);
   menu->insertAction(actionExportKml, 600);
-  menu->insertAction(actionGenerateReport, 600);
+
+  connect(actionExportKml, SIGNAL(triggered()),
+          this, SLOT(exportKml()));
+#endif
+
+#ifdef ENABLE_REPORT_GENERATION
+  QAction* const actionGenerateReport =
+    new QAction("Generate Report...", this);
+  menu->insertAction(actionGenerateReport, 640);
 
   connect(actionGenerateReport, SIGNAL(triggered()),
           this, SLOT(generateReport()));
-  connect(actionExportKml, SIGNAL(triggered()),
-          this, SLOT(exportKml()));
+#endif
 
   connect(core, SIGNAL(videoSourceChanged(vsVideoSource*)),
           this, SLOT(setVideoSource(vsVideoSource*)));
@@ -90,7 +97,7 @@ void vsReportGeneratorInterface::generateReport()
 
   if (!d->VideoSource)
     {
-    QMessageBox::warning(d->Window, QString(), "No video loaded.");
+    QMessageBox::critical(d->Window, QString(), "No video loaded.");
     return;
     }
 
@@ -108,7 +115,7 @@ void vsReportGeneratorInterface::exportKml()
 
   if (!d->VideoSource)
     {
-    QMessageBox::warning(d->Window, QString(), "No video loaded.");
+    QMessageBox::critical(d->Window, QString(), "No video loaded.");
     return;
     }
 
@@ -122,6 +129,7 @@ void vsReportGeneratorInterface::exportKml()
     }
 }
 
+#ifdef ENABLE_REPORT_GENERATION
 //-----------------------------------------------------------------------------
 void vsReportGeneratorInterface::generateReport(
   const QString& path, bool generateVideo)
@@ -134,6 +142,12 @@ void vsReportGeneratorInterface::generateReport(
   rg.setOutputPath(path);
   rg.generateReport(generateVideo);
 }
+#else
+void vsReportGeneratorInterface::generateReport(
+  const QString& path, bool generateVideo)
+{
+}
+#endif
 
 //-----------------------------------------------------------------------------
 void vsReportGeneratorInterface::exportKml(const QString& path)

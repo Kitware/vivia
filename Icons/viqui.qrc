@@ -45,7 +45,7 @@
     <file alias="save-query">22x22/save-query.png</file>
     <file alias="show-boxes">22x22/track-show-boxes.png</file>
     <file alias="view-reset">22x22/view-reset.png</file>
-    <file alias="view-track">22x22/view-track.png</file>
+    <file alias="view-zoom-target">22x22/view-zoom-target.png</file>
   </qresource>
   <qresource prefix="icons/32x32">
     <file alias="data-providers">32x32/data-providers.png</file>

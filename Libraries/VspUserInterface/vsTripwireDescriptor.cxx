@@ -14,6 +14,7 @@
 
 #include <vsContour.h>
 #include <vsEventInfo.h>
+#include <vsTrackId.h>
 #include <vsTrackState.h>
 #include <vtkVsTrackInfo.h>
 
@@ -36,19 +37,19 @@ protected:
   virtual void revokeAllInput(bool revokeEvents);
 
   void addContour(qint64 id, const QPolygonF& points);
-  void updateTrack(const vvTrackId* id, const vsTrackState* state);
+  void updateTrack(const vsTrackId* id, const vsTrackState* state);
   void processIntersections(
     std::vector<vtkVgTripWireManager::IntersectionInfo>& intersections,
-    vtkVgTrack* track, const vvTrackId* id);
+    vtkVgTrack* track, const vsTrackId* id);
   void emitEvent(
-    const vvTrackId& id, const vtkVgTimeStamp& startTime,
+    const vsTrackId& id, const vtkVgTimeStamp& startTime,
     const vtkVgTimeStamp& endTime, double (&tripLocation)[3],
     const vtkVgTimeStamp& tripTime, int classifierType);
 
   vtkIdType NextTrackId;
   vtkIdType NextEventId;
   vtkVgTripWireManager* TripWireManager;
-  QHash<vvTrackId, vtkIdType> TrackModelIdMap;
+  QHash<vsTrackId, vtkIdType> TrackModelIdMap;
 
 private:
   QTE_DECLARE_PUBLIC(vsTripwireDescriptor)
@@ -171,7 +172,7 @@ void vsTripwireDescriptorPrivate::addContour(qint64 id, const QPolygonF& r)
 
 //-----------------------------------------------------------------------------
 void vsTripwireDescriptorPrivate::updateTrack(
-  const vvTrackId* id, const vsTrackState* state)
+  const vsTrackId* id, const vsTrackState* state)
 {
   if (id && state)
     {
@@ -232,7 +233,7 @@ void vsTripwireDescriptorPrivate::updateTrack(
 //-----------------------------------------------------------------------------
 void vsTripwireDescriptorPrivate::processIntersections(
   std::vector<vtkVgTripWireManager::IntersectionInfo>& intersections,
-  vtkVgTrack* track, const vvTrackId* id)
+  vtkVgTrack* track, const vsTrackId* id)
 {
   if (!intersections.size())
     {
@@ -242,7 +243,7 @@ void vsTripwireDescriptorPrivate::processIntersections(
   // Give event 3 second duration (frames assumes 30 fps)
   vtkVgTimeStamp preTripDuration(3e6, 90);
 
-  vvTrackId tempId;
+  vsTrackId tempId;
   if (id)
     {
     tempId = *id;
@@ -255,7 +256,7 @@ void vsTripwireDescriptorPrivate::processIntersections(
     {
     if (!id)
       {
-      // If vvTrackId wasn't passed in, then need to set/get tempId and track
+      // If vsTrackId wasn't passed in, then need to set/get tempId and track
       vtkIdType modelId = intersectionIter->TrackId;
       tempId = this->TrackModelIdMap.key(modelId);
       track = this->TripWireManager->GetTrackModel()->GetTrack(modelId);
@@ -308,7 +309,7 @@ void vsTripwireDescriptorPrivate::processIntersections(
 
 //-----------------------------------------------------------------------------
 void vsTripwireDescriptorPrivate::emitEvent(
-  const vvTrackId& trackId, const vtkVgTimeStamp& startTime,
+  const vsTrackId& trackId, const vtkVgTimeStamp& startTime,
   const vtkVgTimeStamp& endTime, double (&tripLocation)[3],
   const vtkVgTimeStamp& tripTime, int classifierType)
 {

@@ -1,27 +1,27 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#ifndef __vsVideoRequestor_h
-#define __vsVideoRequestor_h
+#ifndef __vgVideoRequestor_h
+#define __vgVideoRequestor_h
 
-#include <qtGlobal.h>
+#include "vgVtkVideoFrame.h"
 
 #include <vgNamespace.h>
 
-#include <vgVideoSourceRequestor.h>
+#include <qtGlobal.h>
 
 class vgVideoSource;
 
-class vsVideoRequestorPrivate;
+class vgVideoRequestorPrivate;
 
-class vsVideoRequestor
+class VG_VTKVIDEO_EXPORT vgVideoRequestor
 {
 public:
-  explicit vsVideoRequestor(vgVideoSource* source);
-  ~vsVideoRequestor();
+  explicit vgVideoRequestor(vgVideoSource* source);
+  ~vgVideoRequestor();
 
   bool requestFrame(vtkVgVideoFrame& out,
                     vtkVgTimeStamp time, vg::SeekMode direction);
@@ -30,10 +30,10 @@ public:
                            vtkVgTimeStamp time, vg::SeekMode direction);
 
 protected:
-  QTE_DECLARE_PRIVATE_PTR(vsVideoRequestor)
+  QTE_DECLARE_PRIVATE_PTR(vgVideoRequestor)
 
 private:
-  Q_DISABLE_COPY(vsVideoRequestor)
+  Q_DISABLE_COPY(vgVideoRequestor)
 };
 
 

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,6 +19,7 @@
 #include <vtkVgTrackModel.h>
 #include <vtkVgTrackModelCollection.h>
 #include <vtkVgTypeDefs.h>
+#include <vtkVgUtil.h>
 
 #include <qtStlUtil.h>
 
@@ -379,20 +380,25 @@ void vsCore::createManualEvent(
 {
   QTE_D(vsCore);
 
-  // Convert points to raw double array
-  const int k = region.isClosed() ? region.count() - 1 : region.count();
-  QScopedArrayPointer<double> points(new double[2 * k]);
-  for (int i = 0; i < k; ++i)
-    {
-    points[(2 * i) + 0] = region[i].x();
-    points[(2 * i) + 1] = region[i].y();
-    }
-
   // Create event from region
   vsEvent event(QUuid::createUuid());
   event->SetId(d->NextRawEventId++);
   event->AddClassifier(eventType, 1.0);
-  event->AddRegion(ts, k, points.data());
+
+  // Only add a region if there is one present
+  if (!region.isEmpty())
+    {
+    // Convert points to raw double array
+    const int k = region.isClosed() ? region.count() - 1 : region.count();
+    QScopedArrayPointer<double> points(new double[2 * k]);
+    for (int i = 0; i < k; ++i)
+      {
+      points[(2 * i) + 0] = region[i].x();
+      points[(2 * i) + 1] = region[i].y();
+      }
+    event->AddRegion(ts, k, points.data());
+    }
+
   event->SetStartFrame(ts);
   event->SetEndFrame(ts);
   event->SetFlags(vtkVgEventBase::EF_UserCreated |
@@ -401,10 +407,13 @@ void vsCore::createManualEvent(
   // Notify views to show filter
   d->expectEventGroup(vsEventInfo::User);
 
-  emit this->manualEventCreated(event->GetId());
-
   // Add event
-  d->addReadyEvent(0, event);
+  vtkIdType eventId = d->addReadyEvent(0, event);
+
+  if (eventId != -1)
+    {
+    emit this->manualEventCreated(eventId);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -626,7 +635,7 @@ void vsCore::flushUpdateSignals()
 }
 
 //-----------------------------------------------------------------------------
-void vsCore::updateTrack(vvTrackId trackId, vvTrackState state)
+void vsCore::updateTrack(vsTrackId trackId, vvTrackState state)
 {
   QTE_D(vsCore);
 
@@ -637,21 +646,21 @@ void vsCore::updateTrack(vvTrackId trackId, vvTrackState state)
 }
 
 //-----------------------------------------------------------------------------
-void vsCore::updateTrack(vvTrackId trackId, QList<vvTrackState> states)
+void vsCore::updateTrack(vsTrackId trackId, QList<vvTrackState> states)
 {
   QTE_D(vsCore);
   d->updateTrack(trackId, states);
 }
 
 //-----------------------------------------------------------------------------
-void vsCore::updateTrackData(vvTrackId trackId, vsTrackData data)
+void vsCore::updateTrackData(vsTrackId trackId, vsTrackData data)
 {
   QTE_D(vsCore);
   d->updateTrackData(trackId, data);
 }
 
 //-----------------------------------------------------------------------------
-void vsCore::closeTrack(vvTrackId trackId)
+void vsCore::closeTrack(vsTrackId trackId)
 {
   QTE_D(vsCore);
 
@@ -663,7 +672,7 @@ void vsCore::closeTrack(vvTrackId trackId)
 
 //-----------------------------------------------------------------------------
 void vsCore::setTrackClassification(
-  vvTrackId trackId, vsTrackObjectClassifier toc)
+  vsTrackId trackId, vsTrackObjectClassifier toc)
 {
   QTE_D(vsCore);
 
@@ -674,23 +683,41 @@ void vsCore::setTrackClassification(
   theVvTrack.Classification["Other"] = toc.probabilityOther;
 
   // Set PVO on vtkVgTrack
-  d->track(trackId)->SetPVO(toc.probabilityPerson,
-                            toc.probabilityVehicle,
-                            toc.probabilityOther);
+  bool isNewTrack = false;
+  vtkVgTrack* const track = d->track(trackId, &isNewTrack);
+  track->SetPVO(toc.probabilityPerson,
+                toc.probabilityVehicle,
+                toc.probabilityOther);
 
   d->emitInput(&vsCore::tocAvailable,
                new vsDescriptorInput(trackId, toc));
 
   // d->trackLabelRepresentation_->Modified(); \FIXME must communicate this
 
+  d->postTrackUpdateSignal(
+    track, isNewTrack ? &vsCore::trackAdded : &vsCore::trackChanged);
   emit this->updated();
 }
 
 //-----------------------------------------------------------------------------
-vvTrackId vsCore::logicalTrackId(vtkIdType modelTrackId) const
+vsTrackId vsCore::logicalTrackId(vtkIdType modelTrackId) const
 {
   QTE_D_CONST(vsCore);
   return d->TrackLogicalIdMap.value(modelTrackId);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vsCore::modelTrackId(const vsTrackId& trackId) const
+{
+  QTE_D_CONST(vsCore);
+  return (d->TrackModelIdMap.value(trackId, -1));
+}
+
+//-----------------------------------------------------------------------------
+vsEventId vsCore::logicalEventId(vtkIdType modelEventId) const
+{
+  QTE_D_CONST(vsCore);
+  return d->Events.value(modelEventId);
 }
 
 //-----------------------------------------------------------------------------
@@ -715,6 +742,23 @@ vtkIdType vsCore::modelEventId(vsDescriptorSource* source,
     }
 
   return map[sourceId].modelId;
+}
+
+//-----------------------------------------------------------------------------
+void vsCore::setTrackNote(vtkIdType trackId, QString note)
+{
+  QTE_D(vsCore);
+
+  if (vtkVgTrack* t = d->TrackModel->GetTrack(trackId))
+    {
+    t->SetNote(note.isEmpty() ? 0 : qPrintable(note));
+    emit this->trackNoteChanged(t, note);
+    vsTrackId tid = d->TrackLogicalIdMap[trackId];
+    d->emitInput(&vsCore::trackNoteAvailable,
+                 new vsDescriptorInput(tid, note,
+                                       t->GetStartFrame().GetRawTimeStamp(),
+                                       t->GetEndFrame().GetRawTimeStamp()));
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -847,19 +891,16 @@ void vsCore::setEventStart(vtkIdType eventId, vtkVgTimeStamp ts)
     return;
     }
 
-  // Don't allow start to be set after the first region in the event. Rather
-  // than adding a specific interface for this purpose, use the current
-  // interface and the assumption that start frame is never going to be after
-  // the first region.
+  // Don't allow start to be set after the first region in the event (if there
+  // are regions). Rather than adding a specific interface for this purpose,
+  // use the current interface and the assumption that start frame is never
+  // going to be after the first region. If there are no regions in the event,
+  // set the start to the value passed and adjust the end, if necessary, to
+  // ensure that the end is greater than or equal to the start.
   vtkIdType npts, *pts;
   vtkVgTimeStamp timeStamp = event->GetStartFrame();
   event->GetRegionAtOrAfter(timeStamp, npts, pts);
-  if (npts == 0)
-    {
-    // Event has no region; don't allow setting of start time
-    return;
-    }
-  if (ts > timeStamp)
+  if (npts > 0 && ts > timeStamp)
     {
     // Clamp requested start time to no later than first region
     ts = timeStamp;
@@ -868,6 +909,10 @@ void vsCore::setEventStart(vtkIdType eventId, vtkVgTimeStamp ts)
   if (event->GetStartFrame() != ts)
     {
     model->Modified();
+    if (ts > event->GetEndFrame())
+      {
+      event->SetEndFrame(ts);
+      }
     event->SetStartFrame(ts);
     d->notifyEventModified(event);
     }
@@ -886,19 +931,16 @@ void vsCore::setEventEnd(vtkIdType eventId, vtkVgTimeStamp ts)
     return;
     }
 
-  // Don't allow end to be set before the last region in the event.
-  // GetClosestDisplayRegion() returns closest less than or equal, or first if
-  // none are earlier, thus specifying last time as the search criteria to be
-  // before the last region.
+  // Don't allow end to be set before the last region in the event (if there
+  // are regions). GetClosestDisplayRegion() returns closest less than or
+  // equal, or first if none are earlier, thus specifying max time as input
+  // time. If there are no regions in the event, set the end to the value
+  // passed and adjust the start, if necessary, to ensure that the end is
+  // greater than or equal to the start.
   vtkIdType npts, *pts;
   vtkVgTimeStamp timeStamp(true);
   event->GetClosestDisplayRegion(timeStamp, npts, pts);
-  if (npts == 0)
-    {
-    // If no region, don't allow setting of start time
-    return;
-    }
-  if (ts < timeStamp)
+  if (npts > 0 && ts < timeStamp)
     {
     // Clamp requested end time to no earlier than last region
     ts = timeStamp;
@@ -907,6 +949,10 @@ void vsCore::setEventEnd(vtkIdType eventId, vtkVgTimeStamp ts)
   if (event->GetEndFrame() != ts)
     {
     model->Modified();
+    if (ts < event->GetStartFrame())
+      {
+      event->SetStartFrame(ts);
+      }
     event->SetEndFrame(ts);
     d->notifyEventModified(event);
     }
@@ -921,7 +967,7 @@ void vsCore::startFollowingTrack(vtkIdType trackId)
 }
 
 //-----------------------------------------------------------------------------
-void vsCore::stopFollowingTrack()
+void vsCore::cancelFollowing()
 {
   QTE_D(vsCore);
   d->FollowedTrackId = -1;
@@ -1003,4 +1049,80 @@ std::map<vtkVgTimeStamp, vtkVgVideoMetadata> vsCore::allMetadata()
   QTE_D(vsCore);
 
   return d->VideoMetadata;
+}
+
+//-----------------------------------------------------------------------------
+const vtkVgVideoFrameMetaData vsCore::frameMetadata(const vtkVgTimeStamp& ts,
+                                                    vg::SeekMode direction)
+{
+  QTE_D_CONST(vsCore);
+
+  const vgTimeMap<vtkVgVideoFrameMetaData>::const_iterator md =
+    d->VideoFrameMetadata.constFind(ts.GetRawTimeStamp(), direction);
+  if (md == d->VideoFrameMetadata.constEnd())
+    {
+    return vtkVgVideoFrameMetaData();
+    }
+  return *md;
+}
+
+//-----------------------------------------------------------------------------
+vgGeocodedCoordinate vsCore::imageToWorld(
+  double x, double y, const vtkVgTimeStamp& ts) const
+{
+  QTE_D_CONST(vsCore);
+
+  vgGeocodedCoordinate geoCoord;
+
+  const vgTimeMap<vtkVgVideoFrameMetaData>::const_iterator md =
+    d->VideoFrameMetadata.constFind(ts.GetRawTimeStamp(), vg::SeekNearest);
+
+  if (md != d->VideoFrameMetadata.constEnd() && ts.FuzzyEquals(md.key(), 10.0))
+    {
+    vtkSmartPointer<vtkMatrix4x4> imageToLatLonMatrix =
+      md->MakeImageToLatLonMatrix();
+
+    if (imageToLatLonMatrix)
+      {
+      vtkVgApplyHomography(x, y, imageToLatLonMatrix,
+                           geoCoord.Longitude, geoCoord.Latitude);
+      geoCoord.GCS = md->WorldLocation.GCS;
+      }
+    }
+
+  return geoCoord;
+}
+
+//-----------------------------------------------------------------------------
+vgGeocodedCoordinate vsCore::stabToWorld(
+  double x, double y, const vtkVgTimeStamp& ts) const
+{
+  QTE_D_CONST(vsCore);
+
+  vgGeocodedCoordinate geoCoord;
+
+  const vgTimeMap<vtkVgVideoFrameMetaData>::const_iterator md =
+    d->VideoFrameMetadata.constFind(ts.GetRawTimeStamp(), vg::SeekNearest);
+
+  if (md != d->VideoFrameMetadata.constEnd() && ts.FuzzyEquals(md.key(), 10.0))
+    {
+    vtkSmartPointer<vtkMatrix4x4> imageToLatLonMatrix =
+      md->MakeImageToLatLonMatrix();
+
+    if (imageToLatLonMatrix)
+      {
+      // First compute stabilized to image
+      vtkVgInstance<vtkMatrix4x4> hmi;
+      hmi->DeepCopy(md->Homography);
+      hmi->Invert();
+      const vgPoint2d imagePoint = vtkVgApplyHomography(x, y, hmi);
+
+      // Now compute image to world
+      vtkVgApplyHomography(imagePoint, imageToLatLonMatrix,
+                           geoCoord.Longitude, geoCoord.Latitude);
+      geoCoord.GCS = md->WorldLocation.GCS;
+      }
+    }
+
+  return geoCoord;
 }

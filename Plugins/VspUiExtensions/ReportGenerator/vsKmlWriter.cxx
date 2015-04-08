@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -22,10 +22,11 @@
 #include <vvKmlLine.h>
 #include <vvKmlWriter.h>
 
+#include <vgVideoRequestor.h>
+
 #include <vsVideoSource.h>
 
 #include "vsEventUserInfo.h"
-#include "vsVideoRequestor.h"
 
 QTE_IMPLEMENT_D_FUNC(vsKmlWriter)
 
@@ -59,7 +60,7 @@ public:
   QList<vsEventUserInfo> Events;
   vtkVgEventTypeRegistry* Registry;
 
-  vsVideoRequestor VideoRequestor;
+  vgVideoRequestor VideoRequestor;
   vtkVgVideoFrame Frame;
 
   vvKmlWriter KmlWriter;
@@ -219,11 +220,13 @@ void vsKmlWriter::process()
       mid.SetFrameNumber(frame);
       }
 
-    // Set timestamp to the next closest frame with a valid region
+    // Set timestamp to the next closest frame with a valid region; if there
+    // are no regions, just use the already computed timestamp
     vtkIdType npts;
     vtkIdType* ids;
     vtkVgTimeStamp prev = mid;
-    if (!info.Event->GetRegionAtOrAfter(mid, npts, ids) && prev == mid)
+    if (info.Event->GetNumberOfRegions() > 0 &&
+        !info.Event->GetRegionAtOrAfter(mid, npts, ids) && prev == mid)
       {
       qDebug() << "Failed to get event midpoint region.";
       continue;

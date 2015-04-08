@@ -211,9 +211,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vgCommon
   LINK_LIBRARIES
   LINK_PUBLIC
-  vtkInteractionStyle
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingVolumeOpenGL
   LINK_PRIVATE
   vgl
   vgl_algo

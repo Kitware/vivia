@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,14 +7,18 @@
 // .NAME vtkVgChartTimeline - Class for drawing timeline charts
 //
 // .SECTION Description
-// This class implements an XY chart.
+// This class implements an XY chart. This class expects that data (vtkTable)
+// will have columns with very specific names such as 'Id' for object ids and
+// 'XD' for duration of objects.
 
 #ifndef __vtkVgChartTimeline_h
 #define __vtkVgChartTimeline_h
 
-#include "vtkChartXY.h"
+#include <vgRange.h>
 
 #include <vgExport.h>
+
+#include <vtkChartXY.h>
 
 class vtkIdTypeArray;
 class vtkPlot;
@@ -31,6 +35,10 @@ public:
 public:
   vtkTypeMacro(vtkVgChartTimeline, vtkChartXY);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
+
+  enum {
+    BOTTOM_MAJOR = 100
+  };
 
   // Description:
   // Creates a 2D Chart object.
@@ -56,6 +64,8 @@ public:
 
   virtual bool Hit(const vtkContextMouseEvent& mouse);
 
+  virtual vtkAxis* GetAxis(int axisIndex);
+
   // Description:
   // Sets the selection for a plot and focuses it in the view.
   void SetSelection(int plot, vtkIdTypeArray* selection);
@@ -65,12 +75,26 @@ public:
   void ClearSelection();
 
   // Description:
-  // Set the min and max x value of the chart.
+  // Get/Set the min and max x value of the chart.
+  vgRange<double> GetXExtents() const;
   void SetXExtents(double min, double max);
+  void SetXExtents(vgRange<double> x)
+    { this->SetXExtents(x.lower, x.upper); }
+
+  // Description:
+  // Set the allowed range of X extents.
+  vgRange<double> GetXExtentLimits() const;
+  void SetXExtentLimits(double min, double max);
+  void SetXExtentLimits(vgRange<double> x)
+    { this->SetXExtentLimits(x.lower, x.upper); }
 
   // Description:
   // Reset the chart extents to the default (fit to input).
   void ResetExtents();
+
+  // Description:
+  // Set the position of the current time indicator.
+  void SetCurrentTime(double);
 
   // Description:
   // Whether to use supplemental x column to generate normalized input.

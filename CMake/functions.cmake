@@ -358,13 +358,17 @@ function(vg_add_qt_plugin NAME)
   add_library(${NAME} MODULE ${ARGN})
   get_target_property(_type ${NAME} TYPE)
   add_targets_definitions(${NAME} SYMBOLS QT_PLUGIN QT_SHARED)
-  set_target_properties(${NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY
-                        ${CMAKE_BINARY_DIR}/plugins)
+  set_target_properties(${NAME} PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
+  )
   foreach(config ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER "${config}" config_upper)
     set_target_properties(${NAME} PROPERTIES
+      LIBRARY_OUTPUT_DIRECTORY_${config_upper}
+        ${CMAKE_BINARY_DIR}/${config}/plugins
       RUNTIME_OUTPUT_DIRECTORY_${config_upper}
-      ${CMAKE_BINARY_DIR}/${config}/plugins
+        ${CMAKE_BINARY_DIR}/${config}/plugins
     )
   endforeach()
 endfunction()

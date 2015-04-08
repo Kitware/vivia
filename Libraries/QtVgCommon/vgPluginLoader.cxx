@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,6 +9,8 @@
 #include <QDir>
 #include <QHash>
 #include <QLibrary>
+#include <QMutex>
+#include <QMutexLocker>
 #include <QObject>
 #include <QSettings>
 #include <QStringList>
@@ -38,6 +40,8 @@ public:
   void load(QObject*);
 
   QObjectList PluginInstanceObjects;
+  QHash<const char*, QObjectList> PluginInterfaceMap;
+  QMutex Mutex;
 };
 
 QTE_PRIVATE_SINGLETON(vgPluginLoaderInstance, plInstance)
@@ -133,7 +137,28 @@ void vgPluginLoaderInstance::load(QObject* plugin)
 }
 
 //-----------------------------------------------------------------------------
-QObjectList vgPluginLoader::plugins()
+QObjectList vgPluginLoader::plugins(const char* interfaceId)
 {
-  return plInstance()->PluginInstanceObjects;
+  vgPluginLoaderInstance* const pl = plInstance();
+
+  if (!interfaceId)
+    {
+    return pl->PluginInstanceObjects;
+    }
+
+  QMutexLocker lock(&pl->Mutex);
+  if (!pl->PluginInterfaceMap.contains(interfaceId))
+    {
+    QObjectList& result = pl->PluginInterfaceMap[interfaceId];
+    foreach (QObject* plugin, pl->PluginInstanceObjects)
+      {
+      if (plugin->qt_metacast(interfaceId))
+        {
+        result.append(plugin);
+        }
+      }
+    return result;
+    }
+
+  return pl->PluginInterfaceMap[interfaceId];
 }

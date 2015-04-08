@@ -6,6 +6,8 @@
 
 #include "vgColor.h"
 
+#include <qtMath.h>
+
 #include <QColor>
 #include <QSettings>
 #include <QString>
@@ -13,10 +15,10 @@
 //-----------------------------------------------------------------------------
 vgColor::vgColor()
 {
-  this->d.color.red   = 0.0;
-  this->d.color.green = 0.0;
-  this->d.color.blue  = 0.0;
-  this->d.color.alpha = 0.0;
+  this->d.color.red   = qQNaN();
+  this->d.color.green = qQNaN();
+  this->d.color.blue  = qQNaN();
+  this->d.color.alpha = qQNaN();
 }
 
 //-----------------------------------------------------------------------------
@@ -47,6 +49,24 @@ vgColor::vgColor(double red, double green, double blue, double alpha)
 }
 
 //-----------------------------------------------------------------------------
+vgColor::vgColor(const double (&color)[3], double alpha)
+{
+  this->d.color.red   = color[0];
+  this->d.color.green = color[1];
+  this->d.color.blue  = color[2];
+  this->d.color.alpha = alpha;
+}
+
+//-----------------------------------------------------------------------------
+vgColor::vgColor(const double (&color)[4])
+{
+  this->d.color.red   = color[0];
+  this->d.color.green = color[1];
+  this->d.color.blue  = color[2];
+  this->d.color.alpha = color[3];
+}
+
+//-----------------------------------------------------------------------------
 vgColor& vgColor::operator=(const vgColor& other)
 {
   this->d.color.red   = other.d.color.red;
@@ -64,6 +84,13 @@ vgColor& vgColor::operator=(const QColor& qc)
   this->d.color.blue  = qc.blueF();
   this->d.color.alpha = qc.alphaF();
   return *this;
+}
+
+//-----------------------------------------------------------------------------
+bool vgColor::isValid() const
+{
+  return (qIsFinite(this->d.array[0]) && qIsFinite(this->d.array[1]) &&
+          qIsFinite(this->d.array[2]) && qIsFinite(this->d.array[3]));
 }
 
 //-----------------------------------------------------------------------------

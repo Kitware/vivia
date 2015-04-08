@@ -21,6 +21,7 @@
 
 #include <vsDescriptorInput.h>
 #include <vsEvent.h>
+#include <vsTrackId.h>
 
 class QRectF;
 
@@ -42,7 +43,7 @@ signals:
   void eventAvailable(vsEvent);
   void eventRevoked(vtkIdType);
 
-  void tocAvailable(vvTrackId trackId, vsTrackObjectClassifier toc);
+  void tocAvailable(vsTrackId trackId, vsTrackObjectClassifier toc);
 
 public slots:
   void dispatch(QUrl metaDataSource, int frameOffset, double frameRate,
@@ -75,16 +76,16 @@ protected:
     Event();
 
     QMap<uint, QRectF> OutstandingFrames;
-    vvTrackId Track;
+    vsTrackId Track;
     vsEvent Object;
     bool Emitted;
     };
 
-  typedef QHash<vvTrackId, ViperTrack> TrackMap;
+  typedef QHash<vsTrackId, ViperTrack> TrackMap;
   typedef TrackMap::iterator TrackIterator;
 
-  vvTrackId mapTrackId(uint externalId, const QString& type,
-                       vvTrackId& newId);
+  vsTrackId mapTrackId(uint externalId, const QString& type,
+                       vsTrackId& newId);
 
   virtual void run() QTE_OVERRIDE;
 
@@ -111,16 +112,16 @@ protected:
   QSharedPointer<vsViperArchiveTrackSource> TrackSource;
 
   TrackMap ViperTracks;
-  QHash<QString, QHash<uint, vvTrackId> > ViperTrackIdMap;
+  QHash<QString, QHash<uint, vsTrackId> > ViperTrackIdMap;
 
   QHash<vtkIdType, Event> Events;
 
   vtkVgTimeStamp LastTime;
   int ClosureTimerId;
-  QSet<vvTrackId> OpenTracks;
+  QSet<vsTrackId> OpenTracks;
   QHash<vtkIdType, int> OverdueEvents;
 
-  QHash<uint, QList<vvTrackId> > PendingTrackFrames;
+  QHash<uint, QList<vsTrackId> > PendingTrackFrames;
   QHash<uint, QList<vtkIdType> > PendingEventFrames;
 
 private:

@@ -32,8 +32,8 @@ public:
   // Defines reference frame of this wrt its parent.
   enum ReferenceFrame
     {
-    ABSOLUTE,
-    RELATIVE
+    ABSOLUTE_REFERENCE,
+    RELATIVE_REFERENCE
     };
 
   // Description:

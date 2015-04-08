@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,12 +16,13 @@
 
 #include <track_oracle/file_format_base.h>
 
+#include <vsTrackId.h>
 #include <vtkVsTrackInfo.h>
 
 #include <vsAdapt.h>
 #include <vsArchiveSourcePrivate.h>
 
-#include "visgui_descriptor_type.h"
+#include "visgui_event_type.h"
 
 //-----------------------------------------------------------------------------
 class vsTrackOracleDescriptorArchiveSourcePrivate :
@@ -35,7 +36,7 @@ public:
     FileFormat* format);
 
   bool extractPvo(const vidtk::track_handle_type&);
-  bool extractClassifier(const vidtk::track_handle_type&);
+  bool extractEvent(const vidtk::track_handle_type&);
 
 protected:
   QTE_DECLARE_PUBLIC(vsTrackOracleDescriptorArchiveSource)
@@ -72,7 +73,7 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractPvo(
     {
     QTE_Q(vsTrackOracleDescriptorArchiveSource);
 
-    const vcl_vector<unsigned int>& tracks = pvo.source_track_ids();
+    const std::vector<unsigned int>& tracks = pvo.source_track_ids();
     for (size_t n = 0, k = tracks.size(); n < k; ++n)
       {
       vsTrackObjectClassifier toc;
@@ -89,53 +90,51 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractPvo(
 }
 
 //-----------------------------------------------------------------------------
-bool vsTrackOracleDescriptorArchiveSourcePrivate::extractClassifier(
+bool vsTrackOracleDescriptorArchiveSourcePrivate::extractEvent(
   const vidtk::track_handle_type& trackHandle)
 {
-  // Attempt to extract classifier event
-  visgui_classifier_descriptor_type classifier;
-  classifier(trackHandle);
-  if (classifier.source_track_ids.exists() &&
-      classifier.descriptor_classifier.exists())
+  vsEvent event = vsEvent(QUuid() /* FIXME: get from vidtk object */);
+  bool eventIsValid = false;
+  bool isClassifierEvent = false;
+
+  // Attempt to extract event
+  visgui_generic_event_type oracle;
+  oracle(trackHandle);
+
+  // Determine event ID (not guaranteed to provide one)
+  if (this->UsingInternalIds)
     {
-    vsEvent event = vsEvent(QUuid() /* FIXME: get from vidtk object */);
-    const vcl_vector<unsigned int> tracks = classifier.source_track_ids();
+    const vtkIdType id = ++this->LastEventId;
+    if(oracle.external_id.exists())
+      {
+      qDebug() << "assigning generated ID" << id
+               << "to event with external ID" << oracle.external_id();
+      }
+    event->SetId(id);
+    }
+  else if(oracle.external_id.exists())
+    {
+    const vtkIdType id = static_cast<vtkIdType>(oracle.external_id());
+    this->LastEventId = qMax(id, this->LastEventId);
+    event->SetId(id);
+    }
+  else
+    {
+    if (this->LastEventId)
+      {
+      // Oh, dear... some events have ID's, and some don't...
+      qWarning() << "event ID missing after previous events using external ID";
+      qWarning() << "forcing remaining event(s) to use generated ID's";
+      }
+    this->UsingInternalIds = true;
+    event->SetId(++this->LastEventId);
+    }
 
-    // Determine event ID (not guaranteed to provide one)
-    if (this->UsingInternalIds)
-      {
-      const vtkIdType id = ++this->LastEventId;
-      if(classifier.external_id.exists())
-        {
-        qDebug() << "assigning generated ID" << id
-                 << "to descriptor with external ID"
-                 << classifier.external_id();
-        }
-      event->SetId(id);
-      }
-    else if(classifier.external_id.exists())
-      {
-      const vtkIdType id = static_cast<vtkIdType>(classifier.external_id());
-      this->LastEventId = qMax(id, this->LastEventId);
-      event->SetId(id);
-      }
-    else
-      {
-      if (this->LastEventId)
-        {
-        // Oh, dear... some descriptors have ID's, and some don't...
-        qWarning() << "descriptor ID missing after previous descriptors"
-                   << "using external ID";
-        qWarning() << "forcing remaining descriptor(s)"
-                   << "to use generated ID's";
-        }
-      this->UsingInternalIds = true;
-      event->SetId(++this->LastEventId);
-      }
-
-    // Extract classifiers
-    const vcl_vector<double>& classifierValues =
-      classifier.descriptor_classifier();
+  // Extract classifiers, if present
+  if (oracle.descriptor_classifier.exists())
+    {
+    const std::vector<double>& classifierValues =
+      oracle.descriptor_classifier();
     for (size_t n = 0, k = classifierValues.size(); n < k; ++n)
       {
       const double p = classifierValues[n];
@@ -145,79 +144,124 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractClassifier(
         }
       }
 
-    // Extract descriptor regions
-    bool eventIsValid = false;
-    vtkVgTimeStamp eventStart;
-    vtkVgTimeStamp eventEnd;
-    vidtk::frame_handle_list_type frameHandles =
-      vidtk::track_oracle::get_frames(trackHandle);
-    for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
-      {
-      const vidtk::frame_handle_type& frameHandle = frameHandles[n];
-      if (frameHandle.is_valid())
-        {
-        // Set oracle object to frame instance referenced by handle
-        classifier[frameHandle];
-
-        // Extract timestamp
-        vtkVgTimeStamp ts;
-        if (classifier.timestamp_usecs.exists())
-          {
-          ts.SetTime(classifier.timestamp_usecs());
-          }
-        if (classifier.frame_number.exists())
-          {
-          ts.SetFrameNumber(classifier.frame_number());
-          }
-
-        // Don't add region if timestamp is not valid, or box is missing
-        if (!ts.IsValid() || !classifier.bounding_box.exists())
-          {
-          continue;
-          }
-
-        // Update event temporal bounds
-        eventStart = (eventIsValid && ts >= eventStart ? eventStart : ts);
-        eventEnd   = (eventIsValid && ts <= eventEnd   ? eventEnd   : ts);
-
-        // Extract bounding box
-        const vgl_box_2d<double>& box = classifier.bounding_box();
-
-        double points[8] =
-          {
-          box.min_x(), box.min_y(),
-          box.max_x(), box.min_y(),
-          box.max_x(), box.max_y(),
-          box.min_x(), box.max_y()
-          };
-
-        event->AddRegion(ts, 4, points);
-        eventIsValid = true;
-        }
-      }
-
-    if (!eventIsValid)
-      {
-      qWarning() << "ignoring classifier descriptor with empty region list";
-      return false;
-      }
-
-    // Add track(s)
-    classifier(trackHandle);
-    for (size_t n = 0, k = tracks.size(); n < k; ++n)
-      {
-      vtkVsTrackInfo* ti = new vtkVsTrackInfo(vsAdaptTrackId(tracks[n]),
-                                              eventStart, eventEnd);
-      event->AddTrack(ti);
-      }
-
-    // Emit the event
-    QTE_Q(vsTrackOracleDescriptorArchiveSource);
-    q->emitEvent(event);
-    return true;
+    eventIsValid = true;
+    isClassifierEvent = true;
     }
 
-  return false;
+  // Extract note, if present
+  if (oracle.augmented_annotation.exists())
+    {
+    event->SetNote(oracle.augmented_annotation().c_str());
+    eventIsValid = true;
+    }
+  else if (oracle.basic_annotation.exists())
+    {
+    event->SetNote(oracle.basic_annotation().c_str());
+    eventIsValid = true;
+    }
+
+  // Don't proceed unless event had either a note and/or type classifier
+  if (!eventIsValid)
+    {
+    qWarning() << "ignoring event with neither a classifier descriptor"
+               << "nor an annotation";
+    return false;
+    }
+
+  if (!isClassifierEvent)
+    {
+    // Event is not a classifier event, but has a note; must be an annotation
+    event->AddClassifier(vsEventInfo::Annotation, 1.0, 0.0);
+    }
+
+  // Get event frame-independent start and end time
+  vtkVgTimeStamp eventStart;
+  vtkVgTimeStamp eventEnd;
+
+  if (oracle.start_time_secs.exists())
+    {
+    eventStart.SetTime(oracle.start_time_secs() * 1e6);
+    event->SetStartFrame(eventStart);
+    }
+  if (oracle.end_time_secs.exists())
+    {
+    eventEnd.SetTime(oracle.end_time_secs() * 1e6);
+    event->SetEndFrame(eventEnd);
+    }
+
+  // Check if start and end time are set; if not, event must have valid frames
+  // or it will be rejected
+  eventIsValid = (eventStart.IsValid() && eventEnd.IsValid());
+
+  // Extract event regions
+  vidtk::frame_handle_list_type frameHandles =
+    vidtk::track_oracle::get_frames(trackHandle);
+  for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
+    {
+    const vidtk::frame_handle_type& frameHandle = frameHandles[n];
+    if (frameHandle.is_valid())
+      {
+      // Set oracle object to frame instance referenced by handle
+      oracle[frameHandle];
+
+      // Extract timestamp
+      vtkVgTimeStamp ts;
+      if (oracle.timestamp_usecs.exists())
+        {
+        ts.SetTime(oracle.timestamp_usecs());
+        }
+      if (oracle.frame_number.exists())
+        {
+        ts.SetFrameNumber(oracle.frame_number());
+        }
+
+      // Don't add region if timestamp is not valid, or box is missing
+      if (!ts.IsValid() || !oracle.bounding_box.exists())
+        {
+        continue;
+        }
+
+      // Update event temporal bounds
+      eventStart = (eventIsValid && ts >= eventStart ? eventStart : ts);
+      eventEnd   = (eventIsValid && ts <= eventEnd   ? eventEnd   : ts);
+
+      // Extract bounding box
+      const vgl_box_2d<double>& box = oracle.bounding_box();
+
+      double points[8] =
+        {
+        box.min_x(), box.min_y(),
+        box.max_x(), box.min_y(),
+        box.max_x(), box.max_y(),
+        box.min_x(), box.max_y()
+        };
+
+      event->AddRegion(ts, 4, points);
+      eventIsValid = true;
+      }
+    }
+
+  if (!eventIsValid)
+    {
+    qWarning() << "ignoring event with empty region list"
+               << "and unspecified start/end time";
+    return false;
+    }
+
+  // Add track(s)
+  oracle(trackHandle);
+  const std::vector<unsigned int> tracks = oracle.source_track_ids();
+  for (size_t n = 0, k = tracks.size(); n < k; ++n)
+    {
+    vtkVsTrackInfo* ti = new vtkVsTrackInfo(vsAdaptTrackId(tracks[n]),
+                                            eventStart, eventEnd);
+    event->AddTrack(ti);
+    }
+
+  // Emit the event
+  QTE_Q(vsTrackOracleDescriptorArchiveSource);
+  q->emitEvent(event);
+  return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -242,7 +286,7 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::processArchive(
     if (trackHandle.is_valid())
       {
       dataFound = this->extractPvo(trackHandle) || dataFound;
-      dataFound = this->extractClassifier(trackHandle) || dataFound;
+      dataFound = this->extractEvent(trackHandle) || dataFound;
       }
     }
 

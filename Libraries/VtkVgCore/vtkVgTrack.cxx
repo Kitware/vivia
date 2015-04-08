@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -246,6 +246,7 @@ vtkVgTrack::vtkVgTrack()
   this->InterpolationSpacing.SetTime(0.5e6);
 
   this->Name = 0;
+  this->Note = 0;
 
   this->Normalcy = 1.0;
 
@@ -260,6 +261,9 @@ vtkVgTrack::vtkVgTrack()
   this->Color[1] = 1.0;
   this->Color[2] = 0.0;
 
+  this->UseCustomColor = false;
+  this->CustomColor[0] = this->CustomColor[1] = this->CustomColor[2] = 0.5;
+
   this->Status = vgObjectStatus::None;
 
   this->Internal = new vtkInternal;
@@ -269,6 +273,7 @@ vtkVgTrack::vtkVgTrack()
 vtkVgTrack::~vtkVgTrack()
 {
   delete [] this->Name;
+  delete [] this->Note;
   if (this->Points)
     {
     this->Points->Delete();
@@ -1005,7 +1010,7 @@ void vtkVgTrack::SetInterpolationSpacing(const vtkVgTimeStamp& timeStamp)
 }
 
 //-----------------------------------------------------------------------------
-vtkVgTimeStamp vtkVgTrack::GetEndFrame()
+vtkVgTimeStamp vtkVgTrack::GetEndFrame() const
 {
   vtkVgTimeStamp endFrame;
   if (this->EndFrame.IsValid())
@@ -1018,7 +1023,7 @@ vtkVgTimeStamp vtkVgTrack::GetEndFrame()
     }
   else
     {
-    vtkWarningMacro("Track hasn't been started!");
+    vtkGenericWarningMacro("Track hasn't been started!");
     }
 
   return endFrame;

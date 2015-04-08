@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,6 +9,8 @@
 
 #include <QAbstractItemModel>
 #include <QIcon>
+
+#include <qtGlobal.h>
 
 #include <vtkSmartPointer.h>
 
@@ -61,26 +63,32 @@ public:
   virtual ~vsEventTreeModel();
 
   // Reimplemented from QAbstractItemModel
-  virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+  virtual Qt::ItemFlags flags(const QModelIndex& index) const QTE_OVERRIDE;
 
-  virtual QVariant data(const QModelIndex& index, int role) const;
+  virtual QVariant data(
+    const QModelIndex& index, int role = Qt::DisplayRole) const QTE_OVERRIDE;
 
-  virtual QVariant headerData(int section, Qt::Orientation orientation,
-                              int role = Qt::DisplayRole) const;
+  virtual QVariant headerData(
+    int section, Qt::Orientation orientation,
+    int role = Qt::DisplayRole) const QTE_OVERRIDE;
 
-  virtual bool setData(const QModelIndex& index, const QVariant& value,
-                       int role);
+  virtual bool setData(
+    const QModelIndex& index, const QVariant& value, int role) QTE_OVERRIDE;
 
-  virtual QModelIndex index(int row, int column,
-                            const QModelIndex& parent = QModelIndex()) const;
+  virtual QModelIndex index(
+    int row, int column,
+    const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
 
-  virtual QModelIndex parent(const QModelIndex& index) const;
+  virtual QModelIndex parent(const QModelIndex& index) const QTE_OVERRIDE;
 
-  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+  virtual int rowCount(
+    const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
+  virtual int columnCount(
+    const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
 
-  virtual QStringList mimeTypes() const;
-  virtual QMimeData* mimeData(const QModelIndexList& indexes) const;
+  virtual QStringList mimeTypes() const QTE_OVERRIDE;
+  virtual QMimeData* mimeData(
+    const QModelIndexList& indexes) const QTE_OVERRIDE;
 
   bool isIndexHidden(const QModelIndex& index) const;
 
@@ -108,11 +116,10 @@ protected:
   QPixmap colorSwatch(const QColor&) const;
 
 protected slots:
-  void deferredAddEvents();
   void deferredUpdateEvents();
 
 private:
-  Q_DISABLE_COPY(vsEventTreeModel)
+  QTE_DISABLE_COPY(vsEventTreeModel)
 
   vsScene* Scene;
 

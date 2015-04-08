@@ -77,6 +77,11 @@ public:
   vtkGetMacro(ShowProbability, bool);
 
   // Description:
+  // Set if the label should include the track note
+  vtkSetMacro(ShowNote, bool);
+  vtkGetMacro(ShowNote, bool);
+
+  // Description:
   // Set/Get prefix to add to the label
   vtkSetStringMacro(LabelPrefix);
   vtkGetStringMacro(LabelPrefix);
@@ -106,6 +111,7 @@ private:
   int          Visible;
   bool         ShowName;
   bool         ShowProbability;
+  bool         ShowNote;
   char*        LabelPrefix;
 
   struct vtkInternal;

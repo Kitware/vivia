@@ -7,3 +7,8 @@ div.contents div.textblock:first-child p:first-of-type {
   font-style: italic;
   padding: 4px;
 }
+
+abbr {
+  color: #596d97;
+  cursor: help;
+}

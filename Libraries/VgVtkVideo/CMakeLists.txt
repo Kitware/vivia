@@ -6,6 +6,7 @@ set(vvvSources
   vgVideoPlayer.cxx
   vgVideoPlayerBufferedRequestor.cxx
   vgVideoPlayerRequestor.cxx
+  vgVideoRequestor.cxx
 )
 
 set(vvvMocHeaders
@@ -20,6 +21,7 @@ set(vvvMocHeaders
 set(vgVtkVideoInstallHeaders
   vgVideoAnimation.h
   vgVideoPlayer.h
+  vgVideoRequestor.h
   vgVideoSource.h
   vgVideoSourceRequestor.h
   vgVtkVideoFrame.h

@@ -1,0 +1,18 @@
+<RCC>
+  <qresource prefix="icons/16x16">
+    <file alias="delete">16x16/delete.png</file>
+    <file alias="edit">16x16/edit.png</file>
+    <file alias="playback-skip-backward">16x16/playback-skip-backward.png</file>
+    <file alias="playback-skip-forward">16x16/playback-skip-forward.png</file>
+    <file alias="star">16x16/star.png</file>
+    <file alias="star-off">16x16/star-off.png</file>
+  </qresource>
+  <qresource prefix="icons/22x22">
+    <file alias="delete">22x22/delete.png</file>
+    <file alias="edit">22x22/edit.png</file>
+    <file alias="playback-skip-backward">22x22/playback-skip-backward.png</file>
+    <file alias="playback-skip-forward">22x22/playback-skip-forward.png</file>
+    <file alias="star">22x22/star.png</file>
+    <file alias="star-off">22x22/star-off.png</file>
+  </qresource>
+</RCC>

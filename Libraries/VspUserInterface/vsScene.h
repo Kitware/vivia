@@ -20,13 +20,24 @@
 
 #include <vtkVgTrackRepresentationBase.h>
 
+#include <vgfItemReference.h>
+
 #include <vsContour.h>
 #include <vsEventInfo.h>
 #include <vsVideoSource.h>
 
 #include "vsAlert.h"
 
+class QAbstractItemModel;
+
+class QVTKWidget;
+
 class vgMixerWidget;
+
+class vtkVgEvent;
+class vtkVgTrack;
+
+struct vsDisplayInfo;
 
 class vsAlertList;
 class vsCore;
@@ -36,11 +47,6 @@ class vsRegionList;
 class vsTrackTreeWidget;
 
 class vsScenePrivate;
-
-class QVTKWidget;
-
-class vtkVgEvent;
-class vtkVgTrack;
 
 class VSP_USERINTERFACE_EXPORT vsScene : public QObject
 {
@@ -60,12 +66,14 @@ public:
     vsEventTreeWidget* rejectedTree);
   virtual void setupTrackTree(vsTrackTreeWidget* tree);
 
+  QAbstractItemModel* eventDataModel();
+
   int contourState() const;
 
   double videoLiveOffset() const;
   double trackTrailLength() const;
 
-  QColor eventSelectedColor() const;
+  QColor selectionColor() const;
 
   // TODO move below to UI plugin
   void setWriteRenderedImages(bool state, QString* outputDir = 0);
@@ -79,9 +87,13 @@ public:
   bool trackVisibility(vtkIdType trackId);
   bool eventVisibility(vtkIdType eventId);
 
+  vsDisplayInfo trackDisplayInfo(vtkIdType trackId);
+  vsDisplayInfo eventDisplayInfo(vtkIdType eventId);
+
   vtkVgTrackRepresentationBase::TrackColorMode trackColorMode();
   QString trackColorDataId();
 
+  QList<vtkVgTrack*> trackList() const;
   QList<vsEventUserInfo> eventList() const;
 
   qreal videoPlaybackSpeed() const;
@@ -106,6 +118,8 @@ signals:
 
   void transformChanged(const QMatrix4x4& newTransform);
 
+  void currentTimeChanged(vgTimeStamp);
+
   void locationTextUpdated(QString location);
 
   void statusMessageAvailable(QString message);
@@ -119,10 +133,12 @@ signals:
   void drawingCanceled();
   void drawingEnded();
 
-  void pickedEvent(vtkIdType);
   void pickedTrack(vtkIdType);
+  void pickedEvent(vtkIdType);
 
   void jumpToItem();
+
+  void selectedTracksChanged(QSet<vtkIdType> selectedTrackIds);
 
   void selectedEventsChanged(QSet<vtkIdType> selectedEventIds);
   void selectedEventsChanged(QList<vtkVgEvent*> selectedEvents);
@@ -138,9 +154,13 @@ public slots:
   void resetView();
   void panTo(double x, double y);
 
-  void jumpToEvent(vtkIdType eventId, bool jumpToEnd = false);
-  void jumpToTrack(vtkIdType trackId, bool jumpToEnd = false);
+  void setZoomOnTarget(bool);
 
+  void jumpToItem(vgfItemReference, vgf::JumpFlags);
+  void jumpToTrack(vtkIdType trackId, bool jumpToEnd = false);
+  void jumpToEvent(vtkIdType eventId, bool jumpToEnd = false);
+
+  void setTrackSelection(QSet<vtkIdType> eventIds, vtkIdType currentId = -1);
   void setEventSelection(QSet<vtkIdType> eventIds, vtkIdType currentId = -1);
 
   void cancelInteraction();
@@ -182,7 +202,9 @@ public slots:
   void setEventGroupVisibility(vsEventInfo::Group, bool);
   void setEventGroupThreshold(vsEventInfo::Group, double);
 
-  void setEventSelectedColor(QColor c);
+  void setSelectionColor(QColor c);
+
+  void setNotesVisible(bool);
 
   void setGroundTruthVisible(bool);
 
@@ -191,10 +213,8 @@ public slots:
 
   void setEventStatus(vtkVgEvent*, int);
 
-  void setFollowEvent(bool);
-
-  void setTrackDisplayState(vtkIdType trackId, bool state);
   void setEventDisplayState(vtkIdType eventId, bool state);
+  void setTrackDisplayState(vtkIdType trackId, bool state);
 
   void setTrackColorMode(vtkVgTrackRepresentationBase::TrackColorMode,
                          const QString& dataId = QString());
@@ -215,7 +235,11 @@ protected slots:
   void setEventVisibility(int, bool);
   void setEventThreshold(int, double);
 
+  void updateTrackSelection(QSet<vtkIdType> trackIds);
   void updateEventSelection(QSet<vtkIdType> eventIds);
+
+  void updateTrackNotes();
+  void updateEventNotes();
 
   void onLeftClick();
   void onRightClick();

@@ -9,6 +9,9 @@
 // Application includes.
 #include "vpProject.h"
 
+// qtExtensions includes.
+#include <qtStlUtil.h>
+
 // VIDTK includes.
 #ifdef VISGUI_USE_VIDTK
 #include <utilities/config_block.h>
@@ -19,6 +22,9 @@
 // VTK includes.
 #include <vtkMatrix4x4.h>
 #include <vtksys/SystemTools.hxx>
+
+// Qt includes.
+#include <QDebug>
 
 // C++ includes.
 #include <exception>
@@ -43,16 +49,16 @@ bool vpProjectParser::Parse(vpProject* prj)
 {
   if (!prj)
     {
-    std::cerr << "Invalid or NULL project." << std::endl;
+    qWarning() << "Invalid or NULL project";
     return false;
     }
 
 #ifdef VISGUI_USE_VIDTK
   vidtk::config_block blk;
   blk.add_parameter(prj->OverviewFileTag, "", "Image for showing context in & around analysis boundary");
-  blk.add_parameter(prj->DataSetSpecifierTag, "", "Filename with list of images for each frame or glob for sequence of imagess");
-  blk.add_parameter(prj->TracksFileTag, "", "Filename containing the tracks data.");
-  blk.add_parameter(prj->TrackTraitsFileTag, "", "Filename containing extra track data (normalcy, etc).");
+  blk.add_parameter(prj->DataSetSpecifierTag, "", "Filename with list of images for each frame or glob for sequence of images");
+  blk.add_parameter(prj->TracksFileTag, "", "Filename or glob containing the tracks data");
+  blk.add_parameter(prj->TrackTraitsFileTag, "", "Filename containing extra track data (normalcy, etc.)");
   blk.add_parameter(prj->EventsFileTag, "", "Filename containing the events data");
   blk.add_parameter(prj->EventLinksFileTag, "", "Filename containing the event linking data");
   blk.add_parameter(prj->ActivitiesFileTag, "", "Filename containing the activities data");
@@ -71,7 +77,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->ColorWindowTag, "255.0", "Specify color value range (window) for data set");
   blk.add_parameter(prj->ColorLevelTag, "127.5", "Specify color value mean (level) for data set");
   blk.add_parameter(prj->ColorMultiplierTag, "1.0", "Specify color multiplier for objects");
-  blk.add_parameter(prj->FrameNumberOffsetTag, "0", "Frame number offset of imagery data.");
+  blk.add_parameter(prj->FrameNumberOffsetTag, "0", "Frame number offset of imagery data");
   blk.add_parameter(prj->ImageTimeMapFileTag, "", "Filename containing image timestamps");
   blk.add_parameter(prj->HomographyIndexFileTag, "", "Filename containing image homographies");
   blk.add_parameter(prj->FiltersFileTag, "", "Filename containing filters to import");
@@ -103,11 +109,11 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
   catch (std::exception& e)
     {
-    std::cerr << "ERROR: " << e.what() << std::endl;
+    qWarning() << "ERROR:" << e.what();
     }
   catch (...)
     {
-    std::cerr << "ERROR: Unknown error occurred during project parsing" << std::endl;
+    qWarning() << "ERROR: Unknown error occurred during project parsing";
     }
 
   // Various file sources used for the data.
@@ -120,7 +126,8 @@ bool vpProjectParser::Parse(vpProject* prj)
 
     this->ConstructCompletePath(*bItr->second, prj->ConfigFileStem);
 
-    if (bItr->first.compare(prj->DataSetSpecifierTag) == 0)
+    if (bItr->first == prj->DataSetSpecifierTag ||
+        bItr->first == prj->TracksFileTag)
       {
       prj->SetIsValid(*bItr->second, (*bItr->second).empty() ?
                       vpProject::FILE_NAME_EMPTY : vpProject::FILE_NAME_NOT_EMPTY);
@@ -161,7 +168,7 @@ bool vpProjectParser::Parse(vpProject* prj)
     int noOfCols = prj->ImageToGcsMatrixArray[1];
 
     // 3x3
-    if (noOfRows == 3 & noOfCols == 3)
+    if (noOfRows == 3 && noOfCols == 3)
       {
       prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
       prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
@@ -176,7 +183,7 @@ bool vpProjectParser::Parse(vpProject* prj)
       prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[10]);
       }
     // 3X4
-    else if (noOfRows == 3 & noOfCols == 4)
+    else if (noOfRows == 3 && noOfCols == 4)
       {
       prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
       prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
@@ -194,7 +201,7 @@ bool vpProjectParser::Parse(vpProject* prj)
       prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[13]);
       }
     //4x3
-    else if (noOfRows == 3 & noOfCols == 3)
+    else if (noOfRows == 4 && noOfCols == 3)
       {
       prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
       prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
@@ -218,8 +225,8 @@ bool vpProjectParser::Parse(vpProject* prj)
       }
     else
       {
-      std::cerr << "ImageToGcsMatrix with " << noOfRows << " rows and "
-                << noOfCols << " columns  are not supported" << std::endl;
+      qWarning() << "ImageToGcsMatrix: matrices with" << noOfRows << "rows and"
+                 << noOfCols << "columns are not supported";
       }
     }
 
@@ -260,8 +267,8 @@ int vpProjectParser::CheckIfFileExists(const std::string& tag, const std::string
 
   if (!vtksys::SystemTools::FileExists(fileName.c_str(), true))
     {
-    std::cerr << "WARNING: " << tag << " ( " << fileName << " ) does not exist.";
-    std::cerr << "Application may not work properly." << std::endl;
+    qWarning() << "WARNING:" << tag.c_str() << '(' << qtString(fileName) << ')'
+               << "does not exist; application may not work properly";
 
     return vpProject::FILE_NOT_EXIST;
     }

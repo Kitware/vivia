@@ -54,6 +54,9 @@ public slots:
   void initializeTesting(const qtCliArgs*);
   void addLayer(QUrl);
 
+  void resultsPageBack();
+  void resultsPageForward();
+
 protected slots:
   void showQueryNewDialog();
   void showQueryEditDialog();
@@ -118,12 +121,16 @@ protected:
   void setEnabledSignal(QAction* action, QObject* sender, const char* signal,
                         bool initiallyEnabled = false);
 
+  void updateResultPageControls();
+
   void setupTrackingClipViewer();
 
   UIMode InterfaceMode;
 
   vqCore* Core;
   vqUserActions* UserActions;
+
+  int ResultPageOffset;
 
   QScopedPointer<vqQueryDialog> NewQueryDialog;
   QScopedPointer<vqTrackingClipViewer> TrackingClipViewer;

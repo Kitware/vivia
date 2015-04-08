@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,6 +16,8 @@
 #include "vtkPlotLine.h"
 
 #include <vgExport.h>
+
+#include <map>
 
 class VTKVG_CORE_EXPORT vtkVgPlotTimeline : public vtkPlotLine
 {
@@ -54,6 +56,12 @@ public:
   vtkSetMacro(IsIntervalPlot, bool);
   vtkGetMacro(IsIntervalPlot, bool);
 
+  // Description:
+  // A General setter/getter
+  virtual void SetProperty(const vtkStdString& property,
+                           const vtkVariant& var);
+  virtual vtkVariant GetProperty(const vtkStdString& property);
+
 //BTX
 protected:
   vtkVgPlotTimeline();
@@ -71,6 +79,8 @@ protected:
   bool IsIntervalPlot;
 
   vtkTimeStamp SortTime;
+
+  std::map<vtkStdString, vtkVariant> Properties;
 
 private:
   vtkVgPlotTimeline(const vtkVgPlotTimeline&);  // Not implemented.

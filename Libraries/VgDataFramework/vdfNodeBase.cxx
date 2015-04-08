@@ -44,6 +44,7 @@ QTE_IMPLEMENT_D_FUNC(vdfNodeBase)
 vdfNodeBase::vdfNodeBase(QObject* parent) :
   QObject(parent), d_ptr(new vdfNodeBasePrivate)
 {
+  vdf::registerMetaTypes();
 }
 
 //-----------------------------------------------------------------------------
@@ -117,6 +118,12 @@ bool vdfNodeBase::canChangeVisibility() const
 }
 
 //-----------------------------------------------------------------------------
+bool vdfNodeBase::canUpdate() const
+{
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool vdfNodeBase::canDelete() const
 {
   return true;
@@ -143,14 +150,19 @@ bool vdfNodeBase::isSelectorSupported(const vdfSelector* selector) const
 //-----------------------------------------------------------------------------
 vdfNodeProxy* vdfNodeBase::connect(QObject* consumer)
 {
-  QTE_D(vdfNodeBase);
+  if (this->canUpdate())
+    {
+    QTE_D(vdfNodeBase);
 
-  vdfNodeProxy* const connection = new vdfNodeProxy(this);
-  connect(consumer, SIGNAL(destroyed()), connection, SLOT(deleteLater()));
-  this->enter();
+    vdfNodeProxy* const connection = new vdfNodeProxy(this);
+    connect(consumer, SIGNAL(destroyed()), connection, SLOT(deleteLater()));
+    this->enter();
 
-  d->Connections.insert(connection);
-  return connection;
+    d->Connections.insert(connection);
+    return connection;
+    }
+
+  return 0;
 }
 
 //-----------------------------------------------------------------------------

@@ -371,8 +371,8 @@ vsVvqsDatabaseSource::vsVvqsDatabaseSource(
           this, SLOT(emitDescriptors(vsDescriptorList)));
   connect(d, SIGNAL(eventAvailable(vsEvent)),
           this, SLOT(emitEvent(vsEvent)));
-  connect(d, SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)),
-          this, SIGNAL(tocAvailable(vvTrackId, vsTrackObjectClassifier)));
+  connect(d, SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)),
+          this, SIGNAL(tocAvailable(vsTrackId, vsTrackObjectClassifier)));
 
   d->PublicTrackStatus = vsDataSource::ArchivedIdle;
   d->PrivateTrackStatus = vsDataSource::ArchivedIdle;

@@ -11,6 +11,7 @@
 
 #include "vtkVgMetaObject.h"
 #include "vtkVgTimeStamp.h"
+#include "vtkVgUtil.h"
 
 #include <map>
 #include <vector>
@@ -61,17 +62,6 @@ public:
     DF_Selected            = 1 << 2
     };
 
-  struct RegionPoint
-    {
-    RegionPoint() : X(0.0), Y(0.0) {}
-    RegionPoint(double x, double y) : X(x), Y(y) {}
-
-    double X;
-    double Y;
-    };
-
-  typedef std::vector<RegionPoint> Region;
-
   // Description:
   // Standard VTK functions.
   static vtkVgEventBase* New();
@@ -95,9 +85,10 @@ public:
   bool GetRegionAtOrAfter(vtkVgTimeStamp& timeStamp,
                           vtkIdType& npts, vtkIdType*& pts);
 
-  void AddRegion(const vtkVgTimeStamp& timeStamp, const Region& region);
-  Region GetRegion(const vtkVgTimeStamp& timeStamp) const;
-  std::map<vtkVgTimeStamp, Region> GetRegions() const;
+  void AddRegion(const vtkVgTimeStamp& timeStamp, const vgPolygon2d& region);
+  vgPolygon2d GetRegion(const vtkVgTimeStamp& timeStamp) const;
+  vgPolygon2d GetRegionAtOrAfter(vtkVgTimeStamp& timeStamp) const;
+  std::map<vtkVgTimeStamp, vgPolygon2d> GetRegions() const;
 
   // Description:
   // Get the closest region with time less than or equal to timestamp, or the

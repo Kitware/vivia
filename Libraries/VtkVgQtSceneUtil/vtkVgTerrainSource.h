@@ -4,12 +4,14 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#ifndef __vtkVQTerrainSource_h
-#define __vtkVQTerrainSource_h
+#ifndef __vtkVgTerrainSource_h
+#define __vtkVgTerrainSource_h
 
 // VG includes.
-#include "vtkVgMacros.h"
-#include "vtkVgDataSourceBase.h"
+#include <vgExport.h>
+
+#include <vtkVgMacros.h>
+#include <vtkVgDataSourceBase.h>
 
 // VTK includes.
 #include <vtkMatrix4x4.h>
@@ -24,16 +26,16 @@ class vtkImageData;
 class vtkVgTerrain;
 class vtkVgBaseImageSource;
 
-class vtkVQTerrainSource : public vtkVgDataSourceBase
+class VTKVGQT_SCENEUTIL_EXPORT vtkVgTerrainSource : public vtkVgDataSourceBase
 {
 public:
-  vtkVgClassMacro(vtkVQTerrainSource);
+  vtkVgClassMacro(vtkVgTerrainSource);
 
   // Description:
   // Usual VTK functions.
-  vtkTypeMacro(vtkVQTerrainSource, vtkVgDataSourceBase);
+  vtkTypeMacro(vtkVgTerrainSource, vtkVgDataSourceBase);
 
-  static vtkVQTerrainSource* New();
+  static vtkVgTerrainSource* New();
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -63,8 +65,8 @@ public:
   vtkGetMacro(ImageLevel, int);
 
 protected:
-  vtkVQTerrainSource();
-  virtual ~vtkVQTerrainSource();
+  vtkVgTerrainSource();
+  virtual ~vtkVgTerrainSource();
 
   vtkSmartPointer<vtkVgBaseImageSource> BaseTile;
   std::vector<vtkSmartPointer<vtkVgBaseImageSource> > OtherTiles;
@@ -78,8 +80,8 @@ protected:
   int ImageLevel;
 
 private:
-  vtkVQTerrainSource(const vtkVQTerrainSource&);
-  void operator= (const vtkVQTerrainSource&);
+  vtkVgTerrainSource(const vtkVgTerrainSource&);
+  void operator= (const vtkVgTerrainSource&);
 };
 
-#endif // __vtkVQTerrainSource_h
+#endif // __vtkVgTerrainSource_h

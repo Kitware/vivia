@@ -57,7 +57,7 @@
 /// executable from an arbitrary thread (using \c true or \c false is
 /// recommended).
 ///
-/// \par Example
+/// \par Example:
 /// \code{.cpp}
 /// QTE_DEBUG_AREA(qtd, KstReader,     true)
 /// QTE_DEBUG_AREA(qtd, StatusManager, false)

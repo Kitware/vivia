@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -12,6 +12,7 @@
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkImageActor.h>
+#include <vtkImageMapper3D.h>
 #include <vtkImageProperty.h>
 #include <vtkImageStencil.h>
 #include <vtkImplicitSelectionLoop.h>
@@ -54,7 +55,7 @@
 //BEGIN vsSceneTrackColorHelper
 
 //-----------------------------------------------------------------------------
-class vsSceneTrackColorHelper : public vsTrackTreeColorHelper,
+class vsSceneTrackColorHelper : public vsAbstractSceneTrackColorHelper,
                                 public vtkVgTrackColorHelper,
                                 public vtkVgTrackLabelColorHelper
 {
@@ -62,8 +63,8 @@ public:
   vsSceneTrackColorHelper(vsCore* core) : Core(core) {}
   virtual ~vsSceneTrackColorHelper() {}
 
-  // vsTrackTreeColorHelper interface
-  virtual QColor color(vtkVgTrack* track) QTE_OVERRIDE;
+  // vsAbstractSceneTrackColorHelper interface
+  virtual const vsTrackInfo* infoForTrack(vtkVgTrack* track) const QTE_OVERRIDE;
 
   // vtkVgTrackColorHelper interface
   virtual const double* GetTrackColor(
@@ -79,21 +80,9 @@ public:
   QHash<int, vsTrackInfo> SourceColors;
 
 protected:
-  const vsTrackInfo* infoForTrack(vtkVgTrack* track) const;
 
   vsCore* const Core;
 };
-
-//-----------------------------------------------------------------------------
-QColor vsSceneTrackColorHelper::color(vtkVgTrack* track)
-{
-  const vsTrackInfo* const ti = this->infoForTrack(track);
-  if (ti)
-    {
-    return QColor::fromRgbF(ti->pcolor[0], ti->pcolor[1], ti->pcolor[2]);
-    }
-  return QColor();
-}
 
 //-----------------------------------------------------------------------------
 const double* vsSceneTrackColorHelper::GetTrackColor(
@@ -215,15 +204,25 @@ vsSceneTrackColorHelper* updateTrackColorHelper(
 //BEGIN vsScenePrivate
 
 //-----------------------------------------------------------------------------
-vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core)
-  : q_ptr(q), Core(core), VideoSource(0),
-    TrackColorHelper(new vsSceneTrackColorHelper(core)),
-    EventSelectedColor(vsSettings().eventSelectedColor()),
-    FilteringMaskColor(vsSettings().filteringMaskColor()),
-    GroundTruthEnabled(true), RenderWidget(0), FilterWidget(0),
-    EventTreeModel(0), TrackTreeModel(0), NeedViewReset(true),
-    PendingJumpEventId(-1), PendingJumpTrackId(-1),
-    WriteRenderedImages(false), ImageCounter(1), SaveScreenShot(false)
+vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core) :
+  q_ptr(q),
+  Core(core),
+  VideoSource(0),
+  TrackColorHelper(new vsSceneTrackColorHelper(core)),
+  SelectionColor(vsSettings().selectionPenColor()),
+  FilteringMaskColor(vsSettings().filteringMaskColor()),
+  GroundTruthEnabled(true),
+  RenderWidget(0),
+  FilterWidget(0),
+  TrackTreeModel(0),
+  EventDataModel(0),
+  EventTreeModel(0),
+  NeedViewReset(true),
+  PendingJumpTrackId(-1),
+  PendingJumpEventId(-1),
+  WriteRenderedImages(false),
+  ImageCounter(1),
+  SaveScreenShot(false)
 {
   // Initialize models
   this->initializeGraph(this->NormalGraph);
@@ -246,8 +245,7 @@ vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core)
   this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
 
   // Set up track labels and coloring
-  this->updateTrackClassifierColors();
-  this->updateTrackSourceColors();
+  this->updateTrackColors();
 
   this->TrackingMask->GetProperty()->SetOpacity(
     this->FilteringMaskColor.constData().color.alpha);
@@ -261,6 +259,12 @@ vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core)
 //-----------------------------------------------------------------------------
 vsScenePrivate::~vsScenePrivate()
 {
+}
+
+//-----------------------------------------------------------------------------
+const vsAbstractSceneTrackColorHelper* vsScenePrivate::trackColorHelper() const
+{
+  return this->TrackColorHelper.data();
 }
 
 //-----------------------------------------------------------------------------
@@ -353,13 +357,14 @@ void vsScenePrivate::createMaskActor(
   loopToStencil->Update();
 
   vtkImageStencil* stencil = vtkImageStencil::New();
-  stencil->SetStencilData(loopToStencil->GetOutput());
+  stencil->SetStencilConnection(loopToStencil->GetOutputPort());
   stencil->SetInputData(input);
   stencil->SetBackgroundValue(1.0);
   stencil->Update();
 
   info.maskActor = vtkSmartPointer<vtkImageActor>::New();
-  info.maskActor->SetInputData(stencil->GetOutput());
+  info.maskActor->GetMapper()->SetInputConnection(
+    stencil->GetOutputPort());
 
   vtkLookupTable* lut = vtkLookupTable::New();
   lut->SetNumberOfTableValues(2);
@@ -602,15 +607,19 @@ void vsScenePrivate::initializeGraph(Graph& graph, const char* labelPrefix)
 }
 
 //-----------------------------------------------------------------------------
-void vsScenePrivate::setupRepresentations(Graph& graph, float widthScale)
+void vsScenePrivate::setupRepresentations(
+  Graph& graph,
+  float trackHeadWidth, float trackTrailWidth,
+  float eventHeadWidth, float eventTrailWidth)
 {
   graph.EventRepresentation->SetZOffset(0.1);
-  graph.EventRepresentation->SetLineWidth(4.0f * widthScale);
-  graph.EventHeadRepresentation->SetLineWidth(1.0f * widthScale);
+  graph.EventRepresentation->SetNormalcyLineWidthScale(0.0f);
+  graph.EventRepresentation->SetLineWidth(eventTrailWidth);
+  graph.EventHeadRepresentation->SetLineWidth(eventHeadWidth);
 
-  graph.TrackRepresentation->SetActiveTrackLineWidth(1.7f * widthScale);
-  graph.TrackRepresentation->SetExpiringTrackLineWidth(1.7f * widthScale);
-  graph.TrackHeadRepresentation->SetLineWidth(1.0f * widthScale);
+  graph.TrackRepresentation->SetActiveTrackLineWidth(trackTrailWidth);
+  graph.TrackRepresentation->SetExpiringTrackLineWidth(trackTrailWidth);
+  graph.TrackHeadRepresentation->SetLineWidth(trackHeadWidth);
 }
 
 //-----------------------------------------------------------------------------
@@ -760,10 +769,15 @@ bool vsScenePrivate::updateModels(
 }
 
 //-----------------------------------------------------------------------------
-void vsScenePrivate::updateTrackClassifierColors()
+void vsScenePrivate::updateTrackColors()
 {
+  QTE_Q(vsScene);
+
+  this->TrackColors.clear();
   foreach (vsTrackInfo ti, vsTrackInfo::trackTypes())
     {
+    this->TrackColors.insert(ti.type, vgColor(ti.pcolor));
+
     setTrackTypeColors(this->NormalGraph, ti);
     setTrackTypeColors(this->GroundTruthGraph, ti);
 
@@ -774,31 +788,13 @@ void vsScenePrivate::updateTrackClassifierColors()
       setDefaultColors(this->GroundTruthGraph, ti.pcolor);
       }
     }
-}
 
-//-----------------------------------------------------------------------------
-void vsScenePrivate::updateTrackSourceColors()
-{
   vsSceneTrackColorHelper* const helper =
     updateTrackColorHelper(this->TrackColorHelper.data());
   setHelperForGraph(this->NormalGraph, helper);
   setHelperForGraph(this->GroundTruthGraph, helper);
-}
 
-//-----------------------------------------------------------------------------
-void vsScenePrivate::updateTrackTreeColors()
-{
-  foreach (const vsTrackInfo& ti, vsTrackInfo::trackTypes())
-    {
-    const QColor color =
-      QColor::fromRgbF(ti.pcolor[0], ti.pcolor[1], ti.pcolor[2]);
-    this->TrackTreeModel->setColor(ti.type, color);
-    }
-
-  this->TrackTreeModel->setColorHelper(
-    updateTrackColorHelper(this->TrackColorHelper.data()));
-
-  this->TrackTreeModel->update();
+  emit q->trackSceneUpdated();
 }
 
 //-----------------------------------------------------------------------------

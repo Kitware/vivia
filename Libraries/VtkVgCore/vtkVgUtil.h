@@ -7,17 +7,27 @@
 #ifndef __vtkVgUtil_h
 #define __vtkVgUtil_h
 
+#include "vtkVgInstance.h"
+
 #include <vgExport.h>
 
-#include "vtkVgInstance.h"
+#include <vector>
 
 class vtkMatrix4x4;
 
 struct vgPoint2d
 {
+  vgPoint2d(double x = 0.0, double y = 0.0) : X(x), Y(y) {}
   double X;
   double Y;
 };
+
+inline bool operator==(const vgPoint2d& a, const vgPoint2d& b)
+{
+  return (a.X == b.X) && (a.Y == b.Y);
+}
+
+typedef std::vector<vgPoint2d> vgPolygon2d;
 
 extern VTKVG_CORE_EXPORT vgPoint2d vtkVgApplyHomography(
   double x, double y, const vtkMatrix4x4& xf);
@@ -31,17 +41,17 @@ inline vgPoint2d vtkVgApplyHomography(
 { return vtkVgApplyHomography(x, y, *xf); }
 
 #define IMPLEMENT_APPLY_HOMOGRAPHY(MatrixType) \
+inline vgPoint2d vtkVgApplyHomography(const double in[2], MatrixType xf) \
+{ \
+  return vtkVgApplyHomography(in[0], in[1], xf); \
+} \
+\
 inline void vtkVgApplyHomography( \
   double inX, double inY, MatrixType xf, double result[2]) \
 { \
   const vgPoint2d p = vtkVgApplyHomography(inX, inY, xf); \
   result[0] = p.X; \
   result[1] = p.Y; \
-} \
-\
-inline vgPoint2d vtkVgApplyHomography(double in[2], MatrixType xf) \
-{ \
-  return vtkVgApplyHomography(in[0], in[1], xf); \
 } \
 \
 inline void vtkVgApplyHomography( \
@@ -53,7 +63,7 @@ inline void vtkVgApplyHomography( \
 } \
 \
 inline void vtkVgApplyHomography( \
-  double in[2], MatrixType xf, double result[2]) \
+  const double in[2], MatrixType xf, double result[2]) \
 { \
   const vgPoint2d p = vtkVgApplyHomography(in[0], in[1], xf); \
   result[0] = p.X; \
@@ -69,7 +79,15 @@ inline void vtkVgApplyHomography( \
 } \
 \
 inline void vtkVgApplyHomography( \
-  double in[2], MatrixType xf, double& outX, double& outY) \
+  const vgPoint2d& in, MatrixType xf, double& outX, double& outY) \
+{ \
+  const vgPoint2d p = vtkVgApplyHomography(in.X, in.Y, xf); \
+  outX = p.X; \
+  outY = p.Y; \
+} \
+\
+inline void vtkVgApplyHomography( \
+  const double in[2], MatrixType xf, double& outX, double& outY) \
 { \
   const vgPoint2d p = vtkVgApplyHomography(in[0], in[1], xf); \
   outX = p.X; \

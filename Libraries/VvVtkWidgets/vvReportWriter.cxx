@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -607,63 +607,71 @@ void vvReportWriter::writeEventSummary()
 
   imageElem.appendChild(timeStampElem);
 
-  vtkIdType npts = 0;
-  vtkIdType* ids;
-  d->Event->GetRegion(d->ImageTimeStamp, npts, ids);
-  if (npts == 0)
-    {
-    qDebug() << "Failed to get event region.";
-    return;
-    }
-
-  vtkPoints* regionPts = d->Event->GetRegionPoints();
-
-  QDomElement regionElem = d->Document.createElement("EventRegion");
-
-  // Compute region minimum and maximum corners in image space, and emit
-  // individual region points.
   vtkBoundingBox bbox;
-  for (int i = 0; i < npts - 1; ++i)
+  if (d->Event->GetNumberOfRegions() > 0)
     {
-    double p[3];
-    regionPts->GetPoint(ids[i], p);
-
-    if (d->ModelToImage)
+    vtkIdType npts = 0;
+    vtkIdType* ids;
+    d->Event->GetRegion(d->ImageTimeStamp, npts, ids);
+    if (npts <= 0)
       {
-      vtkVgApplyHomography(p, d->ModelToImage, p);
+      qDebug() << "Failed to get event region.";
+      return;
       }
 
-    p[1] = d->ImageData->GetDimensions()[1] - p[1] - 1;
-    bbox.AddPoint(p);
+    vtkPoints* regionPts = d->Event->GetRegionPoints();
 
-    QDomElement regionPtElem = d->Document.createElement("Point");
-    regionPtElem.setAttribute("x", p[0]);
-    regionPtElem.setAttribute("y", p[1]);
-    regionElem.appendChild(regionPtElem);
+    QDomElement regionElem = d->Document.createElement("EventRegion");
+
+    // Compute region minimum and maximum corners in image space, and emit
+    // individual region points.
+    for (int i = 0; i < npts - 1; ++i)
+      {
+      double p[3];
+      regionPts->GetPoint(ids[i], p);
+
+      if (d->ModelToImage)
+        {
+        vtkVgApplyHomography(p, d->ModelToImage, p);
+        }
+
+      p[1] = d->ImageData->GetDimensions()[1] - p[1] - 1;
+      bbox.AddPoint(p);
+
+      QDomElement regionPtElem = d->Document.createElement("Point");
+      regionPtElem.setAttribute("x", p[0]);
+      regionPtElem.setAttribute("y", p[1]);
+      regionElem.appendChild(regionPtElem);
+      }
+
+    double ul[] =
+      {
+      bbox.GetMinPoint()[0],
+      bbox.GetMinPoint()[1],
+      };
+
+    double lr[] =
+      {
+      bbox.GetMaxPoint()[0],
+      bbox.GetMaxPoint()[1],
+      };
+
+    // Round to nearest pixel center
+    int iul[2] = { qRound(ul[0]), qRound(ul[1]) };
+    int ilr[2] = { qRound(lr[0]), qRound(lr[1]) };
+
+    // Event box
+    regionElem.setAttribute("ulx", iul[0]);
+    regionElem.setAttribute("uly", iul[1]);
+    regionElem.setAttribute("lrx", ilr[0]);
+    regionElem.setAttribute("lry", ilr[1]);
+    imageElem.appendChild(regionElem);
     }
-
-  double ul[] =
+  else
     {
-    bbox.GetMinPoint()[0],
-    bbox.GetMinPoint()[1],
-    };
-
-  double lr[] =
-    {
-    bbox.GetMaxPoint()[0],
-    bbox.GetMaxPoint()[1],
-    };
-
-  // Round to nearest pixel center
-  int iul[2] = { qRound(ul[0]), qRound(ul[1]) };
-  int ilr[2] = { qRound(lr[0]), qRound(lr[1]) };
-
-  // Event box
-  regionElem.setAttribute("ulx", iul[0]);
-  regionElem.setAttribute("uly", iul[1]);
-  regionElem.setAttribute("lrx", ilr[0]);
-  regionElem.setAttribute("lry", ilr[1]);
-  imageElem.appendChild(regionElem);
+    int* dim = d->ImageData->GetDimensions();
+    bbox.AddPoint(dim[0] / 2.0, dim[1] / 2.0, 0.0);
+    }
 
   EventOverviewInfo info;
   info.EventId = -1;

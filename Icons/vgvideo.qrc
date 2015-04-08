@@ -20,6 +20,6 @@
     <file alias="playback-stop">22x22/playback-stop.png</file>
     <file alias="show-boxes">22x22/track-show-boxes.png</file>
     <file alias="view-reset">22x22/view-reset.png</file>
-    <file alias="view-track">22x22/view-track.png</file>
+    <file alias="view-zoom-target">22x22/view-zoom-target.png</file>
   </qresource>
 </RCC>

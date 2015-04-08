@@ -7,6 +7,7 @@
 #ifndef __vsEvent_h
 #define __vsEvent_h
 
+#include <QMetaType>
 #include <QUuid>
 
 #include <vtkVgEventBase.h>
@@ -45,5 +46,9 @@ struct vsEventId
   vtkIdType SourceId;
   const vsDescriptorSource* Source;
 };
+
+Q_DECLARE_METATYPE(QUuid)
+Q_DECLARE_METATYPE(vgTimeStamp)
+Q_DECLARE_METATYPE(vsEventId)
 
 #endif

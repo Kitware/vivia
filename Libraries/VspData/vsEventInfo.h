@@ -43,6 +43,7 @@ struct VSP_DATA_EXPORT vsEventInfo
     Tripwire        = -3000,
     EnteringRegion  = -3001,
     ExitingRegion   = -3002,
+    Annotation      = -4000,
     // NOTE: -5000 - -5??? reserved by vsTrackInfo
     QueryAlert      = -10000,
     UserType        = -20000
@@ -54,7 +55,7 @@ public:
   static vsEventInfo fromEventSetInfo(const vvEventSetInfo&, int type = -1);
 
   static QList<vsEventInfo> events(Groups = All);
-  static Groups eventGroups(int eventType);
+  static Group eventGroup(int eventType);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(vsEventInfo::Groups)

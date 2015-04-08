@@ -15,6 +15,7 @@
 #include <vvTrack.h>
 
 #include <vsTrackClassifier.h>
+#include <vsTrackId.h>
 
 #include <vsSimpleSourceFactory.h>
 #include <vsStreamSourcePrivate.h>
@@ -49,18 +50,18 @@ protected:
 signals:
   void streamingFinished();
 
-  void trackUpdated(vvTrackId trackId, vvTrackState state);
-  void trackClosed(vvTrackId trackId);
+  void trackUpdated(vsTrackId trackId, vvTrackState state);
+  void trackClosed(vsTrackId trackId);
 
-  void tocAvailable(vvTrackId trackId, vsTrackObjectClassifier toc);
+  void tocAvailable(vsTrackId trackId, vsTrackObjectClassifier toc);
 
 protected slots:
   void releaseFrame();
   void sourceStatusChanged();
   void setAvailableFrames(QList<vtkVgVideoFrameMetaData>);
-  void queueTrackUpdate(vvTrackId, vvTrackState);
-  void queueTrackUpdate(vvTrackId, QList<vvTrackState>);
-  void queueTrackClassifier(vvTrackId, vsTrackObjectClassifier);
+  void queueTrackUpdate(vsTrackId, vvTrackState);
+  void queueTrackUpdate(vsTrackId, QList<vvTrackState>);
+  void queueTrackClassifier(vsTrackId, vsTrackObjectClassifier);
   void queueEvent(vsDescriptorSource* source, vsEvent event);
 
   void flush(vtkVgTimeStamp = vtkVgTimeStamp());
@@ -81,8 +82,8 @@ protected:
   vtkVgTimeStamp NextFrame;
 
   typedef QMap<vtkVgTimeStamp, vvTrackState> TrackStateMap;
-  QHash<vvTrackId, TrackStateMap> TrackUpdates;
-  QHash<vvTrackId, vsTrackObjectClassifier> Tocs;
+  QHash<vsTrackId, TrackStateMap> TrackUpdates;
+  QHash<vsTrackId, vsTrackObjectClassifier> Tocs;
   QMap<vtkVgTimeStamp, vsEvent> Events;
   vtkIdType NextEventId;
 

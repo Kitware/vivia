@@ -45,7 +45,7 @@ bool vsKw18TrackArchiveSourcePrivate::processArchive(const QUrl& uri)
   vidtk::kw18_reader trackReader(qPrintable(fileName));
 
   // Read tracks
-  vcl_vector<vidtk::track_sptr> tracks;
+  std::vector<vidtk::track_sptr> tracks;
   if (!trackReader.read(tracks))
     {
     return false;
@@ -55,8 +55,8 @@ bool vsKw18TrackArchiveSourcePrivate::processArchive(const QUrl& uri)
   for (size_t n = 0; n < tracks.size(); ++n)
     {
     QList<vvTrackState> states;
-    vvTrackId id = vsAdaptTrackId(tracks[n]->id());
-    const vcl_vector<vidtk::track_state_sptr>& h = tracks[n]->history();
+    vsTrackId id = vsAdaptTrackId(tracks[n]->id());
+    const std::vector<vidtk::track_state_sptr>& h = tracks[n]->history();
     for (size_t j = 0; j < h.size(); ++j)
       {
       vidtk::track_state_sptr s = h[j];

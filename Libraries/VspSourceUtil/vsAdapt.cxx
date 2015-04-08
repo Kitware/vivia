@@ -18,6 +18,7 @@
 #include <vtkVgAdapt.h>
 
 #include <vsEvent.h>
+#include <vsTrackId.h>
 #include <vsTrackInfo.h>
 #include <vtkVsTrackInfo.h>
 
@@ -134,9 +135,9 @@ vsEvent vsAdapt(const vvQueryResult& result)
 }
 
 //-----------------------------------------------------------------------------
-vvTrackId vsAdaptTrackId(unsigned int vidtkId)
+vsTrackId vsAdaptTrackId(unsigned int vidtkId)
 {
-  vvTrackId vvId(0, vidtkId);
+  vsTrackId vvId(0, vidtkId, QUuid());
   if (vvId.SerialNumber >= 1000000)
     {
     vvId.Source = vsTrackInfo::GroundTruthSource;

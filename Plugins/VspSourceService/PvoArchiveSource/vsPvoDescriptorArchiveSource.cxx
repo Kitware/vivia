@@ -9,6 +9,7 @@
 #include <qtKstReader.h>
 
 #include <vsTrackClassifier.h>
+#include <vsTrackId.h>
 
 #include <vsAdapt.h>
 #include <vsArchiveSourcePrivate.h>

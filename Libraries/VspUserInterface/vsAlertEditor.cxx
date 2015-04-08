@@ -35,9 +35,9 @@ namespace // anonymous
 {
 
 //-----------------------------------------------------------------------------
-QColor qColor(const double dc[3])
+QColor qColor(const double (&dc)[3])
 {
-  return vgColor(dc[0], dc[1], dc[2]).toQColor();
+  return vgColor(dc).toQColor();
 }
 
 } // namespace <anonymous>

@@ -134,7 +134,7 @@ function(vg_add_scripted_test APPLICATION SCRIPT)
 
   # Add baseline args
   if(_baseline)
-    vg_test_set_baseline(_required_files _args "${APPLICATION}/${NAME}.png")
+    vg_test_set_baseline(_required_files _args "${APPLICATION}/${_name}.png")
   endif()
 
   # Get required data file from test script

@@ -19,14 +19,15 @@ class vgImage;
 
 struct vvDescriptor;
 struct vvQueryResult;
-struct vvTrackId;
+
+struct vsTrackId;
 
 class vsEvent;
 
 extern VSP_SOURCEUTIL_EXPORT vsEvent
 vsAdapt(const vvQueryResult&);
 
-extern VSP_SOURCEUTIL_EXPORT vvTrackId
+extern VSP_SOURCEUTIL_EXPORT vsTrackId
 vsAdaptTrackId(unsigned int);
 
 extern VSP_SOURCEUTIL_EXPORT bool

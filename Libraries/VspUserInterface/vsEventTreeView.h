@@ -9,6 +9,8 @@
 
 #include <QTreeView>
 
+#include <qtGlobal.h>
+
 #include <vtkType.h>
 
 #include <vtkVgTypeDefs.h>
@@ -33,8 +35,6 @@ public:
   // Reimplemented from QWidget
   virtual void setModel(QAbstractItemModel* m);
   virtual void setSelectionModel(QItemSelectionModel* selectionModel);
-  virtual void dropEvent(QDropEvent* event);
-  virtual void mousePressEvent(QMouseEvent* event);
 
   const vsEventTreeSelectionModel* underlyingSelectionModel()
     {
@@ -70,6 +70,9 @@ protected slots:
   void setCurrentIndex(const QModelIndex& current);
 
 protected:
+  virtual void dropEvent(QDropEvent* event) QTE_OVERRIDE;
+  virtual void mousePressEvent(QMouseEvent* event) QTE_OVERRIDE;
+
   vtkIdType eventIdFromIndex(const QModelIndex& index) const;
 
 private:

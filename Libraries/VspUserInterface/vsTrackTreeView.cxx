@@ -1,14 +1,17 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vsTrackTreeView.h"
 
+#include <QHeaderView>
+#include <QMouseEvent>
 #include <QSortFilterProxyModel>
 
 #include "vsTrackTreeModel.h"
+#include "vsTrackTreeSelectionModel.h"
 
 namespace // anonymous
 {
@@ -26,14 +29,59 @@ protected:
         left.model()->data(left, vsTrackTreeModel::LogicalIdRole);
       const QVariant bd =
         right.model()->data(right, vsTrackTreeModel::LogicalIdRole);
-      const vvTrackId a = ad.value<vvTrackId>();
-      const vvTrackId b = bd.value<vvTrackId>();
+      const vsTrackId a = ad.value<vsTrackId>();
+      const vsTrackId b = bd.value<vsTrackId>();
       return (a.Source == b.Source ? a.SerialNumber < b.SerialNumber
                                    : a.Source < b.Source);
       }
 
     return QSortFilterProxyModel::lessThan(left, right);
     }
+};
+
+//-----------------------------------------------------------------------------
+class vsProxySelectionModel : public QItemSelectionModel
+{
+public:
+  vsProxySelectionModel(QAbstractProxyModel* proxy,
+                        QItemSelectionModel* model) :
+    QItemSelectionModel(proxy),
+    proxyItemModel(proxy),
+    underlyingSelectionModel(model)
+    {}
+
+  void select(const QItemSelection& selection)
+    {
+    const QItemSelection mappedSelection =
+      this->proxyItemModel->mapSelectionFromSource(selection);
+    this->QItemSelectionModel::select(mappedSelection, Select);
+    }
+
+  void deselect(const QItemSelection& selection)
+    {
+    const QItemSelection mappedSelection =
+      this->proxyItemModel->mapSelectionFromSource(selection);
+    this->QItemSelectionModel::select(mappedSelection, Deselect);
+    }
+
+protected:
+  virtual void select(
+    const QModelIndex& index, SelectionFlags command) QTE_OVERRIDE
+    {
+    const QModelIndex mappedIndex = this->proxyItemModel->mapToSource(index);
+    this->underlyingSelectionModel->select(mappedIndex, command);
+    }
+
+  virtual void select(
+    const QItemSelection& selection, SelectionFlags command) QTE_OVERRIDE
+    {
+    const QItemSelection mappedSelection =
+      this->proxyItemModel->mapSelectionToSource(selection);
+    this->underlyingSelectionModel->select(mappedSelection, command);
+    }
+
+  QAbstractProxyModel* const proxyItemModel;
+  QItemSelectionModel* const underlyingSelectionModel;
 };
 
 //-----------------------------------------------------------------------------
@@ -56,8 +104,10 @@ public:
 } // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
-vsTrackTreeView::vsTrackTreeView(QWidget* p)
-  : QTreeView(p), showHiddenItems(true)
+vsTrackTreeView::vsTrackTreeView(QWidget* p) :
+  QTreeView(p),
+  trackTreeSelectionModel(0),
+  showHiddenItems(true)
 {
   connect(this, SIGNAL(activated(const QModelIndex&)),
           this, SLOT(itemActivated(const QModelIndex&)));
@@ -88,6 +138,9 @@ void vsTrackTreeView::setModel(QAbstractItemModel* m)
 
   this->setColumnHidden(vsTrackTreeModel::IdColumn, true);
   this->setColumnWidth(vsTrackTreeModel::NameColumn, 50);
+  this->setColumnWidth(vsTrackTreeModel::StarColumn,
+                       this->header()->sectionSizeHint(
+                         vsTrackTreeModel::StarColumn));
   this->setColumnWidth(vsTrackTreeModel::StartTimeColumn, 80);
   this->setColumnWidth(vsTrackTreeModel::EndTimeColumn, 80);
   this->sortByColumn(vsTrackTreeModel::NameColumn, Qt::AscendingOrder);
@@ -105,25 +158,27 @@ void vsTrackTreeView::setModel(QAbstractItemModel* m)
 }
 
 //-----------------------------------------------------------------------------
-int vsTrackTreeView::selectedTrackCount()
+void vsTrackTreeView::setSelectionModel(QItemSelectionModel* m)
 {
-  if (this->selectionModel())
-    return this->selectionModel()->selectedRows().count();
-  return 0;
-}
+  vsTrackTreeSelectionModel* const tsm =
+    qobject_cast<vsTrackTreeSelectionModel*>(m);
 
-//-----------------------------------------------------------------------------
-void vsTrackTreeView::selectionChanged(const QItemSelection& selected,
-                                       const QItemSelection& deselected)
-{
-  QList<vtkIdType> selectedIds;
-  foreach (QModelIndex i, this->selectionModel()->selectedRows())
+  if (!tsm)
     {
-    selectedIds << this->trackIdFromIndex(i);
+    return;
     }
 
-  emit this->selectionChanged(selectedIds);
-  QTreeView::selectionChanged(selected, deselected);
+  this->trackTreeSelectionModel = tsm;
+
+  vsProxySelectionModel* const psm =
+    new vsProxySelectionModel(this->proxyModel.data(), tsm);
+  this->proxySelectionModel.reset(psm);
+  this->QTreeView::setSelectionModel(psm);
+
+  connect(tsm, SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
+          this, SLOT(updateSelection(QItemSelection, QItemSelection)));
+  connect(tsm, SIGNAL(currentChanged(QModelIndex, QModelIndex)),
+          this, SLOT(setCurrentIndex(QModelIndex)));
 }
 
 //-----------------------------------------------------------------------------
@@ -138,12 +193,12 @@ void vsTrackTreeView::hideSelectedItems()
 {
   DisableSort ds(this->proxyModel.data());
 
-  QModelIndexList selected = this->selectionModel()->selectedRows();
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(this, this->proxyModel.data());
   foreach (QModelIndex i, selected)
     {
     this->trackTreeModel->setData(
-      this->proxyModel->mapToSource(i), false,
-      vsTrackTreeModel::DisplayStateRole);
+      i, false, vsTrackTreeModel::DisplayStateRole);
     }
 }
 
@@ -152,34 +207,54 @@ void vsTrackTreeView::showSelectedItems()
 {
   DisableSort ds(this->proxyModel.data());
 
-  QModelIndexList selected = this->selectionModel()->selectedRows();
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(this, this->proxyModel.data());
   foreach (QModelIndex i, selected)
     {
     this->trackTreeModel->setData(
-      this->proxyModel->mapToSource(i), true,
-      vsTrackTreeModel::DisplayStateRole);
+      i, true, vsTrackTreeModel::DisplayStateRole);
     }
 }
 
 //-----------------------------------------------------------------------------
 void vsTrackTreeView::jumpToSelectedStart()
 {
-  QModelIndex index = this->selectionModel()->selectedRows().front();
-  emit this->jumpToTrack(trackIdFromIndex(index), false);
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(this, this->proxyModel.data());
+  Q_ASSERT(!selected.isEmpty());
+  emit this->jumpToTrack(trackIdFromIndex(selected.front()), false);
 }
 
 //-----------------------------------------------------------------------------
 void vsTrackTreeView::jumpToSelectedEnd()
 {
-  QModelIndex index = this->selectionModel()->selectedRows().front();
-  emit this->jumpToTrack(trackIdFromIndex(index), true);
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(this, this->proxyModel.data());
+  Q_ASSERT(!selected.isEmpty());
+  emit this->jumpToTrack(trackIdFromIndex(selected.front()), true);
 }
 
 //-----------------------------------------------------------------------------
 void vsTrackTreeView::followSelectedTrack()
 {
-  QModelIndex index = this->selectionModel()->selectedRows().front();
-  emit this->trackFollowingRequested(trackIdFromIndex(index));
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(this, this->proxyModel.data());
+  Q_ASSERT(!selected.isEmpty());
+  emit this->trackFollowingRequested(trackIdFromIndex(selected.front()));
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeView::setSelectedItemsStarred(bool starred)
+{
+  DisableSort ds(this->proxyModel.data());
+
+  const QModelIndexList& selected =
+    this->trackTreeSelectionModel->selectedRows(
+      this, this->proxyModel.data(), vsTrackTreeModel::StarColumn);
+  foreach (QModelIndex i, selected)
+    {
+    this->trackTreeModel->setData(i, starred, vsTrackTreeModel::StarRole);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -276,6 +351,24 @@ void vsTrackTreeView::updateRows(
 }
 
 //-----------------------------------------------------------------------------
+void vsTrackTreeView::updateSelection(
+  const QItemSelection& selected, const QItemSelection& deselected)
+{
+  vsProxySelectionModel* const psm =
+    static_cast<vsProxySelectionModel*>(this->proxySelectionModel.data());
+  psm->select(selected);
+  psm->deselect(deselected);
+}
+
+//-----------------------------------------------------------------------------
+void vsTrackTreeView::setCurrentIndex(const QModelIndex& current)
+{
+  const QModelIndex mappedCurrent = this->proxyModel->mapFromSource(current);
+  this->proxySelectionModel->setCurrentIndex(
+    mappedCurrent, QItemSelectionModel::Current);
+}
+
+//-----------------------------------------------------------------------------
 void vsTrackTreeView::selectTrack(vtkIdType trackId)
 {
   QModelIndex index = this->trackTreeModel->indexOfTrack(trackId);
@@ -290,9 +383,26 @@ void vsTrackTreeView::selectTrack(vtkIdType trackId)
 }
 
 //-----------------------------------------------------------------------------
-vtkIdType vsTrackTreeView::trackIdFromIndex(const QModelIndex& index)
+void vsTrackTreeView::mousePressEvent(QMouseEvent* event)
 {
-  return this->model()->data(
-           this->model()->index(
-             index.row(), vsTrackTreeModel::IdColumn)).value<vtkIdType>();
+  if (event->button() == Qt::LeftButton)
+    {
+    QModelIndex i = indexAt(event->pos());
+    if (i.isValid() && i.column() == vsTrackTreeModel::StarColumn)
+      {
+      const bool starred =
+        this->model()->data(i, vsTrackTreeModel::StarRole).toBool();
+      this->model()->setData(i, !starred, vsTrackTreeModel::StarRole);
+      return;
+      }
+    }
+  QTreeView::mousePressEvent(event);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vsTrackTreeView::trackIdFromIndex(const QModelIndex& index) const
+{
+  const QModelIndex& i =
+    this->trackTreeModel->index(index.row(), vsTrackTreeModel::IdColumn);
+  return this->trackTreeModel->data(i).value<vtkIdType>();
 }

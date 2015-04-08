@@ -1,5 +1,5 @@
 # Root cmake file.
-cmake_minimum_required(VERSION 2.8.7 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 project(visGUI)
 
@@ -15,6 +15,7 @@ option(VISGUI_ENABLE_VPVIEW         "Build vpView application"              ON)
 option(VISGUI_ENABLE_VSPLAY         "Build vsPlay application"              ON)
 #   ...External library features
 option(VISGUI_ENABLE_GDAL           "Enable features that require GDAL"     OFF)
+option(VISGUI_ENABLE_KWPPT          "Enable features that require KWPPT"    OFF)
 option(VISGUI_ENABLE_VIDTK          "Enable features that require VidTK"    ON)
 #   ...Python bindings
 option(VISGUI_ENABLE_PYTHON         "Enable VisGUI Python bindings"         OFF)

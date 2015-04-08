@@ -19,7 +19,6 @@
 class QPolygonF;
 
 struct vvSimilarityQuery;
-struct vvTrackId;
 
 class vtkImageData;
 
@@ -31,6 +30,7 @@ struct vtkVgVideoFrameMetaData;
 class vsContour;
 class vsEvent;
 struct vsEventId;
+struct vsTrackId;
 struct vsTrackObjectClassifier;
 struct vsTrackState;
 
@@ -49,6 +49,7 @@ public:
     FrameMetaData = 0x40,
     EventRating = 0x100,
     EventNote = 0x200,
+    TrackNote = 0x400,
     Contour = 0x1000,
     Query = 0x2000
     };
@@ -60,10 +61,10 @@ public:
 
   // constructors
   explicit vsDescriptorInput(const vtkVgVideoFrameMetaData& metaData);
-  explicit vsDescriptorInput(const vvTrackId& closedTrack);
-  explicit vsDescriptorInput(const vvTrackId&,
+  explicit vsDescriptorInput(const vsTrackId& closedTrack);
+  explicit vsDescriptorInput(const vsTrackId&,
                              const vsTrackState&);
-  explicit vsDescriptorInput(const vvTrackId&,
+  explicit vsDescriptorInput(const vsTrackId&,
                              const vsTrackObjectClassifier&);
 
   explicit vsDescriptorInput(const vsEvent&, const vsEventId&);
@@ -72,12 +73,15 @@ public:
   explicit vsDescriptorInput(const vsEventId&, const QString&,
                              const vgTimeStamp&, const vgTimeStamp&);
 
+  explicit vsDescriptorInput(const vsTrackId&, const QString&,
+                             const vgTimeStamp&, const vgTimeStamp&);
+
   explicit vsDescriptorInput(const vsContour&);
   explicit vsDescriptorInput(const vvSimilarityQuery&, int id);
 
   // accessors
   const vtkVgVideoFrameMetaData*    frameMetaData() const;
-  const vvTrackId*                  trackId() const;
+  const vsTrackId*                  trackId() const;
   const vsTrackState*               trackState() const;
   const vsTrackObjectClassifier*    trackClassifier() const;
 

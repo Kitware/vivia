@@ -436,11 +436,7 @@ void vsEventCreationToolsInterface::createEventFullFrame()
 
   const int eventType = d->EventTypeDropdown->itemData(i).toInt();
   const vtkVgTimeStamp ts = d->Scene->currentVideoTime();
-  QPoint topLeft(0,0);
-  QPoint bottomRight(d->Scene->currentFrameMetaData().Width - 1.0,
-                     d->Scene->currentFrameMetaData().Height - 1.0);
-  const QPolygonF region = d->viewToStab(QRectF(topLeft, bottomRight));
-  d->Core->createManualEvent(eventType, region, ts);
+  d->Core->createManualEvent(eventType, QPolygonF(), ts);
 }
 
 //-----------------------------------------------------------------------------

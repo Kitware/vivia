@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -274,6 +274,11 @@ public:
   // Provide addition operators
   vtkVgTimeStamp& operator+(const double& timeInterval);
   vtkVgTimeStamp& operator+(const unsigned int& frameInterval);
+
+  bool FuzzyEquals(const vtkVgTimeStamp& other, double tol = 1e-5) const
+    {
+    return this->vgTimeStamp::FuzzyEquals(other.GetRawTimeStamp(), tol);
+    }
 
   // Description:
   // Shift the timestamp forward

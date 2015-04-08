@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -96,23 +96,18 @@ void vsApplication::connectSource(const QString& identifier, const QUrl& uri)
 }
 
 //-----------------------------------------------------------------------------
-void vsApplication::initialize()
+void vsApplication::initialize(const qtCliArgs& args)
 {
   QTE_D(vsApplication);
   d->Core = new vsCore(this);
 
-  // Load plugins
-  foreach (QObject* plugin, vgPluginLoader::plugins())
+  // Load UI extensions
+  d->UiExtensions = vgPluginLoader::pluginInterfaces<vsUiExtensionInterface>();
+  foreach (vsUiExtensionInterface* extension, d->UiExtensions)
     {
-    // Check if plugin provides a UI extension
-    vsUiExtensionInterface* extension =
-      qobject_cast<vsUiExtensionInterface*>(plugin);
-    if (extension)
-      {
-      // Register and initialize extension
-      d->UiExtensions.append(extension);
-      extension->initialize(d->Core);
-      }
+    // Register and initialize extension
+    extension->initialize(d->Core);
+    extension->parseExtensionArguments(args);
     }
 }
 

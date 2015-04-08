@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,7 +7,10 @@
 #include "vsTrackTreeModel.h"
 
 #include <QDebug>
+#include <QIcon>
 #include <QPalette>
+
+#include <qtUtil.h>
 
 #include <vgSwatchCache.h>
 #include <vgUnixTime.h>
@@ -18,6 +21,8 @@
 
 #include <algorithm>
 #include <vector>
+
+#include <vsDisplayInfo.h>
 
 #include "vsCore.h"
 #include "vsScene.h"
@@ -102,33 +107,36 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
           }
 
         case StartTimeColumn:
-          return vgUnixTime(track->GetStartFrame().GetTime()).timeString();
+          return track->IsStarted()
+            ? vgUnixTime(track->GetStartFrame().GetTime()).timeString()
+            : QString("unknown");
 
         case EndTimeColumn:
-          return vgUnixTime(track->GetEndFrame().GetTime()).timeString();
+          return track->IsStarted()
+              ? vgUnixTime(track->GetEndFrame().GetTime()).timeString()
+              : QString("unknown");
+
+        case NoteColumn:
+          return QString::fromLocal8Bit(track->GetNote());
         }
       break;
 
     case Qt::DecorationRole:
       if (index.column() == TrackTypeColumn)
         {
-        int type = this->trackFilter->GetBestClassifier(track);
-        if (type == -1)
+        const vsDisplayInfo& di = this->Scene->trackDisplayInfo(track->GetId());
+        if (di.Color.isValid())
           {
-          // If the track is filtered out, don't show a color swatch
-          return QVariant();
+          QColor color = di.Color.toQColor();
+          color.setAlphaF(di.Visible ? 1.0 : 0.5);
+          return this->swatchCache.swatch(color);
           }
-        QColor color;
-        if (this->colorHelper)
-          {
-          color = this->colorHelper->color(track);
-          }
-        if (!color.isValid())
-          {
-          color = this->colors[type];
-          }
-        color.setAlphaF(this->isIndexHidden(index) ? 0.5 : 1.0);
-        return this->swatchCache.swatch(color);
+        return this->swatchCache.swatch(Qt::transparent);
+        }
+      else if (index.column() == StarColumn)
+        {
+        const QString name = (track->IsStarred() ? "star" : "star-off");
+        return qtUtil::standardIcon(name, 16);
         }
       break;
 
@@ -139,22 +147,40 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
       break;
 
     case Qt::TextAlignmentRole:
-      if (index.column() == ProbabilityColumn)
-        return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+      switch (index.column())
+        {
+        case StarColumn:
+          return Qt::AlignCenter;
+        case ProbabilityColumn:
+          return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+        }
       break;
 
     case Qt::ToolTipRole:
-      if (index.column() == TrackTypeColumn ||
-          index.column() == ProbabilityColumn)
+      switch (index.column())
         {
-        double PVO[3];
-        track->GetPVO(PVO);
+        case TrackTypeColumn:
+        case ProbabilityColumn:
+          {
+          double PVO[3];
+          track->GetPVO(PVO);
 
-        QString tooltip = "P:%1, V:%2, O:%3";
+          QString tooltip = "P:%1, V:%2, O:%3";
 
-        return tooltip.arg(PVO[0], 0, 'f', 2)
-                      .arg(PVO[1], 0, 'f', 2)
-                      .arg(PVO[2], 0, 'f', 2);
+          return tooltip.arg(PVO[0], 0, 'f', 2)
+                        .arg(PVO[1], 0, 'f', 2)
+                        .arg(PVO[2], 0, 'f', 2);
+          }
+
+        case NoteColumn:
+          {
+          const char* note = track->GetNote();
+          if (note)
+            {
+            return QString::fromLocal8Bit(note);
+            }
+          break;
+          }
         }
       break;
 
@@ -164,6 +190,9 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
 
     case DisplayStateRole:
       return this->Scene->trackDisplayState(track->GetId());
+
+    case StarRole:
+      return track->IsStarred();
     }
 
   return QVariant();
@@ -173,16 +202,34 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
 QVariant vsTrackTreeModel::headerData(
   int section, Qt::Orientation orientation, int role) const
 {
-  if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
+  if (orientation == Qt::Horizontal)
     {
-    switch (static_cast<ModelColumn>(section))
+    if (role == Qt::DisplayRole)
       {
-      case NameColumn:        return "Id";
-      case TrackTypeColumn:   return "Track Type";
-      case ProbabilityColumn: return "Probability";
-      case StartTimeColumn:   return "Start Time";
-      case EndTimeColumn:     return "End Time";
-      default: break;
+      switch (static_cast<ModelColumn>(section))
+        {
+        case NameColumn:        return "Id";
+        case TrackTypeColumn:   return "Track Type";
+        case ProbabilityColumn: return "Probability";
+        case StartTimeColumn:   return "Start Time";
+        case EndTimeColumn:     return "End Time";
+        case NoteColumn:        return "Note";
+        default: break;
+        }
+      }
+    else if (role == Qt::DecorationRole && section == StarColumn)
+      {
+      if (section == StarColumn)
+        {
+        return qtUtil::standardIcon("star", 16);
+        }
+      }
+    else if (role == Qt::ToolTipRole)
+      {
+      if (section == StarColumn)
+        {
+        return "Starred";
+        }
       }
     }
 
@@ -201,9 +248,25 @@ bool vsTrackTreeModel::setData(
     default:
       return false;
 
+    case Qt::DisplayRole:
+      if (index.column() == NoteColumn)
+        {
+        vtkVgTrack* track = this->tracks[index.row()];
+        emit this->trackNoteChanged(track->GetId(), value.toString());
+        break;
+        }
+
     case DisplayStateRole:
       this->setTrackDisplayState(index, value.toBool());
       break;
+
+    case StarRole:
+      {
+      vtkVgTrack* const track = this->tracks[index.row()];
+      value.toBool() ? track->SetFlags(vtkVgTrack::TF_Starred)
+                     : track->ClearFlags(vtkVgTrack::TF_Starred);
+      break;
+      }
     }
 
   emit this->dataChanged(index, index);
@@ -241,50 +304,18 @@ int vsTrackTreeModel::rowCount(const QModelIndex& parent) const
 //-----------------------------------------------------------------------------
 void vsTrackTreeModel::addTrack(vtkVgTrack* track)
 {
-  if (this->addedTracks.isEmpty())
+  if (this->addedTracks.isEmpty() && this->updatedTracks.isEmpty())
     {
-    QMetaObject::invokeMethod(this, "deferredAddTracks",
+    QMetaObject::invokeMethod(this, "deferredUpdateTracks",
                               Qt::QueuedConnection);
     }
   this->addedTracks.insert(track->GetId(), track);
 }
 
 //-----------------------------------------------------------------------------
-void vsTrackTreeModel::deferredAddTracks()
-{
-  if (this->addedTracks.isEmpty())
-    {
-    return;
-    }
-
-  int count = this->addedTracks.count();
-  int row = this->rowCount();
-  this->beginInsertRows(QModelIndex(), row, row + count - 1);
-
-  typedef QMap<vtkIdType, vtkVgTrack*>::const_iterator Iterator;
-  foreach_iter (Iterator, iter, this->addedTracks)
-    {
-    vtkVgTrack* prev = this->tracks.isEmpty() ? 0 : this->tracks.back();
-    this->tracks.append(iter.value());
-
-    // Check if ordering has been violated. We assume the id of a track will
-    // not change once it has been added, so this check should be sufficient.
-    if (prev && this->isSorted && iter.key() < prev->GetId())
-      {
-      this->isSorted = false;
-      qWarning() << "Track tree ids are not in sorted order, "
-                    "falling back to linear search";
-      }
-    }
-
-  this->addedTracks.clear();
-  this->endInsertRows();
-}
-
-//-----------------------------------------------------------------------------
 void vsTrackTreeModel::updateTrack(vtkVgTrack* track)
 {
-  if (this->updatedTracks.isEmpty())
+  if (this->addedTracks.isEmpty() && this->updatedTracks.isEmpty())
     {
     QMetaObject::invokeMethod(this, "deferredUpdateTracks",
                               Qt::QueuedConnection);
@@ -299,6 +330,35 @@ void vsTrackTreeModel::deferredUpdateTracks()
   bool changed = false;
   int minRow = this->rowCount() - 1;
   int maxRow = 0;
+
+  // Flush any new additions first, as we might also have updates for the new
+  // tracks
+  if (!this->addedTracks.isEmpty())
+    {
+    int count = this->addedTracks.count();
+    int row = this->rowCount();
+    this->beginInsertRows(QModelIndex(), row, row + count - 1);
+
+    typedef QMap<vtkIdType, vtkVgTrack*>::const_iterator Iterator;
+    foreach_iter (Iterator, iter, this->addedTracks)
+      {
+      vtkVgTrack* prev = this->tracks.isEmpty() ? 0 : this->tracks.back();
+      this->tracks.append(iter.value());
+
+      // Check if ordering has been violated... we assume that the ID of a
+      // track will not change once it has been added, so this check should be
+      // sufficient
+      if (prev && this->isSorted && iter.key() < prev->GetId())
+        {
+        this->isSorted = false;
+        qWarning() << "Track tree IDs are not in sorted order; "
+                      "falling back to linear search";
+        }
+      }
+
+    this->addedTracks.clear();
+    this->endInsertRows();
+    }
 
   // Update track pointers and compute the model rows covered by the tracks
   foreach (vtkVgTrack* track, this->updatedTracks)
@@ -408,16 +468,4 @@ QModelIndex vsTrackTreeModel::indexOfTrack(vtkIdType trackId) const
 
   qDebug() << "Track" << trackId << "not found in tree";
   return QModelIndex();
-}
-
-//-----------------------------------------------------------------------------
-void vsTrackTreeModel::setColor(int type, const QColor& color)
-{
-  this->colors[type] = color;
-}
-
-//-----------------------------------------------------------------------------
-void vsTrackTreeModel::setColorHelper(vsTrackTreeColorHelper* helper)
-{
-  this->colorHelper = helper;
 }

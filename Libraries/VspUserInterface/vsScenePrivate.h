@@ -61,9 +61,12 @@ class vgColor;
 
 class vgMixerWidget;
 
+struct vsTrackInfo;
+
 class vsAlertList;
 class vsCore;
 class vsContourWidget;
+class vsEventDataModel;
 class vsEventTreeModel;
 class vsEventTreeSelectionModel;
 class vsEventTreeWidget;
@@ -71,7 +74,15 @@ class vsRegionList;
 class vsScene;
 class vsSceneTrackColorHelper;
 class vsTrackTreeModel;
+class vsTrackTreeSelectionModel;
 class vsVideoSource;
+
+class vsAbstractSceneTrackColorHelper
+{
+public:
+  virtual ~vsAbstractSceneTrackColorHelper() {}
+  virtual const vsTrackInfo* infoForTrack(vtkVgTrack* track) const = 0;
+};
 
 class vsScenePrivate
 {
@@ -151,7 +162,9 @@ public:
 
   void initializeGraph(Graph&, const char* labelPrefix = 0);
 
-  void setupRepresentations(Graph& graph, float widthScale = 1.0);
+  void setupRepresentations(Graph& graph,
+                            float trackHeadWidth, float trackTrailWidth,
+                            float eventHeadWidth, float eventTrailWidth);
 
   bool updateModels(Graph& graph, bool forceUpdate = false);
   bool updateModels(vtkVgModelBase* model, vtkObject* filter,
@@ -160,9 +173,7 @@ public:
                     vtkTimeStamp& repsUpdateTime,
                     bool forceUpdate = false);
 
-  void updateTrackClassifierColors();
-  void updateTrackSourceColors();
-  void updateTrackTreeColors();
+  void updateTrackColors();
 
   vtkVgTrackInfo trackInfo(vtkIdType trackId);
   vtkVgEventInfo eventInfo(vtkIdType eventId);
@@ -178,6 +189,8 @@ public:
 
   static void setRepresentationTransforms(Graph&, vtkMatrix4x4*);
 
+  const vsAbstractSceneTrackColorHelper* trackColorHelper() const;
+
   vsCore* const Core;
 
   vtkVgInstance<vtkRenderWindow> RenderWindow;
@@ -192,9 +205,11 @@ public:
 
   vtkVgTimeStamp TrackTrailLength;
 
+  QMap<int, vgColor> TrackColors;
   QScopedPointer<vsSceneTrackColorHelper> TrackColorHelper;
 
-  vgColor EventSelectedColor;
+  vgColor SelectionColor;
+  QSet<vtkVgTrack*> SelectedTracks;
   QSet<vtkVgEvent*> SelectedEvents;
 
   vgColor FilteringMaskColor;
@@ -202,8 +217,8 @@ public:
   vtkVgInstance<vtkAssembly> SelectorMaskProps;
 
   vtkVgInstance<vtkActor> SelectorMaskQuad;
-  vtkVgInstance<vtkActor> EventPropsBegin;
   vtkVgInstance<vtkActor> TrackPropsBegin;
+  vtkVgInstance<vtkActor> EventPropsBegin;
 
   vtkVgInstance<vtkImageActor> TrackingMask;
 
@@ -225,9 +240,12 @@ public:
   vgMixerWidget* FilterWidget;
   QHash<vsEventInfo::Group, int> FilterGroup;
 
-  vsEventTreeModel* EventTreeModel;
   vsTrackTreeModel* TrackTreeModel;
 
+  vsEventDataModel* EventDataModel;
+  vsEventTreeModel* EventTreeModel;
+
+  vsTrackTreeSelectionModel* TrackTreeSelectionModel;
   vsEventTreeSelectionModel* EventTreeSelectionModel;
 
   bool NeedViewReset;
@@ -240,10 +258,10 @@ public:
 
   QPoint LastCursorPosition;
 
-  vtkIdType PendingJumpEventId;
   vtkIdType PendingJumpTrackId;
+  vtkIdType PendingJumpEventId;
 
-  bool FollowEventEnabled;
+  bool ZoomOnTarget;
 
   vtkSmartPointer<vtkWindowToImageFilter> WindowToImageFilter;
   vtkSmartPointer<vtkPNGWriter> PngWriter;

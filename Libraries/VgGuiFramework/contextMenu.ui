@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>vgfContextMenu</class>
+ <widget class="QWidget" name="vgfContextMenu">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Context Menu</string>
+  </property>
+  <action name="actionShowSelected">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show</string>
+   </property>
+   <property name="toolTip">
+    <string>Show selected item(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>S, S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionHideSelected">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Hide</string>
+   </property>
+   <property name="toolTip">
+    <string>Hide selected item(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>H, S</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionJumpToStart">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/framework.qrc">
+     <normaloff>:/icons/16x16/playback-skip-backward</normaloff>:/icons/16x16/playback-skip-backward</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Jump to Start</string>
+   </property>
+   <property name="toolTip">
+    <string>Seek to the temporal start of the selected item</string>
+   </property>
+   <property name="shortcut">
+    <string>J</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionJumpToEnd">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/framework.qrc">
+     <normaloff>:/icons/16x16/playback-skip-forward</normaloff>:/icons/16x16/playback-skip-forward</iconset>
+   </property>
+   <property name="text">
+    <string>Jump to &amp;End</string>
+   </property>
+   <property name="toolTip">
+    <string>Seek to the temporal end of the selected item</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+J</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionAddStar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/framework.qrc">
+     <normaloff>:/icons/16x16/star</normaloff>:/icons/16x16/star</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Add Star</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark selected item(s) as starred</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionRemoveStar">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/framework.qrc">
+     <normaloff>:/icons/16x16/star-off</normaloff>:/icons/16x16/star-off</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Remove Star</string>
+   </property>
+   <property name="toolTip">
+    <string>Mark selected item(s) as not starred</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionEditNote">
+   <property name="icon">
+    <iconset resource="../../Icons/framework.qrc">
+     <normaloff>:/icons/16x16/edit</normaloff>:/icons/16x16/edit</iconset>
+   </property>
+   <property name="text">
+    <string>Edit &amp;Note...</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit event note</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+  <action name="actionToggleStarred">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>S&amp;tarred</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle star for selected item(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>*</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../Icons/framework.qrc"/>
+  <include location="../../Icons/stdbutton.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -9,6 +9,8 @@
 #include "vsEventTreeModel.h"
 #include "vsEventTreeView.h"
 
+#include <QSortFilterProxyModel>
+
 //-----------------------------------------------------------------------------
 vsEventTreeSelectionModel::vsEventTreeSelectionModel(
   vsEventTreeModel* model, QObject* parent) :
@@ -104,13 +106,14 @@ void vsEventTreeSelectionModel::setCurrentEvent(vtkIdType currentId)
 
 //-----------------------------------------------------------------------------
 QModelIndexList vsEventTreeSelectionModel::selectedRows(
-  QTreeView* view, int column) const
+  QTreeView* view, QSortFilterProxyModel* viewProxy, int column) const
 {
   QModelIndexList globalSelection = this->selectedRows(column);
   QModelIndexList viewSelection;
   foreach(const QModelIndex& i, globalSelection)
     {
-    if (!view->isRowHidden(i.row(), i.parent()))
+    const QModelIndex& si = viewProxy->mapFromSource(i);
+    if (!view->isRowHidden(si.row(), si.parent()))
       {
       viewSelection.append(i);
       }

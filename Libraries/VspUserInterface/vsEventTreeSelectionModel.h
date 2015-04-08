@@ -11,6 +11,7 @@
 
 #include <vtkType.h>
 
+class QSortFilterProxyModel;
 class QTreeView;
 
 class vsEventTreeModel;
@@ -28,7 +29,8 @@ public:
 
   // Reimplemented from QItemSelectionModel
   using QItemSelectionModel::selectedRows;
-  QModelIndexList selectedRows(QTreeView* view, int column = 0) const;
+  QModelIndexList selectedRows(
+    QTreeView* view, QSortFilterProxyModel* viewProxy, int column = 0) const;
 
   const vsEventTreeModel* eventTreeModel() const
     {

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1069</width>
-    <height>608</height>
+    <height>626</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,7 +89,7 @@
      <x>0</x>
      <y>0</y>
      <width>1069</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuVideo">
@@ -217,11 +217,18 @@
      <string>T&amp;ools</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuNotes">
+    <property name="title">
+     <string>&amp;Notes</string>
+    </property>
+    <addaction name="actionWindowNoteShow"/>
+   </widget>
    <addaction name="menuVideo"/>
    <addaction name="menuTracks"/>
    <addaction name="menuEvents"/>
    <addaction name="menuDescriptors"/>
    <addaction name="menuDraw"/>
+   <addaction name="menuNotes"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -251,7 +258,8 @@
    <addaction name="actionVideoPlayLive"/>
    <addaction name="separator"/>
    <addaction name="actionViewReset"/>
-   <addaction name="actionFollowEvent"/>
+   <addaction name="actionViewZoomOnTarget"/>
+   <addaction name="actionCancelFollowing"/>
   </widget>
   <widget class="QToolBar" name="visualizationToolBar">
    <property name="sizePolicy">
@@ -281,6 +289,8 @@
    <addaction name="actionEventsBoxesShow"/>
    <addaction name="actionEventsLabelsShow"/>
    <addaction name="actionEventsProbabilityShow"/>
+   <addaction name="separator"/>
+   <addaction name="actionNotesShow"/>
    <addaction name="separator"/>
    <addaction name="actionVideoMaskShowTracking"/>
    <addaction name="actionVideoMaskShowFiltering"/>
@@ -319,8 +329,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>342</width>
-          <height>85</height>
+          <width>310</width>
+          <height>97</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -647,6 +657,21 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+  </widget>
+  <widget class="QDockWidget" name="notesDock">
+   <property name="windowTitle">
+    <string>Notes</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="noteDockContents">
+    <layout class="QVBoxLayout" name="verticalLayout_10">
+     <item>
+      <widget class="vsNoteTreeWidget" name="noteTree" native="true"/>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <action name="actionVideoPause">
    <property name="checkable">
@@ -1472,19 +1497,19 @@
     <string>Formulate a query using current data sources</string>
    </property>
   </action>
-  <action name="actionFollowEvent">
+  <action name="actionViewZoomOnTarget">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>:/icons/22x22/view-track</normaloff>:/icons/22x22/view-track</iconset>
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/view-zoom-target</normaloff>:/icons/16x16/view-zoom-target</iconset>
    </property>
    <property name="text">
-    <string>actionFollowEvent</string>
+    <string>&amp;Zoom on Target</string>
    </property>
    <property name="toolTip">
-    <string>Allow the camera to follow  ( pan ) an event</string>
+    <string>Zoom in view when following or jumping to a track/event</string>
    </property>
   </action>
   <action name="actionSaveScreenshot">
@@ -1708,6 +1733,47 @@
     <string>Set Offset from Live for &quot;Live&quot; mode</string>
    </property>
   </action>
+  <action name="actionCancelFollowing">
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/target-cancel</normaloff>:/icons/16x16/target-cancel</iconset>
+   </property>
+   <property name="text">
+    <string>Cancel Following</string>
+   </property>
+   <property name="toolTip">
+    <string>Cancel all track and event following</string>
+   </property>
+  </action>
+  <action name="actionNotesShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../Icons/vsp.qrc">
+     <normaloff>:/icons/16x16/note-show-popup</normaloff>:/icons/16x16/note-show-popup</iconset>
+   </property>
+   <property name="text">
+    <string>Show &amp;Notes</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle display of notes</string>
+   </property>
+  </action>
+  <action name="actionWindowNoteShow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Note &amp;List</string>
+   </property>
+   <property name="toolTip">
+    <string>Show or hide the note list window</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D, N</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1771,6 +1837,12 @@
    <class>vsTrackTreeWidget</class>
    <extends>QWidget</extends>
    <header>vsTrackTreeWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vsNoteTreeWidget</class>
+   <extends>QWidget</extends>
+   <header>vsNoteTreeWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

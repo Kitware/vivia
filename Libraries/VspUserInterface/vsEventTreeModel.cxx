@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -23,6 +23,8 @@
 
 #include <algorithm>
 #include <vector>
+
+#include <vsDisplayInfo.h>
 
 #include "vsEventStatus.h"
 #include "vsScene.h"
@@ -148,25 +150,14 @@ QVariant vsEventTreeModel::data(const QModelIndex& index, int role) const
         }
       else if (index.column() == EventTypeColumn)
         {
-        double dc[3];
-        if (event->GetUseCustomColor())
+        const vsDisplayInfo& di = this->Scene->eventDisplayInfo(event->GetId());
+        if (di.Color.isValid())
           {
-          event->GetCustomColor(dc);
+          QColor color = di.Color.toQColor();
+          color.setAlphaF(di.Visible ? 1.0 : 0.5);
+          return this->swatchCache.swatch(color);
           }
-        else
-          {
-          int type = this->eventFilter->GetBestClassifier(event);
-          if (type == -1)
-            {
-            // If the event is filtered out, don't show a color swatch
-            return QVariant();
-            }
-          const vgEventType& et = this->eventTypeRegistry->GetTypeById(type);
-          et.GetColor(dc[0], dc[1], dc[2]);
-          }
-        const qreal a = (this->isIndexHidden(index) ? 0.5 : 1.0);
-        const QColor color = QColor::fromRgbF(dc[0], dc[1], dc[2], a);
-        return this->swatchCache.swatch(color);
+        return this->swatchCache.swatch(Qt::transparent);
         }
       break;
 
@@ -412,59 +403,22 @@ int vsEventTreeModel::rowCount(const QModelIndex& parent) const
 //-----------------------------------------------------------------------------
 void vsEventTreeModel::addEvent(vtkVgEvent* event)
 {
-  if (this->addedEvents.isEmpty())
+  if (this->addedEvents.isEmpty() && this->updatedEvents.isEmpty())
     {
-    QMetaObject::invokeMethod(this, "deferredAddEvents",
+    QMetaObject::invokeMethod(this, "deferredUpdateEvents",
                               Qt::QueuedConnection);
     }
   this->addedEvents.insert(event->GetId(), event);
 }
 
 //-----------------------------------------------------------------------------
-void vsEventTreeModel::deferredAddEvents()
-{
-  if (this->addedEvents.isEmpty())
-    {
-    return;
-    }
-
-  int count = this->addedEvents.count();
-  int row = this->rowCount();
-  this->beginInsertRows(QModelIndex(), row, row + count - 1);
-
-  typedef QMap<vtkIdType, vtkVgEvent*>::const_iterator Iterator;
-  foreach_iter (Iterator, iter, this->addedEvents)
-    {
-    vsEventUserInfo ei;
-    ei.Event = iter.value();
-    ei.Status = vgObjectStatus::None;
-
-    vtkVgEvent* prev = this->events.isEmpty() ? 0 : this->events.back().Event;
-    this->events.append(ei);
-
-    // Check if ordering has been violated. We assume the id of an event will
-    // not change once it has been added, so this check should be sufficient.
-    if (prev && this->isSorted && iter.key() < prev->GetId())
-      {
-      this->isSorted = false;
-      qWarning() << "Event tree ids are not in sorted order, "
-                    "falling back to linear search";
-      }
-    }
-
-  this->addedEvents.clear();
-  this->endInsertRows();
-}
-
-//-----------------------------------------------------------------------------
 void vsEventTreeModel::updateEvent(vtkVgEvent* event)
 {
-  if (this->updatedEvents.isEmpty())
+  if (this->addedEvents.isEmpty() && this->updatedEvents.isEmpty())
     {
     QMetaObject::invokeMethod(this, "deferredUpdateEvents",
                               Qt::QueuedConnection);
     }
-
   this->updatedEvents.append(event);
 }
 
@@ -474,6 +428,39 @@ void vsEventTreeModel::deferredUpdateEvents()
   bool changed = false;
   int minRow = this->rowCount() - 1;
   int maxRow = 0;
+
+  // Flush any new additions first, as we might also have updates for the new
+  // events
+  if (!this->addedEvents.isEmpty())
+    {
+    int count = this->addedEvents.count();
+    int row = this->rowCount();
+    this->beginInsertRows(QModelIndex(), row, row + count - 1);
+
+    typedef QMap<vtkIdType, vtkVgEvent*>::const_iterator Iterator;
+    foreach_iter (Iterator, iter, this->addedEvents)
+      {
+      vsEventUserInfo ei;
+      ei.Event = iter.value();
+      ei.Status = vgObjectStatus::None;
+
+      vtkVgEvent* prev = this->events.isEmpty() ? 0 : this->events.back().Event;
+      this->events.append(ei);
+
+      // Check if ordering has been violated... we assume that the ID of an
+      // event will not change once it has been added, so this check should be
+      // sufficient
+      if (prev && this->isSorted && iter.key() < prev->GetId())
+        {
+        this->isSorted = false;
+        qWarning() << "Event tree ids are not in sorted order, "
+                      "falling back to linear search";
+        }
+      }
+
+    this->addedEvents.clear();
+    this->endInsertRows();
+    }
 
   // Update event pointers and compute the model rows covered by the events
   foreach (vtkVgEvent* event, this->updatedEvents)

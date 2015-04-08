@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,6 +16,7 @@
 #include <vsContour.h>
 #include <vsDescriptorInput.h>
 #include <vsEvent.h>
+#include <vsTrackId.h>
 
 #include "vsCore.h"
 
@@ -132,16 +133,16 @@ public:
   bool setContourType(ContourInfo&, vsContour::Type);
 
   vvTrack& getVvTrack(const vvTrackId&);
-  vtkVgTrack* track(const vvTrackId&);
-  void deferTrackUpdate(const vvTrackId&, const vvTrackState&);
+  vtkVgTrack* track(const vsTrackId&, bool* created = 0);
+  void deferTrackUpdate(const vsTrackId&, const vvTrackState&);
   void flushDeferredTrackUpdates(const vtkVgTimeStamp&);
   void flushDeferredEvents();
   void deferEventRegion(vtkVgEvent*, const vtkVgTimeStamp&, const QPolygonF&);
   void flushDeferredEventRegions(const vtkVgTimeStamp&);
 
-  void updateTrack(const vvTrackId&, const QList<vvTrackState>&);
-  void updateTrackData(const vvTrackId& trackId, const vsTrackData& data);
-  void closeTrack(const vvTrackId&);
+  void updateTrack(const vsTrackId&, const QList<vvTrackState>&);
+  void updateTrackData(const vsTrackId& trackId, const vsTrackData& data);
+  void closeTrack(const vsTrackId&);
   void postTrackUpdateSignal(vtkVgTrack*, TrackUpdateSignal);
 
   bool areEventTracksPresent(const vsEvent&);
@@ -149,7 +150,7 @@ public:
   void addDescriptor(vsDescriptorSource*, vvDescriptor*);
   void addDescriptors(vsDescriptorSource*, const QList<vvDescriptor*>&);
   void addEvent(vsDescriptorSource*, vsEvent);
-  void addReadyEvent(vsDescriptorSource*, vsEvent);
+  vtkIdType addReadyEvent(vsDescriptorSource*, vsEvent);
   void removeEvent(vsDescriptorSource*, vtkIdType);
 
   vtkVgEvent* event(vtkIdType, vtkVgEventModelCollection** = 0);
@@ -181,8 +182,8 @@ public:
   vtkIdType NextRawEventId;
   vtkVgInstance<vtkVgTrackModelCollection> TrackModel;
   vtkVgInstance<vtkVgEventModelCollection> EventModel;
-  QHash<vvTrackId, vtkIdType> TrackModelIdMap;
-  QHash<vtkIdType, vvTrackId> TrackLogicalIdMap;
+  QHash<vsTrackId, vtkIdType> TrackModelIdMap;
+  QHash<vtkIdType, vsTrackId> TrackLogicalIdMap;
 
   vtkVgInstance<vtkVgEventTypeRegistry> EventTypeRegistry;
   vgSwatchCache SwatchCache;
@@ -204,7 +205,7 @@ public:
 
   std::map<vtkVgTimeStamp, vtkVgVideoMetadata> VideoMetadata;
 
-  QMap<vgTimeStamp, vtkVgVideoFrameMetaData> VideoFrameMetadata;
+  vgTimeMap<vtkVgVideoFrameMetaData> VideoFrameMetadata;
 
   vgTimeMap<HomographyMatrix> HomographyMap;
   QHash<long long, vtkVgTimeStamp> HomographyReferenceTimeMap;
@@ -215,7 +216,7 @@ public:
   QHash<vtkIdType, vsEventId> Events;
   QHash<const vsDescriptorSource*, QHash<vtkIdType, EventReference> > EventMap;
 
-  QHash<vvTrackId, DeferredTrackUpdate> DeferredTrackUpdates;
+  QHash<vsTrackId, DeferredTrackUpdate> DeferredTrackUpdates;
   QList<DeferredEvent> DeferredEvents;
   QMultiMap<vtkVgTimeStamp, DeferredEventRegion> DeferredEventRegions;
 

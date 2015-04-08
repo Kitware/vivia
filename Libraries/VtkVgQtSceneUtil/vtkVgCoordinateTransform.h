@@ -4,28 +4,29 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#ifndef __vtkVQCoordinateTransform_h
-#define __vtkVQCoordinateTransform_h
+#ifndef __vtkVgCoordinateTransform_h
+#define __vtkVgCoordinateTransform_h
 
 // VTK includes.
 #include <vtkObject.h>
 
 // VG includes.
-#include "vtkVgMacros.h"
+#include <vgExport.h>
+#include <vtkVgMacros.h>
 
 // Forward declarations.
 class vtkMatrix4x4;
 
-class vtkVQCoordinateTransform : public vtkObject
+class VTKVGQT_SCENEUTIL_EXPORT vtkVgCoordinateTransform : public vtkObject
 {
 public:
-  vtkVgClassMacro(vtkVQCoordinateTransform);
+  vtkVgClassMacro(vtkVgCoordinateTransform);
 
   // Description:
   // Usual VTK functions.
-  vtkTypeMacro(vtkVQCoordinateTransform, vtkObject);
+  vtkTypeMacro(vtkVgCoordinateTransform, vtkObject);
 
-  static vtkVQCoordinateTransform* New();
+  static vtkVgCoordinateTransform* New();
 
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
@@ -44,16 +45,16 @@ public:
   vtkSmartPointer<vtkMatrix4x4> GetHomographyMatrix();
 
 protected:
-  vtkVQCoordinateTransform();
-  virtual  ~vtkVQCoordinateTransform();
+  vtkVgCoordinateTransform();
+  virtual  ~vtkVgCoordinateTransform();
 
   double FromPoint[4][2];
   double ToPoint[4][2];
 
 
 private:
-  vtkVQCoordinateTransform(const vtkVQCoordinateTransform&); // Not implemented.
-  void operator=(const vtkVQCoordinateTransform&);           // Not implemented.
+  vtkVgCoordinateTransform(const vtkVgCoordinateTransform&); // Not implemented.
+  void operator=(const vtkVgCoordinateTransform&);           // Not implemented.
 };
 
-#endif // __vtkVQCoordinateTransform_h
+#endif // __vtkVgCoordinateTransform_h

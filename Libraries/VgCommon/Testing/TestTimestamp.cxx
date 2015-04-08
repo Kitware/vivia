@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -160,6 +160,59 @@ int testEquality(qtTest& testObject)
 }
 
 //-----------------------------------------------------------------------------
+int testFuzzyEquality(qtTest& testObject)
+{
+  vgTimeStamp ts0;
+  vgTimeStamp ts1(TestTimeValue);
+  vgTimeStamp ts2(TestFrameNumber);
+  vgTimeStamp ts3(TestTimeValue, TestFrameNumber);
+
+  // Test self-equality
+  TEST(ts0.FuzzyEquals(ts0) == true);
+  TEST(ts1.FuzzyEquals(ts1) == true);
+  TEST(ts2.FuzzyEquals(ts2) == true);
+  TEST(ts3.FuzzyEquals(ts3) == true);
+
+  // Test comparison with valid/invalid member mismatch
+  TEST(ts0.FuzzyEquals(ts1) == false);
+  TEST(ts0.FuzzyEquals(ts2) == false);
+  TEST(ts0.FuzzyEquals(ts3) == false);
+  TEST(ts1.FuzzyEquals(ts2) == false);
+  TEST(ts1.FuzzyEquals(ts3) == true);
+  TEST(ts2.FuzzyEquals(ts3) == true);
+
+  // Test equality within tolerance
+  vgTimeStamp ts4a(TestTimeValue + 5e-6);
+  vgTimeStamp ts4b(TestTimeValue - 5e-6);
+  vgTimeStamp ts5a(TestTimeValue + 5e-6, TestFrameNumber);
+  vgTimeStamp ts5b(TestTimeValue - 5e-6, TestFrameNumber);
+  TEST(ts4a.FuzzyEquals(ts1) == true);
+  TEST(ts4a.FuzzyEquals(ts3) == true);
+  TEST(ts4b.FuzzyEquals(ts1) == true);
+  TEST(ts4b.FuzzyEquals(ts3) == true);
+  TEST(ts5a.FuzzyEquals(ts1) == true);
+  TEST(ts5a.FuzzyEquals(ts3) == true);
+  TEST(ts5b.FuzzyEquals(ts1) == true);
+  TEST(ts5b.FuzzyEquals(ts3) == true);
+
+  // Test inequality
+  vgTimeStamp ts6a(TestTimeValue + 15e-6);
+  vgTimeStamp ts6b(TestTimeValue - 15e-6);
+  vgTimeStamp ts7a(TestTimeValue + 15e-6, TestFrameNumber);
+  vgTimeStamp ts7b(TestTimeValue - 15e-6, TestFrameNumber);
+  TEST(ts6a.FuzzyEquals(ts1) == false);
+  TEST(ts6a.FuzzyEquals(ts3) == false);
+  TEST(ts6b.FuzzyEquals(ts1) == false);
+  TEST(ts6b.FuzzyEquals(ts3) == false);
+  TEST(ts7a.FuzzyEquals(ts1) == false);
+  TEST(ts7a.FuzzyEquals(ts3) == false);
+  TEST(ts7b.FuzzyEquals(ts1) == false);
+  TEST(ts7b.FuzzyEquals(ts3) == false);
+
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
 int main(int argc, const char* argv[])
 {
   Q_UNUSED(argc);
@@ -171,5 +224,6 @@ int main(int argc, const char* argv[])
   testObject.runSuite("Modification Tests", testModification);
   testObject.runSuite("Comparison Tests", testComparison);
   testObject.runSuite("Equality Tests", testEquality);
+  testObject.runSuite("Fuzzy Equality Tests", testFuzzyEquality);
   return testObject.result();
 }

@@ -17,6 +17,7 @@
 #include "vsEvent.h"
 #include "vsEventInfo.h"
 #include "vsTrackClassifier.h"
+#include "vsTrackId.h"
 
 #include "vsDescriptorInput.h"
 
@@ -42,7 +43,7 @@ signals:
   void eventAvailable(vsDescriptorSource* source, vsEvent event);
   void eventRevoked(vsDescriptorSource* source, vtkIdType eventId);
 
-  void tocAvailable(vvTrackId trackId, vsTrackObjectClassifier toc);
+  void tocAvailable(vsTrackId trackId, vsTrackObjectClassifier toc);
 
   void destroyed(vsDescriptorSource*);
 

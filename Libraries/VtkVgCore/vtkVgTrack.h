@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,6 +11,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkDenseArray.h>
 
+#include "vtkVgSetGet.h"
 #include "vtkVgTimeStamp.h"
 
 #include <string>
@@ -42,7 +43,8 @@ public:
   enum TrackFlags
     {
     TF_Modifiable  = 1 << 0,
-    TF_UserCreated = 1 << 1
+    TF_Starred     = 1 << 1,
+    TF_UserCreated = 1 << 2
     };
 
   // Description:
@@ -60,6 +62,11 @@ public:
   // A name for the track
   vtkGetStringMacro(Name);
   vtkSetStringMacro(Name);
+
+  // Description:
+  // Set/Get a "Note" that is to be associated with this event
+  vtkSetStringMacro(Note);
+  vtkGetStringMacro(Note);
 
   // Description:
   // Set/Get the vtkPoints defining the track.  Note, the same vtkPoints
@@ -159,7 +166,7 @@ public:
 
   //Description:
   // Get the frame index of the 1st frame in this track
-  vtkVgTimeStamp GetStartFrame()
+  vtkVgTimeStamp GetStartFrame() const
     {
     return this->StartFrame;
     }
@@ -167,7 +174,7 @@ public:
   //Description:
   // Get the frame index of the last frame in this track.  If the track hasn't
   // been closed, it returns the index of the last frame that was added.
-  vtkVgTimeStamp GetEndFrame();
+  vtkVgTimeStamp GetEndFrame() const;
 
   // Description:
   // Returns whether or not there is a valid "start" to this track
@@ -272,11 +279,32 @@ public:
   vtkSetVector3Macro(Color, double);
   vtkGetVector3Macro(Color, double);
 
+  vtkVgSetVector3Macro(CustomColor, double);
+  vtkGetVector3Macro(CustomColor, double);
+
+  vtkSetMacro(UseCustomColor, bool);
+  vtkGetMacro(UseCustomColor, bool);
+  vtkBooleanMacro(UseCustomColor, bool);
+
+  // Description:
+  // Set/Get the flags of the event
+  int GetFlags(int mask) const
+    { return this->Flags & mask; }
+
+  void SetFlags(int mask)
+    { this->Flags |= mask; }
+
+  void ClearFlags(int mask)
+    { this->Flags &= ~mask; }
+
   bool IsModifiable()
     { return (this->Flags & TF_Modifiable) != 0; }
 
   void SetModifiable(bool enable)
     { enable ? this->Flags |= TF_Modifiable : this->Flags &= ~TF_Modifiable; }
+
+  bool IsStarred()
+    { return (this->Flags & TF_Starred) != 0; }
 
   bool IsUserCreated()
     { return (this->Flags & TF_UserCreated) != 0; }
@@ -361,11 +389,15 @@ private:
   vtkIdList* PointIds;
 
   char* Name;
+  char* Note;
 
   double Normalcy;
   double PVO[3];
 
   double Color[3];
+
+  bool UseCustomColor;
+  double CustomColor[3];
 
   // only use 4 or 6, but done for convenience right now
   double FullBounds[6];

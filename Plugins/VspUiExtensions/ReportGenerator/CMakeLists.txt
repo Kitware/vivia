@@ -9,15 +9,27 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+# Need this as a directory include so that moc can find the plugin interface
 vg_include_library_sdk_directories(vspUserInterface)
+
+if(VSPUI_ENABLE_REPORT_GENERATOR)
+  add_definitions(-DENABLE_REPORT_GENERATION)
+endif()
+if(VSPUI_ENABLE_KML_EXPORT)
+  add_definitions(-DENABLE_KML_EXPORT)
+endif()
 
 set(vsReportGeneratorExtension_Sources
   vsKmlWriter.cxx
-  vsReportGenerator.cxx
   vsReportGeneratorInterface.cxx
   vsReportGeneratorPlugin.cxx
-  vsVideoRequestor.cxx
 )
+
+if(VSPUI_ENABLE_REPORT_GENERATOR)
+  list(APPEND vsReportGeneratorExtension_Sources
+    vsReportGenerator.cxx
+  )
+endif()
 
 set(vsReportGeneratorExtension_MocHeaders
   vsReportGeneratorInterface.h
@@ -32,8 +44,12 @@ vg_add_qt_plugin(${PROJECT_NAME}
   ${vsReportGeneratorExtension_MocSources}
 )
 
-target_link_libraries(${PROJECT_NAME}
+vg_add_dependencies(${PROJECT_NAME}
+  PRIVATE_INTERFACE_TARGETS
+  vspData
   vspUserInterface
+  LINK_LIBRARIES
+  LINK_PRIVATE
   ${QT_LIBRARIES}
 )
 

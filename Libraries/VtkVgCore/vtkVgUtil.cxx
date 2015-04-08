@@ -17,6 +17,5 @@ vgPoint2d vtkVgApplyHomography(double x, double y, const vtkMatrix4x4& xf)
   vtkMatrix4x4::MultiplyPoint(*xf.Element, p, p);
 
   const double wi = (fabs(p[3]) > 1e-10 ? 1.0 / p[3] : 1.0);
-  vgPoint2d result = { p[0] * wi, p[1] * wi };
-  return result;
+  return vgPoint2d(p[0] * wi, p[1] * wi);
 }

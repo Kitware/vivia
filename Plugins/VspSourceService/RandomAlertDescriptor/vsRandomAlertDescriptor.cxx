@@ -11,6 +11,7 @@
 
 #include <qtRand.h>
 
+#include <vsTrackId.h>
 #include <vsTrackState.h>
 #include <vtkVsTrackInfo.h>
 
@@ -32,7 +33,7 @@ protected:
   virtual void revokeInput(qint64 id, bool revokeEvents) QTE_OVERRIDE;
   virtual void revokeAllInput(bool revokeEvents) QTE_OVERRIDE;
 
-  typedef QHash<vvTrackId, vtkVgTimeStamp> PendingAlertList;
+  typedef QHash<vsTrackId, vtkVgTimeStamp> PendingAlertList;
   typedef QHash<qint64, PendingAlertList> PendingAlertMap;
 
   QHash<qint64, int> Queries;
@@ -88,7 +89,7 @@ void vsRandomAlertDescriptorPrivate::injectInput(
     if (input->type() == vsDescriptorInput::TrackUpdate && qtRandD() < 0.05)
       {
       // Check if input is valid
-      const vvTrackId* trackId = input->trackId();
+      const vsTrackId* trackId = input->trackId();
       const vsTrackState* state = input->trackState();
       if (trackId && state)
         {
@@ -126,7 +127,7 @@ void vsRandomAlertDescriptorPrivate::injectInput(
     else if (input->type() == vsDescriptorInput::TrackClosure)
       {
       // Check if input is valid
-      const vvTrackId* trackId = input->trackId();
+      const vsTrackId* trackId = input->trackId();
       const vsTrackState* state = input->trackState();
       if (trackId && state)
         {

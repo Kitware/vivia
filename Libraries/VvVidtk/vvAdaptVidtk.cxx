@@ -18,7 +18,7 @@
 QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
 {
   QList<vvTrackState> stateList;
-  vcl_vector<vidtk::image_object_sptr> objs;
+  std::vector<vidtk::image_object_sptr> objs;
   if (vs.data_.get(vidtk::tracking_keys::img_objs, objs))
     {
     for (size_t i = 0; i < objs.size(); ++i)

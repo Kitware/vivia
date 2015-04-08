@@ -5,7 +5,17 @@
 
   <namespace-type name="vdf">
     <enum-type name="UpdateFlag" flags="UpdateFlags"/>
+    <function signature="registerMetaTypes"/>
   </namespace-type>
+
+  <namespace-type name="vdfSourceService">
+    <function signature="archivePluginInfo()"/>
+    <function signature="createArchiveSource(const QUrl&amp;)"/>
+  </namespace-type>
+
+  <interface-type name="vdfArchiveSourceInterface">
+    <enum-type name="SourceCreateMode"/>
+  </interface-type>
 
   <interface-type name="vdfAbstractQueryResultSetNode">
     <enum-type name="SortOrder"/>
@@ -14,6 +24,13 @@
   <object-type name="vdfAbstractQuerySessionNode">
     <primitive-type name="ResultId"/>
   </object-type>
+
+  <object-type name="vdfDataSource">
+    <enum-type name="Mechanism"/>
+    <enum-type name="Status"/>
+  </object-type>
+  <!-- this is a template function, but shiboken tries to wrap it anyway... -->
+  <rejection class="vdfDataSource" function-name="hasInterface()"/>
 
   <object-type name="vdfNodeProxy">
     <enum-type name="ProgressType"/>

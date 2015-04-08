@@ -11,14 +11,14 @@
 
 #include <vtkVgEventBase.h>
 
-#include <vvTrack.h>
+#include "vsTrackId.h"
 
 class VSP_DATA_EXPORT vtkVsTrackInfo : public vtkVgEventTrackInfoBase
 {
   vtkDeclareMetaObject(vtkVsTrackInfo);
 
 public:
-  vtkVsTrackInfo(vvTrackId tid,
+  vtkVsTrackInfo(vsTrackId tid,
                  const vtkVgTimeStamp& start,
                  const vtkVgTimeStamp& end);
   vtkVsTrackInfo(const vtkVsTrackInfo&);
@@ -28,7 +28,7 @@ public:
 
   virtual const char* CheckValid() const;
 
-  vvTrackId VvTrackId;
+  vsTrackId LogicalId;
 };
 
 #endif

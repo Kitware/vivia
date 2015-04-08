@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,11 +13,12 @@
 
 #include <vgExport.h>
 
+class qtCliArgs;
+class qtCliOptions;
+
 class vsCore;
-class vsScene;
 class vsMainWindow;
-class vsMenuPlaceholder;
-class vsToolBarPlaceholder;
+class vsScene;
 
 class vsUiExtensionInterfacePrivate;
 
@@ -53,6 +54,26 @@ public:
   ///
   /// The default implementation does nothing.
   virtual void createInterface(vsMainWindow* window, vsScene* scene);
+
+  /// Register CLI options for extension plugin.
+  ///
+  /// This method is called to allow the UI extension plugin to add any
+  /// additional command line options it wishes to be available to the user.
+  ///
+  /// The default implementation does nothing.
+  virtual void registerExtensionCliOptions(qtCliOptions&);
+
+  /// Parse CLI arguments for extension plugin.
+  ///
+  /// This method is called to allow the UI extension plugin to process the
+  /// command line arguments and take any necessary actions based on the same.
+  ///
+  /// \note This method is called once, prior to the creation of per-window
+  ///       interfaces. As a result, plugins may need to cache argument values
+  ///       for later use, e.g. in createInterface().
+  ///
+  /// The default implementation does nothing.
+  virtual void parseExtensionArguments(const qtCliArgs&);
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vsUiExtensionInterface)

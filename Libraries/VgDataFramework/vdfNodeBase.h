@@ -134,10 +134,15 @@ public:
 
   /// Get if the user can change the node's visibility.
   ///
+  /// The default implementation returns \c true.
+  virtual bool canChangeVisibility() const;
+
+  /// Get if the user can connect to (and therefore update) the node.
+  ///
   /// The default implementation returns \c true. Usually only data source
   /// nodes that feed aggregator nodes and do not directly provide data for
   /// visualization should return \c false.
-  virtual bool canChangeVisibility() const;
+  virtual bool canUpdate() const;
 
   /// Get if the user can delete the node.
   ///
@@ -178,12 +183,16 @@ public:
   /// in the form of a vdfNodeProxy, which can be used to request data from the
   /// node. The connection is automatically destroyed, along with any
   /// associated per-consumer data, when either this data node or the specified
-  /// \p consumer is destroyed.
+  /// \p consumer is destroyed. If the node does not support update connections
+  /// (canUpdate() returns \c false, e.g. data source nodes), \c nullptr will
+  /// be returned.
   ///
   /// The \p consumer must not be null. If a valid \p consumer is not
   /// specified, the connection attempt will fail and return \c nullptr.
   ///
   /// Establishing a connection also calls enter().
+  ///
+  /// \sa canUpdate()
   virtual vdfNodeProxy* connect(QObject* consumer);
 
   // Don't hide Qt signal/slot methods
@@ -204,12 +213,12 @@ signals:
   /// This signal is emitted when a data node is newly added as a child to this
   /// data node. The signal parameter is a pointer to the new node.
   ///
-  /// \note Internally, new children are collected and - if they have not been
-  ///       deleted in the mean time - processed at the next iteration of the
-  ///       application event loop. This ensures that the new node is fully
-  ///       constructed when this signal is emitted, although it is possible
-  ///       for a child to be added and immediately destroyed without
-  ///       triggering this notification.
+  /// \note Internally, new children are collected and &mdash; if they have not
+  ///       been deleted in the mean time &mdash; processed at the next
+  ///       iteration of the application event loop. This ensures that the new
+  ///       node is fully constructed when this signal is emitted, although it
+  ///       is possible for a child to be added and immediately destroyed
+  ///       without triggering this notification.
   void childAdded(vdfNodeBase*);
 
   /// Notification when a node's data has changed.

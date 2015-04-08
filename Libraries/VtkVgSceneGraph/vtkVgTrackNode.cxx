@@ -134,9 +134,9 @@ void vtkVgTrackNode::Update(vtkVgNodeVisitorBase& nodeVisitor)
   this->UpdateRenderObjects(nodeVisitor.GetPropCollection());
 
   if (((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Parent->GetDirty()) ||
+        vtkVgNodeBase::RELATIVE_REFERENCE) && this->Parent && this->Parent->GetDirty()) ||
       ((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Dirty))
+        vtkVgNodeBase::RELATIVE_REFERENCE) && this->Parent && this->Dirty))
     {
     // We might need a concatenation instead of apply transformation here.
     this->FinalMatrix->DeepCopy(this->Parent->GetFinalMatrix());

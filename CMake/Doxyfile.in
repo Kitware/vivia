@@ -24,7 +24,8 @@ MULTILINE_CPP_IS_BRIEF  = NO
 INHERIT_DOCS            = YES
 SEPARATE_MEMBER_PAGES   = NO
 TAB_SIZE                = 8
-ALIASES                 =
+ALIASES                 = "html{1}=\htmlonly\1\endhtmlonly"
+ALIASES                += "abbr{2}=\html{<abbr title=\"\2\">}\1\html{</abbr>}"
 TCL_SUBST               =
 OPTIMIZE_OUTPUT_FOR_C   = NO
 OPTIMIZE_OUTPUT_JAVA    = NO
@@ -41,7 +42,6 @@ SUBGROUPING             = YES
 INLINE_GROUPED_CLASSES  = NO
 INLINE_SIMPLE_STRUCTS   = NO
 TYPEDEF_HIDES_STRUCT    = NO
-SYMBOL_CACHE_SIZE       = 0
 LOOKUP_CACHE_SIZE       = 0
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -211,7 +211,9 @@ EXPAND_ONLY_PREDEF      = YES
 SEARCH_INCLUDES         = YES
 INCLUDE_PATH            = @DOXYGEN_INCLUDE_PATHS@
 INCLUDE_FILE_PATTERNS   = *
-PREDEFINED              = DOXYGEN QTE_EXPORT
+PREDEFINED              = DOXYGEN QTE_EXPORT \
+                          "Q_DECLARE_FLAGS(Flags, Enum)=\
+                            typedef QFlags<Enum> Flags;"
 EXPAND_AS_DEFINED       = QTE_OVERRIDE
 SKIP_FUNCTION_MACROS    = YES
 #---------------------------------------------------------------------------

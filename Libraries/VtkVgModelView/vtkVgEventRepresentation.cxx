@@ -240,14 +240,15 @@ int vtkVgEventRepresentation::vtkInternal::RegisterEventType(const int id)
     // to write to the Z buffer so that underlying tracks (which are rendered
     // later) will be masked. If vtkActor supported enabling Z-writes
     // unconditionally, we wouldn't need to do this.
-    int ji = numOfNormalcyBins - 1 - j;
+    const int ji = numOfNormalcyBins - 1 - j;
+    const float adjust = ji * this->Representation->NormalcyLineWidthScale;
     this->NormalcyBinOpacity[j] = 0.4 + ji * opacityDelta;
 
     // swapping "top" and "bottom" of normalcy scaling
     bin->EventActor->GetProperty()->SetLineWidth(
-      this->Representation->GetLineWidth() + ji);
+      this->Representation->GetLineWidth() + adjust);
     bin->EventActor->GetProperty()->SetPointSize(
-      this->Representation->GetLineWidth() + ji);
+      this->Representation->GetLineWidth() + adjust);
 
     mapper->FastDelete();
 
@@ -297,6 +298,7 @@ vtkVgEventRepresentation::vtkVgEventRepresentation()
   this->TrackRepresentation = 0;
   this->ZOffset = 0.0;
   this->LineWidth = 3.0f;
+  this->NormalcyLineWidthScale = 1.0f;
 
   this->UseNormalcyCues = false;
   this->NormalcyCuesSwapped = false;

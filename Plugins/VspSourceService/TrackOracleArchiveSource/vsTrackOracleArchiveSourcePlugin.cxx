@@ -22,7 +22,7 @@
 #include <track_oracle/file_format_base.h>
 #include <track_oracle/file_format_manager.h>
 
-#include "visgui_descriptor_type.h"
+#include "visgui_event_type.h"
 #include "visgui_track_type.h"
 #include "vsTrackOracleTrackArchiveSource.h"
 #include "vsTrackOracleDescriptorArchiveSource.h"
@@ -58,7 +58,7 @@ public:
 void vsTrackOracleArchiveSourcePluginPrivate::addSchemas(
   FileFormatMap& map, const vidtk::track_base_impl& schema)
 {
-  vcl_vector<vidtk::file_format_enum> formats =
+  std::vector<vidtk::file_format_enum> formats =
     vidtk::file_format_manager::format_matches_schema(schema);
   for (size_t n = 0, k = formats.size(); n < k; ++n)
     {
@@ -155,7 +155,7 @@ vsArchivePluginInfo vsTrackOracleArchiveSourcePlugin::archivePluginInfo(
     {
     vsArchiveFileType fileType;
     fileType.Description = qtString(format->format_description());
-    vcl_vector<vcl_string> globs = format->format_globs();
+    std::vector<std::string> globs = format->format_globs();
     for (size_t n = 0, k = globs.size(); n < k; ++n)
       {
       fileType.Patterns.append(qtString(globs[n]));

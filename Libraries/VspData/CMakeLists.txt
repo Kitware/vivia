@@ -46,6 +46,7 @@ set(vspDataInstallHeaders
   vsDescriptor.h
   vsDescriptorInput.h
   vsDescriptorSource.h
+  vsDisplayInfo.h
   vsEvent.h
   vsEventInfo.h
   vsFactoryAction.h
@@ -58,6 +59,7 @@ set(vspDataInstallHeaders
   vsStaticSourceFactory.h
   vsTrackClassifier.h
   vsTrackData.h
+  vsTrackId.h
   vsTrackInfo.h
   vsTrackSource.h
   vsTrackState.h

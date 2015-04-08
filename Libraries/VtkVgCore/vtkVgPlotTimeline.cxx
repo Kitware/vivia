@@ -14,6 +14,7 @@
 #include "vtkPoints2D.h"
 #include "vtkTransform2D.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkVector.h"
 
 #include <algorithm>
 
@@ -55,6 +56,23 @@ void vtkVgPlotTimeline::SetSelection(vtkIdTypeArray* id)
     {
     this->Selection->DeepCopy(id);
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkVariant vtkVgPlotTimeline::GetProperty(const vtkStdString& property)
+{
+  if (this->Properties.find(property) == this->Properties.end())
+    {
+    return vtkVariant();
+    }
+  return this->Properties[property];
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgPlotTimeline::SetProperty(const vtkStdString& property,
+                                    const vtkVariant& var)
+{
+  this->Properties[property] = var;
 }
 
 //-----------------------------------------------------------------------------

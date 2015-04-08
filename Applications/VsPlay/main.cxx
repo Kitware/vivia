@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -18,6 +18,8 @@
 #ifdef ENABLE_QTTESTING
 #include <pqCoreTestUtility.h>
 #endif
+
+#include <vgPluginLoader.h>
 
 #include <vgImage.h>
 
@@ -40,12 +42,14 @@
 #include <vsSourceService.h>
 #include <vsTrackClassifier.h>
 #include <vsTrackData.h>
+#include <vsTrackId.h>
 #include <vsTrackState.h>
 
 #include "vsVersion.h"
 
 #include "vsApplication.h"
 #include "vsMainWindow.h"
+#include "vsUiExtensionInterface.h"
 
 // Register built-in data source plugins
 Q_IMPORT_PLUGIN(vsDescriptorArchiveSource)
@@ -70,7 +74,14 @@ int main(int argc, char** argv)
 #endif
 
   qtCliOptions options;
+
   vsSourceService::registerCliOptions(options);
+  foreach (vsUiExtensionInterface* const extension,
+           vgPluginLoader::pluginInterfaces<vsUiExtensionInterface>())
+    {
+    extension->registerExtensionCliOptions(options);
+    }
+
   options.add("filters-file <file>", "Load filter settings from 'file'")
          .add("ff", qtCliOption::Short);
   options.add("seek <time>",
@@ -111,10 +122,10 @@ int main(int argc, char** argv)
   QTE_REGISTER_METATYPE(vsTrackData);
   QTE_REGISTER_METATYPE(vvTrackState);
   QTE_REGISTER_METATYPE(QList<vvTrackState>);
-  QTE_REGISTER_METATYPE(vvTrackId);
   QTE_REGISTER_METATYPE(vvQueryInstance);
   QTE_REGISTER_METATYPE(vvQueryResult);
   QTE_REGISTER_METATYPE(vtkIdType);
+  QTE_REGISTER_METATYPE(vsTrackId);
   QTE_REGISTER_METATYPE(vsEvent);
   QTE_REGISTER_METATYPE(vsEventInfo);
   QTE_REGISTER_METATYPE(vsEventInfo::Group);
@@ -151,7 +162,7 @@ int main(int argc, char** argv)
     vsSourceService::parseArguments(args);
 
   // Initialize application (i.e. creates vsCore) and create first view
-  app.initialize();
+  app.initialize(args);
   app.newView();
 
   // Connect sources specified on command line

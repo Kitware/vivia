@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -300,6 +300,22 @@ int vqArchiveVideoSource::GetVideoHeight()
 }
 
 //-----------------------------------------------------------------------------
+int vqArchiveVideoSource::GetVideoWidth()
+{
+  static const int bestGuess = 640;
+
+  if (!this->CurrentClip)
+    {
+    return bestGuess;
+    }
+
+  vgKwaFrameMetadata frameMetaData =
+    this->CurrentClip->metadataAt(this->CurrentClip->firstTime());
+  int widthFromMetaData = frameMetaData.imageSize().width();
+  return (widthFromMetaData > 0 ? widthFromMetaData : bestGuess);
+}
+
+//-----------------------------------------------------------------------------
 const vgKwaVideoClip* vqArchiveVideoSource::GetCurrentVideoClip() const
 {
   return this->CurrentClip.data();
@@ -455,6 +471,11 @@ void vqArchiveVideoSource::CopyFrameData(vtkVgVideoFrameData* frameData)
     {
     frameMetaData.Width = metaData.imageSize().width();
     frameMetaData.Height = metaData.imageSize().height();
+    }
+  else // Fallback in case meta data didn't have image size
+    {
+    int* dims = this->CurrentVideoFrameData->VideoImage->GetDimensions();
+    frameMetaData.SetWidthAndHeight(dims[0], dims[1]);
     }
 
   bool cornersValid = srcCorners.GCS != -1;

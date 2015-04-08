@@ -19,6 +19,7 @@ set(vtkVgModelViewSrcs
   vtkVgEventRepresentationBase.cxx
   vtkVgGraphModel.cxx
   vtkVgGraphRepresentation.cxx
+  vtkVgMarker.cxx
   vtkVgModelBase.cxx
   vtkVgPicker.cxx
   vtkVgRepresentationBase.cxx
@@ -54,6 +55,7 @@ set(vtkVgModelViewInstallHeaders
   vtkVgEventRepresentation.h
   vtkVgGraphModel.h
   vtkVgGraphRepresentation.h
+  vtkVgMarker.h
   vtkVgModelBase.h
   vtkVgPickData.h
   vtkVgPicker.h

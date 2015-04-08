@@ -111,9 +111,9 @@ void vqApplication::setEnabledSignal(
 }
 
 //-----------------------------------------------------------------------------
-vqApplication::vqApplication(UIMode uiMode)
-  : InterfaceMode(uiMode), Core(new vqCore), NewQueryDialog(0),
-    TestUtility(0)
+vqApplication::vqApplication(UIMode uiMode) :
+  InterfaceMode(uiMode), Core(new vqCore), ResultPageOffset(0),
+  NewQueryDialog(0), TestUtility(0)
 {
   this->UI.setupUi(this);
   this->Core->setupUi(this->UI.renderFrame);
@@ -183,7 +183,7 @@ vqApplication::vqApplication(UIMode uiMode)
     {
     QString text = e.displayString + "...";
     QAction* action = this->UI.menuQueryExportResults->addAction(text);
-    connect(action, SIGNAL(triggered(bool)), mapper, SLOT(map()));
+    connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
     mapper->setMapping(action, e.id);
     }
   connect(mapper, SIGNAL(mapped(const QString&)),
@@ -228,17 +228,17 @@ vqApplication::vqApplication(UIMode uiMode)
   colorMappingGroup->addAction(this->UI.actionColorShadeCubic);
 
   // Set up coloring option connections
-  connect(this->UI.actionColorByRank, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorByRank, SIGNAL(triggered()),
           this->Core, SLOT(setColorByRank()));
-  connect(this->UI.actionColorByAbsoluteScore, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorByAbsoluteScore, SIGNAL(triggered()),
           this->Core, SLOT(setColorByAbsoluteScore()));
-  connect(this->UI.actionColorByRelativeScore, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorByRelativeScore, SIGNAL(triggered()),
           this->Core, SLOT(setColorByRelativeScore()));
-  connect(this->UI.actionColorShadeDiscrete, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorShadeDiscrete, SIGNAL(triggered()),
           this->Core, SLOT(setColorShadingDiscrete()));
-  connect(this->UI.actionColorShadeLinear, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorShadeLinear, SIGNAL(triggered()),
           this->Core, SLOT(setColorShadingLinear()));
-  connect(this->UI.actionColorShadeCubic, SIGNAL(triggered(bool)),
+  connect(this->UI.actionColorShadeCubic, SIGNAL(triggered()),
           this->Core, SLOT(setColorShadingCubic()));
 
   // Update colors after an option changes
@@ -252,27 +252,27 @@ vqApplication::vqApplication(UIMode uiMode)
           this->UI.timeline, SLOT(UpdateColors()));
 
   // Set up UI action signal/slot connections
-  connect(this->UI.actionQueryNew, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQueryNew, SIGNAL(triggered()),
           this, SLOT(showQueryNewDialog()));
-  connect(this->UI.actionQueryEdit, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQueryEdit, SIGNAL(triggered()),
           this, SLOT(showQueryEditDialog()));
-  connect(this->UI.actionQueryOpen, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQueryOpen, SIGNAL(triggered()),
           this, SLOT(showQueryOpenDialog()));
-  connect(this->UI.actionQuerySave, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQuerySave, SIGNAL(triggered()),
           this->Core, SLOT(saveQueryPlan()));
-  connect(this->UI.actionFindResult, SIGNAL(triggered(bool)),
+  connect(this->UI.actionFindResult, SIGNAL(triggered()),
           this, SLOT(findResult()));
-  connect(this->UI.actionQuerySaveResults, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQuerySaveResults, SIGNAL(triggered()),
           this->Core, SLOT(saveResults()));
-  connect(this->UI.actionGroundTruthOpen, SIGNAL(triggered(bool)),
+  connect(this->UI.actionGroundTruthOpen, SIGNAL(triggered()),
           this, SLOT(showGroundTruthOpenDialog()));
-  connect(this->UI.actionQueryRefine, SIGNAL(triggered(bool)),
+  connect(this->UI.actionQueryRefine, SIGNAL(triggered()),
           this, SLOT(refineResults()));
-  connect(this->UI.actionViewBestResults, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewBestResults, SIGNAL(triggered()),
           this, SLOT(showBestClips()));
-  connect(this->UI.actionGenerateReport, SIGNAL(triggered(bool)),
+  connect(this->UI.actionGenerateReport, SIGNAL(triggered()),
           this, SLOT(generateReport()));
-  connect(this->UI.actionExportKml, SIGNAL(triggered(bool)),
+  connect(this->UI.actionExportKml, SIGNAL(triggered()),
           this, SLOT(exportKml()));
 
   this->setEnabledSignal(this->UI.actionQuerySave, this->Core,
@@ -282,10 +282,15 @@ vqApplication::vqApplication(UIMode uiMode)
   this->setEnabledSignal(this->UI.actionViewBestResults, this->Core,
                          SIGNAL(queryResultsAvailabilityChanged(bool)));
 
-  connect(this->UI.actionLayerAddFile, SIGNAL(triggered(bool)),
+  connect(this->UI.actionLayerAddFile, SIGNAL(triggered()),
           this, SLOT(showLayerAddFileDialog()));
-  connect(this->UI.actionConfigure, SIGNAL(triggered(bool)),
+  connect(this->UI.actionConfigure, SIGNAL(triggered()),
           this, SLOT(showConfigureDialog()));
+
+  connect(this->UI.actionViewPagePrevious, SIGNAL(triggered()),
+          this, SLOT(resultsPageBack()));
+  connect(this->UI.actionViewPageNext, SIGNAL(triggered()),
+          this, SLOT(resultsPageForward()));
 
   // Set up core->UI notification signal/slot connections
   connect(this->Core, SIGNAL(processingQuery(vvQueryInstance)),
@@ -315,23 +320,23 @@ vqApplication::vqApplication(UIMode uiMode)
   this->connectTreeWidget(this->UI.groundTruthView);
 
   // Hook up tree visibility controls
-  connect(this->UI.actionViewResultsHideAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewResultsHideAll, SIGNAL(triggered()),
           this->UI.resultView, SLOT(HideAllItems()));
-  connect(this->UI.actionViewResultsShowAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewResultsShowAll, SIGNAL(triggered()),
           this->UI.resultView, SLOT(ShowAllItems()));
   connect(this->UI.actionViewResultsShowHidden, SIGNAL(toggled(bool)),
           this->UI.resultView, SLOT(SetShowHiddenItems(bool)));
 
-  connect(this->UI.actionViewRefinementHideAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewRefinementHideAll, SIGNAL(triggered()),
           this->UI.scoreView, SLOT(HideAllItems()));
-  connect(this->UI.actionViewRefinementShowAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewRefinementShowAll, SIGNAL(triggered()),
           this->UI.scoreView, SLOT(ShowAllItems()));
   connect(this->UI.actionViewRefinementShowHidden, SIGNAL(toggled(bool)),
           this->UI.scoreView, SLOT(SetShowHiddenItems(bool)));
 
-  connect(this->UI.actionViewGroundTruthHideAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewGroundTruthHideAll, SIGNAL(triggered()),
           this->UI.groundTruthView, SLOT(HideAllItems()));
-  connect(this->UI.actionViewGroundTruthShowAll, SIGNAL(triggered(bool)),
+  connect(this->UI.actionViewGroundTruthShowAll, SIGNAL(triggered()),
           this->UI.groundTruthView, SLOT(ShowAllItems()));
   connect(this->UI.actionViewGroundTruthShowHidden, SIGNAL(toggled(bool)),
           this->UI.groundTruthView, SLOT(SetShowHiddenItems(bool)));
@@ -354,7 +359,7 @@ vqApplication::vqApplication(UIMode uiMode)
           this, SLOT(showResultDetails(QList<vtkVgNodeBase*>)));
 
   // Result filter
-  connect(this->UI.actionFilterResults, SIGNAL(triggered(bool)),
+  connect(this->UI.actionFilterResults, SIGNAL(triggered()),
           this, SLOT(setResultFilters()));
 
   // Timeline selection
@@ -574,6 +579,9 @@ void vqApplication::acceptResultSet(bool haveSession,
   if (scoreRequestedResults)
     {
     this->UI.actionQueryRefine->setEnabled(true);
+
+    this->ResultPageOffset = 0;
+    this->updateResultPageControls();
     }
   else if (haveSession)
     {
@@ -581,6 +589,48 @@ void vqApplication::acceptResultSet(bool haveSession,
     int resultsToScore = vqSettings().iqrRefinementSetSize();
     this->Core->requestRefinement(resultsToScore);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::resultsPageBack()
+{
+  if (this->ResultPageOffset > 0)
+    {
+    const int pageSize = vqSettings().resultPageCount();
+    this->ResultPageOffset = qMax(0, this->ResultPageOffset - pageSize);
+
+    this->Core->displayResults(pageSize, this->ResultPageOffset);
+    this->Core->updateScene();
+
+    this->updateResultPageControls();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::resultsPageForward()
+{
+  const int pageSize = vqSettings().resultPageCount();
+  const int newOffset = this->ResultPageOffset + pageSize;
+  const int resultCount = this->Core->resultCount();
+  if (newOffset < resultCount)
+    {
+    this->ResultPageOffset = newOffset;
+
+    this->Core->displayResults(pageSize, this->ResultPageOffset);
+    this->Core->updateScene();
+
+    this->updateResultPageControls();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::updateResultPageControls()
+{
+  const int total = this->Core->resultCount();
+  const int last = this->ResultPageOffset + vqSettings().resultPageCount();
+
+  this->UI.actionViewPagePrevious->setEnabled(this->ResultPageOffset > 0);
+  this->UI.actionViewPageNext->setEnabled(last < total);
 }
 
 //-----------------------------------------------------------------------------

@@ -540,15 +540,15 @@ void vpViewCore::importProject()
 //-----------------------------------------------------------------------------
 bool vpViewCore::importTracksFromFile(vpProject* project)
 {
-  if (project->IsValid(project->TracksFile) == vpProject::FILE_NOT_EXIST)
+  if (project->IsValid(project->TracksFile) == vpProject::FILE_NAME_NOT_EMPTY)
     {
-    this->handleFileNotFound(project->TracksFileTag, project->TracksFile);
-    return false;
-    }
-
-  if (project->IsValid(project->TracksFile) == vpProject::FILE_EXIST)
-    {
-    this->loadTracks(project);
+    if (this->loadTracks(project) != VTK_OK)
+      {
+      const QString msgFormat =
+        "Failed to load tracks from file/pattern \"%1\" (for %2)";
+      emit this->warningError(msgFormat.arg(qtString(project->TracksFile),
+                                            qtString(project->TracksFileTag)));
+      }
 
     // load track traits file if one was given
     if (project->IsValid(project->TrackTraitsFile) == vpProject::FILE_EXIST)

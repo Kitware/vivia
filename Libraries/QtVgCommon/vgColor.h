@@ -28,9 +28,13 @@ public:
 
   explicit vgColor(int red, int green, int blue, int alpha = 255);
   explicit vgColor(double red, double green, double blue, double alpha = 1.0);
+  explicit vgColor(const double (&color)[3], double alpha = 1.0);
+  explicit vgColor(const double (&color)[4]);
 
   vgColor& operator=(const vgColor&);
   vgColor& operator=(const QColor&);
+
+  bool isValid() const;
 
   ComponentData& data();
   const ComponentData& constData() const;

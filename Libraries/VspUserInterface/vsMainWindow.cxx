@@ -82,6 +82,22 @@ void copyBoolOption(QCheckBox* from, QCheckBox* to)
   to->setChecked(from->isChecked());
 }
 
+QString makeGsdText(double gsd, double unitThreshold)
+{
+  static const QString invalid = "(invalid)";
+
+  // Negative GSD is invalid; also 'conservatively' assume it is invalid if
+  // more than 10,000 km/px (in which case the entire planet would be just over
+  // 1 px)
+  if (gsd >= 0.0 && gsd < 1e7)
+    {
+    return (gsd > unitThreshold
+            ? QString().sprintf("%.3f m/px", gsd)
+            : QString().sprintf("%.1f cm/px", gsd * 100.0));
+    }
+  return invalid;
+}
+
 } // namespace <anonymous>
 
 //END miscellaneous helper functions
@@ -114,6 +130,9 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
                         d->UI.verifiedEventTree,
                         d->UI.rejectedEventTree);
   scene->setupTrackTree(d->UI.trackTree);
+
+  d->UI.noteTree->connectToScene(scene);
+  d->UI.noteTree->setModel(scene->eventDataModel());
 
   d->UI.regionTree->addContextMenuAction(d->UI.actionRegionRemoveSelected);
   d->UI.regionTree->setEventTypes(d->Core->manualEventTypes());
@@ -153,6 +172,7 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
   d->UI.verifiedEventsDock->hide();
   d->UI.rejectedEventsDock->hide();
   d->UI.eventInfoDock->hide();
+  d->UI.notesDock->hide();
   d->DockController = new qtDockController(this);
 
   d->DockController->addToggleAction(
@@ -179,6 +199,9 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
   d->DockController->addToggleAction(
     d->UI.actionWindowTracksShow,
     d->UI.tracksDock);
+  d->DockController->addToggleAction(
+    d->UI.actionWindowNoteShow,
+    d->UI.notesDock);
 
   // Set up status bar
   d->setupStatusBar();
@@ -248,17 +271,21 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
                             setEventLabelsVisible);
   connectSceneDisplayToggle(d->UI.actionEventsProbabilityShow,
                             setEventProbabilityVisible);
+  connectSceneDisplayToggle(d->UI.actionNotesShow,
+                            setNotesVisible);
   connectSceneDisplayToggle(d->UI.groundTruthVisible,
                             setGroundTruthVisible);
   connectSceneDisplayToggle(d->UI.actionVideoMaskShowTracking,
                             setTrackingMaskVisible);
   connectSceneDisplayToggle(d->UI.actionVideoMaskShowFiltering,
                             setFilteringMaskVisible);
-  connectSceneDisplayToggle(d->UI.actionFollowEvent,
-                            setFollowEvent);
+  connectSceneDisplayToggle(d->UI.actionViewZoomOnTarget,
+                            setZoomOnTarget);
 
   connect(d->UI.actionRegionClose, SIGNAL(triggered()),
           scene, SLOT(closeContour()));
+  connect(d->UI.actionCancelFollowing, SIGNAL(triggered()),
+          core, SLOT(cancelFollowing()));
 
   // Connect correlated display toggles
   connect(d->UI.actionTracksShow, SIGNAL(toggled(bool)),
@@ -405,6 +432,8 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
                         d->UI.actionEventsLabelsShow);
   d->UiState.mapChecked("EventProbabilityVisible",
                         d->UI.actionEventsProbabilityShow);
+  d->UiState.mapChecked("NotesVisible",
+                        d->UI.actionNotesShow);
   d->UiState.mapChecked("GroundTruthVisible",
                         d->UI.groundTruthVisible);
 
@@ -468,8 +497,14 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
       settings.value("TrackTrailLength",
                      scene->trackTrailLength()).toDouble());
 
-    scene->setEventSelectedColor(vsSettings().eventSelectedColor());
+    scene->setSelectionColor(vsSettings().selectionPenColor());
     }
+
+  // Set dock corner affiliation
+  this->setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+  this->setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+  this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 }
 
 //-----------------------------------------------------------------------------
@@ -1130,10 +1165,7 @@ void vsMainWindow::updateVideoMetadata(
   // Set GSD
   const double threshold =
     QSettings().value("GsdMetersThreshold", 0.5).toDouble();
-  const QString text =
-    (metaData.Gsd > threshold
-     ? QString().sprintf("%.3f m/px", metaData.Gsd)
-     : QString().sprintf("%.1f cm/px", metaData.Gsd * 100.0));
+  const QString& text = makeGsdText(metaData.Gsd, threshold);
   d->setStatusVisible(vsMainWindowPrivate::StatusFrameGsd, true);
   d->setStatusText(vsMainWindowPrivate::StatusFrameGsd, text);
 

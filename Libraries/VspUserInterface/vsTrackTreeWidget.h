@@ -7,12 +7,19 @@
 #ifndef __vsTrackTreeWidget_h
 #define __vsTrackTreeWidget_h
 
+#include <QSet>
 #include <QWidget>
 
-#include "ui_trackTree.h"
-#include "am_trackTree.h"
+#include <qtGlobal.h>
+
+#include <vtkType.h>
 
 class QMenu;
+
+class vsTrackTreeModel;
+class vsTrackTreeSelectionModel;
+
+class vsTrackTreeWidgetPrivate;
 
 class vsTrackTreeWidget : public QWidget
 {
@@ -23,13 +30,14 @@ public:
   ~vsTrackTreeWidget();
 
   void setModel(vsTrackTreeModel*);
+  void setSelectionModel(vsTrackTreeSelectionModel*);
   void setHiddenItemsShown(bool enable);
 
   virtual void contextMenuEvent(QContextMenuEvent* event);
 
 signals:
   void jumpToTrack(vtkIdType trackId, bool jumpToEnd);
-  void selectionChanged(QList<vtkIdType> selectedTrackIds);
+  void selectionChanged(QSet<vtkIdType> selectedTrackIds);
   void trackFollowingRequested(vtkIdType trackId);
   void trackFollowingCanceled();
 
@@ -37,16 +45,19 @@ public slots:
   void selectTrack(vtkIdType trackId);
 
 protected slots:
-  void setActionsEnabled();
+  void updateSelectionStatus(QSet<vtkIdType> selection);
+
+  void addStar();
+  void removeStar();
+
+  void editNote();
 
 protected:
-  Ui::vsTrackTreeWidget UI;
-  Am::vsTrackTreeWidget AM;
-
-  QMenu* contextMenu;
+  QTE_DECLARE_PRIVATE_RPTR(vsTrackTreeWidget)
 
 private:
-  Q_DISABLE_COPY(vsTrackTreeWidget)
+  QTE_DECLARE_PRIVATE(vsTrackTreeWidget)
+  QTE_DISABLE_COPY(vsTrackTreeWidget)
 };
 
 #endif

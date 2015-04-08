@@ -59,7 +59,7 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
   // Read tracks
   const visgui_track_type schema;
   vidtk::track_handle_list_type tracks;
-  vcl_vector<vidtk::element_descriptor> missingFieldDescriptors;
+  std::vector<vidtk::element_descriptor> missingFieldDescriptors;
 
   if (!this->Format->read(fileName, tracks, schema, missingFieldDescriptors))
     {
@@ -100,7 +100,7 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
       oracle(trackHandle);
 
       // Get track ID
-      vvTrackId id = vsAdaptTrackId(oracle.external_id());
+      vsTrackId id = vsAdaptTrackId(oracle.external_id());
 
       // Convert track states
       QList<vvTrackState> states;

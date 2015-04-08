@@ -22,7 +22,7 @@ endif()
 
 # BEGIN core libraries and includes
 
-if(QtTesting_FOUND)
+if(QtTesting_FOUND AND BUILD_TESTING)
   include_directories(${qtTestingSupport_SOURCE_DIR})
   add_definitions(-DENABLE_QTTESTING)
   set(QT_TESTING_SUPPORT_LIBRARIES qtTestingSupport ${QtTesting_LIBRARIES})
@@ -61,6 +61,7 @@ set(vgSdkTargets
   vtkVgCore
   vtkVgModelView
   vtkVgQtUtil
+  vgDataFramework
 )
 
 # If this is true, boost is required
@@ -73,7 +74,7 @@ if(VISGUI_ENABLE_GDAL)
   list(APPEND vgSdkTargets vtkVgIO)
 endif()
 
-vg_include_library_sdk_directories(${vgSdkTargets})
+vg_include_library_sdk_directories(${vgSdkTargets} vvData)
 
 # Configure version file
 include(vpVersion.cmake)

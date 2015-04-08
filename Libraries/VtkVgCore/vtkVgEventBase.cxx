@@ -22,17 +22,26 @@ vtkCxxSetObjectMacro(vtkVgEventBase, RegionPoints, vtkPoints);
 
 vtkImplementMetaObject(vtkVgEventTrackInfoBase, vtkVgMetaObject);
 
-namespace
+namespace // anonymous
 {
 
 //-----------------------------------------------------------------------------
-bool operator==(const vtkVgEventBase::RegionPoint& a,
-                const vtkVgEventBase::RegionPoint& b)
+vgPolygon2d makePolygon(vtkPoints* points, std::vector<vtkIdType> pointIds)
 {
-  return (a.X == b.X) && (a.Y == b.Y);
+  vgPolygon2d polygon;
+
+  // First point is repeated, so only consider once (ignore last point)
+  for (size_t i = 0, k = pointIds.size() - 1; i < k; ++i)
+    {
+    double point[3];
+    points->GetPoint(pointIds[i], point);
+    polygon.push_back(vgPoint2d(point[0], point[1]));
+    }
+
+  return polygon;
 }
 
-}
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 vtkVgEventTrackInfoBase::vtkVgEventTrackInfoBase(vtkIdType trackId,
@@ -451,7 +460,7 @@ bool vtkVgEventBase::GetRegionCenter(const vtkVgTimeStamp& timeStamp,
 
 //-----------------------------------------------------------------------------
 void vtkVgEventBase::AddRegion(const vtkVgTimeStamp& timeStamp,
-                               const vtkVgEventBase::Region& region)
+                               const vgPolygon2d& region)
 {
   size_t numberOfRegionPts = region.size();
 
@@ -479,35 +488,42 @@ void vtkVgEventBase::AddRegion(const vtkVgTimeStamp& timeStamp,
 }
 
 //-----------------------------------------------------------------------------
-vtkVgEventBase::Region vtkVgEventBase::GetRegion(
-  const vtkVgTimeStamp& timeStamp) const
+vgPolygon2d vtkVgEventBase::GetRegion(const vtkVgTimeStamp& timeStamp) const
 {
   typedef std::vector<vtkIdType> PtIdList;
   typedef std::map<vtkVgTimeStamp, PtIdList> PtMap;
   typedef PtMap::const_iterator Iterator;
 
-  Region result;
-
   Iterator region = this->Internal->RegionPtIds.find(timeStamp);
   if (region != this->Internal->RegionPtIds.end())
     {
-    const PtIdList& points = region->second;
-
-    // first point is repeated, so only consider once (ignore last point)
-    for (size_t i = 0, k = points.size(); i < k; ++i)
-      {
-      double pt[3];
-      this->RegionPoints->GetPoint(points[i], pt);
-      result.push_back(RegionPoint(pt[0], pt[1]));
-      }
+    return makePolygon(this->RegionPoints, region->second);
     }
 
-  return result;
+  return vgPolygon2d();
 }
 
 //-----------------------------------------------------------------------------
-std::map<vtkVgTimeStamp, vtkVgEventBase::Region>
-vtkVgEventBase::GetRegions() const
+vgPolygon2d vtkVgEventBase::GetRegionAtOrAfter(vtkVgTimeStamp& timeStamp) const
+{
+  typedef std::vector<vtkIdType> PtIdList;
+  typedef std::map<vtkVgTimeStamp, PtIdList> PtMap;
+  typedef PtMap::const_iterator Iterator;
+
+  vgPolygon2d result;
+
+  Iterator region = this->Internal->RegionPtIds.lower_bound(timeStamp);
+  if (region != this->Internal->RegionPtIds.end())
+    {
+    timeStamp = region->first;
+    return makePolygon(this->RegionPoints, region->second);
+    }
+
+  return vgPolygon2d();
+}
+
+//-----------------------------------------------------------------------------
+std::map<vtkVgTimeStamp, vgPolygon2d> vtkVgEventBase::GetRegions() const
 {
   typedef std::vector<vtkIdType> PtIdList;
   typedef std::map<vtkVgTimeStamp, PtIdList> PtMap;
@@ -516,23 +532,12 @@ vtkVgEventBase::GetRegions() const
   Iterator iter = this->Internal->RegionPtIds.begin();
   const Iterator end = this->Internal->RegionPtIds.end();
 
-  std::map<vtkVgTimeStamp, vtkVgEventBase::Region> result;
+  std::map<vtkVgTimeStamp, vgPolygon2d> result;
 
   while (iter != end)
     {
-    const PtIdList& points = iter->second;
-    Region region;
-
-    // first point is repeated, so only consider once (ignore last point)
-    for (size_t i = 0, k = points.size() - 1; i < k; ++i)
-      {
-      double pt[3];
-      this->RegionPoints->GetPoint(points[i], pt);
-      region.push_back(RegionPoint(pt[0], pt[1]));
-      }
-
+    const vgPolygon2d& region = makePolygon(this->RegionPoints, iter->second);
     result.insert(std::make_pair(iter->first, region));
-
     ++iter;
     }
 
@@ -990,11 +995,12 @@ void vtkVgEventBase::DeepCopy(vtkVgEventBase* src, bool appendRegionPoints)
         {
         std::vector<vtkIdType>::iterator ptIdIter;
         for (ptIdIter = regionIter->second.begin();
-             ptIdIter != regionIter->second.end(); ptIdIter++)
+             ptIdIter != regionIter->second.end() - 1; ptIdIter++)
           {
           *ptIdIter = this->RegionPoints->InsertNextPoint(
                         src->RegionPoints->GetPoint(*ptIdIter));
           }
+        *ptIdIter = *regionIter->second.begin();
         }
       }
     else

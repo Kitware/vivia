@@ -207,7 +207,8 @@ void vsEventTreeView::hideSelectedItems()
 {
   DisableSort ds(this->proxyModel.data());
 
-  QModelIndexList selected = this->eventTreeSelectionModel->selectedRows(this);
+  const QModelIndexList& selected =
+    this->eventTreeSelectionModel->selectedRows(this, this->proxyModel.data());
   foreach (QModelIndex i, selected)
     {
     this->eventTreeModel->setData(
@@ -220,7 +221,8 @@ void vsEventTreeView::showSelectedItems()
 {
   DisableSort ds(this->proxyModel.data());
 
-  QModelIndexList selected = this->eventTreeSelectionModel->selectedRows(this);
+  const QModelIndexList& selected =
+    this->eventTreeSelectionModel->selectedRows(this, this->proxyModel.data());
   foreach (QModelIndex i, selected)
     {
     this->eventTreeModel->setData(
@@ -231,15 +233,19 @@ void vsEventTreeView::showSelectedItems()
 //-----------------------------------------------------------------------------
 void vsEventTreeView::jumpToSelectedStart()
 {
-  QModelIndex index = this->eventTreeSelectionModel->selectedRows(this).front();
-  emit this->jumpToEvent(this->eventIdFromIndex(index), false);
+  const QModelIndexList& selection =
+    this->eventTreeSelectionModel->selectedRows(this, this->proxyModel.data());
+  Q_ASSERT(!selection.isEmpty());
+  emit this->jumpToEvent(this->eventIdFromIndex(selection.front()), false);
 }
 
 //-----------------------------------------------------------------------------
 void vsEventTreeView::jumpToSelectedEnd()
 {
-  QModelIndex index = this->eventTreeSelectionModel->selectedRows(this).front();
-  emit this->jumpToEvent(this->eventIdFromIndex(index), true);
+  const QModelIndexList& selection =
+    this->eventTreeSelectionModel->selectedRows(this, this->proxyModel.data());
+  Q_ASSERT(!selection.isEmpty());
+  emit this->jumpToEvent(this->eventIdFromIndex(selection.front()), true);
 }
 
 //-----------------------------------------------------------------------------
@@ -248,9 +254,9 @@ void vsEventTreeView::setSelectedItemsRating(
 {
   DisableSort ds(this->proxyModel.data());
 
-  const QModelIndexList selected =
+  const QModelIndexList& selected =
     this->eventTreeSelectionModel->selectedRows(
-      this, vsEventTreeModel::RatingColumn);
+      this, this->proxyModel.data(), vsEventTreeModel::RatingColumn);
 
   foreach (QModelIndex i, selected)
     {
@@ -264,9 +270,9 @@ void vsEventTreeView::setSelectedItemsStatus(vsEventStatus status)
 {
   DisableSort ds(this->proxyModel.data());
 
-  const QModelIndexList selected =
+  const QModelIndexList& selected =
     this->eventTreeSelectionModel->selectedRows(
-      this, vsEventTreeModel::RatingColumn);
+      this, this->proxyModel.data(), vsEventTreeModel::RatingColumn);
 
   foreach (QModelIndex i, selected)
     {
@@ -280,13 +286,13 @@ void vsEventTreeView::setSelectedItemsStarred(bool starred)
 {
   DisableSort ds(this->proxyModel.data());
 
-  const QModelIndexList selected =
+  const QModelIndexList& selected =
     this->eventTreeSelectionModel->selectedRows(
-      this, vsEventTreeModel::StarColumn);
+      this, this->proxyModel.data(), vsEventTreeModel::StarColumn);
 
   foreach (QModelIndex i, selected)
     {
-    this->model()->setData(i, starred, vsEventTreeModel::StarRole);
+    this->eventTreeModel->setData(i, starred, vsEventTreeModel::StarRole);
     }
 }
 
@@ -474,7 +480,7 @@ void vsEventTreeView::mousePressEvent(QMouseEvent* event)
 //-----------------------------------------------------------------------------
 vtkIdType vsEventTreeView::eventIdFromIndex(const QModelIndex& index) const
 {
-  return this->model()->data(
-           this->model()->index(
-             index.row(), vsEventTreeModel::IdColumn)).value<vtkIdType>();
+  const QModelIndex& i =
+    this->eventTreeModel->index(index.row(), vsEventTreeModel::IdColumn);
+  return this->eventTreeModel->data(i).value<vtkIdType>();
 }

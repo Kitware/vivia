@@ -188,9 +188,9 @@ void vtkVgGroupNode::Update(vtkVgNodeVisitorBase& nodeVisitor)
     }
 
   if (((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Parent->GetDirty()) ||
+        vtkVgNodeBase::RELATIVE_REFERENCE) && this->Parent && this->Parent->GetDirty()) ||
       ((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Dirty))
+        vtkVgNodeBase::RELATIVE_REFERENCE) && this->Parent && this->Dirty))
     {
     this->FinalMatrix->DeepCopy(this->Parent->GetFinalMatrix());
     }

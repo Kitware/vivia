@@ -36,7 +36,7 @@
      <x>0</x>
      <y>0</y>
      <width>909</width>
-     <height>23</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuQuery">
@@ -127,6 +127,9 @@
     <addaction name="actionShowQueryRegion"/>
     <addaction name="separator"/>
     <addaction name="actionFilterResults"/>
+    <addaction name="separator"/>
+    <addaction name="actionViewPagePrevious"/>
+    <addaction name="actionViewPageNext"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -945,6 +948,28 @@
   <action name="actionExportKml">
    <property name="text">
     <string>KML</string>
+   </property>
+  </action>
+  <action name="actionViewPagePrevious">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Previous Results</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+PgUp</string>
+   </property>
+  </action>
+  <action name="actionViewPageNext">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Next Results</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+PgDown</string>
    </property>
   </action>
  </widget>

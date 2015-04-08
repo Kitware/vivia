@@ -21,6 +21,7 @@
 #include "vsContour.h"
 #include "vsEvent.h"
 #include "vsTrackClassifier.h"
+#include "vsTrackId.h"
 #include "vsTrackState.h"
 
 QTE_IMPLEMENT_D_FUNC(vsDescriptorInput)
@@ -33,7 +34,7 @@ public:
 
   QScopedPointer<const vtkVgVideoFrameMetaData> FrameMetaData;
 
-  QScopedPointer<const vvTrackId> TrackId;
+  QScopedPointer<const vsTrackId> TrackId;
   QScopedPointer<const vsTrackState> TrackState;
   QScopedPointer<const vsTrackObjectClassifier> TrackClassifier;
 
@@ -73,33 +74,33 @@ vsDescriptorInput::vsDescriptorInput(const vtkVgVideoFrameMetaData& metaData) :
 }
 
 //-----------------------------------------------------------------------------
-vsDescriptorInput::vsDescriptorInput(const vvTrackId& closedTrack) :
+vsDescriptorInput::vsDescriptorInput(const vsTrackId& closedTrack) :
   d_ptr(new vsDescriptorInputPrivate)
 {
   QTE_D(vsDescriptorInput);
   d->Type = vsDescriptorInput::TrackClosure;
-  d->TrackId.reset(new vvTrackId(closedTrack));
+  d->TrackId.reset(new vsTrackId(closedTrack));
 }
 
 //-----------------------------------------------------------------------------
-vsDescriptorInput::vsDescriptorInput(const vvTrackId& id,
+vsDescriptorInput::vsDescriptorInput(const vsTrackId& id,
                                      const vsTrackState& data) :
   d_ptr(new vsDescriptorInputPrivate)
 {
   QTE_D(vsDescriptorInput);
   d->Type = vsDescriptorInput::TrackUpdate;
-  d->TrackId.reset(new vvTrackId(id));
+  d->TrackId.reset(new vsTrackId(id));
   d->TrackState.reset(new vsTrackState(data));
 }
 
 //-----------------------------------------------------------------------------
-vsDescriptorInput::vsDescriptorInput(const vvTrackId& id,
+vsDescriptorInput::vsDescriptorInput(const vsTrackId& id,
                                      const vsTrackObjectClassifier& data) :
   d_ptr(new vsDescriptorInputPrivate)
 {
   QTE_D(vsDescriptorInput);
   d->Type = vsDescriptorInput::TrackObjectClassifier;
-  d->TrackId.reset(new vvTrackId(id));
+  d->TrackId.reset(new vsTrackId(id));
   d->TrackClassifier.reset(new vsTrackObjectClassifier(data));
 }
 
@@ -135,10 +136,23 @@ vsDescriptorInput::vsDescriptorInput(const vsEventId& id,
   d->Type = vsDescriptorInput::EventNote;
   d->EventId.reset(new vsEventId(id));
   d->Note.reset(new QString(note));
-  d->NoteStartTime.reset(
-    new vgTimeStamp(startTime.Time, startTime.FrameNumber));
-  d->NoteEndTime.reset(
-    new vgTimeStamp(endTime.Time, endTime.FrameNumber));
+  d->NoteStartTime.reset(new vgTimeStamp(startTime));
+  d->NoteEndTime.reset(new vgTimeStamp(endTime));
+}
+
+//-----------------------------------------------------------------------------
+vsDescriptorInput::vsDescriptorInput(const vsTrackId& id,
+                                     const QString& note,
+                                     const vgTimeStamp& startTime,
+                                     const vgTimeStamp& endTime) :
+  d_ptr(new vsDescriptorInputPrivate)
+{
+  QTE_D(vsDescriptorInput);
+  d->Type = vsDescriptorInput::TrackNote;
+  d->TrackId.reset(new vsTrackId(id));
+  d->Note.reset(new QString(note));
+  d->NoteStartTime.reset(new vgTimeStamp(startTime));
+  d->NoteEndTime.reset(new vgTimeStamp(endTime));
 }
 
 //-----------------------------------------------------------------------------
@@ -168,7 +182,7 @@ const vtkVgVideoFrameMetaData* vsDescriptorInput::frameMetaData() const
 }
 
 //-----------------------------------------------------------------------------
-const vvTrackId* vsDescriptorInput::trackId() const
+const vsTrackId* vsDescriptorInput::trackId() const
 {
   QTE_D_CONST(vsDescriptorInput);
   return d->TrackId.data();

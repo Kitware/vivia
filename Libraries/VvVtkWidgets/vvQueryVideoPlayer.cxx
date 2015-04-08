@@ -150,7 +150,9 @@ void vvQueryVideoPlayer::buildRegionMap()
     }
 
   // Prepare iteration
-  vvQueryVideoPlayerPrivate::QueryRegionIter kf[4], qrEnd = this->Internal->QueryRegions.end();
+  vvQueryVideoPlayerPrivate::QueryRegionIter kf[4],
+    qrEnd = this->Internal->QueryRegions.end();
+
   kf[0] = kf[1] = this->Internal->QueryRegions.begin();
   kf[2] = kf[3] = kf[1] + 1;
   if (kf[2] != qrEnd && kf[2] + 1 != qrEnd)
@@ -226,7 +228,8 @@ vtkSmartPointer<vtkVgEventBase> vvQueryVideoPlayer::buildRegionEvent(
   vtkVgTimeStamp startFrame(true);      // initialize to MaxTime
   vtkVgTimeStamp endFrame(false);       // initialize to MinTime
 
-  vvQueryVideoPlayerPrivate::QueryRegionIter iter, end = this->Internal->QueryRegions.end();
+  vvQueryVideoPlayerPrivate::QueryRegionIter iter,
+    end = this->Internal->QueryRegions.end();
   for (iter = this->Internal->QueryRegions.begin(); iter != end; ++iter)
     {
     if (iter.value().IsKeyframe != matchKeyframes)
@@ -520,7 +523,8 @@ void vvQueryVideoPlayer::buildScene()
 
   this->Internal->VideoNode->SetVideoRepresentation(
     this->Internal->VideoRepresentation);
-  this->Internal->VideoNode->SetNodeReferenceFrame(vtkVgNodeBase::RELATIVE);
+  this->Internal->VideoNode->SetNodeReferenceFrame(
+    vtkVgNodeBase::RELATIVE_REFERENCE);
 }
 
 //-----------------------------------------------------------------------------
@@ -676,15 +680,15 @@ void vvQueryVideoPlayer::buildTrackModel(bool incremental)
   QHash<vtkIdType, TrackPointMap> tracks;
   foreach (vtkIdType trackId, this->Internal->TrackIdMap)
     {
-    // Create track from all available descriptors, dropping them as they become
-    // no longer useful, until none are left. We will prefer ones starting
-    // before desiredStartTime (the last end time) above those that don't,
-    // otherwise we will prefer those that start earliest. Out of those sets, we
-    // will pick the one with the latest end time.
+    // Create track from all available descriptors, dropping them as they
+    // become no longer useful, until none are left. We will prefer ones
+    // starting before desiredStartTime (the last end time) above those
+    // that don't, otherwise we will prefer those that start earliest.
+    // Out of those sets, we will pick the one with the latest end time.
     //
-    // We will fill in any holes (i.e. if a descriptor skips some frames) using
-    // any descriptor available. This is less optimal, but ideally no such gaps
-    // will exist.
+    // We will fill in any holes (i.e. if a descriptor skips some frames)
+    // using any descriptor available. This is less optimal, but ideally
+    // no such gaps will exist.
     vtkVgTimeStamp desiredStartTime(false);
     while (trackDescriptors.contains(trackId))
       {
@@ -755,7 +759,8 @@ void vvQueryVideoPlayer::buildTrackModel(bool incremental)
     this->Internal->TrackModel->GetPoints()->Allocate(numPoints);
     }
 
-  // Loop through the track points we accumulated and create tracks in the model
+  // Loop through the track points we accumulated and create
+  // tracks in the model
   foreach (vtkIdType trackId, tracks.keys())
     {
     // Create track and add to the internal track map

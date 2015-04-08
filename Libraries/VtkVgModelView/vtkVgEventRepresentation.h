@@ -92,6 +92,12 @@ public:
   vtkSetMacro(LineWidth, float);
   vtkGetMacro(LineWidth, float);
 
+  // Description:
+  // Set/Get the amount by which to adjust the line width per normalcy bin. The
+  // default is 1.0.
+  vtkSetMacro(NormalcyLineWidthScale, float);
+  vtkGetMacro(NormalcyLineWidthScale, float);
+
   void UpdateEventTypes();
 
 private:
@@ -121,6 +127,7 @@ private:
 
   double ZOffset;
   float LineWidth;
+  float NormalcyLineWidthScale;
 };
 
 #endif // __vtkVgEventRepresentation_h

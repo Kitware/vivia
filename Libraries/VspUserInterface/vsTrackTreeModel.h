@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,11 +7,13 @@
 #ifndef __vsTrackTreeModel_h
 #define __vsTrackTreeModel_h
 
-#include <QAbstractItemModel>
+#include <vsTrackId.h>
+
+#include <qtGlobal.h>
 
 #include <vtkSmartPointer.h>
 
-#include <vvTrack.h>
+#include <QAbstractItemModel>
 
 class QColor;
 class QPixmap;
@@ -24,13 +26,6 @@ class vtkVgTrackFilter;
 class vsCore;
 class vsScene;
 
-class vsTrackTreeColorHelper
-{
-public:
-  virtual ~vsTrackTreeColorHelper() {}
-  virtual QColor color(vtkVgTrack*) = 0;
-};
-
 class vsTrackTreeModel : public QAbstractItemModel
 {
   Q_OBJECT
@@ -39,10 +34,12 @@ public:
   enum ModelColumn
     {
     NameColumn,
+    StarColumn,
     TrackTypeColumn,
     ProbabilityColumn,
     StartTimeColumn,
     EndTimeColumn,
+    NoteColumn,
     IdColumn // not displayed
     };
 
@@ -51,7 +48,8 @@ public:
   enum DataRole
     {
     LogicalIdRole = Qt::UserRole + 1,
-    DisplayStateRole
+    DisplayStateRole,
+    StarRole,
     };
 
 public:
@@ -60,30 +58,35 @@ public:
   virtual ~vsTrackTreeModel();
 
   // Reimplemented from QAbstractItemModel
-  virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+  virtual Qt::ItemFlags flags(const QModelIndex& index) const QTE_OVERRIDE;
 
-  virtual QVariant data(const QModelIndex& index, int role) const;
+  virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const QTE_OVERRIDE;
 
   virtual QVariant headerData(int section, Qt::Orientation orientation,
-                              int role = Qt::DisplayRole) const;
+                              int role = Qt::DisplayRole) const QTE_OVERRIDE;
 
   virtual bool setData(const QModelIndex& index, const QVariant& value,
                        int role);
 
   virtual QModelIndex index(int row, int column,
-                            const QModelIndex& parent = QModelIndex()) const;
+                            const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
 
-  virtual QModelIndex parent(const QModelIndex& index) const;
+  virtual QModelIndex parent(const QModelIndex& index) const QTE_OVERRIDE;
 
-  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const;
+  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
+  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const QTE_OVERRIDE;
 
   bool isIndexHidden(const QModelIndex& index) const;
 
   QModelIndex indexOfTrack(vtkIdType trackId) const;
 
-  void setColor(int type, const QColor& color);
-  void setColorHelper(vsTrackTreeColorHelper*);
+  QList<vtkVgTrack*> trackList() const
+    {
+    return tracks;
+    }
+
+signals:
+  void trackNoteChanged(vtkIdType trackId, QString note);
 
 public slots:
   void addTrack(vtkVgTrack* track);
@@ -97,11 +100,10 @@ protected:
   QPixmap colorSwatch(const QColor&) const;
 
 protected slots:
-  void deferredAddTracks();
   void deferredUpdateTracks();
 
 private:
-  Q_DISABLE_COPY(vsTrackTreeModel)
+  QTE_DISABLE_COPY(vsTrackTreeModel)
 
   vsCore* Core;
   vsScene* Scene;
@@ -109,16 +111,13 @@ private:
 
   const vgSwatchCache& swatchCache;
 
-  vsTrackTreeColorHelper* colorHelper;
-
   QList<vtkVgTrack*> tracks;
   QMap<vtkIdType, vtkVgTrack*> addedTracks;
   QList<vtkVgTrack*> updatedTracks;
-  QMap<int, QColor> colors;
 
   bool isSorted;
 };
 
-Q_DECLARE_METATYPE(vvTrackId)
+Q_DECLARE_METATYPE(vsTrackId)
 
 #endif

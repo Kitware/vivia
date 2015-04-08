@@ -42,6 +42,8 @@ static const EventInfoTemplate eventsGeneral[] =
     { 240, 240, 240, 112, 112, 112 } },
   { vsEventInfo::ExitingRegion,   "Exiting Region",
     { 240, 240, 240, 112, 112, 112 } },
+  { vsEventInfo::Annotation,      "Annotation",
+    { 255, 255, 255, 64, 64, 64 } },
   emptyEventTemplate
 };
 
@@ -202,7 +204,7 @@ QList<vsEventInfo> vsEventInfo::events(vsEventInfo::Groups groups)
 }
 
 //-----------------------------------------------------------------------------
-vsEventInfo::Groups vsEventInfo::eventGroups(int eventType)
+vsEventInfo::Group vsEventInfo::eventGroup(int eventType)
 {
   if (eventType > 0)
     {

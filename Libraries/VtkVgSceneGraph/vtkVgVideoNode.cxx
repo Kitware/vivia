@@ -6,6 +6,7 @@
 
 #include "vtkVgVideoNode.h"
 
+// VisGUI includes.
 #include "vtkVgEventRepresentationBase.h"
 #include "vtkVgGroupNode.h"
 #include "vtkVgSceneManager.h"
@@ -64,7 +65,8 @@ void vtkVgVideoNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgVideoNode::SetVideoRepresentation(vtkVgVideoRepresentationBase0* videoRepresentation)
+void vtkVgVideoNode::SetVideoRepresentation(
+  vtkVgVideoRepresentationBase0* videoRepresentation)
 {
   if (videoRepresentation && (videoRepresentation != this->VideoRepresentation))
     {
@@ -91,7 +93,8 @@ vtkVgVideoRepresentationBase0* vtkVgVideoNode::GetVideoRepresentation()
 }
 
 //-----------------------------------------------------------------------------
-const vtkVgVideoRepresentationBase0* vtkVgVideoNode::GetVideoRepresentation() const
+const vtkVgVideoRepresentationBase0*
+vtkVgVideoNode::GetVideoRepresentation() const
 {
   return this->VideoRepresentation;
 }
@@ -139,10 +142,10 @@ void vtkVgVideoNode::Update(vtkVgNodeVisitorBase& nodeVisitor)
   // First update the render objects.
   this->UpdateRenderObjects(nodeVisitor.GetPropCollection());
 
-  if (((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Parent->GetDirty()) ||
-      ((this->NodeReferenceFrame ==
-        vtkVgNodeBase::RELATIVE) && this->Parent && this->Dirty))
+  if (((this->NodeReferenceFrame == vtkVgNodeBase::RELATIVE_REFERENCE) &&
+       this->Parent && this->Parent->GetDirty()) ||
+      ((this->NodeReferenceFrame == vtkVgNodeBase::RELATIVE_REFERENCE) &&
+       this->Parent && this->Dirty))
     {
     // We might need a concatenation instead of apply transformation here.
     this->FinalMatrix->DeepCopy(this->Parent->GetFinalMatrix());
