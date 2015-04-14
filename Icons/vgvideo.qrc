@@ -6,6 +6,7 @@
     <file alias="refresh">16x16/refresh.png</file>
     <file alias="remove">16x16/remove.png</file>
     <file alias="save">16x16/save.png</file>
+    <file alias="view-zoom-target">16x16/view-zoom-target.png</file>
   </qresource>
   <qresource prefix="icons/22x22">
     <file alias="arrow-down">22x22/arrow-down.png</file>

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -648,7 +648,7 @@ void vsScene::jumpToEvent()
 {
   QTE_D(vsScene);
 
-  CHECK_ARG(d->ZoomOnTarget);
+  CHECK_ARG(d->FocusOnTargetEnabled);
 
   vtkVgEvent* event = d->findEvent(d->PendingJumpEventId);
   d->PendingJumpEventId = -1;
@@ -710,7 +710,7 @@ void vsScene::jumpToTrack()
 {
   QTE_D(vsScene);
 
-  CHECK_ARG(d->ZoomOnTarget);
+  CHECK_ARG(d->FocusOnTargetEnabled);
 
   this->jumpToTrack(d->findTrack(d->PendingJumpTrackId));
   d->PendingJumpTrackId = -1;
@@ -2112,11 +2112,11 @@ void vsScene::setEventStatus(vtkVgEvent* event, int newStatus)
 }
 
 //-----------------------------------------------------------------------------
-void vsScene::setZoomOnTarget(bool state)
+void vsScene::setFocusOnTarget(bool state)
 {
   QTE_D(vsScene);
 
-  d->ZoomOnTarget = state;
+  d->FocusOnTargetEnabled = state;
 }
 
 //-----------------------------------------------------------------------------

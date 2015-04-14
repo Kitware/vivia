@@ -120,6 +120,7 @@
     <addaction name="actionVideoSkipForward"/>
     <addaction name="actionVideoPlayLive"/>
     <addaction name="separator"/>
+    <addaction name="actionViewFocusOnTarget"/>
     <addaction name="actionViewReset"/>
     <addaction name="separator"/>
     <addaction name="actionVideoLiveOffsetSet"/>
@@ -258,7 +259,7 @@
    <addaction name="actionVideoPlayLive"/>
    <addaction name="separator"/>
    <addaction name="actionViewReset"/>
-   <addaction name="actionViewZoomOnTarget"/>
+   <addaction name="actionViewFocusOnTarget"/>
    <addaction name="actionCancelFollowing"/>
   </widget>
   <widget class="QToolBar" name="visualizationToolBar">
@@ -1497,7 +1498,7 @@
     <string>Formulate a query using current data sources</string>
    </property>
   </action>
-  <action name="actionViewZoomOnTarget">
+  <action name="actionViewFocusOnTarget">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1506,10 +1507,10 @@
      <normaloff>:/icons/16x16/view-zoom-target</normaloff>:/icons/16x16/view-zoom-target</iconset>
    </property>
    <property name="text">
-    <string>&amp;Zoom on Target</string>
+    <string>Focus on &amp;Target</string>
    </property>
    <property name="toolTip">
-    <string>Zoom in view when following or jumping to a track/event</string>
+    <string>Allow the view to zoom and/or pan in order to focus on the detection when following or jumping to a track/event</string>
    </property>
   </action>
   <action name="actionSaveScreenshot">

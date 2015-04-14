@@ -439,6 +439,11 @@ Video Menu
 :icon:`playback-play-live` Live
   Selects `"Live" Playback`_ mode.
 
+:icon:`view-zoom-target` Focus on Target
+  Toggles if detection following actions (e.g. jumping to the start/end of a
+  track or event) are allowed to zoom and/or pan the video view in order to
+  focus on the detection.
+
 :icon:`view-reset` Reset View
   Resets the zoom and pan of the video view so that the entire video frame is
   visible and centered, with minimal padding.
