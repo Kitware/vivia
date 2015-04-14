@@ -21,7 +21,7 @@ class vgApplicationPrivate;
 ///
 /// This class extends QApplication to provide some common properties that are
 /// used by vgAboutDialog and vgUserManualAction.
-class QTVG_COMMON_EXPORT vgApplication : public QApplication
+class QTVG_WIDGETS_EXPORT vgApplication : public QApplication
 {
   Q_OBJECT
 
