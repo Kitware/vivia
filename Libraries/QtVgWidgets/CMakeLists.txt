@@ -6,12 +6,14 @@ set(qtvgWidgetsSources
     ctkRangeSlider.cpp
     vgAboutAction.cxx
     vgAboutDialog.cxx
+    vgApplication.cxx
     vgFrameScrubber.cxx
     vgFrameSpinBox.cxx
     vgMixerDrawer.cxx
     vgMixerItem.cxx
     vgMixerWidget.cxx
     vgTextEditDialog.cxx
+    vgUserManualAction.cxx
     vgVideoScrubber.cxx
 )
 
@@ -19,22 +21,26 @@ set(qtvgWidgetsMocHeaders
     ctkRangeSlider.h
     vgAboutAction.h
     vgAboutDialog.h
+    vgApplication.h
     vgFrameScrubber.h
     vgFrameSpinBox.h
     vgMixerDrawer.h
     vgMixerItem.h
     vgMixerWidget.h
     vgTextEditDialog.h
+    vgUserManualAction.h
     vgVideoScrubber.h
 )
 
 set(qtVgWidgetsInstallHeaders
   vgAboutAction.h
   vgAboutDialog.h
+  vgApplication.h
   vgFrameScrubber.h
   vgFrameSpinBox.h
   vgMixerWidget.h
   vgTextEditDialog.h
+  vgUserManualAction.h
   vgVideoScrubber.h
 )
 

@@ -28,7 +28,7 @@ public:
 
 //-----------------------------------------------------------------------------
 vsApplication::vsApplication(int& argc, char** argv)
-  : QApplication(argc, argv), d_ptr(new vsApplicationPrivate)
+  : vgApplication(argc, argv), d_ptr(new vsApplicationPrivate)
 {
   QTE_D(vsApplication);
 

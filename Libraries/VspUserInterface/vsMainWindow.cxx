@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -162,8 +162,8 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
   this->setWindowTitle(title);
   qtUtil::setApplicationIcon("vsPlay", this);
 
-  // Set up About dialog
-  d->UI.menuHelp->addAction(new vgAboutAction(this));
+  // Set up Help menu
+  vgApplication::setupHelpMenu(d->UI.menuHelp);
 
   // Set up docks
   d->UI.filterDock->hide();
@@ -279,8 +279,8 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
                             setTrackingMaskVisible);
   connectSceneDisplayToggle(d->UI.actionVideoMaskShowFiltering,
                             setFilteringMaskVisible);
-  connectSceneDisplayToggle(d->UI.actionViewZoomOnTarget,
-                            setZoomOnTarget);
+  connectSceneDisplayToggle(d->UI.actionViewFocusOnTarget,
+                            setFocusOnTarget);
 
   connect(d->UI.actionRegionClose, SIGNAL(triggered()),
           scene, SLOT(closeContour()));

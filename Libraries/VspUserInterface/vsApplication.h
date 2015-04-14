@@ -7,8 +7,9 @@
 #ifndef __vsApplication_h
 #define __vsApplication_h
 
-#include <QApplication>
 #include <QUrl>
+
+#include <vgApplication.h>
 
 #include <qtGlobal.h>
 
@@ -24,7 +25,7 @@ class vsUiExtensionInterface;
 
 class vsApplicationPrivate;
 
-class VSP_USERINTERFACE_EXPORT vsApplication : public QApplication
+class VSP_USERINTERFACE_EXPORT vsApplication : public vgApplication
 {
   Q_OBJECT
 

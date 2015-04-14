@@ -99,8 +99,8 @@ int main(int argc, char** argv)
   // Create application instance and set copyright information
   vsApplication app(args.qtArgc(), args.qtArgv());
 
-  app.setProperty("COPY_YEAR", VSPLAY_COPY_YEAR);
-  app.setProperty("COPY_ORGANIZATION", "Kitware, Inc.");
+  app.setCopyright(VSPLAY_COPY_YEAR, "Kitware, Inc.");
+  app.setUserManualLocation("vsPlay.html");
 
   // Register metatypes
   QTE_REGISTER_METATYPE(QHostAddress);
