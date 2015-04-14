@@ -451,12 +451,12 @@ menu, which is accessed by right clicking on a list item or list selection:
 
 :icon:`playback-skip-backward` Jump to Start
   Jumps the video (temporally) to the start time of the selected track. If
-  :action:`view-track Focus on Target` is checked, the video view is also
+  :action:`view-zoom-target Focus on Target` is checked, the video view is also
   centered on the track's start position.
 
 :icon:`playback-skip-forward` Jump to End
   Jumps the video (temporally) to the end time of the selected track. If
-  :action:`view-track Focus on Target` is checked, the video view is also
+  :action:`view-zoom-target Focus on Target` is checked, the video view is also
   centered on the track's end position.
 
 .. TODO: document track start/stop following actions
@@ -494,12 +494,12 @@ right clicking on a list item or list selection:
 
 :icon:`playback-skip-backward` Jump to Start
   Jumps the video (temporally) to the start time of the selected event. If
-  :action:`view-track Focus on Target` is checked, the video view is also
+  :action:`view-zoom-target Focus on Target` is checked, the video view is also
   centered on the event's start position.
 
 :icon:`playback-skip-forward` Jump to End
   Jumps the video (temporally) to the end time of the selected event. If
-  :action:`view-track Focus on Target` is checked, the video view is also
+  :action:`view-zoom-target Focus on Target` is checked, the video view is also
   centered on the event's end position.
 
 :icon:`blank` Set Event Start
