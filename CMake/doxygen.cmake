@@ -28,7 +28,7 @@ if(BUILD_DOCUMENTATION)
   )
 
   set(QT4_EXTRA_TAG_FILE
-    "${visGUI_BINARY_DIR}/doc/qt4-extra.tag" CACHE INTERNAL
+    "${visGUI_BINARY_DIR}/doc/sdk/qt4-extra.tag" CACHE INTERNAL
     "Location of generated file containing additional Doxygen tags for Qt4"
     FORCE
   )
@@ -43,6 +43,7 @@ function(vg_add_documentation name input_dir)
     set(tag_files)
     set(tag_targets)
 
+    set(doc_root "${CMAKE_BINARY_DIR}/doc/sdk")
     foreach(tag ${ARGN})
       if("x_${tag}" MATCHES "^x_[Qq][Tt]4?$")
         if(QT4_TAG_FILE)
@@ -57,7 +58,7 @@ function(vg_add_documentation name input_dir)
         set(tag_file "${QT4_EXTRA_TAG_FILE}")
         set(tag_href "${QT_DOC_DIR}/html")
       else()
-        set(tag_file "${visGUI_BINARY_DIR}/doc/${tag}/${tag}.tag")
+        set(tag_file "${doc_root}/${tag}/${tag}.tag")
         set(tag_href "../${tag}")
       endif()
       list(APPEND tag_files "\"${tag_file}=${tag_href}\"")
@@ -77,7 +78,7 @@ function(vg_add_documentation name input_dir)
     endif()
     string(REPLACE ";" " " DOXYGEN_INCLUDE_PATHS "${DOXYGEN_INCLUDE_PATHS}")
 
-    set(doc_dir "${CMAKE_BINARY_DIR}/doc/${name}")
+    set(doc_dir "${doc_root}/${name}")
     set(doxyfile_template "${visGUI_SOURCE_DIR}/CMake/Doxyfile.in")
     set(doxyfile "${doc_dir}/Doxyfile")
     set(doc_css "${visGUI_SOURCE_DIR}/CMake/visgui.css")
@@ -101,37 +102,37 @@ function(vg_add_documentation name input_dir)
               -D "DOXYGEN_EXTRA_STYLESHEET=${doc_css}"
               -P "${visGUI_SOURCE_DIR}/CMake/doxygen-script.cmake"
       DEPENDS "${doc_dir}" "${doxyfile_template}"
-      WORKING_DIRECTORY "${visGUI_BINARY_DIR}/doc/${name}"
+      WORKING_DIRECTORY "${doc_dir}"
       COMMENT "Generating Doxyfile for ${name}"
     )
     add_custom_target(doxygen-${name}-tag DEPENDS "${doxyfile}.tag")
     add_custom_command(
       TARGET doxygen-${name}-tag
       COMMAND "${DOXYGEN_EXECUTABLE}" "${doxyfile}.tag"
-      WORKING_DIRECTORY "${visGUI_BINARY_DIR}/doc/${name}"
+      WORKING_DIRECTORY "${doc_dir}"
       COMMENT "Creating tags for ${name}"
     )
     add_custom_target(doxygen-${name}
       DEPENDS ${tag_targets} "${doxyfile}.html" "${doc_css}"
       COMMAND "${DOXYGEN_EXECUTABLE}" "${doxyfile}.html"
-      WORKING_DIRECTORY "${visGUI_BINARY_DIR}/doc/${name}"
+      WORKING_DIRECTORY "${doc_dir}"
       COMMENT "Creating documentation for ${name}"
     )
     add_dependencies(doc doxygen-${name})
 
     if(VISGUI_INSTALL_DOCUMENTATION)
       install(
-        DIRECTORY "${visGUI_BINARY_DIR}/doc/${name}"
-        DESTINATION "share/doc/visgui-${VISGUI_VERSION_STR}/${name}"
+        DIRECTORY "${doc_dir}"
+        DESTINATION "share/doc/visgui-${VISGUI_VERSION_STR}/sdk/${name}"
         COMPONENT documentation
       )
     endif()
 
     if(QHELPGENERATOR_EXECUTABLE)
-      set(qch_file "${visGUI_BINARY_DIR}/doc/${name}.qch")
+      set(qch_file "${doc_root}/${name}.qch")
       add_custom_target(doxygen-${name}-qch
         COMMAND "${QHELPGENERATOR_EXECUTABLE}" index.qhp -o "${qch_file}"
-        WORKING_DIRECTORY "${visGUI_BINARY_DIR}/doc/${name}"
+        WORKING_DIRECTORY "${doc_dir}"
         DEPENDS doxygen-${name}
         COMMENT "Creating Qt compressed help for ${name}"
       )
@@ -139,7 +140,7 @@ function(vg_add_documentation name input_dir)
 
       if(VISGUI_INSTALL_DOCUMENTATION)
         install("${qch_file}"
-          DESTINATION "share/doc/visgui-${VISGUI_VERSION_STR}"
+          DESTINATION "share/doc/visgui-${VISGUI_VERSION_STR}/sdk"
           COMPONENT documentation
         )
       endif()
