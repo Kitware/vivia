@@ -16,6 +16,7 @@
     <file alias="event-show-probability">16x16/event-show-probability.png</file>
     <file alias="event-show-tracks">16x16/event-show-tracks.png</file>
     <file alias="filter-show">16x16/filter-show.png</file>
+    <file alias="help-manual">16x16/help-manual.png</file>
     <file alias="load">16x16/load.png</file>
     <file alias="load-alert">16x16/load-alert.png</file>
     <file alias="load-database">16x16/load-database.png</file>
@@ -115,6 +116,7 @@
     <file alias="event-show-probability">22x22/event-show-probability.png</file>
     <file alias="event-show-tracks">22x22/event-show-tracks.png</file>
     <file alias="filter-show">22x22/filter-show.png</file>
+    <file alias="help-manual">22x22/help-manual.png</file>
     <file alias="load">22x22/load.png</file>
     <file alias="load-alert">22x22/load-alert.png</file>
     <file alias="load-database">22x22/load-database.png</file>
