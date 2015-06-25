@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -38,12 +38,14 @@ QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
         }
 
       // Set image point and box
-      state.ImagePoint.X = objs[i]->img_loc_[0];
-      state.ImagePoint.Y = objs[i]->img_loc_[1];
-      state.ImageBox.TopLeft.X = objs[i]->bbox_.min_x();
-      state.ImageBox.TopLeft.Y = objs[i]->bbox_.min_y();
-      state.ImageBox.BottomRight.X = objs[i]->bbox_.max_x();
-      state.ImageBox.BottomRight.Y = objs[i]->bbox_.max_y();
+      const auto& img_loc = objs[i]->get_image_loc();
+      const auto& bbox = objs[i]->get_bbox();
+      state.ImagePoint.X = img_loc[0];
+      state.ImagePoint.Y = img_loc[1];
+      state.ImageBox.TopLeft.X = bbox.min_x();
+      state.ImageBox.TopLeft.Y = bbox.min_y();
+      state.ImageBox.BottomRight.X = bbox.max_x();
+      state.ImageBox.BottomRight.Y = bbox.max_y();
 
       // Set world location, if available
       double wlLat, wlLong;
@@ -55,7 +57,8 @@ QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
         }
 
       // Set image object, if available
-      if (obj.boundary_.num_sheets())
+      const auto& boundary = obj.get_boundary();
+      if (boundary.num_sheets())
         {
         // Oh, dear... vgl_polygon uses int in its operator[], unsigned int for
         // the return value of num_sheets(), all to access a std::vector where
@@ -64,13 +67,13 @@ QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
         // ...hence this silly cast, and silly use of int for the index counter
         // type, to avoid compiler warnings (it is safe from overflow, since an
         // overflow will make it < 0 and the loop will not execute)
-        int numSheets = static_cast<int>(obj.boundary_.num_sheets());
+        int numSheets = static_cast<int>(boundary.num_sheets());
 
         for (int j = 0; j < numSheets; ++j)
           {
           vvTrackState stateWithObject = state;
           typedef vgl_polygon<vidtk::image_object::float_type>::sheet_t Sheet;
-          const Sheet& sheet = obj.boundary_[j];
+          const Sheet& sheet = boundary[j];
 
           // Set image object
           for (size_t n = 0; n < sheet.size(); ++n)
