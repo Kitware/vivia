@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -93,7 +93,7 @@ void qtExpander::paintEvent(QPaintEvent*)
   opt.icon = QIcon();
 
   // Adjust state to compensate for overloading of 'checked' to mean 'expanded'
-  QStyle::State raiseFlags = QStyle::State_AutoRaise & QStyle::State_MouseOver;
+  QStyle::State raiseFlags = QStyle::State_AutoRaise | QStyle::State_MouseOver;
   if ((opt.state & raiseFlags) == raiseFlags)
     {
     opt.state |= QStyle::State_Raised;
