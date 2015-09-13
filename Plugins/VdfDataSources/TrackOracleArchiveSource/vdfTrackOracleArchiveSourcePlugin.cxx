@@ -9,9 +9,12 @@
 #include "vdfTrackOracleTrackArchiveSource.h"
 #include "visgui_track_type.h"
 
+#include <vcl_string.h>
+
 #include <vgCheckArg.h>
 
 #include <qtStlUtil.h>
+
 
 #include <track_oracle/file_format_base.h>
 #include <track_oracle/file_format_manager.h>
