@@ -61,6 +61,7 @@ set(VTK_REQUIRED_COMPONENTS
   vtkIOXML
   vtkRenderingAnnotation
   vtkRenderingContext2D
+  vtkRenderingContextOpenGL
   vtkRenderingFreeType
   vtkRenderingFreeTypeOpenGL
   vtkRenderingLabel
@@ -85,7 +86,7 @@ if(VISGUI_ENABLE_WEB)
   endif()
 endif()
 
-find_package(VTK NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
+find_package(VTK 6.2 NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
 include(${VTK_USE_FILE})
 
 # We need this definition to be set regardless
