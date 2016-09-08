@@ -61,6 +61,7 @@ set(VTK_REQUIRED_COMPONENTS
   vtkIOXML
   vtkRenderingAnnotation
   vtkRenderingContext2D
+  vtkRenderingContextOpenGL
   vtkRenderingFreeType
   vtkRenderingFreeTypeOpenGL
   vtkRenderingLabel

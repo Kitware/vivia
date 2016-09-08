@@ -195,6 +195,7 @@ vg_vtk_module(${PROJECT_NAME}
   vtkInteractionStyle
   vtkInfovisLayout
   vtkIOCore
+  vtkRenderingContextOpenGL
   vtkRenderingFreeTypeOpenGL
   vtkRenderingLabel
   vtkRenderingOpenGL
