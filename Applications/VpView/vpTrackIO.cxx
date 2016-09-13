@@ -11,6 +11,7 @@
 
 #include <vtkMatrix4x4.h>
 
+#include <algorithm>
 #include <assert.h>
 
 enum { NumDefaultTrackColors = 12 };
