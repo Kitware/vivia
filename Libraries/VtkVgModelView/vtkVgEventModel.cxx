@@ -24,6 +24,7 @@
 
 #include <assert.h>
 #include <map>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkVgEventModel);
 
