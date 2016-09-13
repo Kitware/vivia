@@ -27,6 +27,8 @@
 #include "vtkTexturedActor2D.h"
 #include "vtkWindow.h"
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkVgLabeledRegion);
 
 vtkCxxSetObjectMacro(vtkVgLabeledRegion, TextProperty, vtkTextProperty);
