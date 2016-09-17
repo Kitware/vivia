@@ -256,14 +256,14 @@ void vsScene::setupFilterWidget(vgMixerWidget* filterWidget)
   d->createFilterEventGroup("User Defined", vsEventInfo::User);
   d->createFilterEventGroup("Alert", vsEventInfo::Alert);
   d->createFilterEventGroup("General", vsEventInfo::General);
-  d->createFilterEventGroup("Person", vsEventInfo::Person,
+  d->createFilterEventGroup("Fish", vsEventInfo::Fish,
                             vsEventInfo::Classifier);
-  d->createFilterEventGroup("Vehicle", vsEventInfo::Vehicle,
+  d->createFilterEventGroup("Scallop", vsEventInfo::Scallop,
                             vsEventInfo::Classifier);
 
   // Set up (built-in) event type filters
-  d->setupFilterEventGroup(vsEventInfo::Person);
-  d->setupFilterEventGroup(vsEventInfo::Vehicle);
+  d->setupFilterEventGroup(vsEventInfo::Fish);
+  d->setupFilterEventGroup(vsEventInfo::Scallop);
   d->setupFilterEventGroup(vsEventInfo::General, true);
   d->setupFilterEventGroup(d->Core->manualEventTypes(),
                            vsEventInfo::User, true);
@@ -541,11 +541,11 @@ void vsScene::setEventVisibility(int type, bool visibility)
 
   switch (type)
     {
-    case vsTrackInfo::Person:
-      d->TrackFilter->SetShowType(vtkVgTrack::Person, visibility);
+    case vsTrackInfo::Fish:
+      d->TrackFilter->SetShowType(vtkVgTrack::Fish, visibility);
       break;
-    case vsTrackInfo::Vehicle:
-      d->TrackFilter->SetShowType(vtkVgTrack::Vehicle, visibility);
+    case vsTrackInfo::Scallop:
+      d->TrackFilter->SetShowType(vtkVgTrack::Scallop, visibility);
       break;
     case vsTrackInfo::Other:
       d->TrackFilter->SetShowType(vtkVgTrack::Other, visibility);
@@ -564,11 +564,11 @@ void vsScene::setEventThreshold(int type, double threshold)
 
   switch (type)
     {
-    case vsTrackInfo::Person:
-      d->TrackFilter->SetMinProbability(vtkVgTrack::Person, threshold);
+    case vsTrackInfo::Fish:
+      d->TrackFilter->SetMinProbability(vtkVgTrack::Fish, threshold);
       break;
-    case vsTrackInfo::Vehicle:
-      d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, threshold);
+    case vsTrackInfo::Scallop:
+      d->TrackFilter->SetMinProbability(vtkVgTrack::Scallop, threshold);
       break;
     case vsTrackInfo::Other:
       d->TrackFilter->SetMinProbability(vtkVgTrack::Other, threshold);

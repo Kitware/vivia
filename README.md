@@ -7,7 +7,7 @@ ViViA is an open source C++/Qt project for visualizing video analytics.  It cons
 of applications designed to allow a user to intereact with surveillance video from a
 variety of surveillance video sources (Full Motion Video, Wide Area Motion Imagery etc.)
 The ViViA applications provide User Interfaces for reviewing the results of automated analysis
-of such videos.  These results might include the tracks of moving persons or vehicles or
+of such videos.  These results might include the tracks of moving fishs or scallops or
 the results analyzing the behavior of such tracks.
 
 ViViA is provided as part of [Kitware's](http://www.kitware.com) [KWIVER Toolkit](http://www.kwiver.org).

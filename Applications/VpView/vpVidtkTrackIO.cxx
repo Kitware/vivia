@@ -626,8 +626,8 @@ void vpVidtkTrackIO::ReadTrack(
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
-    track->SetPVO(pvo.get_probability_person(),
-                  pvo.get_probability_vehicle(),
+    track->SetPVO(pvo.get_probability_fish(),
+                  pvo.get_probability_scallop(),
                   pvo.get_probability_other());
     }
 

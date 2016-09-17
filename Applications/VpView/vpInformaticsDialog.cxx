@@ -138,7 +138,7 @@ void vpInformaticsDialog::Initialize()
         index->InsertNextValue(iedIdx);
         break;
       case 2:
-        label = "person " + i / numIcons;
+        label = "fish " + i / numIcons;
         name->InsertNextValue(label.c_str());
         index->InsertNextValue(terrIdx);
         break;

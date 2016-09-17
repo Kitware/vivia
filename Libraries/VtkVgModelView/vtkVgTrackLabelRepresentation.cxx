@@ -459,7 +459,7 @@ void vtkVgTrackLabelRepresentation::Update()
     else if (this->TrackModel->GetTrackDisplayData(track).NumIds == 0)
       {
       // Only do the work of getting the HeadIdentifier (which is preferred
-      // display vehicle) if we know we don't have the trail as backup
+      // display scallop) if we know we don't have the trail as backup
       vtkIdType npts, *pts, trackPointId;
       track->GetHeadIdentifier(this->TrackModel->GetCurrentTimeStamp(), npts,
                                pts, trackPointId);

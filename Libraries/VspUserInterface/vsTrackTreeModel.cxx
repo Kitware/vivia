@@ -81,8 +81,8 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
           int type = this->trackFilter->GetBestClassifier(track);
           switch (type)
             {
-            case vtkVgTrack::Person:       return "Person";
-            case vtkVgTrack::Vehicle:      return "Vehicle";
+            case vtkVgTrack::Fish:       return "Fish";
+            case vtkVgTrack::Scallop:      return "Scallop";
             case vtkVgTrack::Other:        return "Other";
             case vtkVgTrack::Unclassified: return "Unclassified";
             }

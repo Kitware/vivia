@@ -1212,22 +1212,22 @@ vtkIdType vtkVgTrack::GetNextPathPt(vtkVgTimeStamp& timeStamp)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrack::SetPVO(double person, double vehicle, double other)
+void vtkVgTrack::SetPVO(double fish, double scallop, double other)
 {
-  double sum = person + vehicle + other;
+  double sum = fish + scallop + other;
   if (sum != 1.0 && sum != 0.0)
     {
-    person /= sum;
-    vehicle /= sum;
+    fish /= sum;
+    scallop /= sum;
     other /= sum;
     }
-  if (this->PVO[0] == person && this->PVO[1] == vehicle && this->PVO[2] == other)
+  if (this->PVO[0] == fish && this->PVO[1] == scallop && this->PVO[2] == other)
     {
     return;
     }
 
-  this->PVO[0] = person;
-  this->PVO[1] = vehicle;
+  this->PVO[0] = fish;
+  this->PVO[1] = scallop;
   this->PVO[2] = other;
 
   this->Modified();
@@ -1249,11 +1249,11 @@ int vtkVgTrack::GetBestPVOClassifier()
 
   if (this->PVO[0] >= this->PVO[1] && this->PVO[0] >= this->PVO[2])
     {
-    return vtkVgTrack::Person;
+    return vtkVgTrack::Fish;
     }
   else if (this->PVO[1] > this->PVO[0] && this->PVO[1] >= PVO[2])
     {
-    return vtkVgTrack::Vehicle;
+    return vtkVgTrack::Scallop;
     }
 
   return vtkVgTrack::Other;

@@ -1649,14 +1649,14 @@ void vpViewCore::initializeScene()
   this->IconOffsetX = this->IconOffsetY = 5;
 
   this->TrackFilter = vtkSmartPointer<vtkVgTrackFilter>::New();
-  this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
-  this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
+  this->TrackFilter->SetShowType(vtkVgTrack::Fish, true);
+  this->TrackFilter->SetShowType(vtkVgTrack::Scallop, true);
   this->TrackFilter->SetShowType(vtkVgTrack::Other, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Fish, 0.0);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Scallop, 0.0);
   this->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Fish, 1.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Scallop, 1.0);
   this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
 
   this->ContourOperatorManager =
@@ -1821,11 +1821,11 @@ void vpViewCore::setupRenderWidget(QVTKWidget* renderWidget)
 //-----------------------------------------------------------------------------
 void vpViewCore::setupTrackFilters(vgMixerWidget* filterWidget)
 {
-  filterWidget->addItem(vtkVgTrack::Person, "Person");
-  filterWidget->setValue(vtkVgTrack::Person, 0.0);
+  filterWidget->addItem(vtkVgTrack::Fish, "Fish");
+  filterWidget->setValue(vtkVgTrack::Fish, 0.0);
 
-  filterWidget->addItem(vtkVgTrack::Vehicle, "Vehicle");
-  filterWidget->setValue(vtkVgTrack::Vehicle, 0.0);
+  filterWidget->addItem(vtkVgTrack::Scallop, "Scallop");
+  filterWidget->setValue(vtkVgTrack::Scallop, 0.0);
 
   filterWidget->addItem(vtkVgTrack::Other, "Other");
   filterWidget->setValue(vtkVgTrack::Other, 1.0);

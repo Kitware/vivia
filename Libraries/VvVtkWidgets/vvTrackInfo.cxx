@@ -41,9 +41,9 @@ static const TrackInfoTemplate nullTrackTemplate =
 //-----------------------------------------------------------------------------
 static const TrackInfoTemplate trackTemplates[] =
 {
-  { vtkVgTrack::Person,         "Person",
+  { vtkVgTrack::Fish,         "Fish",
     {  64,  64, 224,  48,  48, 192 } },
-  { vtkVgTrack::Vehicle,        "Vehicle",
+  { vtkVgTrack::Scallop,        "Scallop",
     { 208, 208,  48, 160, 160,  32 } },
   { vtkVgTrack::Other,          "Other",
     { 112, 112, 112,  64,  64,  64 } },

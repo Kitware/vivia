@@ -18,7 +18,7 @@
 #include <event_detectors/event_writer_kwe.h>
 #include <event_detectors/human_event_includes.h>
 #include <event_detectors/other_event_includes.h>
-#include <event_detectors/vehicle_event_includes.h>
+#include <event_detectors/scallop_event_includes.h>
 
 #include <assert.h>
 
@@ -31,7 +31,7 @@ static vidtk::event_sptr CreateVidtkEvent(int type)
     }
 #define OTHER_EVENT_MACRO(name) VEHICLE_EVENT_MACRO(name)
 #define HUMAN_EVENT_MACRO(name) VEHICLE_EVENT_MACRO(name)
-#include <event_detectors/vehicle_events.macro>
+#include <event_detectors/scallop_events.macro>
 #include <event_detectors/other_events.macro>
 #include <event_detectors/human_events.macro>
 #undef VEHICLE_EVENT_MACRO

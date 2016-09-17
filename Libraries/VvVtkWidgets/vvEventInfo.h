@@ -24,8 +24,8 @@ struct VV_VTKWIDGETS_EXPORT vvEventInfo
 
   enum Group
     {
-    Person      = 0x1,
-    Vehicle     = 0x2,
+    Fish      = 0x1,
+    Scallop     = 0x2,
     All         = 0xff
     };
   Q_DECLARE_FLAGS(Groups, Group)

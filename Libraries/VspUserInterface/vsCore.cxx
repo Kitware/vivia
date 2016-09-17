@@ -678,15 +678,15 @@ void vsCore::setTrackClassification(
 
   // Set PVO on vvTrack
   vvTrack& theVvTrack = d->getVvTrack(trackId);
-  theVvTrack.Classification["Person"] = toc.probabilityPerson;
-  theVvTrack.Classification["Vehicle"] = toc.probabilityVehicle;
+  theVvTrack.Classification["Fish"] = toc.probabilityFish;
+  theVvTrack.Classification["Scallop"] = toc.probabilityScallop;
   theVvTrack.Classification["Other"] = toc.probabilityOther;
 
   // Set PVO on vtkVgTrack
   bool isNewTrack = false;
   vtkVgTrack* const track = d->track(trackId, &isNewTrack);
-  track->SetPVO(toc.probabilityPerson,
-                toc.probabilityVehicle,
+  track->SetPVO(toc.probabilityFish,
+                toc.probabilityScallop,
                 toc.probabilityOther);
 
   d->emitInput(&vsCore::tocAvailable,

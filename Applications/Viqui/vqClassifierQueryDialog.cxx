@@ -157,8 +157,8 @@ vqClassifierQueryDialog::vqClassifierQueryDialog(QWidget* parent,
   d->populateDescriptors();
 
   QSet<int> searchableTypes = vqEventInfo::searchableTypes();
-  d->populateGroup("Person", vqEventInfo::Person, searchableTypes);
-  d->populateGroup("Vehicle", vqEventInfo::Vehicle, searchableTypes);
+  d->populateGroup("Fish", vqEventInfo::Fish, searchableTypes);
+  d->populateGroup("Scallop", vqEventInfo::Scallop, searchableTypes);
 }
 
 //-----------------------------------------------------------------------------

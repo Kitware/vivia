@@ -111,16 +111,16 @@ public:
   void ClearStateAttributeMasks();
 
   // Description:
-  // Set/Get the rgb components of the "Person" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Fish" color (if ColorByPVO).
   // Note: expecting color values between 0 and 1.
-  vtkSetVector3Macro(PersonColor, double);
-  vtkGetVector3Macro(PersonColor, double);
+  vtkSetVector3Macro(FishColor, double);
+  vtkGetVector3Macro(FishColor, double);
 
   // Description:
-  // Set/Get the rgb components of the "Vehicle" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Scallop" color (if ColorByPVO).
   // Note: expecting color values between 0 and 1.
-  vtkSetVector3Macro(VehicleColor, double);
-  vtkGetVector3Macro(VehicleColor, double);
+  vtkSetVector3Macro(ScallopColor, double);
+  vtkGetVector3Macro(ScallopColor, double);
 
   // Description:
   // Set/Get the rgb components of the "Other" color (if ColorByPVO).
@@ -170,8 +170,8 @@ protected:
   vtkVgTrackFilter* TrackFilter;
 
   TrackColorMode   ColorMode;
-  double           PersonColor[3];
-  double           VehicleColor[3];
+  double           FishColor[3];
+  double           ScallopColor[3];
   double           OtherColor[3];
   double           UnclassifiedColor[3];
   double           ScalarColor[3];

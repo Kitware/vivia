@@ -77,8 +77,8 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractPvo(
     for (size_t n = 0, k = tracks.size(); n < k; ++n)
       {
       vsTrackObjectClassifier toc;
-      toc.probabilityPerson  = pvo.descriptor_pvo_raw_scores()[0];
-      toc.probabilityVehicle = pvo.descriptor_pvo_raw_scores()[1];
+      toc.probabilityFish  = pvo.descriptor_pvo_raw_scores()[0];
+      toc.probabilityScallop = pvo.descriptor_pvo_raw_scores()[1];
       toc.probabilityOther   = pvo.descriptor_pvo_raw_scores()[2];
 
       emit q->tocAvailable(vsAdaptTrackId(tracks[n]), toc);

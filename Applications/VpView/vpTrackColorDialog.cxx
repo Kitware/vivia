@@ -71,8 +71,8 @@ vpTrackColorDialog::vpTrackColorDialog(const vgAttributeSet* trackAttributes,
   d->UI.colorByStatePVO->setEnabled(true);
 
   // TODO: Use the real colors
-  d->UI.personColor->setColor(Qt::blue);
-  d->UI.vehicleColor->setColor(Qt::green);
+  d->UI.fishColor->setColor(Qt::blue);
+  d->UI.scallopColor->setColor(Qt::green);
   d->UI.otherColor->setColor(Qt::red);
 
   connect(d->UI.colorByStateAttribute, SIGNAL(toggled(bool)),

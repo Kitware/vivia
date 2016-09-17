@@ -84,8 +84,8 @@ public:
 
   QColor DefaultEventColor;
 
-  QColor PersonTrackColor;
-  QColor VehicleTrackColor;
+  QColor FishTrackColor;
+  QColor ScallopTrackColor;
   QColor OtherTrackColor;
   QColor UnclassifiedTrackColor;
   bool ColorTracksByPVO;

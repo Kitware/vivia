@@ -234,12 +234,12 @@ vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core) :
   core->addModel(this->GroundTruthGraph.EventModel, vsCore::GroundTruthModel);
 
   // Initialize filters
-  this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
-  this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+  this->TrackFilter->SetShowType(vtkVgTrack::Fish, true);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Fish, 0.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Fish, 1.0);
+  this->TrackFilter->SetShowType(vtkVgTrack::Scallop, true);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Scallop, 0.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Scallop, 1.0);
   this->TrackFilter->SetShowType(vtkVgTrack::Other, true);
   this->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
   this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);

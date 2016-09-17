@@ -280,12 +280,12 @@ Tracks and Events in vsPlay both implement a concept of "classification". A
 classification is information about the detection, usually provided by the
 detecting algorithm (or, in some cases, by the operator). Track classification
 is optional, and identifies the type of entity being tracked (currently,
-"Person", "Vehicle", or "Other"). Event classification is mandatory (events
+"Fish", "Scallop", or "Other"). Event classification is mandatory (events
 without a classification are not displayed in the main view), and is broken
 into groups. Some classifications (e.g. those related to the in-process
 tripwire algorithm) are built in, while others are dynamically defined. Event
-classifications might include 'vehicle making U-turn', 'person walking', or
-'person juggling flaming batons'.
+classifications might include 'scallop making U-turn', 'fish walking', or
+'fish juggling flaming batons'.
 
 The term "classification" is used instead of "type" to indicate that the
 classification is an estimate, which as a consequence has an associated
@@ -709,21 +709,21 @@ Tracks Menu
 Events Menu
 -----------
 
-:icon:`blank` Show All Person Events
+:icon:`blank` Show All Fish Events
   Sets the `Classification Filters`_ visibility state for all event types in
-  the Person group to **on**.
+  the Fish group to **on**.
 
-:icon:`blank` Hide All Person Events
+:icon:`blank` Hide All Fish Events
   Sets the `Classification Filters`_ visibility state for all event types in
-  the Person group to **off**.
+  the Fish group to **off**.
 
-:icon:`blank` Show All Vehicle Events
+:icon:`blank` Show All Scallop Events
   Sets the `Classification Filters`_ visibility state for all event types in
-  the Vehicle group to **on**.
+  the Scallop group to **on**.
 
-:icon:`blank` Hide All Vehicle Events
+:icon:`blank` Hide All Scallop Events
   Sets the `Classification Filters`_ visibility state for all event types in
-  the Vehicle group to **off**.
+  the Scallop group to **off**.
 
 :icon:`load` Load Filter Settings
   Loads `Classification Filters`_ settings from a file on disk.

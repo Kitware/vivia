@@ -260,14 +260,14 @@ public:
   // Description:
   // Set/Get the PVO classification for this track.  These must sum to 1;
   // to guarantee summing to 1, we normalize on input.
-  void SetPVO(double person, double vehicle, double other);
+  void SetPVO(double fish, double scallop, double other);
   void SetPVO(double pvo[3]);
   vtkGetVector3Macro(PVO, double);
 
   enum enumTrackPVOType
     {
-    Person = 0,
-    Vehicle,
+    Fish = 0,
+    Scallop,
     Other,
     Unclassified
     };

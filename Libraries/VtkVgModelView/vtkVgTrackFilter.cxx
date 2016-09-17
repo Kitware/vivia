@@ -32,7 +32,7 @@ vtkVgTrackFilter::~vtkVgTrackFilter()
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetShowType(int trackType, bool state)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return;
@@ -50,7 +50,7 @@ void vtkVgTrackFilter::SetShowType(int trackType, bool state)
 //-----------------------------------------------------------------------------
 bool vtkVgTrackFilter::GetShowType(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return false;
@@ -61,7 +61,7 @@ bool vtkVgTrackFilter::GetShowType(int trackType)
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetMinProbability(int trackType, double threshold)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return;
@@ -80,7 +80,7 @@ void vtkVgTrackFilter::SetMinProbability(int trackType, double threshold)
 //-----------------------------------------------------------------------------
 double vtkVgTrackFilter::GetMinProbability(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return 1.0;
@@ -91,7 +91,7 @@ double vtkVgTrackFilter::GetMinProbability(int trackType)
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetMaxProbability(int trackType, double threshold)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return;
@@ -109,7 +109,7 @@ void vtkVgTrackFilter::SetMaxProbability(int trackType, double threshold)
 //-----------------------------------------------------------------------------
 double vtkVgTrackFilter::GetMaxProbability(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  if (trackType < vtkVgTrack::Fish || trackType > vtkVgTrack::Other)
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return 1.0;
@@ -133,7 +133,7 @@ int vtkVgTrackFilter::GetBestClassifier(vtkVgTrack* track)
     }
 
   int filterType;
-  for (filterType = vtkVgTrack::Person; filterType <= vtkVgTrack::Other; filterType++)
+  for (filterType = vtkVgTrack::Fish; filterType <= vtkVgTrack::Other; filterType++)
     {
     if (!this->FilterShow[filterType])
       {

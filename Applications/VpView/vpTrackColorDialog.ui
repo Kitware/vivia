@@ -64,17 +64,17 @@
      </property>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="personLabel">
+       <widget class="QLabel" name="fishLabel">
         <property name="toolTip">
          <string>This color will be used to draw thinner lines and shapes related to the event (e.g. paths, head outlines).</string>
         </property>
         <property name="text">
-         <string>Person:</string>
+         <string>Fish:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="qtColorButton" name="personColor">
+       <widget class="qtColorButton" name="fishColor">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -87,17 +87,17 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="vehicleLabel">
+       <widget class="QLabel" name="scallopLabel">
         <property name="toolTip">
          <string>This color will be used to draw thinner lines and shapes related to the event (e.g. paths, head outlines).</string>
         </property>
         <property name="text">
-         <string>Vehicle:</string>
+         <string>Scallop:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="qtColorButton" name="vehicleColor">
+       <widget class="qtColorButton" name="scallopColor">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
