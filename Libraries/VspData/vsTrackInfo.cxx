@@ -60,8 +60,8 @@ QList<vsTrackInfo> vsTrackInfo::trackTypes()
     types.insert(ti.Type, ti);
 
   QList<vsTrackInfo> result;
-  adapt(result, types, vtkVgTrack::Person,       vsTrackInfo::Fish);
-  adapt(result, types, vtkVgTrack::Vehicle,      vsTrackInfo::Scallop);
+  adapt(result, types, vtkVgTrack::Fish,         vsTrackInfo::Fish);
+  adapt(result, types, vtkVgTrack::Scallop,      vsTrackInfo::Scallop);
   adapt(result, types, vtkVgTrack::Other,        vsTrackInfo::Other);
   adapt(result, types, vtkVgTrack::Unclassified, vsTrackInfo::Unclassified);
 
