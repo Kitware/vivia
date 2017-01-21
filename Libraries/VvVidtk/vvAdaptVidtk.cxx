@@ -8,9 +8,9 @@
 
 #include <QList>
 
-#include <tracking/image_object.h>
-#include <tracking/track_state.h>
-#include <tracking/tracking_keys.h>
+#include <tracking_data/image_object.h>
+#include <tracking_data/track_state.h>
+#include <tracking_data/tracking_keys.h>
 
 #include <vvTrack.h>
 
