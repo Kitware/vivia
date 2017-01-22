@@ -209,9 +209,9 @@ set(vpViewResources ../../Icons/vpView.qrc)
 
 if(VISGUI_ENABLE_VIDTK)
   list(APPEND vpViewSources
-    vpVidtkActivityIO.cxx
-    vpVidtkEventIO.cxx
-    vpVidtkFileEventIO.cxx
+#    vpVidtkActivityIO.cxx
+#    vpVidtkEventIO.cxx
+#    vpVidtkFileEventIO.cxx
     vpVidtkFileIO.cxx
     vpVidtkFileReader.cxx
     vpVidtkFileTrackIO.cxx
@@ -269,8 +269,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 
 if(VISGUI_ENABLE_VIDTK)
   target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-    vidtk_activity_detectors_lib
-    vidtk_events_lib
+#    vidtk_activity_detectors_lib
+#    vidtk_events_lib
     vidtk_tracking
     vidtk_utilities
   )

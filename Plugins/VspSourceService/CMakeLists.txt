@@ -23,7 +23,7 @@ add_subdirectory(KwaArchiveSource)
 if(TARGET track_oracle)
   add_subdirectory(TrackOracleArchiveSource)
 elseif(vidtk_FOUND)
-  add_subdirectory(Kw18ArchiveSource)
+  #add_subdirectory(Kw18ArchiveSource)
 endif()
 
 # Descriptor sources

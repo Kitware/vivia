@@ -7,7 +7,7 @@
 #include "vpVidtkFileIO.h"
 
 #include "vpFseTrackIO.h"
-#include "vpVidtkFileEventIO.h"
+//#include "vpVidtkFileEventIO.h"
 #include "vpVidtkFileTrackIO.h"
 
 //-----------------------------------------------------------------------------
@@ -50,12 +50,12 @@ void vpVidtkFileIO::SetEventModel(vtkVgEventModel* eventModel,
                                   vtkVgEventTypeRegistry* eventTypes)
 {
   delete this->EventIO;
-  this->EventMap.clear();
+/*  this->EventMap.clear();
   this->EventIO = new vpVidtkFileEventIO(
                     this->Reader,
                     this->EventMap, this->SourceEventIdToModelIdMap,
                     this->TrackMap, this->SourceTrackIdToModelIdMap,
-                    eventModel, eventTypes);
+                    eventModel, eventTypes);*/
 }
 
 //-----------------------------------------------------------------------------

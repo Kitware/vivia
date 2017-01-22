@@ -14,14 +14,14 @@ class vpVidtkFileReader : public vpFileReader, public vpVidtkReader
 {
 public:
   virtual bool ReadTracks(vcl_vector<vidtk::track_sptr>& tracks);
-  virtual bool ReadEvents(vcl_vector<vidtk::event_sptr>& events);
-  virtual bool ReadActivities(vcl_vector<vidtk::activity_sptr>& activities);
+//  virtual bool ReadEvents(vcl_vector<vidtk::event_sptr>& events);
+//  virtual bool ReadActivities(vcl_vector<vidtk::activity_sptr>& activities);
 
   virtual void SetImageHeight(unsigned int imageHeight);
   virtual unsigned int GetImageHeight() const;
 
 private:
-  vcl_map<unsigned int, vidtk::event_sptr> EventMap;
+//  vcl_map<unsigned int, vidtk::event_sptr> EventMap;
 };
 
 #endif // __vpVidtkFileReader_h

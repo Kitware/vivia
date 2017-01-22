@@ -9,7 +9,7 @@
 
 #include "vpModelIO.h"
 
-#include <event_detectors/event.h>
+//#include <event_detectors/event.h>
 #include <tracking_data/track.h>
 
 class vpVidtkReader;
@@ -47,7 +47,7 @@ private:
 
 protected:
   vcl_map<vtkVgTrack*, vidtk::track_sptr> TrackMap;
-  vcl_map<vtkVgEvent*, vidtk::event_sptr> EventMap;
+//  vcl_map<vtkVgEvent*, vidtk::event_sptr> EventMap;
   vcl_map<unsigned int, vtkIdType> SourceTrackIdToModelIdMap;
   vcl_map<unsigned int, vtkIdType> SourceEventIdToModelIdMap;
 };

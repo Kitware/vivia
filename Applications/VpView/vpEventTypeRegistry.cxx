@@ -6,7 +6,7 @@
 
 #include "vpEventTypeRegistry.h"
 
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
 #include <event_detectors/event_types.h>
 #endif
 
@@ -17,7 +17,7 @@ vtkStandardNewMacro(vpEventTypeRegistry);
 //-----------------------------------------------------------------------------
 void vpEventTypeRegistry::WarnTypeNotFound(int id)
 {
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
   if (id < static_cast<int>(vidtk::event_types::events_size))
     {
     vtkErrorMacro("Event type id is not registered: " <<

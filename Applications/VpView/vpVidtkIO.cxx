@@ -6,8 +6,8 @@
 
 #include "vpVidtkIO.h"
 
-#include "vpVidtkActivityIO.h"
-#include "vpVidtkEventIO.h"
+//#include "vpVidtkActivityIO.h"
+//#include "vpVidtkEventIO.h"
 #include "vpVidtkReader.h"
 #include "vpVidtkTrackIO.h"
 
@@ -40,12 +40,12 @@ void vpVidtkIO::SetEventModel(vtkVgEventModel* eventModel,
                               vtkVgEventTypeRegistry* eventTypes)
 {
   delete this->EventIO;
-  this->EventMap.clear();
+/*  this->EventMap.clear();
   this->EventIO = new vpVidtkEventIO(this->GetReader(), this->EventMap,
                                      this->SourceEventIdToModelIdMap,
                                      this->TrackMap,
                                      this->SourceTrackIdToModelIdMap,
-                                     eventModel, eventTypes);
+                                     eventModel, eventTypes);*/
 }
 
 //-----------------------------------------------------------------------------
@@ -53,8 +53,8 @@ void vpVidtkIO::SetActivityModel(vtkVgActivityManager* activityManager,
                                  vpActivityConfig* activityConfig)
 {
   delete this->ActivityIO;
-  this->ActivityIO = new vpVidtkActivityIO(this->GetReader(), activityManager,
-                                           activityConfig);
+/*  this->ActivityIO = new vpVidtkActivityIO(this->GetReader(), activityManager,
+                                           activityConfig);*/
 }
 
 //-----------------------------------------------------------------------------

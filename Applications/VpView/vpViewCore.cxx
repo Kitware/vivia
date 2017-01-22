@@ -1477,7 +1477,7 @@ void vpViewCore::initializeData()
   this->PNGWriter->SetInputConnection(this->WindowToImageFilter->GetOutputPort());
 
   // populate track state attributes
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
   this->TrackAttributes.Clear();
   this->TrackAttributes.SetMask("ForegroundTracking", "SSD",
     vidtk::track_state_attributes::ATTR_ASSOC_FG_SSD);

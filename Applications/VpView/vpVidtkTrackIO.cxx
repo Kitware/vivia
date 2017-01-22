@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,6 +13,7 @@
 #include <vtkVgTrack.h>
 #include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
+#include <vtkVgUtil.h>
 
 #include <vtkBoundingBox.h>
 #include <vtkMatrix4x4.h>
@@ -66,7 +67,7 @@ bool vpVidtkTrackIO::ReadTracks()
     vtkIdType numberOfActualPoints = 0, totalNumberOfMissingFrames = 0;
     for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
       {
-      const vcl_vector<vidtk::track_state_sptr>& history =
+      const std::vector<vidtk::track_state_sptr>& history =
         this->Tracks[i]->history();
 
       numberOfActualPoints += static_cast<vtkIdType>(history.size());
@@ -134,7 +135,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   vidtk::track_writer_process writer("vpVidtkTrackIO::WriteTracks");
 
   std::string filestr(filename);
-  vcl_string format = filestr.substr(filestr.rfind('.') + 1);
+  std::string format = filestr.substr(filestr.rfind('.') + 1);
 
   if (!writer.set_params(
         writer.params().set_value("filename", filename)
@@ -153,8 +154,8 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   bool useWorldCoords = this->StorageMode == TSM_TransformedGeoCoords;
   bool useRawImageCoords = this->StorageMode == TSM_ImageCoords;
 
-  vcl_vector<vidtk::track_sptr> tracks;
-  vcl_vector<vidtk::image_object_sptr> objs(1);
+  std::vector<vidtk::track_sptr> tracks;
+  std::vector<vidtk::image_object_sptr> objs(1);
 
   vtkPoints* points = this->TrackModel->GetPoints();
   double imageYExtent = this->Reader.GetImageHeight() - 1;
@@ -165,10 +166,10 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   bool typesFileOpenFailed = false;
   bool regionsFileOpenFailed = false;
 
-  vcl_string typesFilename(filename);
+  std::string typesFilename(filename);
   typesFilename += ".types";
 
-  vcl_string regionsFilename(filename);
+  std::string regionsFilename(filename);
   regionsFilename += ".regions";
 
   // Remove any existing companion files
@@ -221,7 +222,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         }
       }
 
-    vcl_vector<vidtk::track_state_sptr>::const_iterator origTrkStateIter,
+    std::vector<vidtk::track_state_sptr>::const_iterator origTrkStateIter,
                                                         origTrkStateEnd;
     if (origTrack)
       {
@@ -385,11 +386,12 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
       double lon = 444.0;
       if (orig_state && !orig_state->latitude_longitude(lat, lon))
         {
-        vcl_vector<vidtk::image_object_sptr> objs;
+        std::vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
-          lon = objs[0]->world_loc_[0];
-          lat = objs[0]->world_loc_[1];
+          const vidtk::tracker_world_coord_type& world_loc = objs[0]->get_world_loc();
+          lon = world_loc[0];
+          lat = world_loc[1];
           }
         }
 
@@ -408,22 +410,18 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         new_state->vel_ = orig_state->vel_;
         new_state->amhi_bbox_ = orig_state->amhi_bbox_;
 
-        vcl_vector<vidtk::image_object_sptr> objs;
+        std::vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
-          obj->img_loc_ = objs[0]->img_loc_;
-          obj->world_loc_ = objs[0]->world_loc_;
-          obj->area_ = objs[0]->area_;
-          obj->bbox_ = objs[0]->bbox_;
+          obj->set_image_loc(objs[0]->get_image_loc());
+          obj->set_world_loc(objs[0]->get_world_loc());
+          obj->set_area(objs[0]->get_area());
+          obj->set_bbox(objs[0]->get_bbox());
           }
         else
           {
-          obj->img_loc_[0] = 0;
-          obj->img_loc_[1] = 0;
-          obj->img_loc_[2] = 0;
-          obj->world_loc_[0] = 0;
-          obj->world_loc_[1] = 0;
-          obj->world_loc_[2] = 0;
+          obj->set_image_loc(0, 0);
+          obj->set_world_loc(0, 0, 0);
           }
         }
       else
@@ -446,28 +444,23 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
 
         if (geoCoord.IsValid())
           {
-          obj->world_loc_[0] = geoCoord.Longitude;
-          obj->world_loc_[1] = geoCoord.Latitude;
-          obj->world_loc_[2] = 0.0;
+          obj->set_world_loc(geoCoord.Longitude, geoCoord.Latitude, 0);
           }
         else
           {
-          obj->world_loc_[0] = 0;
-          obj->world_loc_[1] = 0;
-          obj->world_loc_[2] = 0;
+          obj->set_world_loc(0, 0, 0);
           }
 
         if (useWorldCoords)
           {
-          obj->img_loc_[0] = 0.5 * (minX + maxX);
-          obj->img_loc_[1] = 0.5 * (minY + maxY);
+          obj->set_image_loc(0.5 * (minX + maxX), 0.5 * (minY + maxY));
           }
         else
           {
-          obj->img_loc_[0] = pt[0];
-          obj->img_loc_[1] = useRawImageCoords ? pt[1] : imageYExtent - pt[1];
+          obj->set_image_loc(
+            pt[0], useRawImageCoords ? pt[1] : imageYExtent - pt[1]);
           }
-        obj->bbox_ = new_state->amhi_bbox_;
+        obj->set_bbox(new_state->amhi_bbox_);
         }
 
       objs[0] = obj;
@@ -480,7 +473,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
     }
 
   writer.set_tracks(tracks);
-  return writer.step();
+  return writer.step2();
 }
 
 //-----------------------------------------------------------------------------
@@ -488,7 +481,7 @@ void vpVidtkTrackIO::UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
                                   unsigned int updateStartFrame,
                                   unsigned int updateEndFrame)
 {
-  for (vcl_vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
+  for (std::vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
        end = tracks.end(); itr != end; ++itr)
     {
     this->ReadTrack(*itr, 0.0f, 0.0f, true, updateStartFrame, updateEndFrame);
@@ -508,8 +501,8 @@ bool vpVidtkTrackIO::GetNextValidTrackFrame(vtkVgTrack* track,
     }
 
   vidtk::track_sptr vtrack = itr->second;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator end =
+  std::vector<vidtk::track_state_sptr>::const_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_iterator end =
     vtrack->history().end();
 
   // search forwards through the track history until we find the start frame
@@ -540,8 +533,8 @@ bool vpVidtkTrackIO::GetPrevValidTrackFrame(vtkVgTrack* track,
     }
 
   vidtk::track_sptr vtrack = itr->second;
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator end
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator end
     = vtrack->history().rend();
 
   // search backwards through the track history until we find the start frame
@@ -626,12 +619,12 @@ void vpVidtkTrackIO::ReadTrack(
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
-    track->SetPVO(pvo.get_probability_fish(),
-                  pvo.get_probability_scallop(),
+    track->SetPVO(pvo.get_probability_person(),
+                  pvo.get_probability_vehicle(),
                   pvo.get_probability_other());
     }
 
-  const vcl_vector<vidtk::track_state_sptr>& trackHistory =
+  const std::vector<vidtk::track_state_sptr>& trackHistory =
     vidtkTrack->history();
 
   vtkSmartPointer<vtkVgScalars> attrScalars;
@@ -658,8 +651,8 @@ void vpVidtkTrackIO::ReadTrack(
   unsigned int attrType = 0;
 #endif
 
-  vcl_vector<vidtk::image_object_sptr> objs;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
+  std::vector<vidtk::image_object_sptr> objs;
+  std::vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
   for (trkStateIter = trackHistory.begin(); trkStateIter != trackHistory.end();
        trkStateIter++)
     {
@@ -692,16 +685,18 @@ void vpVidtkTrackIO::ReadTrack(
       double lat, lon;
       if (!(*trkStateIter)->latitude_longitude(lat, lon))
         {
-        lon = objs[0]->world_loc_[0];
-        lat = objs[0]->world_loc_[1];
+        const vidtk::tracker_world_coord_type& world_loc = objs[0]->get_world_loc();
+        lon = world_loc[0];
+        lat = world_loc[1];
         }
       vtkVgGeoCoord geoCoord(lat, lon);
 
       bool trackPointAvailable = true;
       double minY;
       double maxY;
-      vgl_box_2d<unsigned>& vglBBox = objs[0]->bbox_;
+      const vgl_box_2d< unsigned >& vglBBox = objs[0]->get_bbox();
       double pt[4] = {0.0, 0.0, 0.0, 1.0};
+      vpFrame frameMetaData;
       if (this->StorageMode == TSM_TransformedGeoCoords)
         {
         // tracks points stored in geo coordinates, head point in image
@@ -717,21 +712,21 @@ void vpVidtkTrackIO::ReadTrack(
         }
       else
         {
-        pt[0] = objs[0]->img_loc_[0];
+        const vidtk::vidtk_pixel_coord_type& image_loc = objs[0]->get_image_loc();
+        pt[0] = image_loc[0];
         unsigned int imageMaxY = this->Reader.GetImageHeight() - 1;
         if (this->StorageMode == TSM_InvertedImageCoords)
           {
-          pt[1] = imageMaxY - objs[0]->img_loc_[1];
+          pt[1] = imageMaxY - image_loc[1];
           }
         else // TSM_ImageCoords || TSM_HomographyTransformedImageCoords
           {
-          pt[1] = objs[0]->img_loc_[1];
+          pt[1] = image_loc[1];
           }
 
         if (this->StorageMode == TSM_HomographyTransformedImageCoords)
           {
           // we expect there to be a homography for every frame
-          vpFrame frameMetaData;
           if (!this->FrameMap->getFrame((*trkStateIter)->time_.frame_number(),
                                         frameMetaData) ||
               !frameMetaData.Homography)
@@ -743,9 +738,7 @@ void vpVidtkTrackIO::ReadTrack(
             }
           else
             {
-            frameMetaData.Homography->MultiplyPoint(pt, pt);
-            pt[0] /= pt[3];
-            pt[1] /= pt[3];
+            vtkVgApplyHomography(pt, frameMetaData.Homography, pt);
             }
           }
         else
@@ -777,6 +770,32 @@ void vpVidtkTrackIO::ReadTrack(
       // track point, but may at some point.
       if (trackPointAvailable)
         {
+        if (this->StorageMode == TSM_HomographyTransformedImageCoords &&
+            frameMetaData.Homography)
+          {
+          // TODO:
+          // This would be so much simpler if vtkVgTrack didn't use float for
+          // the track heads (and there is no reason it should, or at least,
+          // should accept doubles also, since that is what is ultimately used
+          // internally)
+          double pt[2];
+
+          vtkVgApplyHomography(bbox[0], bbox[1], frameMetaData.Homography, pt);
+          bbox[0] = static_cast<float>(pt[0]);
+          bbox[1] = static_cast<float>(pt[1]);
+
+          vtkVgApplyHomography(bbox[3], bbox[4], frameMetaData.Homography, pt);
+          bbox[3] = static_cast<float>(pt[0]);
+          bbox[4] = static_cast<float>(pt[1]);
+
+          vtkVgApplyHomography(bbox[6], bbox[7], frameMetaData.Homography, pt);
+          bbox[6] = static_cast<float>(pt[0]);
+          bbox[7] = static_cast<float>(pt[1]);
+
+          vtkVgApplyHomography(bbox[9], bbox[10], frameMetaData.Homography, pt);
+          bbox[9] = static_cast<float>(pt[0]);
+          bbox[10] = static_cast<float>(pt[1]);
+          }
         if (update)
           {
           track->SetPoint(timeStamp, pt, geoCoord, 4, bbox);

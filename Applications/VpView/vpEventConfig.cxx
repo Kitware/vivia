@@ -11,7 +11,7 @@
 
 #include "vtkVgEventTypeRegistry.h"
 
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
 #include <event_detectors/event_types.h>
 #endif
 
@@ -157,7 +157,7 @@ void vpEventConfig::WriteEventTypes()
     const vgEventType& type = this->Registry->GetType(i);
     this->Internal->Settings.setArrayIndex(i);
 
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
     this->Internal->Settings.setValue("Id",
                                       vidtk::event_types::event_names
                                       [type.GetId()]);
@@ -217,7 +217,7 @@ int vpEventConfig::GetNumberOfTypes()
 //-----------------------------------------------------------------------------
 int vpEventConfig::GetEventTypeIndex(int id)
 {
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
   if (id < 0 || id >= MaxEventTypes)
     {
     return -1;
@@ -264,7 +264,7 @@ void vpEventConfig::LoadFromFile(const char* filename)
 //-----------------------------------------------------------------------------
 int vpEventConfig::GetIdFromString(const char* str)
 {
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
   for (size_t i = 0; i < MaxEventTypes; ++i)
     {
     if (strcmp(str, vidtk::event_types::event_names[i]) == 0)
@@ -279,7 +279,7 @@ int vpEventConfig::GetIdFromString(const char* str)
 //-----------------------------------------------------------------------------
 const char* vpEventConfig::GetStringFromId(int id)
 {
-#ifdef VISGUI_USE_VIDTK
+#if defined(VISGUI_USE_VIDTK) && 0
   assert(id >= 0 && id < MaxEventTypes);
   return vidtk::event_types::event_names[id];
 #else

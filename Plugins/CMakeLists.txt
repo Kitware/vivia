@@ -4,7 +4,7 @@
 # closely located to the code they effect). However, no other processing shall
 # be done unless the condition(s) noted after the directory are met.
 
-add_subdirectory(VdfDataSources)
+#add_subdirectory(VdfDataSources)
 add_subdirectory(VspSourceService)  # if(VISGUI_ENABLE_VSPLAY)
 add_subdirectory(VspUiExtensions)   # if(VISGUI_ENABLE_VSPLAY)
 add_subdirectory(VvQueryService)
