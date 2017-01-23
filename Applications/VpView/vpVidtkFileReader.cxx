@@ -42,9 +42,13 @@ bool vpVidtkFileReader::ReadTracks(vcl_vector<vidtk::track_sptr>& tracks)
     return false;
     }
 
+  // We have to use a variable to hold the returned tracks
+  // because it is not a ref
+  const vidtk::track::vector_t& readerTracks = trackReaderProcess.tracks();
   tracks.insert(tracks.end(),
-                trackReaderProcess.tracks().begin(),
-                trackReaderProcess.tracks().end());
+                readerTracks.begin(),
+                readerTracks.end());
+
   return true;
 }
 
