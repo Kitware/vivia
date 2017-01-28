@@ -32,9 +32,13 @@ bool vpVidtkFileTrackIO::ReadTracks()
     {
     return false;
     }
-  vpFileTrackIOImpl::ReadSupplementalFiles(
-    this, static_cast<const vpVidtkFileReader&>(
-            this->GetReader()).GetTracksFileName());
+
+  std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
+    this->GetReader()).GetTracksFileName();
+
+  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, frameOffset);
+  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+
   return true;
 }
 
@@ -46,10 +50,13 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
     {
     return false;
     }
-  vpFileTrackIOImpl::ImportSupplementalFiles(
-    this,
-    static_cast<const vpVidtkFileReader&>(this->GetReader()).GetTracksFileName(),
-    offsetX, offsetY);
+  std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
+    this->GetReader()).GetTracksFileName();
+
+  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, frameOffset,
+                                     offsetX, offsetY);
+
   return true;
 }
 

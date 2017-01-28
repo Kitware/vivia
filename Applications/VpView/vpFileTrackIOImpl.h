@@ -17,12 +17,12 @@ public:
   static bool ReadTrackTraits(vpTrackIO* io,
                               const std::string& trackTraitsFileName);
 
-  static bool ReadSupplementalFiles(vpTrackIO* io,
-                                    const std::string& tracksFileName);
+  static bool ReadRegionsFile(vpTrackIO* io,
+                              const std::string& tracksFileName,
+                              int frameOffset,
+                              float offsetX = 0.0f, float offsetY = 0.0f);
 
-  static bool ImportSupplementalFiles(vpTrackIO* io,
-                                      const std::string& tracksFileName,
-                                      float offsetX, float offsetY);
+  static void ReadTypesFile(vpTrackIO* io, const std::string& tracksFileName);
 };
 
 #endif // __vpFileTrackIOImpl_h

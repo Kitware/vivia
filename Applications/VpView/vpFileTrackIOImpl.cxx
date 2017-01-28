@@ -48,16 +48,8 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
 }
 
 //-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ReadSupplementalFiles(vpTrackIO* io,
-                                              const std::string& tracksFileName)
-{
-  return ImportSupplementalFiles(io, tracksFileName, 0.0f, 0.0f);
-}
-
-//-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
-                                                const std::string& tracksFileName,
-                                                float offsetX, float offsetY)
+void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
+                                      const std::string& tracksFileName)
 {
   // Look for files containing supplemental track info
   std::string trackTypes(tracksFileName);
@@ -94,7 +86,15 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
       track->SetColor(color[0], color[1], color[2]);
       }
     }
+}
 
+//-----------------------------------------------------------------------------
+bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
+                                        const std::string& tracksFileName,
+                                        int frameOffset,
+                                        float offsetX/*=0*/,
+                                        float offsetY/*=0*/)
+{
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";
 
@@ -166,6 +166,7 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
                   << ts.GetFrameNumber() << '\n';
         continue;
         }
+
 
       track->SetPoint(ts, point, track->GetGeoCoord(ts), numPoints, &points[0]);
       points.clear();
