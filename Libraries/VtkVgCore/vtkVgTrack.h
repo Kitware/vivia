@@ -99,10 +99,10 @@ public:
   void InsertNextPoint(const vtkVgTimeStamp& timeStamp, double point[2],
                        const vtkVgGeoCoord& geoCoord,
                        vtkIdType numberOfShellPts,
-                       float* shellPts,
+                       const float* shellPts,
+                       bool interpolateShell = false,
                        vtkPoints* fromShellPoints = 0,
-                       vtkIdType fromShellPtsStart = -1,
-                       bool interpolateShell = false);
+                       vtkIdType fromShellPtsStart = -1);
 
   // Description:
   // Wrapper around InsertNextPoint to facilitate python wrapping by using a
@@ -120,7 +120,7 @@ public:
   // data will be used.
   void SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
                 vtkVgGeoCoord geoCoord,
-                vtkIdType numberOfShellPts = 0, float* shellPts = 0,
+                vtkIdType numberOfShellPts = 0, const float* shellPts = 0,
                 vtkPoints* fromShellPts = 0, vtkIdType fromShellPtsStart = -1);
 
   // Description:
@@ -368,7 +368,7 @@ private:
                               vtkIdType numShellPts,
                               vtkPoints* fromShellPts,
                               vtkIdType fromShellPtsStart,
-                              float* shellPts = 0,
+                              const float* shellPts = 0,
                               bool warnOnFailure = true);
 
   void BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,

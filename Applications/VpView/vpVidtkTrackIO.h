@@ -9,6 +9,8 @@
 
 #include "vpTrackIO.h"
 
+#include "vpFileTrackIOImpl.h"
+
 #include <tracking_data/track.h>
 
 class vpVidtkReader;
@@ -49,12 +51,15 @@ public:
   virtual vtkIdType GetModelTrackId(unsigned int sourceId) const;
 
 protected:
+  bool ReadTracks(const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap);
+
   const vpVidtkReader& GetReader() const { return this->Reader; }
 
   virtual unsigned int GetImageHeight() const;
 
 private:
   void ReadTrack(const vidtk::track_sptr vidtkTrack,
+                 const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
                  bool update = false,
                  unsigned int updateStartFrame = 0,

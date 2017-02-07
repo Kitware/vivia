@@ -13,6 +13,7 @@
 #include <vtkVgScalars.h>
 #include <vtkVgTrack.h>
 #include <vtkVgTrackTypeRegistry.h>
+#include <vtkVgUtil.h>
 
 #include <vtkBoundingBox.h>
 #include <vtkMatrix4x4.h>
@@ -48,6 +49,13 @@ vpVidtkTrackIO::~vpVidtkTrackIO()
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks()
 {
+  return this->ReadTracks(0);
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkTrackIO::ReadTracks(
+  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap)
+{
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
   assert(this->StorageMode != TSM_InvertedImageCoords ||
@@ -66,7 +74,11 @@ bool vpVidtkTrackIO::ReadTracks()
     vtkIdType numberOfActualPoints = 0, totalNumberOfMissingFrames = 0;
     for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
       {
-      const vcl_vector<vidtk::track_state_sptr>& history =
+
+      // TODO: Adjust based on track heads that have more than 4 points;
+      //   information in trackRegionMap
+
+      const std::vector<vidtk::track_state_sptr>& history =
         this->Tracks[i]->history();
 
       numberOfActualPoints += static_cast<vtkIdType>(history.size());
@@ -91,7 +103,7 @@ bool vpVidtkTrackIO::ReadTracks()
   // Process the newly added tracks.
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i]);
+    this->ReadTrack(this->Tracks[i], trackRegionMap);
     }
 
   return true;
@@ -114,8 +126,8 @@ bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
 
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i], offsetX, offsetY, false, 0, 0,
-                    idsOffset + this->Tracks[i]->id());
+    this->ReadTrack(this->Tracks[i], 0, offsetX, offsetY, false, 0,
+                    0, idsOffset + this->Tracks[i]->id());
     }
 
   return true;
@@ -484,7 +496,8 @@ void vpVidtkTrackIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
   for (std::vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
        end = tracks.end(); itr != end; ++itr)
     {
-    this->ReadTrack(*itr, 0.0f, 0.0f, true, updateStartFrame, updateEndFrame);
+    this->ReadTrack(*itr, 0, 0.0f, 0.0f, true, updateStartFrame,
+                    updateEndFrame);
     }
 }
 
@@ -575,6 +588,7 @@ unsigned int vpVidtkTrackIO::GetImageHeight() const
 //-----------------------------------------------------------------------------
 void vpVidtkTrackIO::ReadTrack(
   const vidtk::track_sptr vidtkTrack,
+  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap,
   float offsetX, float offsetY,
   bool update, unsigned int updateStartFrame, unsigned int updateEndFrame,
   vtkIdType desiredId)
@@ -616,6 +630,15 @@ void vpVidtkTrackIO::ReadTrack(
     newTrack = true;
     }
 
+  vpFileTrackIOImpl::TrackRegionMapType::const_iterator matchingTrackIter;
+  const std::map<int, vpFileTrackIOImpl::FrameRegionInfo>* matchingTrack = 0;
+  if (trackRegionMap &&
+      (matchingTrackIter = trackRegionMap->find(desiredId)) !=
+       trackRegionMap->end())
+    {
+    matchingTrack = &(matchingTrackIter->second);
+    }
+
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
@@ -651,20 +674,44 @@ void vpVidtkTrackIO::ReadTrack(
   unsigned int attrType = 0;
 #endif
 
-  vcl_vector<vidtk::image_object_sptr> objs;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
+  std::vector<float> points;
+  // reserve enough space for bbox case (4 points, with x,y,z at each point)
+  points.reserve(12);
+
+  bool skippedInterpolationPointSinceLastInsert = false;
+  std::vector<vidtk::image_object_sptr> objs;
+  std::vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
   for (trkStateIter = trackHistory.begin(); trkStateIter != trackHistory.end();
        trkStateIter++)
     {
+    unsigned int frame_number = (*trkStateIter)->time_.frame_number();
+
+    std::map<int, vpFileTrackIOImpl::FrameRegionInfo>::const_iterator
+      matchingFrameIter;
+    const vpFileTrackIOImpl::FrameRegionInfo* matchingFrame = 0;
+    if (matchingTrack &&
+        (matchingFrameIter = matchingTrack->find(frame_number)) !=
+         matchingTrack->end())
+      {
+      matchingFrame = &(matchingFrameIter->second);
+      if (!matchingFrame->KeyFrame)
+        {
+        // Since this is an interpolated frame, don't set it; the track will
+        // object will handle recomputing interpolated frames
+        // TODO - add option to track class to insert interpolated frames
+        skippedInterpolationPointSinceLastInsert = true;
+        continue;
+        }
+      }
+
     // Only look at the frames in the update range.
     if (update)
       {
-      unsigned int frame = (*trkStateIter)->time_.frame_number();
-      if (frame < updateStartFrame)
+      if (frame_number < updateStartFrame)
         {
         continue;
         }
-      if (frame > updateEndFrame)
+      if (frame_number > updateEndFrame)
         {
         break;
         }
@@ -673,7 +720,7 @@ void vpVidtkTrackIO::ReadTrack(
     vtkVgTimeStamp timeStamp;
     if (this->TimeStampMode & TSF_FrameNumber)
       {
-      timeStamp.SetFrameNumber((*trkStateIter)->time_.frame_number());
+      timeStamp.SetFrameNumber(frame_number);
       }
     if (this->TimeStampMode & TSF_Time)
       {
@@ -696,6 +743,7 @@ void vpVidtkTrackIO::ReadTrack(
       double maxY;
       const auto& vglBBox = objs[0]->get_bbox();
       double pt[4] = {0.0, 0.0, 0.0, 1.0};
+      vpFrame frameMetaData;
       if (this->StorageMode == TSM_TransformedGeoCoords)
         {
         // tracks points stored in geo coordinates, head point in image
@@ -726,14 +774,12 @@ void vpVidtkTrackIO::ReadTrack(
         if (this->StorageMode == TSM_HomographyTransformedImageCoords)
           {
           // we expect there to be a homography for every frame
-          vpFrame frameMetaData;
-          if (!this->FrameMap->getFrame((*trkStateIter)->time_.frame_number(),
-                                        frameMetaData) ||
-              !frameMetaData.Homography)
+          if (!this->FrameMap->getFrame(frame_number,
+               frameMetaData) || !frameMetaData.Homography)
             {
-            std::cerr << "ERROR: Homgraphy for frame # "
-              << (*trkStateIter)->time_.frame_number()
-              << "is unavailable.  Track point not added!\n";
+            std::cerr << "ERROR: Homography for frame # "
+              << frame_number
+              << " is unavailable.  Track point not added!\n";
             trackPointAvailable = false;
             }
           else
@@ -761,25 +807,65 @@ void vpVidtkTrackIO::ReadTrack(
           }
         }
 
-      float bbox[] =
-        {
-        offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(minY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(maxY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(maxY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(minY), 0.0f
-        };
       // Don't currently have ability to add shell (bbox) without setting a
       // track point, but may at some point.
       if (trackPointAvailable)
         {
-        if (update)
+        // Initialize as if we'll be using bbox
+        int numPoints = 4;
+        float bbox[] =
           {
-          track->SetPoint(timeStamp, pt, geoCoord, 4, bbox);
+          offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(minY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(maxY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(maxY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(minY), 0.0f
+          };
+        const float* shellPoints = bbox;
+
+        if (this->StorageMode == TSM_HomographyTransformedImageCoords &&
+          frameMetaData.Homography)
+          {
+          const float* inputPoints = bbox;
+          if (matchingFrame)
+            {
+            numPoints = matchingFrame->Points.size() / 3;
+            points.reserve(matchingFrame->Points.size());
+            inputPoints = &matchingFrame->Points[0];
+            }
+
+          std::back_insert_iterator<std::vector<float> > iter(points);
+          for (int i = 0; i < numPoints; ++i, inputPoints += 3)
+            {
+            double pt[2] = {*inputPoints, *(inputPoints + 1)};
+            vtkVgApplyHomography(pt, frameMetaData.Homography, pt);
+            iter = static_cast<float>(pt[0]) + offsetX;
+            iter = static_cast<float>(pt[1]) + offsetY;
+            iter = 0.0f;
+            }
+          shellPoints = &points[0];
           }
         else
           {
-          track->InsertNextPoint(timeStamp, pt, geoCoord, 4, bbox);
+          if (matchingFrame)
+            {
+            shellPoints = &matchingFrame->Points[0];
+            numPoints = matchingFrame->Points.size() / 3;
+            }
           }
+
+        if (update)
+          {
+          track->SetPoint(timeStamp, pt, geoCoord, numPoints, shellPoints);
+          }
+        else
+          {
+          track->InsertNextPoint(timeStamp, pt, geoCoord, numPoints,
+            shellPoints, skippedInterpolationPointSinceLastInsert);
+          skippedInterpolationPointSinceLastInsert = false;
+          }
+        this->TrackModel->AddKeyframe(track->GetId(), timeStamp);
+
+        points.clear();
         }
 
 #ifdef VPVIEW_ASSIGN_FAKE_TRACK_ATTRIBUTES

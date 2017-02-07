@@ -7,20 +7,31 @@
 #ifndef __vpFileTrackIOImpl_h
 #define __vpFileTrackIOImpl_h
 
+#include <map>
 #include <string>
+#include <vector>
 
 class vpTrackIO;
 
 class vpFileTrackIOImpl
 {
 public:
+  struct FrameRegionInfo
+    {
+    bool KeyFrame;
+    std::vector<float> Points;
+    };
+
+  typedef std::map<int, std::map<int, FrameRegionInfo> > TrackRegionMapType;
+  TrackRegionMapType TrackRegionMap;
+
   static bool ReadTrackTraits(vpTrackIO* io,
                               const std::string& trackTraitsFileName);
 
   static bool ReadRegionsFile(vpTrackIO* io,
                               const std::string& tracksFileName,
-                              int frameOffset,
-                              float offsetX = 0.0f, float offsetY = 0.0f);
+                              float offsetX, float offsetY,
+                              TrackRegionMapType* trackRegionMap);
 
   static void ReadTypesFile(vpTrackIO* io, const std::string& tracksFileName);
 };

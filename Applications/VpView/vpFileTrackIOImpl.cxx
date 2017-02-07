@@ -91,9 +91,8 @@ void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
 //-----------------------------------------------------------------------------
 bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
                                         const std::string& tracksFileName,
-                                        int frameOffset,
-                                        float offsetX/*=0*/,
-                                        float offsetY/*=0*/)
+                                        float offsetX, float offsetY,
+                                        TrackRegionMapType* trackRegionMap)
 {
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";
@@ -109,40 +108,35 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
       }
 
     std::ifstream file(trackRegions.c_str());
-    int id;
+    int lastId = -1, id;
     int frame;
     int numPoints;
-    std::vector<float> points;
     bool isKeyFrame;
+    std::map<int, FrameRegionInfo> currentTrackMap;
+
     while (file >> id >> frame >> isKeyFrame >> numPoints)
       {
-      vtkVgTrack* track = io->TrackModel->GetTrack(io->GetModelTrackId(id));
-      if (!track)
+      if (lastId != -1 && lastId != id)
         {
-        std::cerr << trackRegions << ": track " << id
-                  << " does not exist!\n";
+        trackRegionMap->insert(std::make_pair(lastId, currentTrackMap));
+        currentTrackMap.clear();
+        }
+      lastId = id;
+      
+      FrameRegionInfo frameRegion;
+      frameRegion.KeyFrame = isKeyFrame;
+      if (!isKeyFrame)
+        {
+        // If this is an interpolated region, we don't need to read the points
+        // because we do not insert the point; instead the interpolated points
+        // are recalculated.
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        currentTrackMap.insert(std::make_pair(frame, frameRegion));
         continue;
         }
 
-      if (numPoints < 3)
-        {
-        std::cerr << trackRegions << ": region for track " << id
-                  << " has an invalid number of points (" << numPoints
-                  << ")\n";
-        continue;
-        }
-
-      vtkVgTimeStamp ts;
-      ts.SetFrameNumber(frame);
-
-      if (isKeyFrame)
-        {
-        io->TrackModel->AddKeyframe(id, ts);
-        }
-
-      points.reserve(numPoints * 3);
-      std::back_insert_iterator<std::vector<float> > iter(points);
-
+      frameRegion.Points.reserve(numPoints * 3);
+      std::back_insert_iterator<std::vector<float> > iter(frameRegion.Points);
       for (int i = 0; i < numPoints; ++i)
         {
         float x, y;
@@ -151,25 +145,18 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
           {
           y = io->GetImageHeight() - y - 1;
           }
-        *iter++ = x + offsetX;
-        *iter++ = y + offsetY;
-        *iter++ = 0.0f;
+        iter = x + offsetX;
+        iter = y + offsetY;
+        iter = 0.0f;
         }
 
-      // Use the original point supplied in the track file (which should be the
-      // same whether using polygons or bounding boxes).
-      double point[2];
-      if (!track->GetPoint(ts, point, false))
-        {
-        std::cerr << trackRegions << ": region for track " << id
-                  << " does not have a point in track file at frame "
-                  << ts.GetFrameNumber() << '\n';
-        continue;
-        }
+      currentTrackMap.insert(std::make_pair(frame, frameRegion));
+      }
 
-
-      track->SetPoint(ts, point, track->GetGeoCoord(ts), numPoints, &points[0]);
-      points.clear();
+    // Need to insert the last track map we were working on
+    if (lastId != -1)
+      {
+      trackRegionMap->insert(std::make_pair(lastId, currentTrackMap));
       }
     }
 

@@ -77,7 +77,7 @@ public:
   void SetHeadIdentifier(const vtkVgTimeStamp& timestamp,
                          vtkPoints* points, vtkIdType numberOfPts,
                          vtkPoints* fromPoints, vtkIdType fromPtsStart,
-                         float* pts = 0)
+                         const float* pts = 0)
     {
     this->HeadIdentifierStartIndex[timestamp] =
       this->HeadIdentifierIds->GetNumberOfIds();
@@ -388,10 +388,10 @@ void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
                                  double point[2],
                                  const vtkVgGeoCoord& geoCoord,
                                  vtkIdType numberOfShellPts,
-                                 float* shellPts,
+                                 const float* shellPts,
+                                 bool interpolateShell,
                                  vtkPoints* fromShellPoints,
-                                 vtkIdType fromShellPtsStart,
-                                 bool interpolateShell)
+                                 vtkIdType fromShellPtsStart)
 {
   if (!this->Points)
     {
@@ -485,7 +485,7 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
                                         vtkIdType numShellPts,
                                         vtkPoints* fromShellPts,
                                         vtkIdType fromShellPtsStart,
-                                        float* shellPts, bool warnOnFailure)
+                                        const float* shellPts, bool warnOnFailure)
 {
   vtkIdType numFrames;
   if (timeStamp.HasTime())
@@ -563,7 +563,7 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
       float tempPt[3];
       for (vtkIdType p = 0; p < numShellPts; ++p)
         {
-        float* shellPt;
+        const float* shellPt;
         if (fromShellPts)
           {
           double* pt = fromShellPts->GetPoint(fromShellPtsStart + p);
@@ -609,7 +609,7 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
 //-----------------------------------------------------------------------------
 void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
                           vtkVgGeoCoord geoCoord,
-                          vtkIdType numberOfShellPts, float* shellPts,
+                          vtkIdType numberOfShellPts, const float* shellPts,
                           vtkPoints* fromShellPts,
                           vtkIdType fromShellPtsStart)
 {
@@ -619,8 +619,8 @@ void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
        timeStamp > this->Internal->PointIdMap.rbegin()->first))
     {
     this->InsertNextPoint(timeStamp, point, geoCoord,
-                          numberOfShellPts, shellPts,
-                          fromShellPts, fromShellPtsStart, true);
+                          numberOfShellPts, shellPts, true,
+                          fromShellPts, fromShellPtsStart);
     return;
     }
 
