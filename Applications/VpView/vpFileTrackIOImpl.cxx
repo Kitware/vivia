@@ -125,6 +125,7 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
       
       FrameRegionInfo frameRegion;
       frameRegion.KeyFrame = isKeyFrame;
+      frameRegion.NumberOfPoints = numPoints;
       if (!isKeyFrame)
         {
         // If this is an interpolated region, we don't need to read the points

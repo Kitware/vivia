@@ -19,6 +19,7 @@ public:
   struct FrameRegionInfo
     {
     bool KeyFrame;
+    int NumberOfPoints;
     std::vector<float> Points;
     };
 

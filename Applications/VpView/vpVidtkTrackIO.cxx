@@ -53,6 +53,65 @@ bool vpVidtkTrackIO::ReadTracks()
 }
 
 //-----------------------------------------------------------------------------
+vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
+  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap)
+{
+  vtkIdType numberOfRegionPoints = 0, numberOfTrackPoints = 0;
+  for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
+    {
+    const std::vector<vidtk::track_state_sptr>& history =
+      this->Tracks[i]->history();
+
+    // These "Track Points" are the points used to draw the trail - one per
+    // frame of the track
+    numberOfTrackPoints +=
+      static_cast<vtkIdType>(history.back()->time_.frame_number() -
+      history.front()->time_.frame_number() + 1);
+
+    vpFileTrackIOImpl::TrackRegionMapType::const_iterator matchingTrackIter;
+    const std::map<int, vpFileTrackIOImpl::FrameRegionInfo>* matchingTrack = 0;
+    if (trackRegionMap &&
+      (matchingTrackIter = trackRegionMap->find(this->Tracks[i]->id())) !=
+      trackRegionMap->end())
+      {
+      matchingTrack = &(matchingTrackIter->second);
+      }
+    else
+      {
+      // We know that all the regions are "simple" bounding boxes if there is
+      // no matching track in the track region map
+      numberOfRegionPoints += static_cast<vtkIdType>(history.size()) * 4;
+      }
+
+    if (matchingTrack)
+      {
+      // Iterate through the frames, adding the number of points necessary to
+      // represent the head region for each frame
+      std::vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
+      for (trkStateIter = history.begin(); trkStateIter != history.end();
+        trkStateIter++)
+        {
+        unsigned int frame_number = (*trkStateIter)->time_.frame_number();
+        std::map<int, vpFileTrackIOImpl::FrameRegionInfo>::const_iterator
+          matchingFrameIter;
+        if (matchingTrack &&
+          (matchingFrameIter = matchingTrack->find(frame_number)) !=
+          matchingTrack->end())
+          {
+          numberOfRegionPoints += matchingFrameIter->second.NumberOfPoints;
+          }
+        else
+          {
+          numberOfRegionPoints += 4;
+          }
+        }
+      }
+    }
+
+  return numberOfRegionPoints + numberOfTrackPoints;
+}
+
+//-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks(
   const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap)
 {
@@ -67,37 +126,11 @@ bool vpVidtkTrackIO::ReadTracks(
     return false;
     }
 
-  // Make a quick pass through to find out roughly how many points we should
-  // allocate.
   if (this->TrackModel->GetPoints()->GetNumberOfPoints() == 0)
     {
-    vtkIdType numberOfActualPoints = 0, totalNumberOfMissingFrames = 0;
-    for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
-      {
-
-      // TODO: Adjust based on track heads that have more than 4 points;
-      //   information in trackRegionMap
-
-      const std::vector<vidtk::track_state_sptr>& history =
-        this->Tracks[i]->history();
-
-      numberOfActualPoints += static_cast<vtkIdType>(history.size());
-      vtkIdType numberOfMissingFrames =
-        static_cast<vtkIdType>(history.back()->time_.frame_number() -
-                               history.front()->time_.frame_number() + 1) -
-        static_cast<vtkIdType>(history.size());
-
-      // Perchance we come up with a negative number, which we shouldn't!
-      if (numberOfMissingFrames > 0)
-        {
-        totalNumberOfMissingFrames += numberOfMissingFrames;
-        }
-      }
-
-    // Should be correct for bbox (4pts) + pt for all actual points, and only
-    // single point for missing frames.
+    // Allocate points in the model based on the number of input points
     this->TrackModel->GetPoints()->Allocate(
-      5 * numberOfActualPoints + totalNumberOfMissingFrames);
+      this->ComputeNumberOfPoints(trackRegionMap));
     }
 
   // Process the newly added tracks.
@@ -828,7 +861,7 @@ void vpVidtkTrackIO::ReadTrack(
           const float* inputPoints = bbox;
           if (matchingFrame)
             {
-            numPoints = matchingFrame->Points.size() / 3;
+            numPoints = matchingFrame->NumberOfPoints;
             points.reserve(matchingFrame->Points.size());
             inputPoints = &matchingFrame->Points[0];
             }
@@ -849,7 +882,7 @@ void vpVidtkTrackIO::ReadTrack(
           if (matchingFrame)
             {
             shellPoints = &matchingFrame->Points[0];
-            numPoints = matchingFrame->Points.size() / 3;
+            numPoints = matchingFrame->NumberOfPoints;
             }
           }
 

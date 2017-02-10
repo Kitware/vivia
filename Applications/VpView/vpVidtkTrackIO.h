@@ -58,6 +58,8 @@ protected:
   virtual unsigned int GetImageHeight() const;
 
 private:
+  vtkIdType ComputeNumberOfPoints(
+    const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap);
   void ReadTrack(const vidtk::track_sptr vidtkTrack,
                  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
