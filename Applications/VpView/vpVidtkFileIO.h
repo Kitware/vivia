@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -35,6 +35,9 @@ public:
 
   void SetTrackTraitsFileName(const char* trackTraitsFileName)
     { this->Reader.SetTrackTraitsFileName(trackTraitsFileName); }
+
+  void SetTrackPVOsFileName(const char* trackPVOsFileName)
+    { this->Reader.SetTrackPVOsFileName(trackPVOsFileName); }
 
   void SetEventsFileName(const char* eventsFileName)
     { this->Reader.SetEventsFileName(eventsFileName); }

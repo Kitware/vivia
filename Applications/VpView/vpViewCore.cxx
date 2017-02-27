@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -426,6 +426,7 @@ void vpViewCore::importProject()
   // Point current project's IO manager to the files we are importing from.
   currentIO->SetTracksFileName(project->TracksFile.c_str());
   currentIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
+  currentIO->SetTrackPVOsFileName(project->TrackPVOsFile.c_str());
   currentIO->SetEventsFileName(project->EventsFile.c_str());
   currentIO->SetEventLinksFileName(project->EventLinksFile.c_str());
   currentIO->SetActivitiesFileName(project->ActivitiesFile.c_str());
@@ -554,6 +555,12 @@ bool vpViewCore::importTracksFromFile(vpProject* project)
     if (project->IsValid(project->TrackTraitsFile) == vpProject::FILE_EXIST)
       {
       this->loadTrackTraits(project);
+      }
+
+    // load track traits file if one was given
+    if (project->IsValid(project->TrackPVOsFile) == vpProject::FILE_EXIST)
+      {
+      this->loadTrackPVOs(project);
       }
 
     return true;
@@ -1196,6 +1203,23 @@ int vpViewCore::loadTrackTraits(vpProject* project)
   msgBox.show();
 
   if (!project->ModelIO->ReadTrackTraits())
+    {
+    return VTK_ERROR;
+    }
+
+  return VTK_OK;
+}
+
+//-----------------------------------------------------------------------------
+int vpViewCore::loadTrackPVOs(vpProject* project)
+{
+  QMessageBox msgBox;
+  msgBox.setWindowTitle("Loading track PVOs...");
+  msgBox.setText("Loading track PVOs (may take awhile)...");
+  msgBox.setModal(false);
+  msgBox.show();
+
+  if (!project->ModelIO->ReadTrackPVOs())
     {
     return VTK_ERROR;
     }
@@ -2815,6 +2839,7 @@ vpProject* vpViewCore::loadProject(const char* fileName)
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
   fileIO->SetTracksFileName(project->TracksFile.c_str());
   fileIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
+  fileIO->SetTrackPVOsFileName(project->TrackPVOsFile.c_str());
   fileIO->SetEventsFileName(project->EventsFile.c_str());
   fileIO->SetEventLinksFileName(project->EventLinksFile.c_str());
   fileIO->SetActivitiesFileName(project->ActivitiesFile.c_str());
@@ -8570,6 +8595,7 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
   fileIO->SetTracksFileName(project->TracksFile.c_str());
   fileIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
+  fileIO->SetTrackPVOsFileName(project->TrackPVOsFile.c_str());
   fileIO->SetEventsFileName(project->EventsFile.c_str());
   fileIO->SetEventLinksFileName(project->EventLinksFile.c_str());
   fileIO->SetActivitiesFileName(project->ActivitiesFile.c_str());

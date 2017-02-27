@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -68,6 +68,7 @@ public:
   std::string DataSetSpecifier;
   std::string TracksFile;
   std::string TrackTraitsFile;
+  std::string TrackPVOsFile;
   std::string EventsFile;
   std::string EventLinksFile;
   std::string IconsFile;
@@ -83,6 +84,7 @@ public:
   std::string DataSetSpecifierTag;
   std::string TracksFileTag;
   std::string TrackTraitsFileTag;
+  std::string TrackPVOsFileTag;
   std::string EventsFileTag;
   std::string EventLinksFileTag;
   std::string IconsFileTag;

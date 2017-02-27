@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,6 +25,7 @@ vpProject::vpProject(int id) :
   DataSetSpecifierTag("DataSetSpecifier"),
   TracksFileTag("TracksFile"),
   TrackTraitsFileTag("TrackTraitsFile"),
+  TrackPVOsFileTag("TrackPVOsFile"),
   EventsFileTag("EventsFile"),
   EventLinksFileTag("EventLinksFile"),
   IconsFileTag("IconsFile"),
@@ -62,6 +63,8 @@ vpProject::vpProject(int id) :
     std::make_pair(this->TracksFileTag, &this->TracksFile));
   TagFileMap.insert(
     std::make_pair(this->TrackTraitsFileTag, &this->TrackTraitsFile));
+  TagFileMap.insert(
+    std::make_pair(this->TrackPVOsFileTag, &this->TrackPVOsFile));
   TagFileMap.insert(
     std::make_pair(this->EventsFileTag, &this->EventsFile));
   TagFileMap.insert(
@@ -172,6 +175,7 @@ void vpProject::CopyConfig(const vpProject& srcProject)
   this->DataSetSpecifier = srcProject.DataSetSpecifier;
   this->TracksFile = srcProject.TracksFile;
   this->TrackTraitsFile = srcProject.TrackTraitsFile;
+  this->TrackPVOsFile = srcProject.TrackPVOsFile;
   this->EventsFile = srcProject.EventsFile;
   this->EventLinksFile = srcProject.EventLinksFile;
   this->IconsFile = srcProject.IconsFile;

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -8,12 +8,16 @@
 
 #include "vpTrackIO.h"
 
+#include <qtKstReader.h>
+
 #include <vtkVgTrack.h>
 #include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
+
+#include <QUrl>
 
 #include <iterator>
 #include <limits>
@@ -42,6 +46,44 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
       }
 
     track->SetNormalcy(normalcy);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpFileTrackIOImpl::ReadTrackPVOs(vpTrackIO* io,
+                                      const std::string& trackPVOsFileName)
+{
+  // Read P/V/O's
+  qtKstReader reader(QUrl::fromLocalFile(trackPVOsFileName.c_str()),
+                     QRegExp("\\s+"), QRegExp("\n"));
+  if (!reader.isValid())
+    {
+    return false;
+    }
+
+  // Process the P/V/O's
+  while (!reader.isEndOfFile())
+    {
+    int id;
+    double pvo[3];
+    if (reader.readInt(id, 0) &&
+        reader.readReal(pvo[0], 1) &&
+        reader.readReal(pvo[1], 2) &&
+        reader.readReal(pvo[2], 3))
+      {
+      vtkVgTrack* track = io->TrackModel->GetTrack(id);
+      if (!track)
+        {
+        std::cerr << "Unknown track id: " << id << '\n';
+        }
+      else
+        {
+        track->SetPVO(pvo);
+        }
+      }
+    reader.nextRecord();
     }
 
   return true;
