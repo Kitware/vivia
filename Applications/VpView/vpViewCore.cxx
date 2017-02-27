@@ -6896,6 +6896,7 @@ void vpViewCore::initTrackHeadIndicator()
   pdm->SetInputData(this->TrackHeadIndicatorPolyData);
 
   this->TrackHeadIndicatorActor->SetMapper(pdm);
+  this->TrackHeadIndicatorActor->GetProperty()->SetLineWidth(3);
   this->TrackHeadIndicatorActor->GetProperty()->SetColor(TrackEditColor);
   this->TrackHeadIndicatorActor->SetUserMatrix(this->ImageToWorldMatrix);
 
