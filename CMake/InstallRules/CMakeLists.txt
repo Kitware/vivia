@@ -1,7 +1,7 @@
 # Bundle cpack
 include(InstallRequiredSystemLibraries)
 
-set(DIRS ${global_library_search_paths} ${Boost_LIBRARY_DIRS})
+set(DIRS ${CMAKE_INSTALL_PREFIX}/lib ${global_library_search_paths} ${Boost_LIBRARY_DIRS})
 
 function( FixupBundle BINARY_NAME BINARY_DIR )
   set(APPS "\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/bin/${BINARY_NAME}")
