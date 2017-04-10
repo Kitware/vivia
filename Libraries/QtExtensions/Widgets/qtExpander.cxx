@@ -93,7 +93,7 @@ void qtExpander::paintEvent(QPaintEvent*)
   opt.icon = QIcon();
 
   // Adjust state to compensate for overloading of 'checked' to mean 'expanded'
-  QStyle::State raiseFlags = QStyle::State_AutoRaise & QStyle::State_MouseOver;
+  QStyle::State raiseFlags = QStyle::State( QStyle::State_AutoRaise & QStyle::State_MouseOver );
   if ((opt.state & raiseFlags) == raiseFlags)
     {
     opt.state |= QStyle::State_Raised;
