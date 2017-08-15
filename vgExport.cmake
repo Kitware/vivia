@@ -3,7 +3,7 @@ set(INCLUDE_GUARD __vgExport_h)
 
 set(CONTENT_HEADER
 "/*ckwg +5"
-" * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to"
+" * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to"
 " * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,"
 " * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065."
 " */"
@@ -38,5 +38,6 @@ add_export(vtkVgQtWidgets   VTKVGQT_WIDGETS)
 add_export(vtkVwCore        VTKVW_CORE)
 add_export(vvIO             VV_IO)
 add_export(vvVidtk          VV_VIDTK)
+add_export(vvKwiver         VV_KWIVER)
 add_export(vvVtkWidgets     VV_VTKWIDGETS)
 add_export(vvWidgets        VV_WIDGETS)
