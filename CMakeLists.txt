@@ -17,6 +17,7 @@ option(VISGUI_ENABLE_VSPLAY         "Build vsPlay application"              ON)
 option(VISGUI_ENABLE_GDAL           "Enable features that require GDAL"     OFF)
 option(VISGUI_ENABLE_KWPPT          "Enable features that require KWPPT"    OFF)
 option(VISGUI_ENABLE_VIDTK          "Enable features that require VidTK"    ON)
+option(VISGUI_ENABLE_KWIVER         "Enable features that require KWIVER"   ON)
 #   ...Python bindings
 option(VISGUI_ENABLE_PYTHON         "Enable VisGUI Python bindings"         OFF)
 #   ...Install options
