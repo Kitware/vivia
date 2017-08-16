@@ -7,9 +7,9 @@
 #include "vvAdaptKwiver.h"
 
 #include <vvQueryFormulation.h>
+#include <vvQueryInstance.h>
 
 #include <vvDescriptor.h>
-#include <vvQuery.h>
 #include <vvQueryResult.h>
 
 #include <qtStlUtil.h>
@@ -319,35 +319,49 @@ kwiver::vital::track_descriptor_sptr toKwiver(vvDescriptor const& in)
 }
 
 //-----------------------------------------------------------------------------
-kwiver::vital::database_query_sptr toKwiver(const vvSimilarityQuery& in)
+kwiver::vital::database_query_sptr toKwiver(vvQueryInstance const& in)
 {
+  auto const& abstract = *in.constAbstractQuery();
   auto outPtr = std::make_shared<kwiver::vital::database_query>();
   auto& out = *outPtr;
 
   // Set base attributes
-  out.set_id(in.QueryId);
-  out.set_type(kwiver::vital::database_query::SIMILARITY);
-  out.set_threshold(in.SimilarityThreshold);
+  out.set_id(abstract.QueryId);
 
-  out.set_stream_filter(in.StreamIdLimit);
+  out.set_stream_filter(abstract.StreamIdLimit);
 
   // Copy temporal limits
-  out.set_temporal_bounds(utcTimestamp(in.TemporalLowerLimit),
-                          utcTimestamp(in.TemporalUpperLimit));
-  out.set_temporal_filter(toKwiver(in.TemporalFilter));
+  out.set_temporal_bounds(utcTimestamp(abstract.TemporalLowerLimit),
+                          utcTimestamp(abstract.TemporalUpperLimit));
+  out.set_temporal_filter(toKwiver(abstract.TemporalFilter));
 
   // Copy spatial limits
-  out.set_spatial_region(toKwiver(in.SpatialLimit));
-  out.set_spatial_filter(toKwiver(in.SpatialFilter));
+  out.set_spatial_region(toKwiver(abstract.SpatialLimit));
+  out.set_spatial_filter(toKwiver(abstract.SpatialFilter));
 
-  // Copy descriptors
-  auto descriptors = std::make_shared<kwiver::vital::track_descriptor_set>();
-  descriptors->reserve(in.Descriptors.size());
-  for (auto const& d : in.Descriptors)
+  if (in.isSimilarityQuery())
   {
-    descriptors->push_back(toKwiver(d));
+    auto const& sq = *in.constSimilarityQuery();
+
+    // Set query type
+    out.set_type(kwiver::vital::database_query::SIMILARITY);
+    out.set_threshold(sq.SimilarityThreshold);
+
+    // Copy descriptors
+    auto descriptors = std::make_shared<kwiver::vital::track_descriptor_set>();
+    descriptors->reserve(sq.Descriptors.size());
+    for (auto const& d : sq.Descriptors)
+    {
+      descriptors->push_back(toKwiver(d));
+    }
+    out.set_descriptors(descriptors);
   }
-  out.set_descriptors(descriptors);
+  else if (in.isRetrievalQuery())
+  {
+    // Set query type
+    out.set_type(kwiver::vital::database_query::SIMILARITY);
+    // TODO set retrieval entity filter (not yet implemented in KWIVER)
+  }
 
   return outPtr;
 }

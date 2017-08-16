@@ -14,6 +14,7 @@ set(vvKwiverInstallHeaders
 add_library(${PROJECT_NAME} vvAdaptKwiver.cxx)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
+  vvIO
   kwiver::vital
   ${QT_LIBRARIES}
 )
