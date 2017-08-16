@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -404,6 +404,13 @@ void vvQueryVideoPlayer::setDescriptors(QList<vvDescriptor> descriptors,
   this->buildTrackModel(haveTracks);
 
   this->buildEventModel();
+
+  // If there is no video model, trying to do anything else is pointless and
+  // likely to end badly anyway
+  if (!this->Internal->VideoModel)
+    {
+    return;
+    }
 
   // Now set up the scene and video player UI
   this->buildScene();
