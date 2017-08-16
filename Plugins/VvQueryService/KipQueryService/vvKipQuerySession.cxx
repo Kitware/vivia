@@ -129,6 +129,7 @@ bool vvKipQuerySessionPrivate::initialize()
   }
 
   auto const& pipePath = this->server.queryItemValue("Pipeline");
+  auto const& pipeDir = QFileInfo(pipePath).dir().canonicalPath();
 
   auto pipeline = makeUnique<kwiver::embedded_pipeline>();
 
@@ -142,7 +143,7 @@ bool vvKipQuerySessionPrivate::initialize()
       return false;
     }
 
-    pipeline->build_pipeline(pipeStream);
+    pipeline->build_pipeline(pipeStream, qPrintable(pipeDir));
     pipeline->start();
   }
   catch (std::exception& e)
