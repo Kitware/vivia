@@ -252,18 +252,17 @@ bool vvKipQuerySessionPrivate::stQueryExecute()
     return false;
   }
 
-  // Get query
-  auto const query = this->query.similarityQuery();
-  if (!query)
+  // Sanity check query
+  if (!this->query.isValid())
   {
-    q->postError("Only similarity queries are supported at this time");
+    q->postError("Active query is not valid?");
     return false;
   }
 
   // Set pipeline inputs and start the pipe executing
   auto ids = kwiver::adapter::adapter_data_set::create();
   ids->add_value("descriptor_request", descriptor_request_sptr{});
-  ids->add_value("database_query", toKwiver(*query));
+  ids->add_value("database_query", toKwiver(this->query));
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
   this->pipeline->send(ids);
 
