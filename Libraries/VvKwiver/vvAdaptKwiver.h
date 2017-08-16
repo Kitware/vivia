@@ -44,7 +44,7 @@ using ScoringClassifiers = QHash<long long, vvIqr::Classification>;
 
 struct vvDescriptor;
 struct vvProcessingRequest;
-struct vvSimilarityQuery;
+struct vvQueryInstance;
 struct vvQueryResult;
 
 extern VV_KWIVER_EXPORT vvDescriptor
@@ -60,7 +60,7 @@ extern VV_KWIVER_EXPORT kwiver::vital::track_descriptor_sptr
 toKwiver(vvDescriptor const&);
 
 extern VV_KWIVER_EXPORT kwiver::vital::database_query_sptr
-toKwiver(vvSimilarityQuery const&);
+toKwiver(vvQueryInstance const&);
 
 extern VV_KWIVER_EXPORT kwiver::vital::iqr_feedback_sptr
 toKwiver(std::string const& queryId, vvIqr::ScoringClassifiers const&);
