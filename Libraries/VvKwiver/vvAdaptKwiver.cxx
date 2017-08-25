@@ -178,7 +178,7 @@ kwiver::vital::query_filter toKwiver(vvDatabaseQuery::IntersectionType in)
     case vvDatabaseQuery::DoesNotContain:
       return query_filter::DOES_NOT_CONTAIN;
     default:
-      return query_filter::IGNORE;
+      return query_filter::IGNORE_FILTER;
   }
 }
 
