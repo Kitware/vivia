@@ -12,6 +12,7 @@
 #include <vgExport.h>
 
 #include <memory>
+#include <string>
 
 namespace kwiver {
 namespace vital {
