@@ -14,7 +14,7 @@ if(VISGUI_ENABLE_VSPLAY OR VISGUI_ENABLE_VIQUI)
   add_subdirectory(VvWidgets)
 endif()
 
-if(VISGUI_ENABLE_VIQUI AND VISGUI_ENABLE_KWIVER)
+if(VISGUI_ENABLE_KWIVER)
   add_subdirectory(VvKwiver)
 endif()
 
