@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,8 +19,13 @@
 
 #include <vsStaticSourceFactory.h>
 
+#ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/file_formats/file_format_base.h>
+#include <track_oracle/file_formats/file_format_manager.h>
+#else
 #include <track_oracle/file_format_base.h>
 #include <track_oracle/file_format_manager.h>
+#endif
 
 #include "visgui_event_type.h"
 #include "visgui_track_type.h"
@@ -33,7 +38,8 @@ QTE_IMPLEMENT_D_FUNC(vsTrackOracleArchiveSourcePlugin)
 
 namespace // anonymous
 {
-typedef QMap<vidtk::file_format_enum, vidtk::file_format_base*> FileFormatMap;
+using FileFormatMap =
+  QMap<track_oracle::file_format_enum, track_oracle::file_format_base*>;
 }
 
 //-----------------------------------------------------------------------------
@@ -42,12 +48,13 @@ class vsTrackOracleArchiveSourcePluginPrivate
 public:
   vsTrackOracleArchiveSourcePluginPrivate() : EmptyFormatSet() {}
 
-  void addSchemas(FileFormatMap& map, const vidtk::track_base_impl& schema);
+  void addSchemas(FileFormatMap& map,
+                  const track_oracle::track_base_impl& schema);
   const FileFormatMap& formatMap(vsArchiveSourceType type) const;
 
   bool quickTest(const std::string& fileName, vsArchiveSourceType type) const;
-  vidtk::file_format_base* inspect(const std::string& fileName,
-                                   vsArchiveSourceType type) const;
+  track_oracle::file_format_base* inspect(const std::string& fileName,
+                                          vsArchiveSourceType type) const;
 
   FileFormatMap TrackFormats;
   FileFormatMap DescriptorFormats;
@@ -56,15 +63,15 @@ public:
 
 //-----------------------------------------------------------------------------
 void vsTrackOracleArchiveSourcePluginPrivate::addSchemas(
-  FileFormatMap& map, const vidtk::track_base_impl& schema)
+  FileFormatMap& map, const track_oracle::track_base_impl& schema)
 {
-  std::vector<vidtk::file_format_enum> formats =
-    vidtk::file_format_manager::format_matches_schema(schema);
+  auto formats =
+    track_oracle::file_format_manager::format_matches_schema(schema);
   for (size_t n = 0, k = formats.size(); n < k; ++n)
     {
-    vidtk::file_format_enum format = formats[n];
-    vidtk::file_format_base* format_instance =
-      vidtk::file_format_manager::get_format(format);
+    auto const& format = formats[n];
+    auto* const format_instance =
+      track_oracle::file_format_manager::get_format(format);
     if (format_instance)
       {
       map.insert(format, format_instance);
@@ -92,7 +99,7 @@ bool vsTrackOracleArchiveSourcePluginPrivate::quickTest(
   const std::string& fileName, vsArchiveSourceType type) const
 {
   const FileFormatMap& formats = this->formatMap(type);
-  foreach (vidtk::file_format_base* format, formats)
+  foreach (auto* const format, formats)
     {
     if (format->filename_matches_globs(fileName))
       {
@@ -103,11 +110,12 @@ bool vsTrackOracleArchiveSourcePluginPrivate::quickTest(
 }
 
 //-----------------------------------------------------------------------------
-vidtk::file_format_base* vsTrackOracleArchiveSourcePluginPrivate::inspect(
+track_oracle::file_format_base*
+vsTrackOracleArchiveSourcePluginPrivate::inspect(
   const std::string& fileName, vsArchiveSourceType type) const
 {
   const FileFormatMap& formats = this->formatMap(type);
-  foreach (vidtk::file_format_base* format, formats)
+  foreach (auto* const format, formats)
     {
     if (format->inspect_file(fileName))
       {
@@ -151,7 +159,7 @@ vsArchivePluginInfo vsTrackOracleArchiveSourcePlugin::archivePluginInfo(
   vsArchivePluginInfo info;
   const FileFormatMap& formats = d->formatMap(type);
 
-  foreach (vidtk::file_format_base* format, formats)
+  foreach (auto* const format, formats)
     {
     vsArchiveFileType fileType;
     fileType.Description = qtString(format->format_description());
@@ -184,8 +192,7 @@ vsSimpleSourceFactory* vsTrackOracleArchiveSourcePlugin::createArchiveSource(
   QFile file(fileName);
   CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), 0);
 
-  vidtk::file_format_base* format_instance =
-    d->inspect(stdString(fileName), type);
+  auto* const format_instance = d->inspect(stdString(fileName), type);
 
   if (type == vs::ArchiveTrackSource)
     {

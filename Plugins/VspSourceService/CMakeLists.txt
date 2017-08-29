@@ -20,7 +20,7 @@ endif()
 add_subdirectory(KwaArchiveSource)
 
 # Track source
-if(TARGET track_oracle)
+if(TARGET track_oracle OR TARGET kwiver::track_oracle)
   add_subdirectory(TrackOracleArchiveSource)
 elseif(vidtk_FOUND)
   #add_subdirectory(Kw18ArchiveSource)

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,7 +14,11 @@
 
 #include <vgGeodesy.h>
 
+#ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/file_formats/file_format_base.h>
+#else
 #include <track_oracle/file_format_base.h>
+#endif
 
 #include <vsTrackData.h>
 
@@ -23,11 +27,18 @@
 
 #include "visgui_track_type.h"
 
+#ifndef KWIVER_TRACK_ORACLE
+namespace track_oracle
+{
+  using track_oracle_core = track_oracle;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 class vsTrackOracleTrackArchiveSourcePrivate : public vsArchiveSourcePrivate
 {
 public:
-  typedef vidtk::file_format_base FileFormat;
+  typedef track_oracle::file_format_base FileFormat;
 
   vsTrackOracleTrackArchiveSourcePrivate(
     vsTrackOracleTrackArchiveSource* q, const QUrl& uri, FileFormat* format);
@@ -58,8 +69,8 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
 
   // Read tracks
   const visgui_track_type schema;
-  vidtk::track_handle_list_type tracks;
-  std::vector<vidtk::element_descriptor> missingFieldDescriptors;
+  track_oracle::track_handle_list_type tracks;
+  std::vector<track_oracle::element_descriptor> missingFieldDescriptors;
 
   if (!this->Format->read(fileName, tracks, schema, missingFieldDescriptors))
     {
@@ -93,7 +104,7 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
   visgui_track_type oracle;
   for (size_t n = 0, k = tracks.size(); n < k; ++n)
     {
-    const vidtk::track_handle_type& trackHandle = tracks[n];
+    const track_oracle::track_handle_type& trackHandle = tracks[n];
     if (trackHandle.is_valid())
       {
       // Set oracle object to track instance referenced by handle
@@ -105,11 +116,11 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
       // Convert track states
       QList<vvTrackState> states;
       vsTrackData data;
-      vidtk::frame_handle_list_type frameHandles =
-        vidtk::track_oracle::get_frames(trackHandle);
+      auto frameHandles =
+        track_oracle::track_oracle_core::get_frames(trackHandle);
       for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
         {
-        const vidtk::frame_handle_type& frameHandle = frameHandles[n];
+        auto const& frameHandle = frameHandles[n];
         if (frameHandle.is_valid())
           {
           vvTrackState state;
@@ -176,7 +187,7 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
 
 //-----------------------------------------------------------------------------
 vsTrackOracleTrackArchiveSource::vsTrackOracleTrackArchiveSource(
-  const QUrl& uri, vidtk::file_format_base* format) :
+  const QUrl& uri, track_oracle::file_format_base* format) :
   super(new vsTrackOracleTrackArchiveSourcePrivate(this, uri, format))
 {
 }

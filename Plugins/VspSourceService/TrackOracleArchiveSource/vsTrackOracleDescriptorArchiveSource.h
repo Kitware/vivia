@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,10 +11,7 @@
 
 #include <vsArchiveSource.h>
 
-namespace vidtk
-{
-  class file_format_base;
-}
+#include "track_oracle_file_format_fwd.h"
 
 class vsTrackOracleDescriptorArchiveSourcePrivate;
 
@@ -25,7 +22,7 @@ class vsTrackOracleDescriptorArchiveSource :
 
 public:
   vsTrackOracleDescriptorArchiveSource(const QUrl& archiveUri,
-                                       vidtk::file_format_base* format);
+                                       track_oracle::file_format_base* format);
   virtual ~vsTrackOracleDescriptorArchiveSource();
 
 private:
