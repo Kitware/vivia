@@ -41,6 +41,6 @@ namespace track_oracle
 }
 
 #define TRACK_ORACLE_INIT_FIELD(t, n) \
-  n{t.add_field<::track_oracle::track_field_type<decltype(n)>::type>(#n)}
+  n(t.add_field<::track_oracle::track_field_type<decltype(n)>::type>(#n))
 
 #endif
