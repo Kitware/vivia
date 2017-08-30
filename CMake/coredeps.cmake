@@ -118,6 +118,11 @@ if (VISGUI_ENABLE_VIDTK)
   add_definitions(-DUUIDABLE)
 endif()
 
+if (VISGUI_ENABLE_KWIVER)
+  find_package(kwiver REQUIRED)
+  add_definitions(-DVISGUI_USE_KWIVER)
+endif()
+
 # QtTesting is required for tests
 find_package(QtTesting QUIET)
 if(QtTesting_FOUND)
