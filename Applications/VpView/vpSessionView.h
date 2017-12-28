@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -17,11 +17,12 @@
 
 class vpViewCore;
 
+class vtkVpTrackModel;
+
 class vtkIdList;
 
 class vtkVgActivityManager;
 class vtkVgEventModel;
-class vtkVgTrackModel;
 
 class QListWidget;
 class QListWidgetItem;
@@ -39,7 +40,7 @@ public:
   void AddSession(vpViewCore* viewCore,
                   vtkVgActivityManager* activityManager,
                   vtkVgEventModel* eventModel,
-                  vtkVgTrackModel* trackModel,
+                  vtkVpTrackModel* trackModel,
                   vtkVgEventFilter* eventFilter,
                   vtkVgTrackFilter* trackFilter,
                   vtkVgEventTypeRegistry* eventTypes,

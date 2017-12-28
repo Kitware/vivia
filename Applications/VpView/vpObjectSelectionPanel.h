@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -20,6 +20,7 @@ class vpObjectSelectionPanel;
 
 class vpViewCore;
 class vpTreeView;
+class vtkVpTrackModel;
 class vtkIdList;
 class vtkVgActivityManager;
 class vtkVgEventFilter;
@@ -27,7 +28,6 @@ class vtkVgEventModel;
 class vtkVgEventTypeRegistry;
 class vtkVgTimeStamp;
 class vtkVgTrackFilter;
-class vtkVgTrackModel;
 class vtkVgTrackTypeRegistry;
 
 class QMenu;
@@ -53,7 +53,7 @@ public:
   void Initialize(vpViewCore* viewCore,
                   vtkVgActivityManager* activityManager,
                   vtkVgEventModel* eventModel,
-                  vtkVgTrackModel* trackModel,
+                  vtkVpTrackModel* trackModel,
                   vtkVgEventFilter* eventFilter,
                   vtkVgTrackFilter* trackFilter,
                   vtkVgEventTypeRegistry* eventTypes,
@@ -212,7 +212,7 @@ private:
   vpViewCore*            ViewCoreInstance;
   vtkVgActivityManager*  ActivityManager;
   vtkVgEventModel*       EventModel;
-  vtkVgTrackModel*       TrackModel;
+  vtkVpTrackModel*       TrackModel;
 
   vtkVgEventTypeRegistry* EventTypeRegistry;
   vtkVgTrackTypeRegistry* TrackTypeRegistry;

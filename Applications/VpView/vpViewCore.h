@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -59,7 +59,6 @@ class vtkVgRepresentationBase;
 class vtkVgTemporalFilters;
 class vtkVgTrack;
 class vtkVgTrackFilter;
-class vtkVgTrackModel;
 class vtkVgTrackTypeRegistry;
 
 class QVTKWidget;
@@ -97,6 +96,8 @@ class vpSessionView;
 class vpTimelineDialog;
 class vpTrackConfig;
 class vpVideoAnimation;
+
+class vtkVpTrackModel;
 
 // STL includes.
 #include <vector> // STL required.
@@ -284,7 +285,7 @@ public:
   void setImageSourceLevelOfDetailFactor(double factor);
   bool hasMultiLevelOfDetailSource();
 
-  vtkVgTrackModel* getTrackModel(int session);
+  vtkVpTrackModel* getTrackModel(int session);
   vtkVgEventModel* getEventModel(int session);
 
   vtkVgEventFilter* getEventFilter();

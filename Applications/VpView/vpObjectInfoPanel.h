@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -22,12 +22,12 @@ class vpObjectInfoPanel;
 class vpTrackConfig;
 class vpTrackIO;
 class vpViewCore;
+class vtkVpTrackModel;
 class vtkVgActivityManager;
 class vtkVgEvent;
 class vtkVgEventModel;
 class vtkVgEventTypeRegistry;
 class vtkVgTrack;
-class vtkVgTrackModel;
 
 class vpObjectInfoPanel : public QWidget
 {
@@ -44,7 +44,7 @@ public:
   void ShowEmptyPage();
 
   void Initialize(vpViewCore* viewCore, vtkVgActivityManager* activityManager,
-                  vtkVgEventModel* eventModel, vtkVgTrackModel* trackModel,
+                  vtkVgEventModel* eventModel, vtkVpTrackModel* trackModel,
                   vtkVgEventTypeRegistry* eventTypes, vpTrackConfig* trackTypes,
                   const vpTrackIO* trackIO);
 
@@ -86,11 +86,11 @@ private:
   vpViewCore*            ViewCoreInstance;
   vtkVgActivityManager*  ActivityManager;
   vtkVgEventModel*       EventModel;
-  vtkVgTrackModel*       TrackModel;
+  vtkVpTrackModel*       TrackModel;
   const vpTrackIO*       TrackIO;
 
   vtkVgEventTypeRegistry* EventTypeRegistry;
-  vpTrackConfig* TrackConfig;;
+  vpTrackConfig* TrackConfig;
 
   int TrackIndex;
   vtkSmartPointer<vtkVgTrack> Track;

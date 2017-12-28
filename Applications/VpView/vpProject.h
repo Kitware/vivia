@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -28,9 +28,10 @@ class vtkVgEventRepresentation;
 class vtkVgIconManager;
 class vtkVgPicker;
 class vtkVgTrackHeadRepresentation;
-class vtkVgTrackModel;
 class vtkVgTrackRepresentation;
+
 class vtkVpReaderBase;
+class vtkVpTrackModel;
 
 class vpProject
 {
@@ -147,7 +148,7 @@ public:
 
   // Description:
   // Project specific models and representations
-  vtkSmartPointer<vtkVgTrackModel> TrackModel;
+  vtkSmartPointer<vtkVpTrackModel> TrackModel;
   vtkSmartPointer<vtkVgTrackRepresentation> TrackRepresentation;
   vtkSmartPointer<vtkVgTrackRepresentation> SelectedTrackRepresentation;
   vtkSmartPointer<vtkVgTrackHeadRepresentation> TrackHeadRepresentation;

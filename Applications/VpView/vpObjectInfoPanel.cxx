@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,11 +25,11 @@
 #include "vpTrackIO.h"
 #include "vpUtils.h"
 #include "vpViewCore.h"
+#include "vtkVpTrackModel.h"
 
 #include "vtkVgActivityManager.h"
 #include "vtkVgEventModel.h"
 #include "vtkVgEventTypeRegistry.h"
-#include "vtkVgTrackModel.h"
 
 #include "vtkVgActivity.h"
 #include "vtkVgEvent.h"
@@ -81,7 +81,7 @@ void vpObjectInfoPanel::ShowEmptyPage()
 void vpObjectInfoPanel::Initialize(vpViewCore* viewCore,
                                    vtkVgActivityManager* activityManager,
                                    vtkVgEventModel* eventModel,
-                                   vtkVgTrackModel* trackModel,
+                                   vtkVpTrackModel* trackModel,
                                    vtkVgEventTypeRegistry* eventTypes,
                                    vpTrackConfig* trackTypes,
                                    const vpTrackIO* trackIO)
@@ -411,9 +411,7 @@ void vpObjectInfoPanel::EditTrackInfo()
       else
         {
         // update the id
-        this->TrackModel->RemoveTrack(this->Track->GetId());
-        this->Track->SetId(id);
-        this->TrackModel->AddTrack(this->Track);
+        this->TrackModel->SetTrackId(this->Track, id);
         emit this->ObjectIdChanged(objectType, this->Track->GetId());
         }
       }

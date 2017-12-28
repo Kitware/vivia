@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,6 +10,7 @@
 
 #include "vgEventType.h"
 #include "vpViewCore.h"
+#include "vtkVpTrackModel.h"
 
 #include "vtkVgActivity.h"
 #include "vtkVgActivityManager.h"
@@ -18,7 +19,6 @@
 #include "vtkVgEventTypeRegistry.h"
 #include "vtkVgRendererUtils.h"
 #include "vtkVgTrack.h"
-#include "vtkVgTrackModel.h"
 #include "vtkVgTrackTypeRegistry.h"
 
 #include <vtkIdList.h>
@@ -217,7 +217,7 @@ inline vpTreeView* vpObjectSelectionPanel::CurrentTree()
 void vpObjectSelectionPanel::Initialize(vpViewCore* viewCore,
                                         vtkVgActivityManager* activityManager,
                                         vtkVgEventModel* eventModel,
-                                        vtkVgTrackModel* trackModel,
+                                        vtkVpTrackModel* trackModel,
                                         vtkVgEventFilter* eventFilter,
                                         vtkVgTrackFilter* trackFilter,
                                         vtkVgEventTypeRegistry* eventTypes,
@@ -510,7 +510,10 @@ void vpObjectSelectionPanel::OnTreeContextMenu(QMenu& menu)
 
         vtkVgTimeStamp splitTime = this->ViewCoreInstance->getCoreTimeStamp();
 
-        a->setEnabled(!track->GetFrameIsInterpolated(splitTime) &&
+        const bool isKeyframe =
+          this->TrackModel->GetIsKeyframe(this->SelectedItem.Id, splitTime);
+
+        a->setEnabled(isKeyframe &&
                       track->GetStartFrame() < splitTime &&
                       track->GetEndFrame() > splitTime);
         }
