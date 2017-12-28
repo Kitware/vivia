@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -20,7 +20,7 @@ public:
   vpVidtkTrackIO(vpVidtkReader& reader,
                  vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
                  vcl_map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
-                 vtkVgTrackModel* trackModel,
+                 vtkVpTrackModel* trackModel,
                  vpTrackIO::TrackStorageMode storageMode,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
                  vtkVgTrackTypeRegistry* trackTypes = 0,

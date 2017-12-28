@@ -33,7 +33,7 @@ static const unsigned char DefaultTrackColors[NumDefaultTrackColors][3] =
 };
 
 //-----------------------------------------------------------------------------
-vpTrackIO::vpTrackIO(vtkVgTrackModel* trackModel,
+vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes,
