@@ -394,7 +394,10 @@ vvQueryResult fromKwiver(kwiver::vital::query_result const& in)
   {
     for (auto const& tp : tsp->tracks())
     {
-      out.Tracks.push_back(fromKwiver(*tp));
+      if (tp)
+      {
+        out.Tracks.push_back(fromKwiver(*tp));
+      }
     }
   }
 
@@ -404,7 +407,10 @@ vvQueryResult fromKwiver(kwiver::vital::query_result const& in)
   {
     for (auto const& dp : *dsp)
     {
-      out.Descriptors.push_back(fromKwiver(*dp));
+      if (dp)
+      {
+        out.Descriptors.push_back(fromKwiver(*dp));
+      }
     }
   }
 
