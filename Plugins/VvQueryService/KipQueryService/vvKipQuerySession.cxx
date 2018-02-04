@@ -103,7 +103,7 @@ public:
 
   char const* type = "Process";
 
-  std::unique_ptr<kwiver::embedded_pipeline> pipeline;
+  static std::shared_ptr<kwiver::embedded_pipeline> pipeline;
 
 protected:
   QTE_DECLARE_PUBLIC_PTR(vvKipQuerySession)
@@ -111,6 +111,11 @@ protected:
 private:
   QTE_DECLARE_PUBLIC(vvKipQuerySession)
 };
+
+//-----------------------------------------------------------------------------
+std::shared_ptr<kwiver::embedded_pipeline> vvKipQuerySessionPrivate::pipeline
+ = std::shared_ptr<kwiver::embedded_pipeline>();
+
 
 //-----------------------------------------------------------------------------
 vvKipQuerySessionPrivate::vvKipQuerySessionPrivate(
