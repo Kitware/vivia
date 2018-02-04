@@ -41,6 +41,7 @@
 #include <fstream>
 #include <limits>
 #include <memory>
+#include <mutex>
 
 QTE_IMPLEMENT_D_FUNC(vvKipQuerySession)
 
@@ -104,6 +105,7 @@ public:
   char const* type = "Process";
 
   static std::shared_ptr<kwiver::embedded_pipeline> pipeline;
+  static std::mutex pipelineMutex;
 
 protected:
   QTE_DECLARE_PUBLIC_PTR(vvKipQuerySession)
@@ -116,6 +118,8 @@ private:
 std::shared_ptr<kwiver::embedded_pipeline> vvKipQuerySessionPrivate::pipeline
  = std::shared_ptr<kwiver::embedded_pipeline>();
 
+std::mutex vvKipQuerySessionPrivate::pipelineMutex;
+
 
 //-----------------------------------------------------------------------------
 vvKipQuerySessionPrivate::vvKipQuerySessionPrivate(
@@ -127,6 +131,8 @@ vvKipQuerySessionPrivate::vvKipQuerySessionPrivate(
 bool vvKipQuerySessionPrivate::initialize()
 {
   QTE_Q(vvKipQuerySession);
+
+  std::lock_guard<std::mutex> lock(pipelineMutex);
 
   if (this->pipeline)
   {
