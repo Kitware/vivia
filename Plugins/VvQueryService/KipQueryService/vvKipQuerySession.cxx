@@ -54,6 +54,9 @@ using kwiver::vital::track_descriptor_set_sptr;
 namespace // anonymous
 {
 
+std::shared_ptr<kwiver::embedded_pipeline> pipeline;
+std::mutex pipelineMutex;
+
 //-----------------------------------------------------------------------------
 template <typename T, typename... Args>
 std::unique_ptr<T> makeUnique(Args&&... args)
@@ -104,22 +107,12 @@ public:
 
   char const* type = "Process";
 
-  static std::shared_ptr<kwiver::embedded_pipeline> pipeline;
-  static std::mutex pipelineMutex;
-
 protected:
   QTE_DECLARE_PUBLIC_PTR(vvKipQuerySession)
 
 private:
   QTE_DECLARE_PUBLIC(vvKipQuerySession)
 };
-
-//-----------------------------------------------------------------------------
-std::shared_ptr<kwiver::embedded_pipeline> vvKipQuerySessionPrivate::pipeline
- = std::shared_ptr<kwiver::embedded_pipeline>();
-
-std::mutex vvKipQuerySessionPrivate::pipelineMutex;
-
 
 //-----------------------------------------------------------------------------
 vvKipQuerySessionPrivate::vvKipQuerySessionPrivate(
@@ -134,7 +127,7 @@ bool vvKipQuerySessionPrivate::initialize()
 
   std::lock_guard<std::mutex> lock(pipelineMutex);
 
-  if (this->pipeline)
+  if (pipeline)
   {
     return true;
   }
@@ -142,7 +135,7 @@ bool vvKipQuerySessionPrivate::initialize()
   auto const& pipePath = this->server.queryItemValue("Pipeline");
   auto const& pipeDir = QFileInfo(pipePath).dir().canonicalPath();
 
-  auto pipeline = makeUnique<kwiver::embedded_pipeline>();
+  auto new_pipeline = makeUnique<kwiver::embedded_pipeline>();
 
   try
   {
@@ -154,8 +147,8 @@ bool vvKipQuerySessionPrivate::initialize()
       return false;
     }
 
-    pipeline->build_pipeline(pipeStream, qPrintable(pipeDir));
-    pipeline->start();
+    new_pipeline->build_pipeline(pipeStream, qPrintable(pipeDir));
+    new_pipeline->start();
   }
   catch (std::exception& e)
   {
@@ -164,7 +157,7 @@ bool vvKipQuerySessionPrivate::initialize()
     return false;
   }
 
-  this->pipeline = std::move(pipeline);
+  pipeline = std::move(new_pipeline);
   return true;
 }
 
@@ -210,8 +203,8 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
 
   // Send the request through the pipeline and wait for a result
-  this->pipeline->send(ids);
-  auto const& ods = this->pipeline->receive();
+  pipeline->send(ids);
+  auto const& ods = pipeline->receive();
 
   if (ods->is_end_of_data())
   {
@@ -276,7 +269,7 @@ bool vvKipQuerySessionPrivate::stQueryExecute()
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", toKwiver(this->query));
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
-  this->pipeline->send(ids);
+  pipeline->send(ids);
 
   // Switch state
   this->op = QueryProcess;
@@ -310,7 +303,7 @@ bool vvKipQuerySessionPrivate::stQueryRefine()
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", database_query_sptr{});
   ids->add_value("iqr_feedback", toKwiver(queryId, this->feedback));
-  this->pipeline->send(ids);
+  pipeline->send(ids);
 
   // Switch state
   this->op = QueryProcess;
@@ -324,7 +317,7 @@ bool vvKipQuerySessionPrivate::stQueryProcess()
   QTE_Q(vvKipQuerySession);
 
   // Wait for a result from the pipeline
-  auto const& ods = this->pipeline->receive();
+  auto const& ods = pipeline->receive();
 
   if (ods->is_end_of_data())
   {
@@ -417,15 +410,6 @@ void vvKipQuerySession::run()
         alive = d->stWait();
         break;
     }
-  }
-
-  // Clean up
-  if (d->pipeline)
-  {
-    d->pipeline->send_end_of_input();
-    d->pipeline->receive();
-    d->pipeline->wait();
-    d->pipeline.reset();
   }
 
   delete d->eventLoop;
