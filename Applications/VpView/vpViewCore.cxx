@@ -4050,15 +4050,7 @@ void vpViewCore::exportForWeb(const char* path, int paddingFrames)
         break;
         }
 
-      vtkIdType npts, *ptIds, ptId;
-      track->GetHeadIdentifier(timeStamp, npts, ptIds, ptId);
-
-      vtkBoundingBox bbox;
-      for (vtkIdType i = 0; i < npts; ++i)
-        {
-        bbox.AddPoint(points->GetPoint(ptIds[i]));
-        }
-
+      auto bbox = track->GetHeadBoundingBox(timeStamp);
       if (bbox.IsValid())
         {
         maxWidth = std::max(maxWidth, bbox.GetLength(0));

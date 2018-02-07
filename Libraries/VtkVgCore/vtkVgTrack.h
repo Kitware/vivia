@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,6 +10,7 @@
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>
 #include <vtkDenseArray.h>
+#include <vtkBoundingBox.h>
 
 #include "vtkVgSetGet.h"
 #include "vtkVgTimeStamp.h"
@@ -154,7 +155,10 @@ public:
   // frame numbers are available.
   void GetHeadIdentifier(const vtkVgTimeStamp& timeStamp, vtkIdType& npts,
                          vtkIdType*& pts, vtkIdType& trackPointId,
-                         double tolerance = 0.001);
+                         double tolerance = 0.001) const;
+
+  vtkBoundingBox GetHeadBoundingBox(const vtkVgTimeStamp& timeStamp,
+                                    double tolerance = 0.001) const;
 
   // Description:
   // Return the geo coordinate for given time
