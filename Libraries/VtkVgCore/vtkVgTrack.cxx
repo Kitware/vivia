@@ -888,7 +888,7 @@ vtkIdList* vtkVgTrack::GetPointIds()
 void vtkVgTrack::GetHeadIdentifier(const vtkVgTimeStamp& timeStamp,
                                    vtkIdType& npts, vtkIdType*& pts,
                                    vtkIdType& trackPointId,
-                                   double tolerance/*= 0.001*/)
+                                   double tolerance/*= 0.001*/) const
 {
   trackPointId = -1; // "invalid" value unless we set it
 
@@ -914,6 +914,22 @@ void vtkVgTrack::GetHeadIdentifier(const vtkVgTimeStamp& timeStamp,
     {
     trackPointId = headIter->second;
     }
+}
+
+//-----------------------------------------------------------------------------
+vtkBoundingBox vtkVgTrack::GetHeadBoundingBox(const vtkVgTimeStamp& timeStamp,
+                                              double tolerance) const
+{
+  vtkIdType npts, *ptIds, ptId;
+  this->GetHeadIdentifier(timeStamp, npts, ptIds, ptId, tolerance);
+
+  vtkBoundingBox bbox;
+  for (vtkIdType i = 0; i < npts; ++i)
+    {
+    bbox.AddPoint(this->Points->GetPoint(ptIds[i]));
+    }
+
+  return bbox;
 }
 
 //-----------------------------------------------------------------------------
