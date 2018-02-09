@@ -938,6 +938,14 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::improveTrack(int trackId, int session)
+{
+#ifdef VISGUI_USE_KWIVER
+  // TODO
+#endif
+}
+
+//-----------------------------------------------------------------------------
 bool vpViewCore::splitTrack(int trackId, int newTrackId, int session)
 {
   auto project = this->Projects[session];
