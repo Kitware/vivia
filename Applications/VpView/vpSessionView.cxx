@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -126,6 +126,8 @@ void vpSessionView::AddSession(vpViewCore* viewCore,
           SIGNAL(DeleteTrack(int, int)));
   connect(osp, SIGNAL(SplitTrack(int, int)),
           SIGNAL(SplitTrack(int, int)));
+  connect(osp, SIGNAL(ImproveTrack(int, int)),
+          SIGNAL(ImproveTrack(int, int)));
 
   connect(osp, SIGNAL(AddEventsToGraphModel(QList<int>, int)),
           SIGNAL(AddEventsToGraphModel(QList<int>, int)));

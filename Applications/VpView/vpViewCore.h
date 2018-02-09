@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -224,6 +224,7 @@ public:
   bool createTrack(int trackId, int session, bool isFse = false);
   int  createEvent(int type, vtkIdList* ids, int session);
 
+  void improveTrack(int trackId, int session);
   bool splitTrack(int trackId, int newTrackId, int session);
   bool mergeTracks(int trackA, int trackB, int session);
   vtkVgTrack* cloneTrack(int trackId, int newTrackId, int session);

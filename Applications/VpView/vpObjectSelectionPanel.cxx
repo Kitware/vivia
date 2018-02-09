@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -506,6 +506,10 @@ void vpObjectSelectionPanel::OnTreeContextMenu(QMenu& menu)
           a->setEnabled(false);
           }
 
+#ifdef VISGUI_USE_KWIVER
+        a = menu.addAction("Improve Track", this, SLOT(ImproveTrack()));
+#endif
+
         a = menu.addAction("Split Here...", this, SLOT(SplitTrack()));
 
         vtkVgTimeStamp splitTime = this->ViewCoreInstance->getCoreTimeStamp();
@@ -627,6 +631,12 @@ void vpObjectSelectionPanel::DeleteTrack()
 void vpObjectSelectionPanel::SplitTrack()
 {
   emit this->SplitTrack(this->SelectedItem.Id, this->SessionId);
+}
+
+//-----------------------------------------------------------------------------
+void vpObjectSelectionPanel::ImproveTrack()
+{
+  emit this->ImproveTrack(this->SelectedItem.Id, this->SessionId);
 }
 
 //-----------------------------------------------------------------------------
