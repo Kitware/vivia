@@ -267,6 +267,7 @@ vvDescriptor fromKwiver(kwiver::vital::track_descriptor const& in)
 
   out.ModuleName = "KWIVER";
   out.DescriptorName = in.get_type();
+  out.UniqueIdentifier = in.get_uid().value();
 
   // Copy descriptor values
   std::vector<float> values;
@@ -297,11 +298,15 @@ kwiver::vital::track_descriptor_sptr toKwiver(vvDescriptor const& in)
   auto outPtr = kwiver::vital::track_descriptor::create(in.DescriptorName);
   auto& out = *outPtr;
 
+  // Copy UID
+  out.set_uid(in.UniqueIdentifier);
+
   // Copy descriptor values
   auto const& values = flatten(in.Values);
   auto const ds = values.size();
   auto d = std::make_shared<kwiver::vital::descriptor_dynamic<double>>(ds);
   std::copy(values.begin(), values.end(), d->raw_data());
+  out.set_descriptor(d);
 
   // Copy tracks
   for (auto const& t : in.TrackIds)

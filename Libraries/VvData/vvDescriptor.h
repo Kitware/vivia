@@ -42,6 +42,7 @@ struct vvDescriptor
 
   std::string DescriptorName;
   std::string ModuleName;
+  std::string UniqueIdentifier;
   long long InstanceId;
   double Confidence;
   std::vector<std::vector<float> > Values;
