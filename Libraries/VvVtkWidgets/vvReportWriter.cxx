@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -410,19 +410,19 @@ void vvReportWriter::writeEventSummary()
                               imageToWorld);
 
     // Make sure homogeneous component is non-negative or it won't render
-    if (imageToWorld->Element[3][3] < 0.0)
+    if (imageToWorld->GetElement(3, 3) < 0.0)
       {
       for (int i = 0; i < 4; ++i)
         {
         for (int j = 0; j < 4; ++j)
           {
-          imageToWorld->Element[i][j] *= -1.0;
+          imageToWorld->SetElement(i, j, -imageToWorld->GetElement(i, j));
           }
         }
       }
 
     // Offset image slightly in front of context
-    imageToWorld->Element[2][3] = 0.1 * imageToWorld->Element[3][3];
+    imageToWorld->SetElement(2, 3, 0.1 * imageToWorld->GetElement(3, 3));
 
     // Add warped image actor
     imageProp->SetInputData(d->ImageData);

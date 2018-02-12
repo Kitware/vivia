@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,7 +25,7 @@ QMatrix4x4 qtAdapt(const vtkMatrix4x4* in)
       {
       for (int j = 0; j < 4; ++j)
         {
-        out(i, j) = in->Element[i][j];
+        out(i, j) = in->GetElement(i, j);
         }
       }
     return out;
@@ -45,7 +45,7 @@ void qtAdapt(const QMatrix4x4& in, vtkMatrix4x4* out)
       {
       for (int j = 0; j < 4; ++j)
         {
-        out->Element[i][j] = in(i, j);
+        out->SetElement(i, j, in(i, j));
         }
       }
     }
