@@ -385,7 +385,7 @@ void vtkVgTrack::GetFullBounds(double bounds[4])
 
 //-----------------------------------------------------------------------------
 void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
-                                 double point[2],
+                                 const double point[2],
                                  const vtkVgGeoCoord& geoCoord,
                                  vtkIdType numberOfShellPts,
                                  const float* shellPts,
@@ -454,7 +454,7 @@ void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
 
 //-----------------------------------------------------------------------------
 void vtkVgTrack::InsertNextPoint(
-  const vtkVgTimeStamp& timeStamp, double point[2],
+  const vtkVgTimeStamp& timeStamp, const double point[2],
   const vtkVgGeoCoord& geoCoord,
   vtkDenseArray<double>* shellPts)
 {
@@ -481,11 +481,13 @@ void vtkVgTrack::InsertNextPoint(
 //-----------------------------------------------------------------------------
 void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
                                         const vtkVgTimeStamp& timeStamp,
-                                        double previousPoint[2], double point[2],
+                                        const double previousPoint[2],
+                                        const double point[2],
                                         vtkIdType numShellPts,
                                         vtkPoints* fromShellPts,
                                         vtkIdType fromShellPtsStart,
-                                        const float* shellPts, bool warnOnFailure)
+                                        const float* shellPts,
+                                        bool warnOnFailure)
 {
   vtkIdType numFrames;
   if (timeStamp.HasTime())
@@ -607,7 +609,8 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp,
+                          const double point[2],
                           vtkVgGeoCoord geoCoord,
                           vtkIdType numberOfShellPts, const float* shellPts,
                           vtkPoints* fromShellPts,
@@ -753,7 +756,7 @@ void vtkVgTrack::DeletePoint(const vtkVgTimeStamp& timeStamp,
 //-----------------------------------------------------------------------------
 void vtkVgTrack::BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
                                      vtkIdType newTrackPtId,
-                                     double point[2])
+                                     const double point[2])
 {
   // current assumption is that this method is called only from SetPoint, and
   // every time a new point is added (and not simple case where we can call
