@@ -41,6 +41,11 @@
 #include "vpVidtkFileIO.h"
 #endif
 
+#ifdef VISGUI_USE_KWIVER
+#include <vital/algo/interpolate_track.h>
+#include <vital/plugin_loader/plugin_manager.h>
+#endif
+
 // VTK includes.
 #include <vtkActor.h>
 #include <vtkActor2D.h>
@@ -230,6 +235,10 @@ vpViewCore::vpViewCore() :
   GraphRenderingEnabled(true),
   RulerEnabled(false)
 {
+#ifdef VISGUI_USE_KWIVER
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+#endif
+
   this->initializeDisplay();
   this->initializeData();
   this->initializeScene();
@@ -951,7 +960,148 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
 void vpViewCore::improveTrack(int trackId, int session)
 {
 #ifdef VISGUI_USE_KWIVER
-  // TODO
+  namespace kv = kwiver::vital;
+
+  // Get selected track
+  auto project = this->Projects[session];
+  auto* track = project->TrackModel->GetTrack(trackId);
+
+  if (!track)
+    {
+    return;
+    }
+
+  // Ensure time map is complete
+  if (this->UsingTimeStampData && !this->waitForFrameMapRebuild())
+    {
+    return;
+    }
+
+  // Get algorithm to use for algorithm-assisted annotation (AAA)
+  // TODO move to worker
+  QSettings settings;
+  settings.beginGroup("AAA");
+  auto algorithmClass = settings.value("Algorithm", "spline").toString();
+
+  // Instantiate AAA algorithm
+  auto algorithm = [](const std::string& name){
+    auto expr = [&](){
+      return kv::algo::interpolate_track::create(name);
+    };
+    try
+      {
+      return expr();
+      }
+    catch (kv::plugin_factory_not_found)
+      {
+      return decltype(expr()){nullptr};
+      }
+  }(stdString(algorithmClass));
+
+  if (!algorithm)
+    {
+    QMessageBox::warning(0, "Algorithm Error",
+                         "Failed to instantiate \"" + algorithmClass +
+                         "\" algorithm.");
+    }
+
+  // Convert selected track to KWIVER track (keeping only keyframes)
+  auto vitalTrack = kv::track::create();
+  vitalTrack->set_id(track->GetId());
+
+  vtkIdType id;
+  vtkVgTimeStamp timeStamp;
+  track->InitPathTraversal();
+
+  // Iterate over track states
+  while ((id = track->GetNextPathPt(timeStamp)) != -1)
+    {
+    if (project->TrackModel->GetIsKeyframe(trackId, timeStamp))
+      {
+      const vtkBoundingBox& head = track->GetHeadBoundingBox(timeStamp);
+      if (head.IsValid())
+        {
+        const auto xmin = head.GetBound(0);
+        const auto xmax = head.GetBound(1);
+        const auto ymin = head.GetBound(2);
+        const auto ymax = head.GetBound(3);
+        const auto bbox = kv::bounding_box_d{xmin, ymin, xmax, ymax};
+        auto d = std::make_shared<kv::detected_object>(bbox);
+
+        const auto frame = timeStamp.GetFrameNumber();
+        vitalTrack->append(
+          std::make_shared<kv::object_track_state>(frame, d));
+        }
+      }
+    }
+
+  /* TODO
+  // Create a worker thread to execute the algorithm, and a progress dialog to
+  // show the progress
+  QProgressDialog progress;
+  vpImproveTrackWorker worker{track};
+  */
+
+  // Run the algorithm and get the improved track
+  auto improvedTrack = algorithm->interpolate(vitalTrack);
+  if (!improvedTrack)
+    {
+    QMessageBox::critical(0, "Improvement Failed",
+                          "The track could not be improved.");
+    return;
+    }
+
+  // Add the new states to the track
+  const auto& timeMap = this->FrameMap->getTimeMap();
+
+  for (auto s : *improvedTrack)
+    {
+    auto state = std::dynamic_pointer_cast<kv::object_track_state>(s);
+    if (!state || !state->detection)
+      {
+      // Bad state (shouldn't happen, but better safe than SEGV'd)
+      continue;
+      }
+
+    // Get time stamp for frame
+    const auto& ts = [&timeMap, this](unsigned int frame){
+      if (!timeMap.empty())
+        {
+        const auto& ti = timeMap.find(frame);
+        return (ti == timeMap.end() ? vtkVgTimeStamp{}
+                                    : vtkVgTimeStamp{ti->second});
+        }
+      else
+        {
+        const auto f = static_cast<double>(frame);
+        const auto time = 1e6 * (f / this->RequestedFPS);
+        return vtkVgTimeStamp{time, frame};
+        }
+    }(static_cast<unsigned int>(state->frame()));
+
+    if (!ts.IsValid())
+      {
+      // Unable to resolve time stamp (shouldn't happen?)
+      continue;
+      }
+
+    // Replace track point
+    const auto& bbox = state->detection->bounding_box();
+    const auto points = std::array<float, 12>{{
+      static_cast<float>(bbox.min_x()), static_cast<float>(bbox.min_y()), 0.0f,
+      static_cast<float>(bbox.max_x()), static_cast<float>(bbox.min_y()), 0.0f,
+      static_cast<float>(bbox.max_x()), static_cast<float>(bbox.max_y()), 0.0f,
+      static_cast<float>(bbox.min_x()), static_cast<float>(bbox.max_y()), 0.0f
+    }};
+
+    const auto& center = bbox.center();
+
+    track->SetPoint(ts, center.data(), {}, 4, points.data());
+    }
+
+
+  project->TrackModel->Modified();
+  emit this->objectInfoUpdateNeeded();
 #endif
 }
 

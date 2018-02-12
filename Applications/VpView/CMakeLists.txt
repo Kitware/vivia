@@ -45,6 +45,12 @@ if(VISGUI_ENABLE_VIDTK)
   )
 endif()
 
+if(VISGUI_ENABLE_KWIVER)
+   include_directories(SYSTEM
+     ${KWIVER_INCLUDE_DIRS}
+   )
+endif()
+
 include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -269,6 +275,12 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   ${QT_TESTING_SUPPORT_LIBRARIES}
   ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES}
 )
+
+if(VISGUI_ENABLE_KWIVER)
+  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+     kwiver::kwiver_algo_core
+  )
+endif()
 
 if(VISGUI_ENABLE_VIDTK)
   target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
