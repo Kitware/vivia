@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -317,17 +317,17 @@ void vtkVgTrackHeadRepresentation::Update()
         this->Internal->HeadVerts->InsertNextCell(1, &trackPointId);
         }
       this->Internal->HeadTrackIds->InsertNextValue(track->GetId());
-      colors->InsertNextTupleValue(rgb);
+      colors->InsertNextTypedTuple(rgb);
       }
     else if (npts > 1)
       {
       this->Internal->HeadLines->InsertNextCell(npts, pts);
       this->Internal->TemporaryTrackIds->InsertNextValue(track->GetId());
-      this->Internal->TemporaryColors->InsertNextTupleValue(rgb);
+      this->Internal->TemporaryColors->InsertNextTypedTuple(rgb);
       if (this->ShowFill)
         {
         fillPolys->InsertNextCell(npts, pts);
-        fillColors->InsertNextTupleValue(rgb);
+        fillColors->InsertNextTypedTuple(rgb);
         }
       }
     }
