@@ -97,10 +97,10 @@ public:
   // either as a float* or vtkPoints* + start index. Caller should pass 0 in
   // fromShellPts if the shell point data is provided in shellPts. If both are
   // given, only the vtkPoints data will be used.
-  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                        const vtkVgGeoCoord& geoCoord,
                        vtkIdType numberOfShellPts,
-                       float* shellPts,
+                       const float* shellPts,
                        vtkPoints* fromShellPoints = 0,
                        vtkIdType fromShellPtsStart = -1,
                        bool interpolateShell = false);
@@ -108,7 +108,7 @@ public:
   // Description:
   // Wrapper around InsertNextPoint to facilitate python wrapping by using a
   // vtkDenseArray instead of a C-style array with a size argument.
-  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                        const vtkVgGeoCoord& geoCoord,
                        vtkDenseArray<double>* shellPts = 0);
 
@@ -119,9 +119,9 @@ public:
   // vtkPoints* + start index. Caller should pass 0 in fromShellPts if the shell
   // point data is provided in shellPts. If both are given, only the vtkPoints
   // data will be used.
-  void SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void SetPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                 vtkVgGeoCoord geoCoord,
-                vtkIdType numberOfShellPts = 0, float* shellPts = 0,
+                vtkIdType numberOfShellPts = 0, const float* shellPts = 0,
                 vtkPoints* fromShellPts = 0, vtkIdType fromShellPtsStart = -1);
 
   // Description:
@@ -368,15 +368,16 @@ private:
   // in a float array. If both are given, only the vtkPoints data will be used.
   void AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
                               const vtkVgTimeStamp& timeStamp,
-                              double previousPoint[2], double point[2],
+                              const double previousPoint[2],
+                              const double point[2],
                               vtkIdType numShellPts,
                               vtkPoints* fromShellPts,
                               vtkIdType fromShellPtsStart,
-                              float* shellPts = 0,
+                              const float* shellPts = 0,
                               bool warnOnFailure = true);
 
   void BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
-                           vtkIdType newTrackPtId, double point[2]);
+                           vtkIdType newTrackPtId, const double point[2]);
 
   int Type;
   vtkIdType Id;
