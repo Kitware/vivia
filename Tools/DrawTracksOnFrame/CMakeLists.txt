@@ -15,9 +15,9 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkVgModelView
   vtkVgCore
   LINK_LIBRARIES LINK_PRIVATE
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
   vtkInteractionStyle
-  vtkRenderingFreeTypeOpenGL
   ${QT_LIBRARIES}
 )
 

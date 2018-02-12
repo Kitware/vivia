@@ -176,9 +176,10 @@ target_link_libraries(${PROJECT_NAME}
   ${QT_TESTING_SUPPORT_LIBRARIES}
   # Required external libraries
   vtkChartsCore
+  vtkCommonSystem
   vtkGUISupportQt
   vtkRenderingCore
-  vtkRenderingFreeType
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkViewsContext2D
   vil_io
   vnl_io

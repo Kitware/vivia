@@ -36,9 +36,8 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkVgQtUtil
   LINK_LIBRARIES
   LINK_PRIVATE
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingVolumeOpenGL
   LINK_PUBLIC
   ${QT_LIBRARIES}
   vtkInteractionWidgets

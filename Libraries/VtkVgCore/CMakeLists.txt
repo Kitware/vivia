@@ -192,13 +192,13 @@ set_source_files_properties(
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS
   vtkChartsCore
+  vtkFiltersHybrid
   vtkInteractionStyle
   vtkInfovisLayout
   vtkIOCore
-  vtkRenderingFreeTypeOpenGL
+  vtkIOImage
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkRenderingLabel
-  vtkRenderingOpenGL
-  vtkRenderingVolumeOpenGL
   vtkViewsCore
   vtksys
 )

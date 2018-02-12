@@ -160,10 +160,9 @@ target_link_libraries(${PROJECT_NAME}
   ${QT_QTMAIN_LIBRARY}
   ${QT_LIBRARIES}
   LINK_PRIVATE
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
+  vtkCommonSystem
   vtkImagingStencil
-  vtkRenderingOpenGL
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingVolumeOpenGL
   vtkGUISupportQt
 )
 

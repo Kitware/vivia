@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -27,7 +27,7 @@
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 
-#include "vtksys/ios/sstream"
+#include <sstream>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 #define TIMELINE_MIN_RANGE 1.0e7  // 10 s
@@ -201,7 +201,7 @@ void vtkVgChartTimeline::BuildAxis()
     for (int i = 0; i < maxTicks; ++i)
       {
       double t = this->MinX + x * (this->MaxX - this->MinX);
-      vtksys_ios::ostringstream ostr;
+      std::ostringstream ostr;
       ostr << GetPosixTimeSeconds(t).time_of_day() << 'Z';
 
       newLabels->SetValue(i, ostr.str());
@@ -300,7 +300,7 @@ void vtkVgChartTimeline::BuildAxis()
         }
       }
 
-    vtksys_ios::ostringstream ostr;
+    std::ostringstream ostr;
     boost::posix_time::ptime pt = GetPosixTimeSeconds(t);
     double prevt = t;
 
@@ -427,7 +427,7 @@ bool vtkVgChartTimeline::UpdateLayout(vtkContext2D* painter)
   border = border < this->HiddenAxisBorder ? this->HiddenAxisBorder : border;
 
   // Fix the x axis border that was set by vtkChartXY::UpdateLayout()
-  if (changed || this->LayoutChanged)
+  if (changed)
     {
     this->SetBottomBorder(border);
 
@@ -457,7 +457,7 @@ bool vtkVgChartTimeline::UpdateLayout(vtkContext2D* painter)
   // but it needs to happen here since it follows vtkChartXY::UpdateLayout(),
   // but precedes rendering.
   if (this->NormalizeInput &&
-      (changed || this->LayoutChanged || this->MTime > this->AxisBuildTime))
+      (changed || this->MTime > this->AxisBuildTime))
     {
     this->BuildAxis();
     }
@@ -713,7 +713,7 @@ bool vtkVgChartTimeline::UpdateTooltip(const vtkContextMouseEvent& mouse)
 
         if (ids && ids->GetNumberOfTuples() > 0)
           {
-          vtksys_ios::ostringstream ostr;
+          std::ostringstream ostr;
 
           // display the event ids in the tooltip
           int size = ids->GetNumberOfTuples();

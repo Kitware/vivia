@@ -27,6 +27,13 @@ if(BUILD_TESTING)
   set(vtk_testing_support vtkTestingRendering)
 endif()
 
+# VTK OpenGL components
+set(VTK_OPENGL_RENDERING_COMPONENTS
+  vtkRenderingOpenGL
+  vtkRenderingContextOpenGL
+  vtkRenderingVolumeOpenGL
+)
+
 # VTK is required
 set(VTK_REQUIRED_COMPONENTS
   # Core components
@@ -61,11 +68,8 @@ set(VTK_REQUIRED_COMPONENTS
   vtkIOXML
   vtkRenderingAnnotation
   vtkRenderingContext2D
-  vtkRenderingFreeType
-  vtkRenderingFreeTypeOpenGL
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkRenderingLabel
-  vtkRenderingOpenGL
-  vtkRenderingVolumeOpenGL
   vtksys
   ${vtk_testing_support}
   vtkViewsContext2D
@@ -85,7 +89,7 @@ if(VISGUI_ENABLE_WEB)
   endif()
 endif()
 
-find_package(VTK NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
+find_package(VTK 8.0 NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
 include(${VTK_USE_FILE})
 
 # We need this definition to be set regardless
