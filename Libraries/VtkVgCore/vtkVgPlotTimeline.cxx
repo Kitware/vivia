@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -175,7 +175,7 @@ bool vtkVgPlotTimeline::Paint(vtkContext2D* painter)
     for (int i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
       vtkIdType id = 0;
-      this->Selection->GetTupleValue(i, &id);
+      this->Selection->GetTypedTuple(i, &id);
       if (id % 2 == 0 && id < this->Points->GetNumberOfPoints() - 1)
         {
         double p[4];

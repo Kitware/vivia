@@ -655,7 +655,7 @@ void vtkVgActivity::ApplyColors()
       color[1] = this->Color[1] * 255;
       color[2] = this->Color[2] * 255;
       }
-    uca->SetTupleValue(i, color);
+    uca->SetTypedTuple(i, color);
     }
 
   this->Internal->RenderPolyData->Modified();

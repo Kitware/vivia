@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -153,7 +153,7 @@ void vtkVgGraphRepresentation::vtkInternal::SetColor(vtkUnsignedCharArray* array
 {
   unsigned char c[4];
   vtkVgColorUtil::convert(rgba, c);
-  array->SetTupleValue(id, c);
+  array->SetTypedTuple(id, c);
 }
 
 //-----------------------------------------------------------------------------
@@ -741,13 +741,13 @@ void vtkVgGraphRepresentation::SetGraphEdgeOpacity(double value)
       {
       unsigned char newRGBA[4];
       unsigned char previousRGBA[4];
-      this->Internal->EdgeColorArray->GetTupleValue(i, previousRGBA);
+      this->Internal->EdgeColorArray->GetTypedTuple(i, previousRGBA);
       newRGBA[0] = previousRGBA[0];
       newRGBA[1] = previousRGBA[1];
       newRGBA[2] = previousRGBA[2];
       newRGBA[3] = value * 255;
 
-      this->Internal->EdgeColorArray->SetTupleValue(i, newRGBA);
+      this->Internal->EdgeColorArray->SetTypedTuple(i, newRGBA);
       }
     }
   else

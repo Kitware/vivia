@@ -253,19 +253,19 @@ void vtkVgApplySelectedColor::ProcessColorArray(
     {
     if (selectedArr && selectedArr->GetVariantValue(i).ToInt() != 0)
       {
-      outputColorArr->SetTupleValue(i, selectedColor);
+      outputColorArr->SetTypedTuple(i, selectedColor);
       continue;
       }
 
     if (inputColorArr)
       {
       unsigned char color[4] = { 0, 0, 0, 255 };
-      inputColorArr->GetTupleValue(i, color);
-      outputColorArr->SetTupleValue(i, color);
+      inputColorArr->GetTypedTuple(i, color);
+      outputColorArr->SetTypedTuple(i, color);
       }
     else
       {
-      outputColorArr->SetTupleValue(i, defaultColor);
+      outputColorArr->SetTypedTuple(i, defaultColor);
       }
     }
 }
