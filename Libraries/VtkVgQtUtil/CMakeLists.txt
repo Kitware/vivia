@@ -20,8 +20,9 @@ set(vtkVgQtUtilInstallHeaders
 
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
-  vtkRenderingFreeTypeOpenGL
+  vtkInteractionStyle
 )
 
 # Build and link library.

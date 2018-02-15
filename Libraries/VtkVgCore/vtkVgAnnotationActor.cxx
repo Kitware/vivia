@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -121,10 +121,10 @@ void vtkVgAnnotationActor::GetTransformedPosition(double pos[3])
 {
   vtkMatrix4x4* mat = this->GetMatrix();
 
-  double w = mat->Element[3][3];
-  pos[0] = mat->Element[0][3] / w;
-  pos[1] = mat->Element[1][3] / w;
-  pos[2] = mat->Element[2][3] / w;
+  double w = mat->GetElement(3, 3);
+  pos[0] = mat->GetElement(0, 3) / w;
+  pos[1] = mat->GetElement(1, 3) / w;
+  pos[2] = mat->GetElement(2, 3) / w;
 }
 
 //-----------------------------------------------------------------------------

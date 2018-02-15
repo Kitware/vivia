@@ -97,11 +97,10 @@ set_source_files_properties(
 
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkFiltersModeling
   vtkIOCore
   vtkInteractionStyle
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingOpenGL
   vtkVgCore
 )
 

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -433,7 +433,7 @@ void vtkVgActivity::PrepareRepresentation()
         color[1] = this->Color[1] * 255;
         color[2] = this->Color[2] * 255;
         }
-      uca->InsertNextTupleValue(color);
+      uca->InsertNextTypedTuple(color);
       ba->InsertNextValue(phase > 0);
       }
 
@@ -655,7 +655,7 @@ void vtkVgActivity::ApplyColors()
       color[1] = this->Color[1] * 255;
       color[2] = this->Color[2] * 255;
       }
-    uca->SetTupleValue(i, color);
+    uca->SetTypedTuple(i, color);
     }
 
   this->Internal->RenderPolyData->Modified();

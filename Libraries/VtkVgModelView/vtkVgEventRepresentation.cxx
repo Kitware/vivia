@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -579,7 +579,7 @@ void vtkVgEventRepresentation::Update()
         color[1] *= m;
         color[2] *= m;
         }
-      colors->InsertNextTupleValue(color);
+      colors->InsertNextTypedTuple(color);
       }
 
     if (forcedTracks)

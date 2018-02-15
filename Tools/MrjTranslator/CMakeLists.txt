@@ -13,6 +13,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES LINK_PRIVATE
   vtkVgCore
   vtkCommonCore
+  vtkCommonSystem
   vtkFiltersGeneral
   vtkIOCore
   vtkIOImage

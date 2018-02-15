@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -250,15 +250,15 @@ vtkSmartPointer<vtkVgTerrain> vtkVgTerrainSource::CreateTerrain()
 
         if (prop)
           {
-          double w = transformMatrix->Element[3][3];
+          double w = transformMatrix->GetElement(3, 3);
           for (int i = 0; i < 4; ++i)
             {
             for (int j = 0; j < 4; ++j)
               {
-              transformMatrix->Element[i][j] /= w;
+              transformMatrix->SetElement(i, j, transformMatrix->GetElement(i, j) / w);
               }
             }
-          transformMatrix->Element[2][2] = 1.0;
+          transformMatrix->SetElement(2, 2, 1.0);
           prop->SetUserMatrix(transformMatrix);
           newMatrix->Invert();
           this->OtherTileTileToBaseMatrices.push_back(transformMatrix);

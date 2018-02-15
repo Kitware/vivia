@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -145,15 +145,19 @@ void vtkVgGeode::Update(vtkVgNodeVisitorBase& nodeVisitor)
       {
       // \TODO: We are dealing with only 3d props. We need to find a way for
       // setting a user transform to vtkProp if needed.
-      vtkProp3D* currentProp = static_cast<vtkProp3D*>(this->ActiveDrawables->GetNextProp());
-      if (currentProp)
+      vtkProp3D* currentProp =
+        static_cast<vtkProp3D*>(this->ActiveDrawables->GetNextProp());
+      // Divide through by 3,3 component to be assured the 3,3 component is 1
+      // (and more importantly, greater than 0)
+      double w = this->FinalMatrix->GetElement(3, 3);
+      if (currentProp && w != 0)
         {
-        double w = vtkMath::Norm(this->FinalMatrix->Element[3], 4);
         for (int i = 0; i < 4; ++i)
           {
           for (int j = 0; j < 4; ++j)
             {
-            this->FinalMatrix->Element[i][j] /= w;
+            this->FinalMatrix->SetElement(i, j,
+              this->FinalMatrix->GetElement(i, j) / w);
             }
           }
 

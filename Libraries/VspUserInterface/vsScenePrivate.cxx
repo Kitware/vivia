@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -427,7 +427,7 @@ void vsScenePrivate::createSelectorMask(ContourInfo& info)
 
     unsigned char color[4];
     this->FilteringMaskColor.fillArray(color);
-    uca->InsertNextTupleValue(color);
+    uca->InsertNextTypedTuple(color);
 
     pd->GetCellData()->SetScalars(uca);
     pd->SetPoints(points);
@@ -488,8 +488,8 @@ void vsScenePrivate::updateContourMaskPositions()
   // than earlier-rendered ones (of the same type). This prevents z-fighting
   // and prevents blending of the mask color when two mask regions overlap.
   double z = -0.1;
-  double w = this->CurrentTransformVtk->Element[3][3];
-  double zscale = this->CurrentTransformVtk->Element[2][2];
+  double w = this->CurrentTransformVtk->GetElement(3, 3);
+  double zscale = this->CurrentTransformVtk->GetElement(2, 2);
   if (zscale != 0.0)
     {
     w /= zscale;

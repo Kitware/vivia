@@ -62,7 +62,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_PRIVATE
   vtkGUISupportQt
   vtkRenderingCore
-  vtkRenderingFreeTypeOpenGL
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkTestingRendering
   vtksys
   PRIVATE_INTERFACE_TARGETS

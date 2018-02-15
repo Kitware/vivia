@@ -260,8 +260,10 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   ${vgSdkTargets}
   vgl vnl vul vil_io
   ${GeographicLib_LIBRARIES}
-  vtkChartsCore vtkRenderingCore vtkGUISupportQt
-  vtkRenderingFreeTypeOpenGL vtkViewsInfovis vtkViewsContext2D
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
+  vtkChartsCore vtkCommonColor vtkCommonSystem vtkInfovisCore
+  vtkRenderingAnnotation vtkRenderingCore vtkGUISupportQt
+  vtkViewsInfovis vtkViewsContext2D
   ${LIBJSON_LIBRARY}
   ${QT_TESTING_SUPPORT_LIBRARIES}
   ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES}

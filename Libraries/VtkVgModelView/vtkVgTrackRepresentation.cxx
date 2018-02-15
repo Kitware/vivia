@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -511,7 +511,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
                                           expiredRGB);
         }
 
-      expiredColors->InsertNextTupleValue(expiredRGB);
+      expiredColors->InsertNextTypedTuple(expiredRGB);
 
       this->Internal->ExpiringTrackIds->InsertNextValue(track->GetId());
       this->Internal->ExpiringSkipClipCells->InsertNextValue(
@@ -523,7 +523,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
         {
         this->Internal->ExpiringTrackLines->InsertNextCell(displayData.NumIds,
             displayData.IdsStart);
-        this->Internal->TemporaryExpiringColors->InsertNextTupleValue(expiredRGB);
+        this->Internal->TemporaryExpiringColors->InsertNextTypedTuple(expiredRGB);
         this->Internal->TemporaryExpiringTrackIds->InsertNextValue(track->GetId());
         this->Internal->TemporaryExpiringSkipClipCells->InsertNextValue(
           displayRegardlessOfFrame ? 1 : 0);
@@ -540,7 +540,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
           color = this->GetTrackColor(info, displayData.Scalars[i]);
           vtkVgColorUtil::convertMultiplied(color, this->ColorMultiplier,
                                             expiredRGB);
-          this->Internal->TemporaryExpiringColors->InsertNextTupleValue(expiredRGB);
+          this->Internal->TemporaryExpiringColors->InsertNextTypedTuple(expiredRGB);
           this->Internal->TemporaryExpiringTrackIds->InsertNextValue(track->GetId());
           this->Internal->TemporaryExpiringSkipClipCells->InsertNextValue(
             displayRegardlessOfFrame ? 1 : 0);
@@ -560,7 +560,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
         }
 
       this->Internal->ActiveTrackVerts->InsertNextCell(1, displayData.IdsStart);
-      activeColors->InsertNextTupleValue(activeRGB);
+      activeColors->InsertNextTypedTuple(activeRGB);
       this->Internal->ActiveTrackIds->InsertNextValue(track->GetId());
       this->Internal->ActiveSkipClipCells->InsertNextValue(
         displayRegardlessOfFrame ? 1 : 0);
@@ -571,7 +571,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
         {
         this->Internal->ActiveTrackLines->InsertNextCell(displayData.NumIds,
                                                          displayData.IdsStart);
-        this->Internal->TemporaryColors->InsertNextTupleValue(activeRGB);
+        this->Internal->TemporaryColors->InsertNextTypedTuple(activeRGB);
         this->Internal->TemporaryTrackIds->InsertNextValue(track->GetId());
         this->Internal->TemporarySkipClipCells->InsertNextValue(
           displayRegardlessOfFrame ? 1 : 0);
@@ -588,7 +588,7 @@ void vtkVgTrackRepresentation::AddTrackRep(vtkVgTrack* track,
           color = this->GetTrackColor(info, displayData.Scalars[i]);
           vtkVgColorUtil::convertMultiplied(color, this->ColorMultiplier,
                                             activeRGB);
-          this->Internal->TemporaryColors->InsertNextTupleValue(activeRGB);
+          this->Internal->TemporaryColors->InsertNextTypedTuple(activeRGB);
           this->Internal->TemporaryTrackIds->InsertNextValue(track->GetId());
           this->Internal->TemporarySkipClipCells->InsertNextValue(
             displayRegardlessOfFrame ? 1 : 0);

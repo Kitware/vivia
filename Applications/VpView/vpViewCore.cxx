@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -908,9 +908,9 @@ bool vpViewCore::createTrack(int trackId, int session, bool isFse)
   vtkMatrix4x4* trackToWorld =
     this->Projects[session]->TrackRepresentation->GetRepresentationMatrix();
 
-  double worldToTrack[16];
-  vtkMatrix4x4::Invert(trackToWorld->Element[0], worldToTrack);
-  vtkMatrix4x4::MultiplyPoint(worldToTrack, center, center);
+  vtkSmartPointer<vtkMatrix4x4> worldToTrack = vtkSmartPointer<vtkMatrix4x4>::New();
+  vtkMatrix4x4::Invert(trackToWorld, worldToTrack);
+  worldToTrack->MultiplyPoint(center, center);
   center[0] /= center[3];
   center[1] /= center[3];
 
@@ -7550,10 +7550,10 @@ vtkVgGeoCoord vpViewCore::worldToGeo(double in[2])
     return vtkVgGeoCoord();
     }
 
-  double worldToLatLon[16];
-  vtkMatrix4x4::Invert(this->LatLonToWorldMatrix->Element[0], worldToLatLon);
+  vtkSmartPointer<vtkMatrix4x4> worldToLatLon = vtkSmartPointer<vtkMatrix4x4>::New();
+  vtkMatrix4x4::Invert(this->LatLonToWorldMatrix, worldToLatLon);
   double point[] = { in[0], in[1], 0.0, 1.0 };
-  vtkMatrix4x4::MultiplyPoint(worldToLatLon, point, point);
+  worldToLatLon->MultiplyPoint(point, point);
   point[0] /= point[3];
   point[1] /= point[3];
   return vtkVgGeoCoord(point[1], point[0]);
@@ -7668,9 +7668,9 @@ bool vpViewCore::displayToGeo(int in[2], double& northing, double& easting)
 
   if (!this->ImageToGcsMatrix)
     {
-    double worldToLatLon[16];
-    vtkMatrix4x4::Invert(this->LatLonToWorldMatrix->Element[0], worldToLatLon);
-    vtkMatrix4x4::MultiplyPoint(worldToLatLon, p, p);
+    vtkSmartPointer<vtkMatrix4x4> worldToLatLon = vtkSmartPointer<vtkMatrix4x4>::New();
+    vtkMatrix4x4::Invert(this->LatLonToWorldMatrix, worldToLatLon);
+    worldToLatLon->MultiplyPoint(p, p);
     }
   else
     {

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -216,7 +216,7 @@ public:
 
   // Description:
   // Get the mtime also considering the lookup table.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set the Input of this mapper.

@@ -54,9 +54,8 @@ set(vtkVgSceneGraphInstallHeaders
 
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkInteractionStyle
-  vtkRenderingFreeTypeOpenGL
-  vtkRenderingOpenGL
 )
 
 # Build and link library.
