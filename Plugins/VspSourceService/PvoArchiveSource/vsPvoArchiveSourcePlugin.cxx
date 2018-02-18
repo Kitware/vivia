@@ -44,8 +44,8 @@ vsArchivePluginInfo vsPvoArchiveSourcePlugin::archivePluginInfo(
   if (type == vs::ArchiveDescriptorSource)
     {
     vsArchiveFileType fileType;
-    fileType.Description = "Kitware collected P/V/O's";
-    fileType.Patterns.append("*.pvo.txt");
+    fileType.Description = "Kitware collected F/S/O's";
+    fileType.Patterns.append("*.fso.txt");
     info.SupportedFileTypes.append(fileType);
     }
   return info;

@@ -59,7 +59,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->DataSetSpecifierTag, "", "Filename with list of images for each frame or glob for sequence of images");
   blk.add_parameter(prj->TracksFileTag, "", "Filename or glob containing the tracks data");
   blk.add_parameter(prj->TrackTraitsFileTag, "", "Filename containing extra track data (normalcy, etc.)");
-  blk.add_parameter(prj->TrackPVOsFileTag, "", "Filename containing PVO data for the tracks");
+  blk.add_parameter(prj->TrackPVOsFileTag, "", "Filename containing FSO data for the tracks");
   blk.add_parameter(prj->EventsFileTag, "", "Filename containing the events data");
   blk.add_parameter(prj->EventLinksFileTag, "", "Filename containing the event linking data");
   blk.add_parameter(prj->ActivitiesFileTag, "", "Filename containing the activities data");

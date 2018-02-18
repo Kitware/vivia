@@ -165,7 +165,7 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
           double PVO[3];
           track->GetPVO(PVO);
 
-          QString tooltip = "P:%1, V:%2, O:%3";
+          QString tooltip = "F:%1, S:%2, O:%3";
 
           return tooltip.arg(PVO[0], 0, 'f', 2)
                         .arg(PVO[1], 0, 'f', 2)

@@ -229,7 +229,7 @@ void vpObjectInfoPanel::ShowTrackInfo(int id)
 
   double pvo[3];
   t->GetPVO(pvo);
-  QString str("P: %1, V: %2, O: %3");
+  QString str("F: %1, S: %2, O: %3");
   this->Ui->trackPVO->setText(str.arg(pvo[0], 0, 'f', 2)
                                  .arg(pvo[1], 0, 'f', 2)
                                  .arg(pvo[2], 0, 'f', 2));

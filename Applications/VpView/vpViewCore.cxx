@@ -1214,8 +1214,8 @@ int vpViewCore::loadTrackTraits(vpProject* project)
 int vpViewCore::loadTrackPVOs(vpProject* project)
 {
   QMessageBox msgBox;
-  msgBox.setWindowTitle("Loading track PVOs...");
-  msgBox.setText("Loading track PVOs (may take awhile)...");
+  msgBox.setWindowTitle("Loading track FSOs...");
+  msgBox.setText("Loading track FSOs (may take awhile)...");
   msgBox.setModal(false);
   msgBox.show();
 

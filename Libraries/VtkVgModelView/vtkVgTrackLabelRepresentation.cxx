@@ -316,7 +316,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
 
         ostr.setf(ios::fixed, ios::floatfield);
         ostr.precision(2);
-        ostr << "(P:" << PVO[0] << ", V:" << PVO[1] << ", O:" << PVO[2] << ')';
+        ostr << "(F:" << PVO[0] << ", S:" << PVO[1] << ", O:" << PVO[2] << ')';
         hasLabel = true;
         }
       }
