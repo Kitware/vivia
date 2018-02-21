@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017-2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -50,6 +50,8 @@ using kwiver::vital::descriptor_request_sptr;
 using kwiver::vital::iqr_feedback_sptr;
 using kwiver::vital::query_result_set_sptr;
 using kwiver::vital::track_descriptor_set_sptr;
+
+using iqr_model_sptr = std::shared_ptr< std::vector< unsigned char > >;
 
 namespace // anonymous
 {
@@ -201,6 +203,7 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
   ids->add_value("descriptor_request", toKwiver(this->qfRequest));
   ids->add_value("database_query", database_query_sptr{});
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
+  ids->add_value("iqr_model", iqr_model_sptr{});
 
   // Send the request through the pipeline and wait for a result
   pipeline->send(ids);
@@ -269,6 +272,7 @@ bool vvKipQuerySessionPrivate::stQueryExecute()
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", toKwiver(this->query));
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
+  ids->add_value("iqr_model", iqr_model_sptr{});
   pipeline->send(ids);
 
   // Switch state
@@ -303,6 +307,7 @@ bool vvKipQuerySessionPrivate::stQueryRefine()
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", database_query_sptr{});
   ids->add_value("iqr_feedback", toKwiver(queryId, this->feedback));
+  ids->add_value("iqr_model", iqr_model_sptr{});
   pipeline->send(ids);
 
   // Switch state
@@ -546,6 +551,12 @@ bool vvKipQuerySession::refineQuery(vvIqr::ScoringClassifiers feedback)
   d->feedback = feedback;
   d->op = vvKipQuerySessionPrivate::QueryRefine;
   this->notify();
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vvKipQuerySession::updateIqrModel(vvQueryInstance& query)
+{
   return true;
 }
 

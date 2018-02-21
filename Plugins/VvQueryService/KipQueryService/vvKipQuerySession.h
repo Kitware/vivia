@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017-2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -24,6 +24,7 @@ public slots:
   virtual bool processQuery(vvQueryInstance query, int workingSetSize);
   virtual bool requestRefinement(int resultsToScore);
   virtual bool refineQuery(vvIqr::ScoringClassifiers feedback);
+  virtual bool updateIqrModel(vvQueryInstance& query);
 
   virtual void endQuery();
   virtual void shutdown();
