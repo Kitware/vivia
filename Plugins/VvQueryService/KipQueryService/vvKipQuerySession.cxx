@@ -51,7 +51,8 @@ using kwiver::vital::iqr_feedback_sptr;
 using kwiver::vital::query_result_set_sptr;
 using kwiver::vital::track_descriptor_set_sptr;
 
-using iqr_model_sptr = std::shared_ptr< std::vector< unsigned char > >;
+using iqr_model = std::vector< unsigned char >;
+using iqr_model_sptr = std::shared_ptr< iqr_model >;
 
 namespace // anonymous
 {
@@ -106,6 +107,10 @@ public:
   vvProcessingRequest qfRequest;
   vvQueryInstance query;
   vvIqr::ScoringClassifiers feedback;
+
+  iqr_model_sptr queryModel;
+  iqr_model_sptr computedModel;
+  std::mutex modelMutex;
 
   char const* type = "Process";
 
@@ -267,12 +272,20 @@ bool vvKipQuerySessionPrivate::stQueryExecute()
     return false;
   }
 
+  // Check if there is an initial IQR model
+  iqr_model_sptr inputModel;
+
+  {
+    std::lock_guard<std::mutex> lock(modelMutex);
+    inputModel = this->queryModel;
+  }
+
   // Set pipeline inputs and start the pipe executing
   auto ids = kwiver::adapter::adapter_data_set::create();
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", toKwiver(this->query));
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
-  ids->add_value("iqr_model", iqr_model_sptr{});
+  ids->add_value("iqr_model", inputModel);
   pipeline->send(ids);
 
   // Switch state
@@ -348,6 +361,14 @@ bool vvKipQuerySessionPrivate::stQueryProcess()
     auto vvResult = fromKwiver(*kwiverResult);
     vvResult.Rank = ++resultCount;
     emit q->resultAvailable(vvResult);
+  }
+
+  auto const& iter2 = ods->find("iqr_model");
+
+  if (iter2 != ods->end())
+  {
+    std::lock_guard<std::mutex> lock(modelMutex);
+    computedModel = iter2->second->get_datum<iqr_model_sptr>();
   }
 
   // Emit completion message
@@ -515,6 +536,23 @@ bool vvKipQuerySession::processQuery(
 
   d->query = query;
   d->op = vvKipQuerySessionPrivate::QueryExecute;
+
+  {
+    std::lock_guard<std::mutex> lock(d_ptr->modelMutex);
+    d_ptr->queryModel.reset();
+    d_ptr->computedModel.reset();
+
+    if (query.similarityQuery())
+    {
+      auto const& simQuery = *query.similarityQuery();
+
+      if (!simQuery.IqrModel.empty())
+      {
+        d_ptr->queryModel.reset( new iqr_model( simQuery.IqrModel ) );
+      }
+    }
+  }
+
   this->notify();
   return true;
 }
@@ -557,6 +595,18 @@ bool vvKipQuerySession::refineQuery(vvIqr::ScoringClassifiers feedback)
 //-----------------------------------------------------------------------------
 bool vvKipQuerySession::updateIqrModel(vvQueryInstance& query)
 {
+  if (query.similarityQuery())
+  {
+    auto& simQuery = *query.similarityQuery();
+
+    std::lock_guard<std::mutex> lock(d_ptr->modelMutex);
+
+    if (d_ptr->computedModel)
+    {
+      simQuery.IqrModel = *d_ptr->computedModel;
+    }
+  }
+
   return true;
 }
 
