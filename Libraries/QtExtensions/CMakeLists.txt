@@ -42,6 +42,7 @@ set(qtExtensionsSources
     Util/qtActionFactory.cxx
     Util/qtActionManager.cxx
     Util/qtActionPriorityList.cxx
+    Util/qtColorScheme.cxx
     Util/qtColorUtil.cxx
     Util/qtDockController.cxx
     Util/qtGradient.cxx
@@ -153,6 +154,7 @@ set(qtExtensionsInstallHeaders
     Util/qtAbstractSetting.h
     Util/qtActionFactory.h
     Util/qtActionManager.h
+    Util/qtColorScheme.h
     Util/qtColorUtil.h
     Util/qtDockController.h
     Util/qtGradient.h
@@ -263,6 +265,7 @@ set(qtExtensionsWrapObjects
     qtAbstractAnimation
     qtActionFactory
     qtActionManager
+    qtColorScheme
     qtDockController
     qtPrioritizedMenuProxy
     qtPrioritizedToolBarProxy
