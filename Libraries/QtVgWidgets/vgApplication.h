@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -17,7 +17,7 @@ class QMenu;
 
 class vgApplicationPrivate;
 
-/// Base class for VisGUI applications.
+/// Base class for ViViA applications.
 ///
 /// This class extends QApplication to provide some common properties that are
 /// used by vgAboutDialog and vgUserManualAction.
@@ -90,10 +90,10 @@ public:
   ///
   /// This convenience method sets both copyrightYear and copyrightOrganization
   /// in a single call.
-  void setCopyright(const QString& year, const QString& organization);
+  static void setCopyright(const QString& year, const QString& organization);
 
   /// \copydoc setCopyright(const QString&, const QString&)
-  void setCopyright(int year, const QString& organization);
+  static void setCopyright(int year, const QString& organization);
 
   /// Get location of application user manual.
   ///
