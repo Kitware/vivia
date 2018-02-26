@@ -1,18 +1,16 @@
 #ifndef __vpApplication_h
 #define __vpApplication_h
 
-// Qt includes.
-#include <QApplication>
+#include "vpSettings.h"
 
-// VpView includes.
-#include <vpSettings.h>
+#include <vgApplication.h>
 
-class vpApplication : public QApplication
+class vpApplication : public vgApplication
 {
   Q_OBJECT
 
 public:
-  vpApplication(int& argc, char** argv) : QApplication(argc, argv)
+  vpApplication(int& argc, char** argv) : vgApplication(argc, argv)
     {
     }
 
