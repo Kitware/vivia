@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -17,7 +17,7 @@ class QMenu;
 
 class vgApplicationPrivate;
 
-/// Base class for VisGUI applications.
+/// Base class for ViViA applications.
 ///
 /// This class extends QApplication to provide some common properties that are
 /// used by vgAboutDialog and vgUserManualAction.
