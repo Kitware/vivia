@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,9 +9,15 @@
 #include "vgAboutAction.h"
 #include "vgUserManualAction.h"
 
+#include <qtCliArgs.h>
+#include <qtColorScheme.h>
+
 #include <QDir>
 #include <QFileInfo>
 #include <QMenu>
+#include <QSettings>
+#include <QStyle>
+#include <QStyleFactory>
 #include <QVariant>
 
 #define WITH_D(type, modifier) \
@@ -191,5 +197,26 @@ void vgApplication::setupHelpMenu(
   if (entries.testFlag(vgApplication::AboutAction))
     {
     menu->addAction(new vgAboutAction(menu));
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vgApplication::addCommandLineOptions(qtCliArgs& args)
+{
+  qtCliOptions options;
+  options.add("theme <file>", "Load application theme from 'file'");
+  args.addOptions(options);
+}
+
+//-----------------------------------------------------------------------------
+void vgApplication::parseCommandLine(qtCliArgs& args)
+{
+  const auto& themeFile = args.value("theme");
+  if (!themeFile.isEmpty())
+    {
+    QSettings settings(themeFile, QSettings::IniFormat);
+
+    QApplication::setStyle(settings.value("WidgetStyle").toString());
+    QApplication::setPalette(qtColorScheme::fromSettings(settings));
     }
 }

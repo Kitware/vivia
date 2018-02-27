@@ -47,8 +47,11 @@ int main(int argc, char** argv)
   options.add("streaming").add("s", "Enable streaming mode");
   args.addOptions(options);
 
+  vgApplication::addCommandLineOptions(args);
+
   // Parse arguments
   args.parseOrDie();
+  vgApplication::parseCommandLine(args);
 
   // Create application instance and set copyright information
   vpApplication app(args.qtArgc(), args.qtArgv());
