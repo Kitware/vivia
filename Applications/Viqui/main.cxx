@@ -1,11 +1,10 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include <QtCore>
-#include <QApplication>
 #include <QList>
 #include <QMainWindow>
 #include <QScopedPointer>
@@ -15,6 +14,8 @@
 #include <qtStlUtil.h>
 
 #include <vgCheckArg.h>
+
+#include <vgApplication.h>
 
 #include <vvQuery.h>
 #include <vvQueryResult.h>
@@ -85,8 +86,11 @@ int main(int argc, char** argv)
               " organization's configuration space with those from 'file'");
   args.addOptions(options);
 
+  vgApplication::addCommandLineOptions(args);
+
   // Parse arguments
   args.parseOrDie();
+  vgApplication::parseCommandLine(args);
 
   // Handle various config-related options
   qtUtil::map(args.values("import-config"),
@@ -99,10 +103,8 @@ int main(int argc, char** argv)
               &parseConfigFile, true, true);
 
   // Create application instance and set copyright information
-  QApplication app(args.qtArgc(), args.qtArgv());
-
-  app.setProperty("COPY_YEAR", VIQUI_COPY_YEAR);
-  app.setProperty("COPY_ORGANIZATION", "Kitware, Inc.");
+  vgApplication app(args.qtArgc(), args.qtArgv());
+  app.setCopyright(VIQUI_COPY_YEAR, "Kitware, Inc.");
 
   // Register metatypes
   QTE_REGISTER_METATYPE(vvProcessingRequest);

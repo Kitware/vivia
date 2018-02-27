@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -93,8 +93,11 @@ int main(int argc, char** argv)
   options.add("mask-image <file>", "Mask image to overlay on video");
   args.addOptions(options);
 
+  vgApplication::addCommandLineOptions(args);
+
   // Parse arguments
   args.parseOrDie();
+  vgApplication::parseCommandLine(args);
 
   // Create application instance and set copyright information
   vsApplication app(args.qtArgc(), args.qtArgv());
