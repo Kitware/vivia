@@ -504,7 +504,7 @@ void vqArchiveVideoSource::CopyFrameData(vtkVgVideoFrameData* frameData)
     }
   else
     {
-    vtkErrorMacro("Corner pts are NOT valid!");
+    //vtkErrorMacro("Corner pts are NOT valid!");
     this->CurrentVideoFrameData->VideoMatrix = 0;
     }
 
