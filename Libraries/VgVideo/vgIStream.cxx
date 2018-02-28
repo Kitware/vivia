@@ -52,9 +52,15 @@ vgIStream::~vgIStream()
 #ifdef Q_OS_WIN
   QTE_D(vgIStream);
 
-  delete d->stream;
-  delete d->buffer;
-  fclose(d->file);
+  if (d)
+    {
+    if (d->stream)
+      delete d->stream;
+    if (d->buffer)
+      delete d->buffer;
+    if (d->file)
+      fclose(d->file);
+    }
 #endif
 }
 
@@ -64,7 +70,8 @@ bool vgIStream::open(const QString& fileName)
   QTE_D(vgIStream);
 
 #ifdef Q_OS_WIN
-  if (fopen_s(&d->file, qPrintable(fileName), "rb"))
+  d->file = fopen(qPrintable( fileName ), "rb");
+  if( !d->file )
     {
     return false;
     }
