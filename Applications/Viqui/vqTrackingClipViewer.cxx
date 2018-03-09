@@ -204,16 +204,11 @@ private:
 
       int slice = IA->GetZSlice();
       int maxSlice = IA->GetWholeZMax();
-      int prevSlice = slice;
+      // set prevSlice to -1 if ImageActor display extent is not valid
+      int prevSlice = IA->GetDisplayExtent()[5] < 0 ? -1 : slice;
 
-      // in the case of single-frame clip, do nothing
-      if (maxSlice == 0)
-        {
-        continue;
-        }
-
-      // compute the frame to show for this update
-      if (this->TrackingClipViewer->GetAllowFrameSkip())
+      // compute the frame to show for this update, if more than 1 frame
+      if (maxSlice > 0 && this->TrackingClipViewer->GetAllowFrameSkip())
         {
         int et = cell.StartTime.elapsed();
         double clipStart = timeStamps->GetValue(0);
@@ -270,7 +265,7 @@ private:
             }
           }
         }
-      else // not skipping frames
+      else if (maxSlice > 0) // not skipping frames and more than 1 frame
         {
         // compute the amount of time to show this frame
         int tts;
