@@ -232,6 +232,18 @@ endif()
 
 ###############################################################################
 
+# BEGIN OPTIONAL kwiver integration
+
+if(VISGUI_ENABLE_KWIVER)
+  list(APPEND vpViewSources
+    vpKwiverVideoSource.cxx
+  )
+endif()
+
+# END OPTIONAL kwiver integration
+
+###############################################################################
+
 # BEGIN build rules
 
 qt4_wrap_ui(uiSources ${vpViewUI})
@@ -279,7 +291,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 
 if(VISGUI_ENABLE_KWIVER)
   target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-     kwiver::kwiver_algo_core
+    kwiver::kwiver_algo_vxl
+    kwiver::kwiver_algo_core
   )
 endif()
 

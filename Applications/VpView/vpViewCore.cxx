@@ -42,6 +42,8 @@
 #endif
 
 #ifdef VISGUI_USE_KWIVER
+#include "vpKwiverVideoSource.h"
+
 #include <vital/algo/interpolate_track.h>
 #include <vital/plugin_loader/plugin_manager.h>
 #endif
@@ -994,6 +996,10 @@ void vpViewCore::improveTrack(int trackId, int session)
                          "Failed to instantiate \"" + algorithmClass +
                          "\" algorithm.");
     }
+
+  // Create video source
+  const auto vs = std::make_shared<vpKwiverVideoSource>(this->ImageDataSource);
+  algorithm->set_video_input(vs);
 
   // Convert selected track to KWIVER track (keeping only keyframes)
   auto vitalTrack = kv::track::create();
