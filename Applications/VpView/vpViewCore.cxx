@@ -1025,7 +1025,10 @@ void vpViewCore::improveTrack(int trackId, int session)
         auto d = std::make_shared<kv::detected_object>(bbox);
 
         const auto frame = timeStamp.GetFrameNumber();
-        const auto time = static_cast<kv::time_us_t>(timeStamp.GetTime());
+        const auto time = [](const vtkVgTimeStamp& ts){
+          return (ts.HasTime() ? static_cast<kv::time_us_t>(ts.GetTime())
+                               : std::numeric_limits<kv::time_us_t>::min());
+        }(timeStamp);
         vitalTrack->append(
           std::make_shared<kv::object_track_state>(frame, time, d));
         }
@@ -1070,7 +1073,13 @@ void vpViewCore::improveTrack(int trackId, int session)
         return (ti == timeMap.end() ? vtkVgTimeStamp{}
                                     : vtkVgTimeStamp{ti->second});
         }
-      const auto time = static_cast<double>(state.time());
+
+      const auto time = [](kv::time_us_t t){
+        constexpr auto invalid = std::numeric_limits<kv::time_us_t>::min();
+        return (t == invalid ? vgTimeStamp::InvalidTime()
+                             : static_cast<double>(t));
+      }(state.time());
+
       return vtkVgTimeStamp{time, frame};
     }(*state);
 
