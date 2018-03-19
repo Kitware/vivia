@@ -236,7 +236,12 @@ endif()
 
 if(VISGUI_ENABLE_KWIVER)
   list(APPEND vpViewSources
+    vpKwiverImproveTrackWorker.cxx
     vpKwiverVideoSource.cxx
+  )
+
+  list(APPEND vpViewHeaders
+    vpKwiverImproveTrackWorker.h
   )
 endif()
 

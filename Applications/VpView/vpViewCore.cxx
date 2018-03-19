@@ -42,10 +42,11 @@
 #endif
 
 #ifdef VISGUI_USE_KWIVER
+#include "vpKwiverImproveTrackWorker.h"
 #include "vpKwiverVideoSource.h"
 
-#include <vital/algo/interpolate_track.h>
 #include <vital/plugin_loader/plugin_manager.h>
+#include <vital/types/object_track_set.h>
 #endif
 
 // VTK includes.
@@ -969,81 +970,28 @@ void vpViewCore::improveTrack(int trackId, int session)
     return;
     }
 
-  // Get algorithm to use for algorithm-assisted annotation (AAA)
-  // TODO move to worker
-  QSettings settings;
-  settings.beginGroup("AAA");
-  auto algorithmClass = settings.value("Algorithm", "spline").toString();
-
-  // Instantiate AAA algorithm
-  auto algorithm = [](const std::string& name){
-    auto expr = [&](){
-      return kv::algo::interpolate_track::create(name);
-    };
-    try
-      {
-      return expr();
-      }
-    catch (kv::plugin_factory_not_found)
-      {
-      return decltype(expr()){nullptr};
-      }
-  }(stdString(algorithmClass));
-
-  if (!algorithm)
-    {
-    QMessageBox::warning(0, "Algorithm Error",
-                         "Failed to instantiate \"" + algorithmClass +
-                         "\" algorithm.");
-    }
+  // Set up progress dialog
+  QProgressDialog progress;
+  progress.setLabelText("Improving track...");
+  progress.setCancelButton(nullptr);
 
   // Create video source
   const auto vs = std::make_shared<vpKwiverVideoSource>(this->ImageDataSource);
-  algorithm->set_video_input(vs);
 
-  // Convert selected track to KWIVER track (keeping only keyframes)
-  auto vitalTrack = kv::track::create();
-  vitalTrack->set_id(track->GetId());
-
-  vtkIdType id;
-  vtkVgTimeStamp timeStamp;
-  track->InitPathTraversal();
-
-  // Iterate over track states
-  while ((id = track->GetNextPathPt(timeStamp)) != -1)
+  // Set up worker
+  vpKwiverImproveTrackWorker worker;
+  if (!worker.initialize(track, project->TrackModel, vs))
     {
-    if (project->TrackModel->GetIsKeyframe(trackId, timeStamp))
-      {
-      const vtkBoundingBox& head = track->GetHeadBoundingBox(timeStamp);
-      if (head.IsValid())
-        {
-        const auto xmin = head.GetBound(0);
-        const auto xmax = head.GetBound(1);
-        const auto ymin = head.GetBound(2);
-        const auto ymax = head.GetBound(3);
-        const auto bbox = kv::bounding_box_d{xmin, ymin, xmax, ymax};
-        auto d = std::make_shared<kv::detected_object>(bbox);
-
-        const auto frame = timeStamp.GetFrameNumber();
-        const auto time = [](const vtkVgTimeStamp& ts){
-          return (ts.HasTime() ? static_cast<kv::time_us_t>(ts.GetTime())
-                               : std::numeric_limits<kv::time_us_t>::min());
-        }(timeStamp);
-        vitalTrack->append(
-          std::make_shared<kv::object_track_state>(frame, time, d));
-        }
-      }
+    return;
     }
 
-  /* TODO
-  // Create a worker thread to execute the algorithm, and a progress dialog to
-  // show the progress
-  QProgressDialog progress;
-  vpImproveTrackWorker worker{track};
-  */
+  connect(&worker, SIGNAL(progressRangeChanged(int, int)),
+          &progress, SLOT(setRange(int, int)));
+  connect(&worker, SIGNAL(progressValueChanged(int)),
+          &progress, SLOT(setValue(int)));
 
-  // Run the algorithm and get the improved track
-  auto improvedTrack = algorithm->interpolate(vitalTrack);
+  // Execute worker and get resulting track
+  auto improvedTrack = worker.execute();
   if (!improvedTrack)
     {
     QMessageBox::critical(0, "Improvement Failed",
@@ -1064,7 +1012,7 @@ void vpViewCore::improveTrack(int trackId, int session)
       }
 
     // Get time stamp for frame
-    const auto& ts = [&timeMap](kv::object_track_state const& state){
+    const auto& ts = [&timeMap](const kv::object_track_state& state){
       const auto frame = static_cast<unsigned int>(state.frame());
 
       if (!timeMap.empty())
