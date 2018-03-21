@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,7 +14,11 @@
 
 #include <vgGeodesy.h>
 
+#ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/file_formats/file_format_base.h>
+#else
 #include <track_oracle/file_format_base.h>
+#endif
 
 #include <vsTrackId.h>
 #include <vtkVsTrackInfo.h>
@@ -24,19 +28,26 @@
 
 #include "visgui_event_type.h"
 
+#ifndef KWIVER_TRACK_ORACLE
+namespace track_oracle
+{
+  using track_oracle_core = track_oracle;
+}
+#endif
+
 //-----------------------------------------------------------------------------
 class vsTrackOracleDescriptorArchiveSourcePrivate :
   public vsArchiveSourcePrivate
 {
 public:
-  typedef vidtk::file_format_base FileFormat;
+  typedef track_oracle::file_format_base FileFormat;
 
   vsTrackOracleDescriptorArchiveSourcePrivate(
     vsTrackOracleDescriptorArchiveSource* q, const QUrl& uri,
     FileFormat* format);
 
-  bool extractPvo(const vidtk::track_handle_type&);
-  bool extractEvent(const vidtk::track_handle_type&);
+  bool extractPvo(const track_oracle::track_handle_type&);
+  bool extractEvent(const track_oracle::track_handle_type&);
 
 protected:
   QTE_DECLARE_PUBLIC(vsTrackOracleDescriptorArchiveSource)
@@ -62,7 +73,7 @@ vsTrackOracleDescriptorArchiveSourcePrivate(
 
 //-----------------------------------------------------------------------------
 bool vsTrackOracleDescriptorArchiveSourcePrivate::extractPvo(
-  const vidtk::track_handle_type& trackHandle)
+  const track_oracle::track_handle_type& trackHandle)
 {
   // Attempt to extract P/V/O track object classifier
   visgui_pvo_descriptor_type pvo;
@@ -91,9 +102,9 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractPvo(
 
 //-----------------------------------------------------------------------------
 bool vsTrackOracleDescriptorArchiveSourcePrivate::extractEvent(
-  const vidtk::track_handle_type& trackHandle)
+  const track_oracle::track_handle_type& trackHandle)
 {
-  vsEvent event = vsEvent(QUuid() /* FIXME: get from vidtk object */);
+  vsEvent event = vsEvent(QUuid() /* FIXME: get from track_oracle object */);
   bool eventIsValid = false;
   bool isClassifierEvent = false;
 
@@ -194,11 +205,11 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::extractEvent(
   eventIsValid = (eventStart.IsValid() && eventEnd.IsValid());
 
   // Extract event regions
-  vidtk::frame_handle_list_type frameHandles =
-    vidtk::track_oracle::get_frames(trackHandle);
+  auto const& frameHandles =
+    track_oracle::track_oracle_core::get_frames(trackHandle);
   for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
     {
-    const vidtk::frame_handle_type& frameHandle = frameHandles[n];
+    auto const& frameHandle = frameHandles[n];
     if (frameHandle.is_valid())
       {
       // Set oracle object to frame instance referenced by handle
@@ -271,7 +282,7 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::processArchive(
   const std::string fileName = stdString(uri.toLocalFile());
 
   // Read descriptors
-  vidtk::track_handle_list_type descriptors;
+  track_oracle::track_handle_list_type descriptors;
   if (!this->Format->read(fileName, descriptors))
     {
     qWarning() << "error reading descriptors from" << uri;
@@ -282,7 +293,7 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::processArchive(
   bool dataFound = false;
   for (size_t n = 0, k = descriptors.size(); n < k; ++n)
     {
-    const vidtk::track_handle_type& trackHandle = descriptors[n];
+    auto const& trackHandle = descriptors[n];
     if (trackHandle.is_valid())
       {
       dataFound = this->extractPvo(trackHandle) || dataFound;
@@ -302,7 +313,7 @@ bool vsTrackOracleDescriptorArchiveSourcePrivate::processArchive(
 
 //-----------------------------------------------------------------------------
 vsTrackOracleDescriptorArchiveSource::vsTrackOracleDescriptorArchiveSource(
-  const QUrl& uri, vidtk::file_format_base* format) :
+  const QUrl& uri, track_oracle::file_format_base* format) :
   super(new vsTrackOracleDescriptorArchiveSourcePrivate(this, uri, format))
 {
 }
