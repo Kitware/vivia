@@ -1022,13 +1022,7 @@ void vpViewCore::improveTrack(int trackId, int session)
                                     : vtkVgTimeStamp{ti->second});
         }
 
-      const auto time = [](kv::time_us_t t){
-        constexpr auto invalid = std::numeric_limits<kv::time_us_t>::min();
-        return (t == invalid ? vgTimeStamp::InvalidTime()
-                             : static_cast<double>(t));
-      }(state.time());
-
-      return vtkVgTimeStamp{time, frame};
+      return vtkVgTimeStamp{vgTimeStamp::InvalidTime(), frame};
     }(*state);
 
     if (!ts.IsValid())
