@@ -99,7 +99,27 @@ bool vpKwiverImproveTrackWorker::initialize(
     return false;
     }
 
-  // TODO load configuration from settings
+  // Set algorithm configuration
+  settings.beginGroup("Configuration");
+  try
+    {
+    auto config = d->Algorithm->get_configuration();
+    for (auto key : config->available_values())
+      {
+      auto const& qkey = qtString(key);
+      auto const& defaultValue = qtString(config->get_value<std::string>(key));
+      auto const& value = settings.value(qkey, defaultValue).toString();
+      config->set_value(key, stdString(value));
+      }
+    d->Algorithm->set_configuration(config);
+    }
+  catch (std::exception e)
+    {
+    QMessageBox::warning(0, "Algorithm Error",
+                         "Failed to configure algorithm: " +
+                         QString::fromLocal8Bit(e.what()));
+    return false;
+    }
 
   d->Algorithm->set_video_input(videoSource);
 
