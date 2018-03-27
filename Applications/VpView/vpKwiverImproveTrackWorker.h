@@ -30,7 +30,8 @@ public:
   ~vpKwiverImproveTrackWorker();
 
   bool initialize(vtkVgTrack* track, const vtkVpTrackModel* trackModel,
-                  std::shared_ptr<vpKwiverVideoSource> videoSource);
+                  std::shared_ptr<vpKwiverVideoSource> videoSource,
+                  double videoHeight);
 
   std::shared_ptr<kwiver::vital::track> execute();
 

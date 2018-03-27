@@ -67,7 +67,7 @@ vpKwiverImproveTrackWorker::~vpKwiverImproveTrackWorker()
 //-----------------------------------------------------------------------------
 bool vpKwiverImproveTrackWorker::initialize(
   vtkVgTrack* track, const vtkVpTrackModel* trackModel,
-  std::shared_ptr<vpKwiverVideoSource> videoSource)
+  std::shared_ptr<vpKwiverVideoSource> videoSource, double videoHeight)
 {
   namespace ph = std::placeholders;
 
@@ -148,8 +148,8 @@ bool vpKwiverImproveTrackWorker::initialize(
         {
         const auto xmin = head.GetBound(0);
         const auto xmax = head.GetBound(1);
-        const auto ymin = head.GetBound(2);
-        const auto ymax = head.GetBound(3);
+        const auto ymin = videoHeight - head.GetBound(3);
+        const auto ymax = videoHeight - head.GetBound(2);
         const auto bbox = kv::bounding_box_d{xmin, ymin, xmax, ymax};
         auto obj = std::make_shared<kv::detected_object>(bbox);
 
