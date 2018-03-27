@@ -976,11 +976,14 @@ void vpViewCore::improveTrack(int trackId, int session)
   progress.setCancelButton(nullptr);
 
   // Create video source
-  const auto vs = std::make_shared<vpKwiverVideoSource>(this->ImageDataSource);
+  const auto videoSource =
+    std::make_shared<vpKwiverVideoSource>(this->ImageDataSource);
+  const auto videoHeight =
+    static_cast<double>(project->ModelIO->GetImageHeight());
 
   // Set up worker
   vpKwiverImproveTrackWorker worker;
-  if (!worker.initialize(track, project->TrackModel, vs))
+  if (!worker.initialize(track, project->TrackModel, videoSource, videoHeight))
     {
     return;
     }
@@ -1032,12 +1035,13 @@ void vpViewCore::improveTrack(int trackId, int session)
       }
 
     // Replace track point
+    auto narrow = [](double x){ return static_cast<float>(x); };
     const auto& bbox = state->detection->bounding_box();
     const auto points = std::array<float, 12>{{
-      static_cast<float>(bbox.min_x()), static_cast<float>(bbox.min_y()), 0.0f,
-      static_cast<float>(bbox.max_x()), static_cast<float>(bbox.min_y()), 0.0f,
-      static_cast<float>(bbox.max_x()), static_cast<float>(bbox.max_y()), 0.0f,
-      static_cast<float>(bbox.min_x()), static_cast<float>(bbox.max_y()), 0.0f
+      narrow(bbox.min_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
+      narrow(bbox.max_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
+      narrow(bbox.max_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
+      narrow(bbox.min_x()), narrow(videoHeight - bbox.max_y()), 0.0f
     }};
 
     const auto& center = bbox.center();
