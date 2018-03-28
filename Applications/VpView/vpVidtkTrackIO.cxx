@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -8,10 +8,10 @@
 
 #include "vpFrameMap.h"
 #include "vpVidtkReader.h"
+#include "vtkVpTrackModel.h"
 
 #include <vtkVgScalars.h>
 #include <vtkVgTrack.h>
-#include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 
 #include <vtkBoundingBox.h>
@@ -30,7 +30,7 @@ vpVidtkTrackIO::vpVidtkTrackIO(vpVidtkReader& reader,
                                vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
                                vcl_map<unsigned int, vtkIdType>&
                                  sourceIdToModelIdMap,
-                               vtkVgTrackModel* trackModel,
+                               vtkVpTrackModel* trackModel,
                                TrackStorageMode storageMode,
                                TrackTimeStampMode timeStampMode,
                                vtkVgTrackTypeRegistry* trackTypes,
@@ -244,7 +244,8 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
       vtkIdType* headPts;
       modelTrack->GetHeadIdentifier(ts, nHeadPts, headPts, trackPtId);
 
-      bool frameIsInterpolated = modelTrack->GetFrameIsInterpolated(ts);
+      const bool frameIsInterpolated =
+        !this->TrackModel->GetIsKeyframe(modelTrack->GetId(), ts);
 
       // Don't export frames without regions
       if (nHeadPts == 0)

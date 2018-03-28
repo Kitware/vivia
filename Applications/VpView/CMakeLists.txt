@@ -145,6 +145,7 @@ set(vpViewSources
   vpVideoAnimation.cxx
   vpView.cxx
   vpViewCore.cxx
+  vtkVpTrackModel.cxx
 )
 
 set(vpViewUI
@@ -197,6 +198,7 @@ set(vpViewHeaders
   vpVideoAnimation.h
   vpView.h
   vpViewCore.h
+  vtkVpTrackModel.h
 )
 
 set(vpViewResources ../../Icons/vpView.qrc)

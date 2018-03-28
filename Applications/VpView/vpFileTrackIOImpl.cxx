@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,9 +7,9 @@
 #include "vpFileTrackIOImpl.h"
 
 #include "vpTrackIO.h"
+#include "vtkVpTrackModel.h"
 
 #include <vtkVgTrack.h>
-#include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 
 #include <vtkPoints.h>
@@ -135,16 +135,9 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
       vtkVgTimeStamp ts;
       ts.SetFrameNumber(frame);
 
-      // "Delete" frames from the track that we now know are interpolated. The
-      // track code will re-generate the interpolated frames, which is
-      // inefficient, but this is the only way (currently) to preserve the
-      // information about which frames are true keyframes. We want to keep
-      // track of this info since it will make the annotators' lives easier.
-      if (!isKeyFrame)
+      if (isKeyFrame)
         {
-        track->DeletePoint(ts, true);
-        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        continue;
+        io->TrackModel->AddKeyframe(id, ts);
         }
 
       points.reserve(numPoints * 3);

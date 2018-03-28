@@ -35,6 +35,7 @@
 #include "vpTimelineDialog.h"
 #include "vpTrackConfig.h"
 #include "vpVideoAnimation.h"
+#include "vtkVpTrackModel.h"
 
 #ifdef VISGUI_USE_VIDTK
 #include "vpVidtkFileIO.h"
@@ -129,7 +130,6 @@
 #include <vtkVgTrack.h>
 #include <vtkVgTrackFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
-#include <vtkVgTrackModel.h>
 #include <vtkVgTrackRepresentation.h>
 #include <vtkVgTrackTypeRegistry.h>
 
@@ -940,15 +940,15 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
 //-----------------------------------------------------------------------------
 bool vpViewCore::splitTrack(int trackId, int newTrackId, int session)
 {
-  vtkVgTrack* track =
-    this->Projects[session]->TrackModel->GetTrack(trackId);
+  auto project = this->Projects[session];
+  vtkVgTrack* track = project->TrackModel->GetTrack(trackId);
 
   if (!track)
     {
     return false;
     }
 
-  if (track->GetFrameIsInterpolated(this->CoreTimeStamp) ||
+  if (!project->TrackModel->GetIsKeyframe(trackId, this->CoreTimeStamp) ||
       track->GetStartFrame() >= this->CoreTimeStamp ||
       track->GetEndFrame() <= this->CoreTimeStamp)
     {
@@ -973,8 +973,6 @@ bool vpViewCore::splitTrack(int trackId, int newTrackId, int session)
     {
     track->DeletePoint(track->GetEndFrame());
     }
-
-  vpProject* project = this->Projects[session];
 
   std::vector<vtkVgEvent*> events;
   project->EventModel->GetEvents(trackId, events);
@@ -7076,7 +7074,8 @@ void vpViewCore::updateTrackHeadRegion()
   this->TrackHeadRegion->SetVisible(1);
 
   // Show interpolated heads in a slightly darker color
-  if (track->GetFrameIsInterpolated(this->CoreTimeStamp))
+  if (!project->TrackModel->GetIsKeyframe(this->EditingTrackId,
+                                          this->CoreTimeStamp))
     {
     this->TrackHeadRegion->SetLineColor(0.0, 0.6, 0.6);
     }
@@ -7170,6 +7169,8 @@ void vpViewCore::setTrackHead(vtkPoints* points)
       }
     points->Modified();
     }
+
+  project->TrackModel->AddKeyframe(this->EditingTrackId, this->CoreTimeStamp);
 
   vtkVgTrack* track = project->TrackModel->GetTrack(this->EditingTrackId);
 
@@ -7281,7 +7282,7 @@ bool vpViewCore::hasMultiLevelOfDetailSource()
 }
 
 //-----------------------------------------------------------------------------
-vtkVgTrackModel* vpViewCore::getTrackModel(int session)
+vtkVpTrackModel* vpViewCore::getTrackModel(int session)
 {
   return this->Projects[session]->TrackModel;
 }
@@ -7375,6 +7376,8 @@ void vpViewCore::deleteTrackPoint()
       {
       return;
       }
+    project->TrackModel->RemoveKeyframe(this->EditingTrackId,
+                                        this->CoreTimeStamp);
     vtkVgTrack* track = project->TrackModel->GetTrack(this->EditingTrackId);
     track->DeletePoint(this->CoreTimeStamp);
     project->TrackModel->Modified();

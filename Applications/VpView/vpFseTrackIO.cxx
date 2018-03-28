@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,10 +7,10 @@
 #include "vpFseTrackIO.h"
 
 #include "vpFrameMap.h"
+#include "vtkVpTrackModel.h"
 
 #include <vtkVgScalars.h>
 #include <vtkVgTrack.h>
-#include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 #include <vtkVgTypeDefs.h>
 
@@ -23,7 +23,7 @@
 #include <json.h>
 
 //-----------------------------------------------------------------------------
-vpFseTrackIO::vpFseTrackIO(vtkVgTrackModel* trackModel,
+vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
                            TrackStorageMode storageMode,
                            TrackTimeStampMode timeStampMode,
                            vtkVgTrackTypeRegistry* trackTypes,
