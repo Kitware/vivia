@@ -1039,9 +1039,9 @@ void vpViewCore::improveTrack(int trackId, int session)
     const auto& bbox = state->detection->bounding_box();
     const auto points = std::array<float, 12>{{
       narrow(bbox.min_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
-      narrow(bbox.max_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
+      narrow(bbox.min_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
       narrow(bbox.max_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
-      narrow(bbox.min_x()), narrow(videoHeight - bbox.max_y()), 0.0f
+      narrow(bbox.max_x()), narrow(videoHeight - bbox.min_y()), 0.0f
     }};
 
     const auto& center = bbox.center();
