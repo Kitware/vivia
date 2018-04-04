@@ -137,5 +137,7 @@ int main(int argc, char** argv)
                             Q_ARG(const qtCliArgs*, &args));
 #endif
 
+  vtkObject::GlobalWarningDisplayOff();
+
   return app.exec();
 }
