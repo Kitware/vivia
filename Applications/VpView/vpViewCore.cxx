@@ -7816,7 +7816,7 @@ double vpViewCore::getGeoDistance(double imagePt1[4], double imagePt2[4],
     }
   else
     {
-    GeographicLib::Geodesic::WGS84.Inverse(
+    GeographicLib::Geodesic::WGS84().Inverse(
       northing1, easting1, northing2, easting2, distance);
     }
 

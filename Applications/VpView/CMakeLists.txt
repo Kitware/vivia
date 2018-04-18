@@ -36,7 +36,6 @@ include_directories(SYSTEM
   ${Boost_INCLUDE_DIRS}
   ${LIBJSON_INCLUDE_DIR}
   ${VTK_INCLUDE_DIRS}
-  ${GeographicLib_INCLUDE_DIRS}
 )
 
 if(VISGUI_ENABLE_VIDTK)
@@ -261,7 +260,7 @@ add_executable(${PROJECT_NAME} ${ExecProperties}
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   ${vgSdkTargets}
   vgl vnl vul vil_io
-  ${GeographicLib_LIBRARIES}
+  GeographicLib::GeographicLib
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkChartsCore vtkCommonColor vtkCommonSystem vtkInfovisCore
   vtkRenderingAnnotation vtkRenderingCore vtkGUISupportQt
