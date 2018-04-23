@@ -128,7 +128,7 @@
 #include <vtkVgRendererUtils.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrack.h>
-#include <vtkVgTrackFilter.h>
+#include <vtkVgTrackPVOFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
 #include <vtkVgTrackRepresentation.h>
 #include <vtkVgTrackTypeRegistry.h>
@@ -1656,7 +1656,7 @@ void vpViewCore::initializeScene()
   this->IconSize = 16;
   this->IconOffsetX = this->IconOffsetY = 5;
 
-  this->TrackFilter = vtkSmartPointer<vtkVgTrackFilter>::New();
+  this->TrackFilter = vtkSmartPointer<vtkVgTrackPVOFilter>::New();
   this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
   this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
   this->TrackFilter->SetShowType(vtkVgTrack::Other, true);

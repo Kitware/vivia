@@ -33,7 +33,7 @@
 #include <vtkVgEventRegionRepresentation.h>
 #include <vtkVgEventRepresentation.h>
 #include <vtkVgSpaceConversion.h>
-#include <vtkVgTrackFilter.h>
+#include <vtkVgTrackPVOFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
 #include <vtkVgTrackLabelRepresentation.h>
 #include <vtkVgTrackModel.h>
