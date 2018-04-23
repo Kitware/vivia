@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,6 +14,7 @@
 #include "vtkVgSetGet.h"
 #include "vtkVgTimeStamp.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -257,13 +258,21 @@ public:
   vtkSetMacro(Type, int);
   vtkGetMacro(Type, int);
 
-  // Description:
-  // Set/Get the PVO classification for this track.  These must sum to 1;
-  // to guarantee summing to 1, we normalize on input.
+  // DEPRECATED (TODO: remove this)
   void SetPVO(double person, double vehicle, double other);
   void SetPVO(double pvo[3]);
   vtkGetVector3Macro(PVO, double);
 
+  // Description:
+  // Set/Get the object classification for this track.  These must sum to 1;
+  // to guarantee summing to 1, we normalize on input.
+  void SetTOC(const std::map<int, double>& toc);
+  std::map<int, double> GetTOC() const;
+
+  // TODO
+  // constexpr static int Unclassified = 0;
+
+  // DEPRECATED (TODO: remove this)
   enum enumTrackPVOType
     {
     Person = 0,
@@ -272,7 +281,11 @@ public:
     Unclassified
     };
 
+  // DEPRECATED (TODO: remove this)
   int GetBestPVOClassifier();
+
+  std::pair<int, double> GetBestTOCClassifier();
+  double GetTOCScore(int type);
 
   // Description:
   // Support for per-track colors.
@@ -393,6 +406,7 @@ private:
 
   double Normalcy;
   double PVO[3];
+  std::map<int, double> TOC;
 
   double Color[3];
 
