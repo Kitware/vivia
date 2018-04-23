@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -15,13 +15,6 @@ vtkStandardNewMacro(vtkVgTrackFilter);
 //-----------------------------------------------------------------------------
 vtkVgTrackFilter::vtkVgTrackFilter()
 {
-  this->FilterShow[0] = this->FilterShow[1] = this->FilterShow[2] = false;
-  this->FilterMinProbability[0] = 1.0;
-  this->FilterMinProbability[1] = 1.0;
-  this->FilterMinProbability[2] = 1.0;
-  this->FilterMaxProbability[0] = 0.0;
-  this->FilterMaxProbability[1] = 0.0;
-  this->FilterMaxProbability[2] = 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -32,89 +25,86 @@ vtkVgTrackFilter::~vtkVgTrackFilter()
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetShowType(int trackType, bool state)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
-    vtkErrorMacro("Invalid track type: " << trackType);
-    return;
+    this->Filters.emplace(trackType, FilterSettings{state, 1.0, 0.0});
+    this->Modified();
     }
-
-  if (this->FilterShow[trackType] == state)
+  else if (i->second.Show != state)
     {
-    return;
+    i->second.Show = state;
+    this->Modified();
     }
-
-  this->FilterShow[trackType] = state;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
 bool vtkVgTrackFilter::GetShowType(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return false;
     }
-  return this->FilterShow[trackType];
+  return i->second.Show;
 }
 
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetMinProbability(int trackType, double threshold)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
-    vtkErrorMacro("Invalid track type: " << trackType);
-    return;
+    this->Filters.emplace(trackType, FilterSettings{false, threshold, 0.0});
+    this->Modified();
     }
-
-  if (this->FilterMinProbability[trackType] == threshold)
+  else if (i->second.MinProbability != threshold)
     {
-    return;
+    i->second.MinProbability = threshold;
+    this->Modified();
     }
-
-  this->FilterMinProbability[trackType] = threshold;
-  this->Modified();
 }
 
 
 //-----------------------------------------------------------------------------
 double vtkVgTrackFilter::GetMinProbability(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
     vtkErrorMacro("Invalid track type: " << trackType);
     return 1.0;
     }
-  return this->FilterMinProbability[trackType];
+  return i->second.MinProbability;
 }
 
 //-----------------------------------------------------------------------------
 void vtkVgTrackFilter::SetMaxProbability(int trackType, double threshold)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
-    vtkErrorMacro("Invalid track type: " << trackType);
-    return;
+    this->Filters.emplace(trackType, FilterSettings{false, 1.0, threshold});
+    this->Modified();
     }
-
-  if (this->FilterMaxProbability[trackType] == threshold)
+  else if (i->second.MaxProbability != threshold)
     {
-    return;
+    i->second.MaxProbability = threshold;
+    this->Modified();
     }
-
-  this->FilterMaxProbability[trackType] = threshold;
-  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
 double vtkVgTrackFilter::GetMaxProbability(int trackType)
 {
-  if (trackType < vtkVgTrack::Person || trackType > vtkVgTrack::Other)
+  const auto i = this->Filters.find(trackType);
+  if (i == this->Filters.end())
     {
     vtkErrorMacro("Invalid track type: " << trackType);
-    return 1.0;
+    return 0.0;
     }
-  return this->FilterMaxProbability[trackType];
+  return i->second.MaxProbability;
 }
 
 //-----------------------------------------------------------------------------
@@ -123,35 +113,40 @@ int vtkVgTrackFilter::GetBestClassifier(vtkVgTrack* track)
   int bestType = -1;
   double bestScore = -1.0;
 
-  double pvo[3];
-  track->GetPVO(pvo);
+  const auto& toc = track->GetTOC();
 
-  // if unclassified, doesn't matter what he filter setting are
-  if (pvo[0] == 0 && pvo[1] == 0 && pvo[2] == 0)
+  // If unclassified, doesn't matter what the filter setting are
+  if (!toc.size())
     {
     return vtkVgTrack::Unclassified;
     }
 
-  int filterType;
-  for (filterType = vtkVgTrack::Person; filterType <= vtkVgTrack::Other; filterType++)
+  // Iterate over all filters
+  for (const auto& f : this->Filters)
     {
-    if (!this->FilterShow[filterType])
+    // Is this type shown?
+    if (!f.second.Show)
       {
       continue;
       }
-    if (pvo[filterType] < this->FilterMinProbability[filterType])
+
+    // Does the track have a classification for this type?
+    const auto i = toc.find(f.first);
+    if (i == toc.end())
       {
       continue;
       }
-    double maxProbability = this->FilterMaxProbability[filterType];
-    if (pvo[filterType] > maxProbability)
+
+    // Is the track's classification score for this type within the filter
+    // thresholds?
+    if (i->second >= f.second.MinProbability &&
+        i->second <= f.second.MaxProbability)
       {
-      continue;
-      }
-    if (pvo[filterType] > bestScore)
-      {
-      bestScore = pvo[filterType];
-      bestType = filterType;
+      if (i->second > bestScore)
+        {
+        bestScore = i->second;
+        bestType = f.first;
+        }
       }
     }
 
