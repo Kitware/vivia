@@ -28,14 +28,14 @@ vpKwiverVideoSource::~vpKwiverVideoSource()
 
 //-----------------------------------------------------------------------------
 void vpKwiverVideoSource::set_configuration(
-  kwiver::vital::config_block_sptr config)
+  kv::config_block_sptr config)
 {
   this->Loader.set_configuration(config);
 }
 
 //-----------------------------------------------------------------------------
 bool vpKwiverVideoSource::check_configuration(
-  kwiver::vital::config_block_sptr config) const
+  kv::config_block_sptr config) const
 {
   return this->Loader.check_configuration(config);
 }
@@ -76,9 +76,30 @@ bool vpKwiverVideoSource::next_frame(kv::timestamp& ts, uint32_t)
 }
 
 //-----------------------------------------------------------------------------
+bool vpKwiverVideoSource::seek_frame(
+  kv::timestamp& ts, kv::frame_id_t frame, uint32_t)
+{
+  if (frame < 0 || frame > static_cast<frame_id_t>(this->num_frames()))
+    {
+    return false;
+    }
+
+  this->CurrentFrame = static_cast<frame_id_t>(frame);
+  ts = this->frame_timestamp();
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool vpKwiverVideoSource::end_of_video() const
 {
   return !this->good();
+}
+
+//-----------------------------------------------------------------------------
+size_t vpKwiverVideoSource::num_frames() const
+{
+  return this->FramePaths.size();
 }
 
 //-----------------------------------------------------------------------------
@@ -106,4 +127,10 @@ kv::image_container_sptr vpKwiverVideoSource::frame_image()
 kv::metadata_vector vpKwiverVideoSource::frame_metadata()
 {
   return {};
+}
+
+//-----------------------------------------------------------------------------
+kv::metadata_map_sptr vpKwiverVideoSource::metadata_map()
+{
+  return std::make_shared<kv::simple_metadata_map>();
 }
