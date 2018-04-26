@@ -151,4 +151,4 @@ if(VISGUI_ENABLE_GDAL)
   add_definitions(-DVISGUI_USE_GDAL)
 endif()
 
-find_package(geographiclib REQUIRED)
+find_package(GeographicLib REQUIRED)

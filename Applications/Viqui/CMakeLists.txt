@@ -27,7 +27,6 @@ include_directories(SYSTEM
   ${KML_INCLUDE_DIRS}
   ${QtTesting_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
-  ${GeographicLib_INCLUDE_DIRS}
   ${PROJ4_INCLUDE_DIR}
 )
 

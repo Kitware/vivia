@@ -42,7 +42,6 @@ set(vgCommonWrapObjects
 
 include_directories(
   ${PROJECT_SOURCE_DIR}
-  ${GeographicLib_INCLUDE_DIRS}
   ${PROJ4_INCLUDE_DIR}
 )
 
@@ -75,7 +74,7 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-  ${GeographicLib_LIBRARIES}
+  GeographicLib::GeographicLib
   ${PROJ4_LIBRARY}
 )
 
