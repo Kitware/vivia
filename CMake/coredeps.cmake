@@ -109,7 +109,7 @@ endif()
 find_package(VXL REQUIRED)
 
 # DO NOT use UseVXL.cmake; its documentation stuff is broken
-include_directories(SYSTEM ${VXL_VCL_INCLUDE_DIR} ${VXL_CORE_INCLUDE_DIR})
+include_directories(SYSTEM ${VXL_VCL_INCLUDE_DIRS} ${VXL_CORE_INCLUDE_DIRS})
 link_directories(${VXL_LIBRARY_DIR})
 
 if (VISGUI_ENABLE_VIDTK)
