@@ -389,8 +389,9 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         vcl_vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
-          lon = objs[0]->world_loc_[0];
-          lat = objs[0]->world_loc_[1];
+          const auto& world_loc = objs[0]->get_world_loc();
+          lon = world_loc[0];
+          lat = world_loc[1];
           }
         }
 
@@ -412,19 +413,15 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         vcl_vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
-          obj->img_loc_ = objs[0]->img_loc_;
-          obj->world_loc_ = objs[0]->world_loc_;
-          obj->area_ = objs[0]->area_;
-          obj->bbox_ = objs[0]->bbox_;
+          obj->set_image_loc(objs[0]->get_image_loc());
+          obj->set_world_loc(objs[0]->get_world_loc());
+          obj->set_area(objs[0]->get_area());
+          obj->set_bbox(objs[0]->get_bbox());
           }
         else
           {
-          obj->img_loc_[0] = 0;
-          obj->img_loc_[1] = 0;
-          obj->img_loc_[2] = 0;
-          obj->world_loc_[0] = 0;
-          obj->world_loc_[1] = 0;
-          obj->world_loc_[2] = 0;
+          obj->set_image_loc(0, 0);
+          obj->set_world_loc(0, 0, 0);
           }
         }
       else
@@ -447,28 +444,23 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
 
         if (geoCoord.IsValid())
           {
-          obj->world_loc_[0] = geoCoord.Longitude;
-          obj->world_loc_[1] = geoCoord.Latitude;
-          obj->world_loc_[2] = 0.0;
+          obj->set_world_loc(geoCoord.Longitude, geoCoord.Latitude, 0);
           }
         else
           {
-          obj->world_loc_[0] = 0;
-          obj->world_loc_[1] = 0;
-          obj->world_loc_[2] = 0;
+          obj->set_world_loc(0, 0, 0);
           }
 
         if (useWorldCoords)
           {
-          obj->img_loc_[0] = 0.5 * (minX + maxX);
-          obj->img_loc_[1] = 0.5 * (minY + maxY);
+          obj->set_image_loc(0.5 * (minX + maxX), 0.5 * (minY + maxY));
           }
         else
           {
-          obj->img_loc_[0] = pt[0];
-          obj->img_loc_[1] = useRawImageCoords ? pt[1] : imageYExtent - pt[1];
+          obj->set_image_loc(
+            pt[0], useRawImageCoords ? pt[1] : imageYExtent - pt[1]);
           }
-        obj->bbox_ = new_state->amhi_bbox_;
+        obj->set_bbox(new_state->amhi_bbox_);
         }
 
       objs[0] = obj;
@@ -693,15 +685,16 @@ void vpVidtkTrackIO::ReadTrack(
       double lat, lon;
       if (!(*trkStateIter)->latitude_longitude(lat, lon))
         {
-        lon = objs[0]->world_loc_[0];
-        lat = objs[0]->world_loc_[1];
+        const auto& world_loc = objs[0]->get_world_loc();
+        lon = world_loc[0];
+        lat = world_loc[1];
         }
       vtkVgGeoCoord geoCoord(lat, lon);
 
       bool trackPointAvailable = true;
       double minY;
       double maxY;
-      vgl_box_2d<unsigned>& vglBBox = objs[0]->bbox_;
+      const auto& vglBBox = objs[0]->get_bbox();
       double pt[4] = {0.0, 0.0, 0.0, 1.0};
       if (this->StorageMode == TSM_TransformedGeoCoords)
         {
@@ -718,15 +711,16 @@ void vpVidtkTrackIO::ReadTrack(
         }
       else
         {
-        pt[0] = objs[0]->img_loc_[0];
+        const auto& image_loc = objs[0]->get_image_loc();
+        pt[0] = image_loc[0];
         unsigned int imageMaxY = this->Reader.GetImageHeight() - 1;
         if (this->StorageMode == TSM_InvertedImageCoords)
           {
-          pt[1] = imageMaxY - objs[0]->img_loc_[1];
+          pt[1] = imageMaxY - image_loc[1];
           }
         else // TSM_ImageCoords || TSM_HomographyTransformedImageCoords
           {
-          pt[1] = objs[0]->img_loc_[1];
+          pt[1] = image_loc[1];
           }
 
         if (this->StorageMode == TSM_HomographyTransformedImageCoords)

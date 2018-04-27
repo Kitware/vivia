@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -120,25 +120,20 @@ bool vpVidtkFileReader::ReadTracks(vcl_vector<vidtk::track_sptr>& outTracks)
         so->loc_[2] = 0.0;
 
         vidtk::image_object_sptr obj(new vidtk::image_object);
-        obj->img_loc_[0] = si.ImagePoint.X;
-        obj->img_loc_[1] = si.ImagePoint.Y;
-        obj->bbox_.set_min_x(si.ImageBox.TopLeft.X);
-        obj->bbox_.set_min_y(si.ImageBox.TopLeft.Y);
-        obj->bbox_.set_max_x(si.ImageBox.BottomRight.X);
-        obj->bbox_.set_max_y(si.ImageBox.BottomRight.Y);
+        obj->set_image_loc(si.ImagePoint.X, si.ImagePoint.Y);
+        obj->set_bbox(si.ImageBox.TopLeft.X, si.ImageBox.BottomRight.X,
+                      si.ImageBox.TopLeft.Y, si.ImageBox.BottomRight.Y);
 
         // Convert world location
         const vgGeocodedCoordinate& w =
           vgGeodesy::convertGcs(si.WorldLocation, vgGeodesy::LatLon_Wgs84);
         if (w.GCS != -1)
           {
-          obj->world_loc_[0] = w.Easting;
-          obj->world_loc_[1] = w.Northing;
-          obj->world_loc_[2] = 0.0;
+          obj->set_world_loc(w.Easting, w.Northing, 0.0);
           }
         else
           {
-          obj->world_loc_[0] = obj->world_loc_[1] = obj->world_loc_[2] = 444.0;
+          obj->set_world_loc(444.0, 444.0, 444.0);
           }
 
         // Set location attributes on state and add to track
