@@ -61,6 +61,54 @@ std::shared_ptr<kwiver::embedded_pipeline> pipeline;
 std::mutex pipelineMutex;
 
 //-----------------------------------------------------------------------------
+kwiver::vital::database_query_sptr toKwiverA(vvQueryInstance const& in)
+{
+	auto const& abstract = *in.constAbstractQuery();
+	auto outPtr = std::make_shared<kwiver::vital::database_query>();
+	auto& out = *outPtr;
+
+	// Set base attributes
+	out.set_id(abstract.QueryId);
+
+	out.set_stream_filter(abstract.StreamIdLimit);
+
+	// Copy temporal limits
+	//out.set_temporal_bounds(utcTimestamp(abstract.TemporalLowerLimit),
+	//	utcTimestamp(abstract.TemporalUpperLimit));
+	//out.set_temporal_filter(toKwiver(abstract.TemporalFilter));
+
+	// Copy spatial limits
+	//out.set_spatial_region(toKwiver(abstract.SpatialLimit));
+	//out.set_spatial_filter(toKwiver(abstract.SpatialFilter));
+
+	if (in.isSimilarityQuery())
+	{
+		auto const& sq = *in.constSimilarityQuery();
+
+		// Set query type
+		out.set_type(kwiver::vital::database_query::SIMILARITY);
+		out.set_threshold(sq.SimilarityThreshold);
+
+		// Copy descriptors
+		auto descriptors = std::make_shared<kwiver::vital::track_descriptor_set>();
+		descriptors->reserve(sq.Descriptors.size());
+		for (auto const& d : sq.Descriptors)
+		{
+			descriptors->push_back(toKwiver(d));
+		}
+		out.set_descriptors(descriptors);
+	}
+	else if (in.isRetrievalQuery())
+	{
+		// Set query type
+		out.set_type(kwiver::vital::database_query::SIMILARITY);
+		// TODO set retrieval entity filter (not yet implemented in KWIVER)
+	}
+
+	return outPtr;
+}
+
+//-----------------------------------------------------------------------------
 template <typename T, typename... Args>
 std::unique_ptr<T> makeUnique(Args&&... args)
 {
@@ -283,7 +331,7 @@ bool vvKipQuerySessionPrivate::stQueryExecute()
   // Set pipeline inputs and start the pipe executing
   auto ids = kwiver::adapter::adapter_data_set::create();
   ids->add_value("descriptor_request", descriptor_request_sptr{});
-  ids->add_value("database_query", toKwiver(this->query));
+  ids->add_value("database_query", toKwiverA(this->query));
   ids->add_value("iqr_feedback", iqr_feedback_sptr{});
   ids->add_value("iqr_model", inputModel);
   pipeline->send(ids);
