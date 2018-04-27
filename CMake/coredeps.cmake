@@ -1,13 +1,11 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
 # Boost is required.
-if(WIN32)
-  set(Boost_USE_STATIC_LIBS ON)
-endif()
-add_definitions(-DBOOST_ALL_NO_LIB)
 find_package(Boost REQUIRED
   COMPONENTS thread signals system filesystem date_time
 )
+add_definitions(-DBOOST_ALL_NO_LIB)
+
 set(CMAKE_THREAD_PREFER_PTHREAD 1)
 find_package(Threads)
 set(Boost_LIBRARIES ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
