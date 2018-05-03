@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -65,11 +65,10 @@ public:
 void vsTrackOracleArchiveSourcePluginPrivate::addSchemas(
   FileFormatMap& map, const track_oracle::track_base_impl& schema)
 {
-  auto formats =
+  const auto& formats =
     track_oracle::file_format_manager::format_matches_schema(schema);
-  for (size_t n = 0, k = formats.size(); n < k; ++n)
+  for (const auto& format : formats)
     {
-    auto const& format = formats[n];
     auto* const format_instance =
       track_oracle::file_format_manager::get_format(format);
     if (format_instance)

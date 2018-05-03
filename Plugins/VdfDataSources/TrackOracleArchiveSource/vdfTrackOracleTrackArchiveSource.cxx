@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -22,10 +22,19 @@
 #include <QtEndian>
 #endif
 
+#ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/file_formats/file_format_base.h>
+#else
 #include <track_oracle/file_format_base.h>
-#include <track_oracle/file_format_manager.h>
+#endif
 
 #include <boost/lexical_cast.hpp>
+
+#ifndef KWIVER_TRACK_ORACLE
+namespace track_oracle
+{
+  using track_oracle_core = ::vidtk::track_oracle;
+}
 
 namespace // anonymous
 {
@@ -48,12 +57,13 @@ QUuid qtUuid(const boost::uuids::uuid& in)
 }
 
 } // namespace <anonymous>
+#endif
 
 //-----------------------------------------------------------------------------
 class vdfTrackOracleTrackDataSourcePrivate
 {
 public:
-  typedef vidtk::file_format_base FileFormat;
+  typedef track_oracle::file_format_base FileFormat;
 
 public:
   vdfTrackOracleTrackDataSourcePrivate(
@@ -76,7 +86,7 @@ vdfTrackOracleTrackDataSourcePrivate::vdfTrackOracleTrackDataSourcePrivate(
 
 //-----------------------------------------------------------------------------
 vdfTrackOracleTrackDataSource::vdfTrackOracleTrackDataSource(
-  const QUrl& uri, vidtk::file_format_base* format, QObject* parent) :
+  const QUrl& uri, track_oracle::file_format_base* format, QObject* parent) :
   vdfThreadedArchiveSource(uri, parent),
   d_ptr(new vdfTrackOracleTrackDataSourcePrivate(this, format))
 {
@@ -96,8 +106,8 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
 
   // Read tracks
   const visgui_track_type schema;
-  vidtk::track_handle_list_type tracks;
-  vcl_vector<vidtk::element_descriptor> missingFieldDescriptors;
+  track_oracle::track_handle_list_type tracks;
+  std::vector<track_oracle::element_descriptor> missingFieldDescriptors;
 
   if (!d->Format->read(fileName, tracks, schema, missingFieldDescriptors))
     {
@@ -143,24 +153,29 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
   bool good = false, error = false;
   for (size_t n = 0, k = tracks.size(); n < k; ++n)
     {
-    const vidtk::track_handle_type& trackHandle = tracks[n];
+    const auto& trackHandle = tracks[n];
     if (trackHandle.is_valid())
       {
       // Set oracle object to track instance referenced by handle
       oracle(trackHandle);
 
       // Get track ID
+#ifdef KWIVER_TRACK_ORACLE
+      // TODO: Remove this when UUID's are supported by KWIVER's track_oracle
+      const QUuid uuid;
+#else
       const QUuid uuid =
         (oracle.unique_id.exists() ? qtUuid(oracle.unique_id()) : QUuid());
+#endif
       vdfTrackId id(this, oracle.external_id(), uuid);
 
       // Convert track states
       QList<vvTrackState> states;
-      vidtk::frame_handle_list_type frameHandles =
-        vidtk::track_oracle::get_frames(trackHandle);
+      auto frameHandles =
+        track_oracle::track_oracle_core::get_frames(trackHandle);
       for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
         {
-        const vidtk::frame_handle_type& frameHandle = frameHandles[n];
+        const auto& frameHandle = frameHandles[n];
         if (frameHandle.is_valid())
           {
           vvTrackState state;
