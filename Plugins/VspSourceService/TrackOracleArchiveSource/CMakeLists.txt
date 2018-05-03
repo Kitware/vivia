@@ -42,7 +42,6 @@ else()
   target_link_libraries(${PROJECT_NAME}
     track_oracle
     track_oracle_file_formats
-    ${QT_LIBRARIES}
   )
 endif()
 
