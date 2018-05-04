@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,9 +14,6 @@
 //-----------------------------------------------------------------------------
 vpVidtkIO::~vpVidtkIO()
 {
-  delete this->ActivityIO;
-  delete this->EventIO;
-  delete this->TrackIO;
 }
 
 //-----------------------------------------------------------------------------
@@ -27,34 +24,32 @@ void vpVidtkIO::SetTrackModel(vtkVpTrackModel* trackModel,
                               vtkMatrix4x4* geoTransform,
                               vpFrameMap* frameMap)
 {
-  delete this->TrackIO;
   this->TrackMap.clear();
-  this->TrackIO = new vpVidtkTrackIO(this->GetReader(), this->TrackMap,
-                                     this->SourceTrackIdToModelIdMap,
-                                     trackModel, storageMode, timeStampMode,
-                                     trackTypes, geoTransform, frameMap);
+  this->TrackIO.reset(
+    new vpVidtkTrackIO(this->GetReader(), this->TrackMap,
+                       this->SourceTrackIdToModelIdMap,
+                       trackModel, storageMode, timeStampMode,
+                       trackTypes, geoTransform, frameMap));
 }
 
 //-----------------------------------------------------------------------------
 void vpVidtkIO::SetEventModel(vtkVgEventModel* eventModel,
                               vtkVgEventTypeRegistry* eventTypes)
 {
-  delete this->EventIO;
   this->EventMap.clear();
-  this->EventIO = new vpVidtkEventIO(this->GetReader(), this->EventMap,
-                                     this->SourceEventIdToModelIdMap,
-                                     this->TrackMap,
-                                     this->SourceTrackIdToModelIdMap,
-                                     eventModel, eventTypes);
+  this->EventIO.reset(
+    new vpVidtkEventIO(this->GetReader(),
+                       this->EventMap, this->SourceEventIdToModelIdMap,
+                       this->TrackMap, this->SourceTrackIdToModelIdMap,
+                       eventModel, eventTypes));
 }
 
 //-----------------------------------------------------------------------------
 void vpVidtkIO::SetActivityModel(vtkVgActivityManager* activityManager,
                                  vpActivityConfig* activityConfig)
 {
-  delete this->ActivityIO;
-  this->ActivityIO = new vpVidtkActivityIO(this->GetReader(), activityManager,
-                                           activityConfig);
+  this->ActivityIO.reset(
+    new vpVidtkActivityIO(this->GetReader(), activityManager, activityConfig));
 }
 
 //-----------------------------------------------------------------------------
@@ -75,6 +70,6 @@ void vpVidtkIO::UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
                              unsigned int updateEndFrame)
 {
   assert(this->TrackIO);
-  static_cast<vpVidtkTrackIO*>(this->TrackIO)->UpdateTracks(
+  static_cast<vpVidtkTrackIO*>(this->TrackIO.data())->UpdateTracks(
     tracks, updateStartFrame, updateEndFrame);
 }
