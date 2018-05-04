@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,7 +19,6 @@ vpVidtkFileIO::vpVidtkFileIO() :
 //-----------------------------------------------------------------------------
 vpVidtkFileIO::~vpVidtkFileIO()
 {
-  delete this->FseTrackIO;
 }
 
 //-----------------------------------------------------------------------------
@@ -30,17 +29,16 @@ void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
                                   vtkMatrix4x4* geoTransform,
                                   vpFrameMap* frameMap)
 {
-  delete this->TrackIO;
   this->TrackMap.clear();
-  this->TrackIO = new vpVidtkFileTrackIO(
-                    this->Reader, this->TrackMap,
-                    this->SourceTrackIdToModelIdMap, trackModel,
-                    storageMode, timeStampMode, trackTypes,
-                    geoTransform, frameMap);
+  this->TrackIO.reset(
+    new vpVidtkFileTrackIO(this->Reader, this->TrackMap,
+                           this->SourceTrackIdToModelIdMap, trackModel,
+                           storageMode, timeStampMode, trackTypes,
+                           geoTransform, frameMap));
 
-  delete this->FseTrackIO;
-  this->FseTrackIO = new vpFseTrackIO(trackModel, storageMode, timeStampMode,
-                                      trackTypes, geoTransform, frameMap);
+  this->FseTrackIO.reset(
+    new vpFseTrackIO(trackModel, storageMode, timeStampMode,
+                     trackTypes, geoTransform, frameMap));
   this->FseTrackIO->SetTracksFileName(this->FseTracksFileName.c_str());
   this->FseTrackIO->SetImageHeight(this->ImageHeight);
 }
@@ -49,13 +47,12 @@ void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
 void vpVidtkFileIO::SetEventModel(vtkVgEventModel* eventModel,
                                   vtkVgEventTypeRegistry* eventTypes)
 {
-  delete this->EventIO;
   this->EventMap.clear();
-  this->EventIO = new vpVidtkFileEventIO(
-                    this->Reader,
-                    this->EventMap, this->SourceEventIdToModelIdMap,
-                    this->TrackMap, this->SourceTrackIdToModelIdMap,
-                    eventModel, eventTypes);
+  this->EventIO.reset(
+    new vpVidtkFileEventIO(this->Reader,
+                           this->EventMap, this->SourceEventIdToModelIdMap,
+                           this->TrackMap, this->SourceTrackIdToModelIdMap,
+                           eventModel, eventTypes));
 }
 
 //-----------------------------------------------------------------------------

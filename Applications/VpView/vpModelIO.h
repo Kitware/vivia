@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,14 +7,15 @@
 #ifndef __vpModelIO_h
 #define __vpModelIO_h
 
-#include "vpTrackIO.h"
-#include "vpEventIO.h"
 #include "vpActivityIO.h"
+#include "vpEventIO.h"
+#include "vpFseTrackIO.h"
+#include "vpTrackIO.h"
 
+#include <memory>
 #include <vector>
 
 class vpFrameMap;
-class vpFseTrackIO;
 
 class vpModelIO
 {
@@ -70,16 +71,16 @@ public:
 
   bool WriteFseTracks(const char* filename, bool writeSceneElements = true);
 
-  const vpTrackIO* GetTrackIO() const { return this->TrackIO; }
-  const vpEventIO* GetEventIO() const { return this->EventIO; }
-  const vpActivityIO* GetActivityIO() const { return this->ActivityIO; }
-  const vpFseTrackIO* GetFseTrackIO() const { return this->FseTrackIO; }
+  const vpTrackIO* GetTrackIO() const { return this->TrackIO.get(); }
+  const vpEventIO* GetEventIO() const { return this->EventIO.get(); }
+  const vpActivityIO* GetActivityIO() const { return this->ActivityIO.get(); }
+  const vpFseTrackIO* GetFseTrackIO() const { return this->FseTrackIO.get(); }
 
 protected:
-  vpTrackIO* TrackIO;
-  vpEventIO* EventIO;
-  vpActivityIO* ActivityIO;
-  vpFseTrackIO* FseTrackIO;
+  std::unique_ptr<vpTrackIO> TrackIO;
+  std::unique_ptr<vpEventIO> EventIO;
+  std::unique_ptr<vpActivityIO> ActivityIO;
+  std::unique_ptr<vpFseTrackIO> FseTrackIO;
 };
 
 #endif // __vpModelIO_h
