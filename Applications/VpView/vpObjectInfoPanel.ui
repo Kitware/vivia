@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>234</width>
-    <height>216</height>
+    <width>327</width>
+    <height>316</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -357,16 +357,9 @@
            </widget>
           </item>
           <item row="6" column="0">
-           <widget class="QLabel" name="trackPVOLabel">
+           <widget class="QLabel" name="trackClassifiersLabel">
             <property name="text">
-             <string>PVO:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLabel" name="trackPVO">
-            <property name="text">
-             <string>P: 0.0, V: 0.0, O: 0.0</string>
+             <string>Classifiers:</string>
             </property>
            </widget>
           </item>
@@ -385,6 +378,38 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QTreeWidget" name="trackClassifiers">
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="rootIsDecorated">
+             <bool>false</bool>
+            </property>
+            <property name="uniformRowHeights">
+             <bool>true</bool>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="allColumnsShowFocus">
+             <bool>true</bool>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
+            </property>
+            <column>
+             <property name="text">
+              <string>Type</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Score</string>
+             </property>
+            </column>
            </widget>
           </item>
          </layout>

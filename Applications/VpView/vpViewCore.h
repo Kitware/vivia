@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -140,6 +140,9 @@ public:
   inline void setTrackOffset(int* trackOffset);
 
   void setOverviewDisplay(vpProject* project);
+
+  void addTrackFilter(vgMixerWidget* filterWidget, int typeId,
+                      const QString& typeName);
 
   // Set/Get functions.
   inline int    getNumberOfFrames();
@@ -298,6 +301,16 @@ public:
   inline vtkVgEventTypeRegistry* getEventTypeRegistry()
     {
     return this->EventTypeRegistry;
+    }
+
+  inline const vtkVgTrackTypeRegistry* getTrackTypeRegistry() const
+    {
+    return this->TrackTypeRegistry;
+    }
+
+  inline vtkVgTrackTypeRegistry* getTrackTypeRegistry()
+    {
+    return this->TrackTypeRegistry;
     }
 
   void setTrackTrailLength(const vtkVgTimeStamp& duration);
@@ -600,6 +613,8 @@ signals:
   void iconsLoaded();
   void overviewLoaded();
   void followTrackChange(int trackId);
+
+  void trackTypesModified();
 
   void displayZoom();
   void frameChanged();
