@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -619,9 +619,15 @@ void vpVidtkTrackIO::ReadTrack(
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
-    track->SetPVO(pvo.get_probability_person(),
-                  pvo.get_probability_vehicle(),
-                  pvo.get_probability_other());
+    const auto personTypeIndex  = this->GetTrackTypeIndex("Person");
+    const auto vehicleTypeIndex = this->GetTrackTypeIndex("Vehicle");
+    const auto otherTypeIndex   = this->GetTrackTypeIndex("Other");
+
+    std::map<int, double> toc;
+    toc.emplace(personTypeIndex,  pvo.get_probability_person());
+    toc.emplace(vehicleTypeIndex, pvo.get_probability_vehicle());
+    toc.emplace(otherTypeIndex,   pvo.get_probability_other());
+    track->SetTOC(toc);
     }
 
   const vcl_vector<vidtk::track_state_sptr>& trackHistory =

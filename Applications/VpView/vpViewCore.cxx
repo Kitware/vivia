@@ -125,10 +125,11 @@
 #include <vtkVgPNGReader.h>
 #include <vtkVgPickData.h>
 #include <vtkVgPicker.h>
+#include <vtkVgQtUtil.h>
 #include <vtkVgRendererUtils.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrack.h>
-#include <vtkVgTrackPVOFilter.h>
+#include <vtkVgTrackFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
 #include <vtkVgTrackRepresentation.h>
 #include <vtkVgTrackTypeRegistry.h>
@@ -1421,6 +1422,9 @@ void vpViewCore::initializeAllOthers()
   this->EventTypeRegistry           = vpEventTypeRegistry::New();
   this->TrackTypeRegistry           = vtkVgTrackTypeRegistry::New();
 
+  vtkConnect(this->TrackTypeRegistry, vtkCommand::ModifiedEvent,
+    this, SIGNAL(trackTypesModified()));
+
   this->TrackConfig                 = new vpTrackConfig(this->TrackTypeRegistry);
   this->EventConfig                 = new vpEventConfig(this->EventTypeRegistry);
   this->ActivityConfig              = new vpActivityConfig(this->ActivityTypeRegistry);
@@ -1656,16 +1660,7 @@ void vpViewCore::initializeScene()
   this->IconSize = 16;
   this->IconOffsetX = this->IconOffsetY = 5;
 
-  this->TrackFilter = vtkSmartPointer<vtkVgTrackPVOFilter>::New();
-  this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
-  this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
-  this->TrackFilter->SetShowType(vtkVgTrack::Other, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
+  this->TrackFilter = vtkSmartPointer<vtkVgTrackFilter>::New();
 
   this->ContourOperatorManager =
     vtkSmartPointer<vtkVgContourOperatorManager>::New();
@@ -1827,16 +1822,25 @@ void vpViewCore::setupRenderWidget(QVTKWidget* renderWidget)
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::addTrackFilter(
+  vgMixerWidget* filterWidget, int typeId, const QString& typeName)
+{
+    filterWidget->addItem(typeId, typeName);
+    filterWidget->setValue(typeId, 0.0);
+    this->TrackFilter->SetShowType(typeId, true);
+    this->TrackFilter->SetMinProbability(typeId, 0.0);
+    this->TrackFilter->SetMaxProbability(typeId, 1.0);
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::setupTrackFilters(vgMixerWidget* filterWidget)
 {
-  filterWidget->addItem(vtkVgTrack::Person, "Person");
-  filterWidget->setValue(vtkVgTrack::Person, 0.0);
-
-  filterWidget->addItem(vtkVgTrack::Vehicle, "Vehicle");
-  filterWidget->setValue(vtkVgTrack::Vehicle, 0.0);
-
-  filterWidget->addItem(vtkVgTrack::Other, "Other");
-  filterWidget->setValue(vtkVgTrack::Other, 1.0);
+  for (int i = 0; i < this->TrackConfig->GetNumberOfTypes(); ++i)
+    {
+    const auto& type = this->TrackConfig->GetTrackTypeByIndex(i);
+    this->addTrackFilter(
+      filterWidget, i, QString::fromLocal8Bit(type.GetName()));
+    }
 
   connect(filterWidget, SIGNAL(stateChanged(int, bool)),
           this, SLOT(SetTrackTypeDisplayState(int, bool)));
@@ -5541,17 +5545,7 @@ void vpViewCore::SetTrackTypeDisplayState(int trackType, bool state)
 //-----------------------------------------------------------------------------
 void vpViewCore::SetTrackTypeProbabilityLimit(int trackType, double prob)
 {
-  // HACK: Invert the sense of the Other filter, so that it becomes low-pass
-  // rather than high-pass. This should be configurable in the UI, via a range
-  // slider filter or some other means.
-  if (trackType == vtkVgTrack::Other)
-    {
-    this->TrackFilter->SetMaxProbability(trackType, prob);
-    }
-  else
-    {
-    this->TrackFilter->SetMinProbability(trackType, prob);
-    }
+  this->TrackFilter->SetMinProbability(trackType, prob);
   this->update();
 }
 
