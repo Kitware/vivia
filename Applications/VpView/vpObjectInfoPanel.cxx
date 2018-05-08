@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QRegExpValidator>
 
+#include <qtScopedValueChange.h>
 #include <qtUtil.h>
 
 #include "vgEventType.h"
@@ -44,6 +45,8 @@ vpObjectInfoPanel::vpObjectInfoPanel(QWidget* p)
   this->Ui->setupUi(this);
 
   this->Ui->trackIdEdit->setValidator(new QIntValidator(0, INT_MAX, this));
+
+  this->Ui->trackClassifiers->sortItems(1, Qt::DescendingOrder);
 
   connect(this->Ui->trackStartSpinBox, SIGNAL(valueChanged(int)),
           this, SLOT(StartFrameChanged(int)));
@@ -175,8 +178,8 @@ void vpObjectInfoPanel::ShowTrackInfo(int id, int parentId, int index)
     {
     this->Ui->trackGroup->setTitle("Track");
     this->Ui->typeColor->setVisible(true);
-    this->Ui->trackPVO->setVisible(true);
-    this->Ui->trackPVOLabel->setVisible(true);
+    this->Ui->trackClassifiers->setVisible(true);
+    this->Ui->trackClassifiersLabel->setVisible(true);
     this->Ui->trackNormalcyLabel->setText("Normalcy:");
     this->ShowTrackInfo(id);
     }
@@ -192,8 +195,8 @@ void vpObjectInfoPanel::ShowSceneElementInfo(int id)
 
   this->Ui->trackGroup->setTitle("Scene Element");
   this->Ui->typeColor->setVisible(true);
-  this->Ui->trackPVO->setVisible(false);
-  this->Ui->trackPVOLabel->setVisible(false);
+  this->Ui->trackClassifiers->setVisible(false);
+  this->Ui->trackClassifiersLabel->setVisible(false);
   this->Ui->trackNormalcyLabel->setText("Probability:");
   this->ShowTrackInfo(id);
 }
@@ -227,12 +230,16 @@ void vpObjectInfoPanel::ShowTrackInfo(int id)
   this->Ui->trackEndFrame->setText(
     vpUtils::GetTimeAndFrameNumberString(endFrame, frameOffset));
 
-  double pvo[3];
-  t->GetPVO(pvo);
-  QString str("P: %1, V: %2, O: %3");
-  this->Ui->trackPVO->setText(str.arg(pvo[0], 0, 'f', 2)
-                                 .arg(pvo[1], 0, 'f', 2)
-                                 .arg(pvo[2], 0, 'f', 2));
+  qtDelayTreeSorting ds(this->Ui->trackClassifiers);
+  this->Ui->trackClassifiers->clear();
+
+  for (auto c : t->GetTOC())
+    {
+    auto* const ti = new QTreeWidgetItem{this->Ui->trackClassifiers};
+    const auto& type = this->TrackConfig->GetTrackTypeByIndex(c.first);
+    ti->setText(0, QString::fromLocal8Bit(type.GetName()));
+    ti->setData(1, Qt::DisplayRole, c.second);
+    }
 
   this->Ui->objectInfo->setCurrentWidget(this->Ui->trackPage);
 }
