@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -93,9 +93,8 @@ QList<vsEventInfo> eventsFromGroup(QSettings& settings,
                                    const EventInfoTemplate* ta)
 {
   // Convert bare templates to something we can reference by type
-  int i;
   QHash<int, EventInfoTemplate> builtinTypes;
-  for (i = 0; ta[i].type; ++i)
+  for (int i = 0; ta[i].type; ++i)
     builtinTypes.insert(ta[i].type, ta[i]);
 
   // Get list of user defined event types
@@ -113,7 +112,7 @@ QList<vsEventInfo> eventsFromGroup(QSettings& settings,
     }
 
   // Add built-in types
-  foreach (i, builtinTypes.keys())
+  foreach (const auto i, builtinTypes.keys())
     {
     if (!types.contains(i))
       types.prepend(i);
@@ -121,7 +120,7 @@ QList<vsEventInfo> eventsFromGroup(QSettings& settings,
 
   // Load each event type
   QList<vsEventInfo> events;
-  foreach (i, types)
+  foreach (const auto i, types)
     {
     EventInfoTemplate t =
       (builtinTypes.contains(i) ? builtinTypes.value(i) : emptyEventTemplate);

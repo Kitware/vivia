@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -686,7 +686,6 @@ void vvVideoQueryDialog::moveToSelected(QList<qint64> ids)
   if (ids.isEmpty())
     return;
 
-  QTreeWidgetItem* item;
   QList<qint64> newSelectedIds;
   foreach (qint64 id, ids)
     {
@@ -723,7 +722,7 @@ void vvVideoQueryDialog::moveToSelected(QList<qint64> ids)
 
   // Update the item selection states so exactly the new items are selected
   d->UI.selectedDescriptors->clearSelection();
-  foreach (item, newSelectedItems)
+  foreach (auto* const item, newSelectedItems)
     item->setSelected(true);
 
   // Something is selected; allow accepting now
