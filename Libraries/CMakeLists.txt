@@ -1,5 +1,4 @@
 # Qt dependent libraries
-add_subdirectory(QtExtensions)
 add_subdirectory(VgCommon)
 add_subdirectory(QtVgCommon)
 add_subdirectory(QtVgWidgets)

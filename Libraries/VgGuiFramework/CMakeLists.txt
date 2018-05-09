@@ -1,6 +1,6 @@
 project(vgGuiFramework)
 
-include(${qtExtensions_SOURCE_DIR}/CMake/Modules/UseQtExtensions.cmake)
+include(${qtExtensions_USE_FILE})
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 

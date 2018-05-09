@@ -1,4 +1,4 @@
-include(${qtExtensions_SOURCE_DIR}/CMake/Modules/UseQtExtensions.cmake)
+include(${qtExtensions_USE_FILE})
 
 add_subdirectory(ConvertTracks)
 add_subdirectory(DrawTracksOnFrame)

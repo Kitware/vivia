@@ -138,6 +138,8 @@ set(QT_USE_QTNETWORK TRUE)
 set(QT_USE_QTXML TRUE)
 find_package(Qt4 4.7.0 REQUIRED)
 
+find_package(qtExtensions REQUIRED)
+
 # This adds ${QT_INCLUDE_DIR} to the build (via include_directories)
 include(${QT_USE_FILE})
 

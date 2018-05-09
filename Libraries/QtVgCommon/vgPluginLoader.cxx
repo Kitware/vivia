@@ -1,10 +1,15 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vgPluginLoader.h"
+
+#include "qtMap.h"
+
+#include <qtDebugImpl.h>
+#include <qtGlobal.h>
 
 #include <QDir>
 #include <QHash>
@@ -15,10 +20,6 @@
 #include <QSettings>
 #include <QStringList>
 #include <QPluginLoader>
-
-#include <qtDebugImpl.h>
-#include <qtGlobal.h>
-#include <qtMap.h>
 
 QTE_DEBUG_AREA(vgDebug, PluginLoader, false);
 

@@ -1,6 +1,6 @@
 project(vspUserInterface)
 
-include(${qtExtensions_SOURCE_DIR}/CMake/Modules/UseQtExtensions.cmake)
+include(${qtExtensions_USE_FILE})
 
 # Use the include path and library for Qt that is used by VTK
 include_directories(SYSTEM

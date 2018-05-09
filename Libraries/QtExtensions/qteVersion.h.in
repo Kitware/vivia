@@ -1,6 +1,0 @@
-#ifndef qt_Version_H
-#define qt_Version_H
-
-#define QTE_AMC_VERSION_STR "@QTE_AMC_VERSION_STR@"
-
-#endif
