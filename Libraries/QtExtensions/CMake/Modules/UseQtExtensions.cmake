@@ -14,7 +14,7 @@ function(qte_amc_wrap_ui outvar name)
   set(outfile "${CMAKE_CURRENT_BINARY_DIR}/${name}.h")
   set_source_files_properties(${outfiles} ${outfile} PROPERTIES GENERATED TRUE)
   add_custom_command(OUTPUT ${outfiles} ${outfile}
-    COMMAND ${QTE_AMC_EXECUTABLE} ${outfile} ${infiles}
-    DEPENDS ${QTE_AMC_EXECUTABLE} ${infiles})
+    COMMAND qte-amc ${outfile} ${infiles}
+    DEPENDS qte-amc ${infiles})
   set(${outvar} ${outfiles} ${outfile} PARENT_SCOPE)
 endfunction()

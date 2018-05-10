@@ -13,11 +13,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(qte-amc Tools/qtActionManagerCompiler.cxx)
 target_link_libraries(qte-amc ${QT_LIBRARIES})
 
-get_property(QTE_AMC_EXECUTABLE TARGET qte-amc PROPERTY LOCATION)
-set(QTE_AMC_EXECUTABLE "${QTE_AMC_EXECUTABLE}"
-    CACHE INTERNAL "Location of the qte-amc executable" FORCE
-)
-
 # END action manager compiler
 
 ###############################################################################
