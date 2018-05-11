@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -269,6 +269,36 @@ vgGeocodedCoordinate vgGeodesy::convertGcs(
   pj_free(fromProj);
   pj_free(toProj);
 
+  return out;
+}
+
+//-----------------------------------------------------------------------------
+vgGeocodedTile vgGeodesy::convertGcs(const vgGeocodedTile& in, int desiredGcs)
+{
+  // Validate input
+  if (in.GCS < 0)
+    return {};
+
+  // Check for no-op
+  if (in.GCS == desiredGcs)
+    return in;
+
+  // Prepare for conversion
+  vgGeocodedCoordinate temp;
+  vgGeoRawCoordinate& raw = temp;
+  temp.GCS = in.GCS;
+  vgGeocodedTile out;
+
+  // Convert points
+  for (int n = 0; n < in.Size; ++n)
+    {
+    raw = in.Coordinate[n];
+    out.Coordinate[n] = convertGcs(temp, desiredGcs);
+    }
+
+  out.GCS = desiredGcs;
+
+  // Return converted result
   return out;
 }
 
