@@ -82,6 +82,8 @@ protected:
 protected:
   friend class vpFileTrackIOImpl;
 
+  void AddTrack(vtkVgTrack*);
+
   vtkVpTrackModel* TrackModel;
   vtkVgTrackTypeRegistry* TrackTypes;
 
