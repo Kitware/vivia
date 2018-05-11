@@ -6,6 +6,8 @@
 
 #include "vpTrackIO.h"
 
+#include "vtkVpTrackModel.h"
+
 #include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 
@@ -109,4 +111,32 @@ void vpTrackIO::GetDefaultTrackColor(int trackId, double (&color)[3])
   color[0] = DefaultTrackColors[colorIdx][0] / 255.0;
   color[1] = DefaultTrackColors[colorIdx][1] / 255.0;
   color[2] = DefaultTrackColors[colorIdx][2] / 255.0;
+}
+
+//-----------------------------------------------------------------------------
+void vpTrackIO::AddTrack(vtkVgTrack* track)
+{
+  if (this->HasOverrideColor)
+    {
+    track->SetColor(this->OverrideColor);
+    }
+  else
+    {
+    double color[3];
+    int typeIndex = track->GetType();
+    if (typeIndex != -1)
+      {
+      // If the track has a valid type, use that to look up a color
+      const vgTrackType& type = this->TrackTypes->GetType(typeIndex);
+      type.GetColor(color[0], color[1], color[2]);
+      track->SetColor(color[0], color[1], color[2]);
+      }
+    else
+      {
+      this->GetDefaultTrackColor(track->GetId(), color);
+      track->SetColor(color);
+      }
+    }
+  this->TrackModel->AddTrack(track);
+  track->FastDelete();
 }
