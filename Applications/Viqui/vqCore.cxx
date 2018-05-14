@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -524,6 +524,7 @@ void vqCore::resetQueryResults(bool clearResults, bool clearDisplayResults)
     // Clear out entire result list; usually means we are starting a new query.
     this->QueryResults.clear();
     this->QueryScoreMap.clear();
+    this->ScoringRequests.clear();
     emit this->queryResultsAvailabilityChanged(false);
     }
   else if (clearDisplayResults)
@@ -1016,6 +1017,7 @@ void vqCore::acceptQueryResult(vvQueryResult queryResult, bool requestScoring)
       }
 
     // Now create the node if it doesn't already exist
+    this->ScoringRequests.insert(iid);
     this->createScoringRequestNode(iid);
     }
 }
@@ -1556,6 +1558,12 @@ void vqCore::displayResults(int count, int first)
     }
 
   this->updateResultScoreIndicators();
+
+  // (Re)add the scoring requests
+  foreach (const auto iid, this->ScoringRequests)
+    {
+    this->createScoringRequestNode(iid);
+    }
 
   emit this->StatusManager->setStatusText(this->InteractionStatusSource);
   emit this->resultsUpdated();

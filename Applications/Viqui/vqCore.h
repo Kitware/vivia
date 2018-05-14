@@ -377,6 +377,8 @@ protected:
   QHash<ResultId, vvQueryResult>                    QueryResults;
   QMultiMap<ResultRank, ResultId>                   QueryScoreMap;
 
+  QSet<ResultId>                                    ScoringRequests;
+
   QHash<ResultId, vvQueryResult>                    GroundTruthResults;
   QMultiMap<double, ResultId>                       GroundTruthScoreMap;
 
