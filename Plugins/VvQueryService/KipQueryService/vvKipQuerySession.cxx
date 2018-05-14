@@ -160,6 +160,8 @@ public:
   iqr_model_sptr computedModel;
   std::mutex modelMutex;
 
+  std::vector<vvQueryResult> vvRequests;
+
   char const* type = "Process";
 
 protected:
@@ -419,6 +421,24 @@ bool vvKipQuerySessionPrivate::stQueryProcess()
     computedModel = iter2->second->get_datum<iqr_model_sptr>();
   }
 
+  auto const& iter3 = ods->find("feedback_request");
+
+  vvRequests.clear();
+
+  if (iter3 != ods->end())
+  {
+    auto const& kwiverRequests =
+      iter3->second->get_datum<query_result_set_sptr>();
+
+    int requestCount = 0;
+    for (auto const& kwiverRequest : *kwiverRequests)
+    {
+      auto vvRequest = fromKwiver(*kwiverRequest);
+      vvRequest.Rank = ++requestCount;
+      vvRequests.push_back(vvRequest);
+    }
+  }
+
   // Emit completion message
   static auto const completedMessage =
     QString{"%1 completed; %2 results received"};
@@ -616,7 +636,13 @@ bool vvKipQuerySession::requestRefinement(int resultsToScore)
     return true;
   }
 
-  // KWIVER does not provide feedback requests, so nothing to do
+  QTE_D(vvKipQuerySession);
+
+  for (auto vvRequest : d->vvRequests)
+  {
+    emit this->resultAvailable(vvRequest, true);
+  }
+
   emit this->resultSetComplete(true);
   return true;
 }
