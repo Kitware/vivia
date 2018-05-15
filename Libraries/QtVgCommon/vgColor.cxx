@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,6 +11,25 @@
 #include <QColor>
 #include <QSettings>
 #include <QString>
+
+namespace
+{
+
+//-----------------------------------------------------------------------------
+template <typename T>
+QVariantList toVariants(const QList<T>& in)
+{
+  QVariantList out;
+  out.reserve(in.size());
+  foreach (const auto& item, in)
+    {
+    out.append(QVariant::fromValue(item));
+    }
+
+  return out;
+}
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 vgColor::vgColor()
@@ -175,6 +194,23 @@ void vgColor::fillArray(const QColor& color, unsigned char (&out)[4])
 }
 
 //-----------------------------------------------------------------------------
+QList<int> vgColor::toList() const
+{
+  QList<int> result;
+
+  result.append(qRound(255.0 * this->d.color.red));
+  result.append(qRound(255.0 * this->d.color.green));
+  result.append(qRound(255.0 * this->d.color.blue));
+
+  if (this->d.color.alpha > 0.0)
+    {
+    result.append(qRound(255.0 * this->d.color.alpha));
+    }
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 QString vgColor::toString(vgColor::StringType t) const
 {
   bool haveAlpha = (this->d.color.alpha > 0.0);
@@ -223,18 +259,32 @@ void vgColor::write(
 //-----------------------------------------------------------------------------
 bool vgColor::read(const QSettings& settings, const QString& key)
 {
-  QString s = settings.value(key).toString();
+  const auto& v = settings.value(key);
 
+  const auto& l = v.toStringList();
+  if (l.size() > 1)
+    {
+    return this->read(l);
+    }
+
+  const auto& s = v.toString();
   if (!s.isEmpty())
     {
-    QStringList parts = s.split(',');
-    int k = parts.count();
-    if (k == 3 || k == 4)
-      {
-      *this = QColor(parts[0].toInt(), parts[1].toInt(), parts[2].toInt(),
-                     k == 4 ? parts[3].toInt() : 255);
-      return true;
-      }
+    return this->read(s.split(','));
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vgColor::read(const QStringList& parts)
+{
+  int k = parts.count();
+  if (k == 3 || k == 4)
+    {
+    *this = QColor(parts[0].toInt(), parts[1].toInt(), parts[2].toInt(),
+                    k == 4 ? parts[3].toInt() : 255);
+    return true;
     }
 
   return false;
@@ -243,5 +293,5 @@ bool vgColor::read(const QSettings& settings, const QString& key)
 //-----------------------------------------------------------------------------
 void vgColor::write(QSettings& settings, const QString& key) const
 {
-  settings.setValue(key, this->toString());
+  settings.setValue(key, toVariants(this->toList()));
 }
