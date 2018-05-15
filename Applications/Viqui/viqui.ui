@@ -60,6 +60,7 @@
     <addaction name="actionQuerySaveResults"/>
     <addaction name="menuQueryExportResults"/>
     <addaction name="actionGenerateReport"/>
+    <addaction name="actionExportSvm"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -935,6 +936,11 @@
   <action name="actionGenerateReport">
    <property name="text">
     <string>Generate Report...</string>
+   </property>
+  </action>
+  <action name="actionExportSvm">
+   <property name="text">
+    <string>Export SVM Model...</string>
    </property>
   </action>
   <action name="actionFindResult">
