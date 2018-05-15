@@ -11,15 +11,12 @@
 
 #include <vgGeoTypes.h>
 
-#include <QDir>
 #include <QPointF>
 #include <QSizeF>
 #include <QString>
 
 struct vpProjectBase
 {
-  QDir ConfigFileStem;
-
   QString OverviewFile;
   QString DataSetSpecifier;
   QString TracksFile;
