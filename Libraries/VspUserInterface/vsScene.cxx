@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -760,20 +760,19 @@ void vsScene::updateTrackSelection(QSet<vtkIdType> selectedIds)
   QTE_D(vsScene);
 
   QSet<vtkVgTrack*> selectedTracks;
-  vtkVgTrack* track = 0;
   bool modified = false;
 
   // Build new set of selected tracks
   foreach (vtkIdType id, selectedIds)
     {
-    if ((track = d->findTrack(id)))
+    if (auto* const track = d->findTrack(id))
       {
       selectedTracks.insert(track);
       }
     }
 
   // Turn off selected color of tracks that are no longer selected
-  foreach (track, d->SelectedTracks)
+  foreach (auto* const track, d->SelectedTracks)
     {
     if (!selectedTracks.contains(track))
       {
@@ -783,7 +782,7 @@ void vsScene::updateTrackSelection(QSet<vtkIdType> selectedIds)
     }
 
   // Turn on selected color for newly selected tracks
-  foreach (track, selectedTracks)
+  foreach (auto* const track, selectedTracks)
     {
     if (!d->SelectedTracks.contains(track))
       {
@@ -811,20 +810,19 @@ void vsScene::updateEventSelection(QSet<vtkIdType> selectedIds)
   QTE_D(vsScene);
 
   QSet<vtkVgEvent*> selectedEvents;
-  vtkVgEvent* event = 0;
   bool modified = false;
 
   // Build new set of selected events
   foreach (vtkIdType id, selectedIds)
     {
-    if ((event = d->findEvent(id)))
+    if (auto* const event = d->findEvent(id))
       {
       selectedEvents.insert(event);
       }
     }
 
   // Turn off selected color of events that are no longer selected
-  foreach (event, d->SelectedEvents)
+  foreach (auto* const event, d->SelectedEvents)
     {
     if (!selectedEvents.contains(event))
       {
@@ -834,7 +832,7 @@ void vsScene::updateEventSelection(QSet<vtkIdType> selectedIds)
     }
 
   // Turn on selected color for newly selected events
-  foreach (event, selectedEvents)
+  foreach (auto* const event, selectedEvents)
     {
     if (!d->SelectedEvents.contains(event))
       {

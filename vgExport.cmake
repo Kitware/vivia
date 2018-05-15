@@ -17,7 +17,6 @@ set(CONTENT_PRE_EXPORTS
 )
 
 add_export(qtTestingSupport QT_TESTINGSUPPORT)
-add_export(qtExtensions     QTE)
 add_export(qtVgCommon       QTVG_COMMON)
 add_export(qtVgWidgets      QTVG_WIDGETS)
 add_export(vgCommon         VG_COMMON)

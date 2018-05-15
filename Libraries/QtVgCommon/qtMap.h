@@ -11,6 +11,9 @@
 
 #include "qtGlobal.h"
 
+template <class Key, class Value> class QHash;
+template <class Key, class Value> class QMap;
+
 namespace qtUtil
 {
 

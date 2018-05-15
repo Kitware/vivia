@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -81,10 +81,9 @@ void vvVideoQueryDialogPrivate::setEventSelectionState(
 //-----------------------------------------------------------------------------
 void vvVideoQueryDialogPrivate::setDescriptorEnabled(qint64 id, bool state)
 {
-  QTreeWidgetItem* item;
-  foreach (item, this->UI.trackDescriptors->descriptorItems(id))
+  foreach (auto* const item, this->UI.trackDescriptors->descriptorItems(id))
     vvVideoQueryDialogPrivate::setItemEnabled(item, state);
-  foreach (item, this->UI.regionDescriptors->descriptorItems(id))
+  foreach (auto* const item, this->UI.regionDescriptors->descriptorItems(id))
     vvVideoQueryDialogPrivate::setItemEnabled(item, state);
 }
 

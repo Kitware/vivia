@@ -1,4 +1,4 @@
-include(${qtExtensions_SOURCE_DIR}/CMake/Modules/UseQtExtensions.cmake)
+include(${qtExtensions_USE_FILE})
 
 # NOTE: We descend into all directories in order to allow them to define
 # application-specific options alongside the application (as opposed to having

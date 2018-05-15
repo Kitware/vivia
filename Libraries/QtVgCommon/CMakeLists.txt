@@ -13,6 +13,8 @@ set(sources
 )
 
 set(qtVgCommonInstallHeaders
+  qtMap.h
+  qtMapImpl.h
   vgColor.h
   vgDebug.h
   vgFileDialog.h

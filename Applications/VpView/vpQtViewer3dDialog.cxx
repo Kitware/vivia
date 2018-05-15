@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -143,8 +143,7 @@ void vpQtViewer3dDialog::setupInternalUi()
   this->Internal->UI->viewer3dWidget->getViewer3d()->getGraphEdgeColorModes(
     edgeColorModes);
 
-  QString edgeColorMode;
-  foreach (edgeColorMode, edgeColorModes)
+  foreach (const auto& edgeColorMode, edgeColorModes)
     {
     this->Internal->UI->edgeColorModeComboBox->addItem(edgeColorMode);
     }
@@ -154,8 +153,7 @@ void vpQtViewer3dDialog::setupInternalUi()
   this->Internal->UI->viewer3dWidget->getViewer3d()->getGraphEdgeThicknessModes(
     edgeThicknessModes);
 
-  QString edgeThicknessMode;
-  foreach (edgeThicknessMode, edgeThicknessModes)
+  foreach (const auto& edgeThicknessMode, edgeThicknessModes)
     {
     this->Internal->UI->edgeThicknessModeComboBox->addItem(edgeThicknessMode);
     }

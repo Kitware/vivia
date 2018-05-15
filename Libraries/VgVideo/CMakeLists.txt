@@ -2,7 +2,6 @@ project(vgVideo)
 
 vg_include_library_sdk_directories(
   TARGET ${PROJECT_NAME} INTERFACE
-  qtExtensions
   vgCommon
   qtVgCommon
 )
@@ -47,6 +46,7 @@ add_library(${PROJECT_NAME} ${vgVideoSources})
 
 target_link_libraries(${PROJECT_NAME}
   LINK_PUBLIC
+  qtExtensionsHeaders
   ${QT_LIBRARIES}
   LINK_PRIVATE
   qtExtensions
