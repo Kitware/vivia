@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -734,10 +734,10 @@ void vpQtViewer3d::updateContext(const vtkVgTimeStamp& timestamp)
     {
     this->Internal->ContextSource.TakeReference(
       vpImageSourceFactory::GetInstance()->Create(nextDataFile));
-    this->Internal->ContextSource->SetOrigin(this->Project->OverviewOrigin[0],
-                                             this->Project->OverviewOrigin[1],
+    this->Internal->ContextSource->SetOrigin(this->Project->OverviewOrigin.x(),
+                                             this->Project->OverviewOrigin.y(),
                                              0.0);
-    if (this->Project->OverviewSpacing != -1)
+    if (this->Project->OverviewSpacing >= 0.0)
       {
       this->Internal->ContextSource->SetSpacing(this->Project->OverviewSpacing,
                                                 this->Project->OverviewSpacing,
@@ -792,11 +792,11 @@ void vpQtViewer3d::updateContext(const vtkVgTimeStamp& timestamp)
 
       if (i < 2)
         {
-        readExtents[i] -= this->Project->OverviewOrigin[0];
+        readExtents[i] -= this->Project->OverviewOrigin.x();
         }
       else
         {
-        readExtents[i] -= this->Project->OverviewOrigin[1];
+        readExtents[i] -= this->Project->OverviewOrigin.y();
         }
       }
 

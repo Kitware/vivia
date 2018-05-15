@@ -678,7 +678,7 @@ private:
 
   // Helper functions.
   void handleDataSetNotFound(vpProject* project);
-  void handleFileNotFound(const std::string& tag, const std::string& file);
+  void handleFileNotFound(const char* tag, const QString& file);
 
   void initializeImageSource();
 

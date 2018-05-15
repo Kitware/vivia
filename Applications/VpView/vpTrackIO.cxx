@@ -8,6 +8,8 @@
 
 #include "vtkVpTrackModel.h"
 
+#include <vgColor.h>
+
 #include <vtkVgTrackModel.h>
 #include <vtkVgTrackTypeRegistry.h>
 
@@ -46,8 +48,7 @@ vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
   StorageMode(storageMode),
   TimeStampMode(timeStampMode),
   GeoTransform(geoTransform),
-  FrameMap(frameMap),
-  HasOverrideColor(false)
+  FrameMap(frameMap)
 {
   assert(trackModel);
 }
@@ -57,18 +58,9 @@ vpTrackIO::~vpTrackIO()
 {}
 
 //-----------------------------------------------------------------------------
-void vpTrackIO::SetOverrideColor(const double color[3])
+void vpTrackIO::SetOverrideColor(const vgColor& color)
 {
-  if (!color)
-    {
-    this->HasOverrideColor = false;
-    return;
-    }
-
-  this->HasOverrideColor = true;
-  this->OverrideColor[0] = color[0];
-  this->OverrideColor[1] = color[1];
-  this->OverrideColor[2] = color[2];
+  this->OverrideColor = color;
 }
 
 //-----------------------------------------------------------------------------
@@ -116,27 +108,29 @@ void vpTrackIO::GetDefaultTrackColor(int trackId, double (&color)[3])
 //-----------------------------------------------------------------------------
 void vpTrackIO::AddTrack(vtkVgTrack* track)
 {
-  if (this->HasOverrideColor)
+  // Set track color
+  double color[3];
+  if (this->OverrideColor.isValid())
     {
-    track->SetColor(this->OverrideColor);
+    this->OverrideColor.fillArray(color);
     }
   else
     {
-    double color[3];
     int typeIndex = track->GetType();
     if (typeIndex != -1)
       {
       // If the track has a valid type, use that to look up a color
       const vgTrackType& type = this->TrackTypes->GetType(typeIndex);
       type.GetColor(color[0], color[1], color[2]);
-      track->SetColor(color[0], color[1], color[2]);
       }
     else
       {
       this->GetDefaultTrackColor(track->GetId(), color);
-      track->SetColor(color);
       }
     }
+  track->SetColor(color);
+
+  // Add track to track model and release our ownership
   this->TrackModel->AddTrack(track);
   track->FastDelete();
 }

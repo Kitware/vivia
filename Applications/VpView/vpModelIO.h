@@ -38,7 +38,7 @@ public:
   virtual void SetImageHeight(unsigned int imageHeight) = 0;
   virtual unsigned int GetImageHeight() const = 0;
 
-  void SetTrackOverrideColor(double color[3]);
+  void SetTrackOverrideColor(const vgColor&);
 
   virtual bool ReadFrameMetaData(vpFrameMap* frameMap,
                                  const std::string& substitutePath);

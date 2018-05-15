@@ -7,6 +7,8 @@
 #ifndef __vpTrackIO_h
 #define __vpTrackIO_h
 
+#include <vgColor.h>
+
 #include <vtkSmartPointer.h>
 
 class vpFrameMap;
@@ -54,7 +56,7 @@ public:
 
   virtual ~vpTrackIO();
 
-  void SetOverrideColor(const double color[3]);
+  void SetOverrideColor(const vgColor&);
 
   virtual bool ReadTracks() = 0;
   virtual bool ReadTrackTraits();
@@ -91,8 +93,7 @@ protected:
   TrackTimeStampMode TimeStampMode;
   vtkSmartPointer<vtkMatrix4x4> GeoTransform;
   vpFrameMap* FrameMap;
-  double OverrideColor[3];
-  bool HasOverrideColor;
+  vgColor OverrideColor;
 };
 
 #endif // __vpTrackIO_h

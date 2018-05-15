@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,9 +7,14 @@
 #ifndef __vpProject_h
 #define __vpProject_h
 
-#include <QSharedPointer>
+#include "vpProjectBase.h"
+
+#include <qtGlobal.h>
 
 #include <vtkSmartPointer.h>
+
+#include <QHash>
+#include <QSharedPointer>
 
 #include <string>
 #include <map>
@@ -33,7 +38,7 @@ class vtkVgTrackRepresentation;
 class vtkVpReaderBase;
 class vtkVpTrackModel;
 
-class vpProject
+class vpProject : public vpProjectBase
 {
 public:
   enum FileState
@@ -51,100 +56,56 @@ public:
 
   // Description:
   // Set if a file is valid (if it exists on the system).
-  void SetIsValid(const std::string& file, int state);
+  void SetIsValid(const QString& file, FileState state);
 
   // Description:
   // Check if a given file is valid or not.
-  int IsValid(const std::string& file);
+  FileState IsValid(const QString& file);
 
   void CopyConfig(const vpProject& srcProject);
 
-  // Description:
-  // Keep track of file path stem for finding other files
-  std::string ConfigFileStem;
+#define PROJECT_FIELD_TAG(x) static constexpr const char* x##Tag = #x
+  PROJECT_FIELD_TAG(OverviewFile);
+  PROJECT_FIELD_TAG(DataSetSpecifier);
+  PROJECT_FIELD_TAG(TracksFile);
+  PROJECT_FIELD_TAG(TrackTraitsFile);
+  PROJECT_FIELD_TAG(EventsFile);
+  PROJECT_FIELD_TAG(EventLinksFile);
+  PROJECT_FIELD_TAG(IconsFile);
+  PROJECT_FIELD_TAG(ActivitiesFile);
+  PROJECT_FIELD_TAG(InformaticsIconFile);
+  PROJECT_FIELD_TAG(NormalcyMapsFile);
+  PROJECT_FIELD_TAG(PrecomputeActivity);
 
-  // Description:
-  // Various file sources used for the data.
-  std::string OverviewFile;
-  std::string DataSetSpecifier;
-  std::string TracksFile;
-  std::string TrackTraitsFile;
-  std::string EventsFile;
-  std::string EventLinksFile;
-  std::string IconsFile;
-  std::string ActivitiesFile;
-  std::string InformaticsIconFile;
-  std::string NormalcyMapsFile;
-  std::string ImageTimeMapFile;
-  std::string HomographyIndexFile;
-  std::string FiltersFile;
-  std::string SceneElementsFile;
+  PROJECT_FIELD_TAG(OverviewSpacing);
+  PROJECT_FIELD_TAG(OverviewOrigin);
+  PROJECT_FIELD_TAG(AnalysisDimensions);
 
-  std::string OverviewFileTag;
-  std::string DataSetSpecifierTag;
-  std::string TracksFileTag;
-  std::string TrackTraitsFileTag;
-  std::string EventsFileTag;
-  std::string EventLinksFileTag;
-  std::string IconsFileTag;
-  std::string ActivitiesFileTag;
-  std::string InformaticsIconFileTag;
-  std::string NormalcyMapsFileTag;
-  std::string PrecomputeActivityTag;
+  PROJECT_FIELD_TAG(AOI);
+  PROJECT_FIELD_TAG(AOIUpperLeftLatLon); // DEPRECATED (vidtk reader only)
+  PROJECT_FIELD_TAG(AOIUpperRightLatLon); // DEPRECATED (vidtk reader only)
+  PROJECT_FIELD_TAG(AOILowerLeftLatLon); // DEPRECATED (vidtk reader only)
+  PROJECT_FIELD_TAG(AOILowerRightLatLon); // DEPRECATED (vidtk reader only)
 
-  std::string OverviewSpacingTag;
-  std::string OverviewOriginTag;
-  std::string AnalysisDimensionsTag;
+  PROJECT_FIELD_TAG(ColorWindow);
+  PROJECT_FIELD_TAG(ColorLevel);
 
-  std::string AOIUpperLeftLatLonTag;
-  std::string AOIUpperRightLatLonTag;
-  std::string AOILowerLeftLatLonTag;
-  std::string AOILowerRightLatLonTag;
+  PROJECT_FIELD_TAG(ColorMultiplier);
+  PROJECT_FIELD_TAG(TrackColorOverride);
 
-  std::string ColorWindowTag;
-  std::string ColorLevelTag;
+  PROJECT_FIELD_TAG(FrameNumberOffset);
+  PROJECT_FIELD_TAG(ImageTimeMapFile);
+  PROJECT_FIELD_TAG(HomographyIndexFile);
 
-  std::string ColorMultiplierTag;
-  std::string TrackColorOverrideTag;
+  PROJECT_FIELD_TAG(FiltersFile);
+  PROJECT_FIELD_TAG(SceneElementsFile);
 
-  std::string FrameNumberOffsetTag;
-  std::string ImageTimeMapFileTag;
-  std::string HomographyIndexFileTag;
+  PROJECT_FIELD_TAG(ImageToGcsMatrix);
+#undef PROJECT_FIELD_TAG
 
-  std::string FiltersFileTag;
-  std::string SceneElementsFileTag;
+  const QHash<QString, QString*> TagFileMap;
 
-  std::string ImageToGcsMatrixTag;
-
-  int    PrecomputeActivity;
-
-  double OverviewSpacing;
-  double OverviewOrigin [2];
-
-  double AOIUpperLeftLatLon[2];
-  double AOIUpperRightLatLon[2];
-  double AOILowerLeftLatLon[2];
-  double AOILowerRightLatLon[2];
-
-  double AnalysisDimensions[2];
-
-  double ColorWindow;
-  double ColorLevel;
-
-  double ColorMultiplier;
-
-  bool HasTrackColorOverride;
-  double TrackColorOverride[3];
-
-  int FrameNumberOffset;
-
-  // Description:
-  // Useful data structure.
-  std::map<std::string, std::string*> TagFileMap;
-  typedef std::map<std::string, std::string*>::const_iterator TagFileMapItr;
-
-  std::map<std::string, int> FileValidityMap;
-  typedef std::map<std::string, int>::const_iterator FileValidityMapConstItr;
+  QHash<QString, FileState> FileValidityMap;
 
   // Description:
   // Project specific models and representations
@@ -169,7 +130,6 @@ public:
 
   // Description:
   // Project specific transformation matrices
-  double ImageToGcsMatrixArray[18];
   vtkSmartPointer<vtkMatrix4x4> ImageToGcsMatrix;
 
   // Description:
@@ -182,11 +142,13 @@ public:
 
   bool IsVisible;
 
-  std::string Name;
+  QString Name;
+
+protected:
+  static QHash<QString, QString*> BuildTagFileMap(vpProjectBase* base);
 
 private:
-  vpProject(const vpProject& src);        // Not implemented.
-  void operator=(const vpProject& src);   // Not implemented.
+  QTE_DISABLE_COPY(vpProject);
 };
 
-#endif // __vpProject_h
+#endif
