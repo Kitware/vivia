@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -135,6 +135,7 @@ signals:
   void resultSetComplete(bool haveSession, bool requestScoring);
 
   void queryPlanAvailabilityChanged(bool isAvailable);
+  void queryIqrModelAvailabilityChanged(bool isAvailable);
   void queryResultsAvailabilityChanged(bool isAvailable);
 
   void processingQuery(vvQueryInstance);
@@ -197,6 +198,7 @@ public slots:
   void openExternal(QUrl clipUri, QString streamId, double time);
 
   void generateReport(QString path, bool generateVideo);
+  void exportIqrModel();
   void exportKml(QString path);
 
   void setUserScore(ResultId iid, int score);
@@ -325,6 +327,7 @@ protected:
   void recomputeNodeColors();
   void updateNodeColor(vtkVgVideoNode* node);
   void updateTrackColors();
+  void updateIqrModel();
 
   void setLutValue(int index, const QColor& color);
 
