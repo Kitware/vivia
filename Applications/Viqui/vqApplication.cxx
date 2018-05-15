@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -272,6 +272,8 @@ vqApplication::vqApplication(UIMode uiMode) :
           this, SLOT(showBestClips()));
   connect(this->UI.actionGenerateReport, SIGNAL(triggered()),
           this, SLOT(generateReport()));
+  connect(this->UI.actionExportSvm, SIGNAL(triggered()),
+          this, SLOT(exportSvm()));
   connect(this->UI.actionExportKml, SIGNAL(triggered()),
           this, SLOT(exportKml()));
 
@@ -281,6 +283,8 @@ vqApplication::vqApplication(UIMode uiMode) :
                          SIGNAL(queryResultsAvailabilityChanged(bool)));
   this->setEnabledSignal(this->UI.actionViewBestResults, this->Core,
                          SIGNAL(queryResultsAvailabilityChanged(bool)));
+  this->setEnabledSignal(this->UI.actionExportSvm, this->Core,
+                         SIGNAL(queryPlanAvailabilityChanged(bool)));
 
   connect(this->UI.actionLayerAddFile, SIGNAL(triggered()),
           this, SLOT(showLayerAddFileDialog()));
@@ -1109,6 +1113,21 @@ void vqApplication::generateReport()
   if (dlg.exec() == QDialog::Accepted)
     {
     this->Core->generateReport(dlg.outputPath(), dlg.generateVideo());
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::exportSvm()
+{
+  this->Core->updateIqrModel();
+
+  QString path =
+    vgFileDialog::getSaveFileName(
+      this, "Location of SVM export", QString(), "SVM File (*.svm);;");
+
+  if (!path.isEmpty())
+    {
+    this->Core->exportSvm(path);
     }
 }
 

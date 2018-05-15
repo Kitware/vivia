@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -190,6 +190,7 @@ public slots:
   void showNextTrackingClips(vtkIdType previousId, int count,
                              vqTrackingClipViewer* viewer);
 
+  void updateIqrModel();
   void saveQueryPlan();
   void saveResults();
   void exportResults(QList<vtkVgVideoNode*> results, QString exporterId);
@@ -197,6 +198,7 @@ public slots:
   void openExternal(QUrl clipUri, QString streamId, double time);
 
   void generateReport(QString path, bool generateVideo);
+  void exportSvm(QString path);
   void exportKml(QString path);
 
   void setUserScore(ResultId iid, int score);

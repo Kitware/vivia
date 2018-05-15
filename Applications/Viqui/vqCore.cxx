@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -3027,6 +3027,17 @@ void vqCore::selectItemsOnContext()
 }
 
 //-----------------------------------------------------------------------------
+void vqCore::updateIqrModel()
+{
+  // request updated IQR model before saving
+  // \TODO keep track of any refinement; if none, than no need to get update
+  if (this->ActiveQueryParser) // might this be 0?
+    {
+    this->ActiveQueryParser->updateIqrModel(this->SavedQueryPlan);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vqCore::saveQueryPlan()
 {
   if (!this->SavedQueryPlan.isValid())
@@ -3036,12 +3047,7 @@ void vqCore::saveQueryPlan()
     return;
     }
 
-  // request updated IQR model before saving
-  // \TODO keep track of any refinement; if none, than no need to get update
-  if (this->ActiveQueryParser) // might this be 0?
-    {
-    this->ActiveQueryParser->updateIqrModel(this->SavedQueryPlan);
-    }
+  this->updateIqrModel();
 
   vqQueryDialog::saveQuery(this->SavedQueryPlan);
 }
@@ -3385,6 +3391,37 @@ void vqCore::generateReport(QString path, bool generateVideo)
 
   // Now export KML
   this->exportKml(path);
+}
+
+//-----------------------------------------------------------------------------
+void vqCore::exportSvm(QString path)
+{
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly |
+                 QIODevice::Truncate))
+    {
+    qDebug() << file.errorString();
+    QMessageBox::warning(0, QString(), "Unable to write SVM file.");
+    return;
+    }
+
+  if (this->SavedQueryPlan.isSimilarityQuery())
+    {
+    auto& query = *this->SavedQueryPlan.constSimilarityQuery();
+
+    const int iqrModelSize = static_cast<int>(query.IqrModel.size());
+    if (iqrModelSize)
+      {
+      const char* rawModel =
+        reinterpret_cast<const char*>(&query.IqrModel[0]);
+      const QByteArray encodedModel =
+        QByteArray::fromRawData(rawModel, iqrModelSize).toBase64();
+
+      file.write(encodedModel);
+      }
+    }
+
+  file.close();
 }
 
 //-----------------------------------------------------------------------------
