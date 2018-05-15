@@ -84,6 +84,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   vidtk::config_block_parser blkParser;
   std::istringstream iss;
 
+  QDir projectDir;
   if (this->UseStream)
     {
     iss.str(stdString(this->ProjectStream));
@@ -92,8 +93,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   else
     {
     blkParser.set_filename(stdString(this->ProjectFileName));
-    prj->ConfigFileStem =
-      QDir{QFileInfo{this->ProjectFileName}.canonicalPath()};
+    projectDir = QDir{QFileInfo{this->ProjectFileName}.canonicalPath()};
     }
 
   // \note: Exception is thrown by the parser if a unknown tag is found
@@ -122,7 +122,7 @@ bool vpProjectParser::Parse(vpProject* prj)
     filePath = qtString(vidtk::token_expansion::expand_token(value));
     if (!filePath.isEmpty())
       {
-      filePath = prj->ConfigFileStem.absoluteFilePath(filePath);
+      filePath = projectDir.absoluteFilePath(filePath);
       }
 
     if (tag == prj->DataSetSpecifierTag ||
