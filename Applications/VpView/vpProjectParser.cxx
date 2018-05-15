@@ -1,32 +1,29 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vpProjectParser.h"
 
-// Application includes.
-#include "vpProject.h"
+#include "vgGeodesy.h"
 
-// qtExtensions includes.
+#include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
-// VIDTK includes.
 #ifdef VISGUI_USE_VIDTK
 #include <utilities/config_block.h>
 #include <utilities/config_block_parser.h>
 #include <utilities/token_expansion.h>
 #endif
 
-// VTK includes.
 #include <vtkMatrix4x4.h>
 #include <vtksys/SystemTools.hxx>
 
-// Qt includes.
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
 
-// C++ includes.
 #include <exception>
 #include <iomanip>
 #include <sstream>
@@ -89,15 +86,14 @@ bool vpProjectParser::Parse(vpProject* prj)
 
   if (this->UseStream)
     {
-    iss.str(this->ProjectStream);
+    iss.str(stdString(this->ProjectStream));
     blkParser.set_input_stream(iss);
     }
   else
     {
-    blkParser.set_filename(this->ProjectFileName);
+    blkParser.set_filename(stdString(this->ProjectFileName));
     prj->ConfigFileStem =
-      this->ProjectFileName.substr(0, this->ProjectFileName.find_last_of("/\\"));
-    prj->ConfigFileStem = prj->ConfigFileStem.append("/");
+      QDir{QFileInfo{this->ProjectFileName}.canonicalPath()};
     }
 
   // \note: Exception is thrown by the parser if a unknown tag is found
@@ -117,111 +113,140 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   // Various file sources used for the data.
-  vpProject::TagFileMapItr bItr = prj->TagFileMap.begin();
-  while (bItr != prj->TagFileMap.end())
+  foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
     {
-    *bItr->second = blk.get<std::string>(bItr->first);
+    const auto& tag = fileTag.key();
+    auto& filePath = *(fileTag.value());
 
-    *bItr->second = vidtk::token_expansion::expand_token(*bItr->second);
-
-    this->ConstructCompletePath(*bItr->second, prj->ConfigFileStem);
-
-    if (bItr->first == prj->DataSetSpecifierTag ||
-        bItr->first == prj->TracksFileTag)
+    const auto& value = blk.get<std::string>(stdString(tag));
+    filePath = qtString(vidtk::token_expansion::expand_token(value));
+    if (!filePath.isEmpty())
       {
-      prj->SetIsValid(*bItr->second, (*bItr->second).empty() ?
-                      vpProject::FILE_NAME_EMPTY : vpProject::FILE_NAME_NOT_EMPTY);
+      filePath = prj->ConfigFileStem.absoluteFilePath(filePath);
+      }
+
+    if (tag == prj->DataSetSpecifierTag ||
+        tag == prj->TracksFileTag)
+      {
+      const auto expectedState =
+        (filePath.isEmpty() ? vpProject::FILE_NAME_EMPTY
+                            : vpProject::FILE_NAME_NOT_EMPTY);
+      prj->SetIsValid(filePath, expectedState);
       }
     else
       {
-      prj->SetIsValid(*bItr->second,
-                      this->CheckIfFileExists(bItr->first, *bItr->second));
+      const auto expectedState =
+        this->CheckIfFileExists(tag, filePath);
+      prj->SetIsValid(filePath, expectedState);
       }
-
-    ++bItr;
     }
 
+  // Read non-string fields that can be read directly
   prj->PrecomputeActivity = blk.get<int>(prj->PrecomputeActivityTag);
   prj->OverviewSpacing = blk.get<double>(prj->OverviewSpacingTag);
   prj->ColorWindow = blk.get<double>(prj->ColorWindowTag);
   prj->ColorLevel = blk.get<double>(prj->ColorLevelTag);
   prj->ColorMultiplier = blk.get<double>(prj->ColorMultiplierTag);
   prj->FrameNumberOffset = blk.get<double>(prj->FrameNumberOffsetTag);
-  blk.get(prj->OverviewOriginTag,      prj->OverviewOrigin);
-  blk.get(prj->AnalysisDimensionsTag,  prj->AnalysisDimensions);
-  blk.get(prj->AOIUpperLeftLatLonTag,  prj->AOIUpperLeftLatLon);
-  blk.get(prj->AOIUpperRightLatLonTag, prj->AOIUpperRightLatLon);
-  blk.get(prj->AOILowerLeftLatLonTag, prj->AOILowerLeftLatLon);
-  blk.get(prj->AOILowerRightLatLonTag, prj->AOILowerRightLatLon);
 
-  if (blk.get(prj->TrackColorOverrideTag, prj->TrackColorOverride))
+  // Read various fields that consist of two numbers
+  double pt[2];
+
+  blk.get(prj->OverviewOriginTag, pt);
+  prj->OverviewOrigin = {pt[0], pt[1]};
+
+  blk.get(prj->AnalysisDimensionsTag, pt);
+  prj->AnalysisDimensions = {pt[0], pt[1]};
+
+  prj->AOI.GCS = vgGeodesy::LatLon_Wgs84;
+  const char* aoiTags[4] = {
+    prj->AOIUpperLeftLatLonTag,
+    prj->AOIUpperRightLatLonTag,
+    prj->AOILowerRightLatLonTag,
+    prj->AOILowerLeftLatLonTag};
+  for (int i = 0; i < 4; ++i)
     {
-    prj->HasTrackColorOverride = true;
+    blk.get(aoiTags[i], pt);
+    if (fabs(pt[0]) > 360.0 || fabs(pt[1]) > 360.0)
+      {
+      prj->AOI.GCS = -1;
+      break;
+      }
+    prj->AOI.Coordinate[i] = {pt[0], pt[1]};
     }
 
-  if (blk.get(prj->ImageToGcsMatrixTag,  prj->ImageToGcsMatrixArray))
+  // Read track override color
+  double oc[3];
+  if (blk.get(prj->TrackColorOverrideTag, oc))
+    {
+    prj->TrackColorOverride = vgColor{oc[0], oc[1], oc[2]};
+    }
+
+  // Read image-to-GCS matrix
+  double i2gMatrix[18];
+  if (blk.get(prj->ImageToGcsMatrixTag,  i2gMatrix))
     {
     prj->ImageToGcsMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
     // Get the number of rows and columns
-    int noOfRows = prj->ImageToGcsMatrixArray[0];
-    int noOfCols = prj->ImageToGcsMatrixArray[1];
+    int noOfRows = i2gMatrix[0];
+    int noOfCols = i2gMatrix[1];
 
     // 3x3
     if (noOfRows == 3 && noOfCols == 3)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[4]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[5]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[5]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[7]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[9]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[10]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[9]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[10]);
       }
     // 3X4
     else if (noOfRows == 3 && noOfCols == 4)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 2, prj->ImageToGcsMatrixArray[4]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[5]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 2, i2gMatrix[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[5]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[7]);
-      prj->ImageToGcsMatrix->SetElement(1, 2, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[9]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 2, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[9]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[10]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[11]);
-      prj->ImageToGcsMatrix->SetElement(3, 2, prj->ImageToGcsMatrixArray[12]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[13]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[10]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[11]);
+      prj->ImageToGcsMatrix->SetElement(3, 2, i2gMatrix[12]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[13]);
       }
     //4x3
     else if (noOfRows == 4 && noOfCols == 3)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[4]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[5]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[5]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[7]);
 
-      prj->ImageToGcsMatrix->SetElement(2, 0, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(2, 1, prj->ImageToGcsMatrixArray[9]);
-      prj->ImageToGcsMatrix->SetElement(2, 3, prj->ImageToGcsMatrixArray[10]);
+      prj->ImageToGcsMatrix->SetElement(2, 0, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(2, 1, i2gMatrix[9]);
+      prj->ImageToGcsMatrix->SetElement(2, 3, i2gMatrix[10]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[11]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[12]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[13]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[11]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[12]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[13]);
       }
     else if(noOfRows == 4 && noOfCols ==4)
       {
-        prj->ImageToGcsMatrix->DeepCopy(&prj->ImageToGcsMatrixArray[2]);
+        prj->ImageToGcsMatrix->DeepCopy(&i2gMatrix[2]);
       }
     else
       {
@@ -238,36 +263,17 @@ bool vpProjectParser::Parse(vpProject* prj)
 }
 
 //-----------------------------------------------------------------------------
-void vpProjectParser::ConstructCompletePath(std::string& file, const std::string& stem)
+vpProject::FileState vpProjectParser::CheckIfFileExists(
+  const QString& tag, const QString& fileName)
 {
-  // First remove carriage return.
-  std::string::size_type pos = std::string::npos;
-
-  pos = file.rfind('\r', pos);
-
-  if (pos != std::string::npos)
-    {
-    file.erase(pos, 1);
-    }
-
-  if (!file.empty() &&
-      !vtksys::SystemTools::FileIsFullPath(file.c_str()))
-    {
-    file = stem + file;
-    }
-}
-
-//-----------------------------------------------------------------------------
-int vpProjectParser::CheckIfFileExists(const std::string& tag, const std::string& fileName)
-{
-  if (fileName.empty())
+  if (fileName.isEmpty())
     {
     return vpProject::FILE_NAME_EMPTY;
     }
 
-  if (!vtksys::SystemTools::FileExists(fileName.c_str(), true))
+  if (!QFileInfo{fileName}.exists())
     {
-    qWarning() << "WARNING:" << tag.c_str() << '(' << qtString(fileName) << ')'
+    qWarning() << "WARNING:" << tag << '(' << fileName << ')'
                << "does not exist; application may not work properly";
 
     return vpProject::FILE_NOT_EXIST;

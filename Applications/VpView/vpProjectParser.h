@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,13 +7,13 @@
 #ifndef __vpProjectParser_h
 #define __vpProjectParser_h
 
-// C++ includes.
-#include <string>
+#include "vpProject.h"
+
+#include <qtStlUtil.h>
 
 #include <vtkSetGet.h>
 
-// Forward declarations.
-class vpProject;
+#include <string>
 
 class vpProjectParser
 {
@@ -38,20 +38,24 @@ public:
   // Description:
   // Set/Get name of the configuration file that needs
   // to be parsed.
-  void SetFileName(const std::string& fileName)
+  void SetFileName(const QString& fileName)
     {
     this->ProjectFileName = fileName;
     }
-  const std::string& GetProjectFileName() const
+  const QString& GetProjectFileName() const
     {
     return this->ProjectFileName;
     }
 
   // Description:
   // Set/Get stream to use for configuration.
-  void SetStream(const std::string& stream)
+  void SetStream(const QByteArray& stream)
     {
     this->ProjectStream = stream;
+    }
+  void SetStream(const std::string& stream)
+    {
+    this->ProjectStream = qtBytes(stream);
     }
 
   // Description:
@@ -59,14 +63,13 @@ public:
   bool Parse(vpProject* prj);
 
 private:
-  void ConstructCompletePath(std::string& fileName, const std::string& stem);
-
-  int  CheckIfFileExists(const std::string& tag, const std::string& fileName);
+  static vpProject::FileState CheckIfFileExists(
+    const QString& tag, const QString& fileName);
 
   bool UseStream;
 
-  std::string        ProjectFileName;
-  std::string        ProjectStream;
+  QString    ProjectFileName;
+  QByteArray ProjectStream;
 };
 
 #endif // __vpProjectParser_h
