@@ -19,13 +19,13 @@ vtkSmartPointer<vtkMatrix4x4>
   double geourx, double geoury,
   double geoulx, double geouly)
 {
-  vcl_vector<vgl_homg_point_2d<double> > toPoints;
+  std::vector<vgl_homg_point_2d<double> > toPoints;
   toPoints.push_back(vgl_homg_point_2d<double>(geoulx, geouly, 1));
   toPoints.push_back(vgl_homg_point_2d<double>(geourx, geoury, 1));
   toPoints.push_back(vgl_homg_point_2d<double>(geolrx, geolry, 1));
   toPoints.push_back(vgl_homg_point_2d<double>(geollx, geolly, 1));
 
-  vcl_vector<vgl_homg_point_2d<double> > fromPoints;
+  std::vector<vgl_homg_point_2d<double> > fromPoints;
   fromPoints.push_back(vgl_homg_point_2d<double>(llx, ury, 1.0));
   fromPoints.push_back(vgl_homg_point_2d<double>(urx, ury, 1.0));
   fromPoints.push_back(vgl_homg_point_2d<double>(urx, lly, 1.0));

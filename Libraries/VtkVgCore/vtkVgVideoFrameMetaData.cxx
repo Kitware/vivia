@@ -126,7 +126,7 @@ vtkVgVideoFrameMetaData::MakeImageToLatLonMatrix() const
     return 0;
     }
 
-  vcl_vector<vgl_homg_point_2d<double> > toPoints;
+  std::vector<vgl_homg_point_2d<double> > toPoints;
   toPoints.push_back(
     vgl_homg_point_2d<double>(this->WorldLocation.UpperLeft.Longitude,
                               this->WorldLocation.UpperLeft.Latitude, 1));
@@ -145,7 +145,7 @@ vtkVgVideoFrameMetaData::MakeImageToLatLonMatrix() const
   double urx = this->Width - 1.0;
   double ury = this->Height - 1.0;
 
-  vcl_vector<vgl_homg_point_2d<double> > fromPoints;
+  std::vector<vgl_homg_point_2d<double> > fromPoints;
   fromPoints.push_back(vgl_homg_point_2d<double>(llx, ury, 1.0));
   fromPoints.push_back(vgl_homg_point_2d<double>(urx, ury, 1.0));
   fromPoints.push_back(vgl_homg_point_2d<double>(urx, lly, 1.0));

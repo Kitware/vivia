@@ -70,7 +70,7 @@ unsigned int vpVidtkIO::GetImageHeight() const
 }
 
 //-----------------------------------------------------------------------------
-void vpVidtkIO::UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
+void vpVidtkIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                              unsigned int updateStartFrame,
                              unsigned int updateEndFrame)
 {

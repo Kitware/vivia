@@ -16,7 +16,6 @@
 
 #include <vgDebug.h>
 
-#include <vcl_vector.h>
 #include <vil/file_formats/vil_jpeg.h>
 #include <vil/vil_stream_core.h>
 
@@ -27,6 +26,7 @@
 #include <vsl/vsl_vector_io.hxx>
 
 #include <limits>
+#include <vector>
 
 #include "vgIStream.h"
 #include "vgKwaFrameMetadata.h"
@@ -236,7 +236,7 @@ vgImage vgKwaVideoFramePtr::data() const
       }
     vil_stream* memoryStream = new vil_stream_core();
     memoryStream->ref();
-    vcl_vector<char> bytes;
+    std::vector<char> bytes;
     vsl_b_read(*this->dataStream, bytes);
     memoryStream->write(&bytes[0], bytes.size());
     vil_image_resource_sptr imageResource =

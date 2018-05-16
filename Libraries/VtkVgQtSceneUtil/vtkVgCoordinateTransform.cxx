@@ -101,8 +101,8 @@ void vtkVgCoordinateTransform::SetToPoints(double x1, double y1,
 //-----------------------------------------------------------------------------
 vtkSmartPointer<vtkMatrix4x4> vtkVgCoordinateTransform::GetHomographyMatrix()
 {
-  vcl_vector<vgl_homg_point_2d<double> > fromPoints;
-  vcl_vector<vgl_homg_point_2d<double> > toPoints;
+  std::vector<vgl_homg_point_2d<double> > fromPoints;
+  std::vector<vgl_homg_point_2d<double> > toPoints;
 
   // Add world coordinates to worldPoints
   for (int i = 0; i < 4; ++i)

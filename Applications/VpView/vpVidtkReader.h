@@ -16,9 +16,9 @@ class vpVidtkReader
 public:
   vpVidtkReader() : ImageHeight(0) {}
   virtual ~vpVidtkReader() {}
-  virtual bool ReadTracks(vcl_vector<vidtk::track_sptr>& tracks) = 0;
-  virtual bool ReadEvents(vcl_vector<vidtk::event_sptr>& events) = 0;
-  virtual bool ReadActivities(vcl_vector<vidtk::activity_sptr>& activities) = 0;
+  virtual bool ReadTracks(std::vector<vidtk::track_sptr>& tracks) = 0;
+  virtual bool ReadEvents(std::vector<vidtk::event_sptr>& events) = 0;
+  virtual bool ReadActivities(std::vector<vidtk::activity_sptr>& activities) = 0;
 
   void SetImageHeight(unsigned int imageHeight)
     { this->ImageHeight = imageHeight; }

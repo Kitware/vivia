@@ -44,12 +44,12 @@ static vidtk::event_sptr CreateVidtkEvent(int type)
 
 //-----------------------------------------------------------------------------
 vpVidtkEventIO::vpVidtkEventIO(vpVidtkReader& reader,
-                               vcl_map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
-                               vcl_map<unsigned int, vtkIdType>&
+                               std::map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
+                               std::map<unsigned int, vtkIdType>&
                                  sourceEventIdToModelIdMap,
-                               const vcl_map<vtkVgTrack*, vidtk::track_sptr>&
+                               const std::map<vtkVgTrack*, vidtk::track_sptr>&
                                  trackMap,
-                               const vcl_map<unsigned int, vtkIdType>&
+                               const std::map<unsigned int, vtkIdType>&
                                  sourceTrackIdToModelIdMap,
                                vtkVgEventModel* eventModel,
                                vtkVgEventTypeRegistry* eventTypes) :
@@ -178,9 +178,9 @@ bool vpVidtkEventIO::WriteEvents(const char* filename) const
     return false;
     }
 
-  vcl_vector<vidtk::track_sptr> empty;
-  vcl_vector<vidtk::timestamp> trackBeginTimes(2);
-  vcl_vector<vidtk::timestamp> trackEndTimes(2);
+  std::vector<vidtk::track_sptr> empty;
+  std::vector<vidtk::timestamp> trackBeginTimes(2);
+  std::vector<vidtk::timestamp> trackEndTimes(2);
 
   this->EventModel->InitEventTraversal();
   while (vtkVgEvent* event = this->EventModel->GetNextEvent().GetEvent())
@@ -261,7 +261,7 @@ bool vpVidtkEventIO::WriteEvents(const char* filename) const
                                 vgEndFrame.GetFrameNumber());
 
       vidtk::track_sptr t;
-      vcl_map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
+      std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
         this->TrackMap.find(track);
       if (itr != this->TrackMap.end())
         {
@@ -280,7 +280,7 @@ bool vpVidtkEventIO::WriteEvents(const char* filename) const
 
       // update the spatial bounds of the event
       bool foundStart = false;
-      const vcl_vector<vidtk::track_state_sptr>& history = t->history();
+      const std::vector<vidtk::track_state_sptr>& history = t->history();
       for (unsigned j = 0; j < history.size(); ++j)
         {
         // seek to the initial frame of the event track in the history
@@ -370,8 +370,8 @@ bool vpVidtkEventIO::SetupEvent(const vidtk::event_sptr vidtkEvent,
   // Tracks associated with this event.
   unsigned int numOfTracks = vidtkEvent->get_num_parent_tracks();
 
-  vcl_vector<vidtk::timestamp> trackBeginTimeStamp = vidtkEvent->get_tracks_begin();
-  vcl_vector<vidtk::timestamp> trackEndTimeStamp   = vidtkEvent->get_tracks_end();
+  std::vector<vidtk::timestamp> trackBeginTimeStamp = vidtkEvent->get_tracks_begin();
+  std::vector<vidtk::timestamp> trackEndTimeStamp   = vidtkEvent->get_tracks_end();
 
   // Check the assumption here.
   assert(trackBeginTimeStamp.size() == trackEndTimeStamp.size());
@@ -379,8 +379,8 @@ bool vpVidtkEventIO::SetupEvent(const vidtk::event_sptr vidtkEvent,
   vtkVgTrackModel* trackModel = this->EventModel->GetTrackModel();
   assert(trackModel);
 
-  vcl_vector<unsigned int> parentTracksIds;
-  vcl_vector<vidtk::track_sptr> parentTracks;
+  std::vector<unsigned int> parentTracksIds;
+  std::vector<vidtk::track_sptr> parentTracks;
   parentTracksIds.reserve(numOfTracks);
   parentTracks.reserve(numOfTracks);
 
@@ -390,7 +390,7 @@ bool vpVidtkEventIO::SetupEvent(const vidtk::event_sptr vidtkEvent,
 
     // Check if the id of the track in the model is different than the source
     // id, and if so, use that one when looking up the track in the model.
-    vcl_map<unsigned int, vtkIdType>::const_iterator itr =
+    std::map<unsigned int, vtkIdType>::const_iterator itr =
       this->SourceTrackIdToModelIdMap.find(srcTrackId);
 
     vtkIdType trackId;
@@ -517,8 +517,8 @@ bool vpVidtkEventIO::SetupNodeEvent(const vidtk::event_sptr vidtkEvent,
   // Add tracks.
   unsigned numOfTracks = vidtkEvent->get_num_parent_tracks();
 
-  vcl_vector<vidtk::timestamp> trackBeginTimeStamp = vidtkEvent->get_tracks_begin();
-  vcl_vector<vidtk::timestamp> trackEndTimeStamp   = vidtkEvent->get_tracks_end();
+  std::vector<vidtk::timestamp> trackBeginTimeStamp = vidtkEvent->get_tracks_begin();
+  std::vector<vidtk::timestamp> trackEndTimeStamp   = vidtkEvent->get_tracks_end();
 
   // Check the assumption here.
   assert(trackBeginTimeStamp.size() == trackEndTimeStamp.size());

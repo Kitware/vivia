@@ -18,8 +18,8 @@ class vpVidtkTrackIO : public vpTrackIO
 {
 public:
   vpVidtkTrackIO(vpVidtkReader& reader,
-                 vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
-                 vcl_map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
+                 std::map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
+                 std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                  vtkVpTrackModel* trackModel,
                  vpTrackIO::TrackStorageMode storageMode,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
@@ -35,7 +35,7 @@ public:
 
   virtual bool WriteTracks(const char* filename, bool writeSceneElements) const;
 
-  void UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
+  void UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                     unsigned int updateStartFrame, unsigned int updateEndFrame);
 
   virtual bool GetNextValidTrackFrame(vtkVgTrack* track,
@@ -63,9 +63,9 @@ private:
 
 private:
   vpVidtkReader& Reader;
-  vcl_vector<vidtk::track_sptr> Tracks;
-  vcl_map<vtkVgTrack*, vidtk::track_sptr>& TrackMap;
-  vcl_map<unsigned int, vtkIdType>& SourceIdToModelIdMap;
+  std::vector<vidtk::track_sptr> Tracks;
+  std::map<vtkVgTrack*, vidtk::track_sptr>& TrackMap;
+  std::map<unsigned int, vtkIdType>& SourceIdToModelIdMap;
 };
 
 #endif // __vpVidtkTrackIO_h

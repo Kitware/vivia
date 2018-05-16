@@ -38,7 +38,7 @@ public:
   virtual void SetImageHeight(unsigned int imageHeight);
   virtual unsigned int GetImageHeight() const;
 
-  void UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
+  void UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                     unsigned int updateStartFrame, unsigned int updateEndFrame);
 
 private:
@@ -46,10 +46,10 @@ private:
   virtual const vpVidtkReader& GetReader() const = 0;
 
 protected:
-  vcl_map<vtkVgTrack*, vidtk::track_sptr> TrackMap;
-  vcl_map<vtkVgEvent*, vidtk::event_sptr> EventMap;
-  vcl_map<unsigned int, vtkIdType> SourceTrackIdToModelIdMap;
-  vcl_map<unsigned int, vtkIdType> SourceEventIdToModelIdMap;
+  std::map<vtkVgTrack*, vidtk::track_sptr> TrackMap;
+  std::map<vtkVgEvent*, vidtk::event_sptr> EventMap;
+  std::map<unsigned int, vtkIdType> SourceTrackIdToModelIdMap;
+  std::map<unsigned int, vtkIdType> SourceEventIdToModelIdMap;
 };
 
 #endif // __vpVidtkIO_h

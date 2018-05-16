@@ -27,8 +27,8 @@
 
 //-----------------------------------------------------------------------------
 vpVidtkTrackIO::vpVidtkTrackIO(vpVidtkReader& reader,
-                               vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
-                               vcl_map<unsigned int, vtkIdType>&
+                               std::map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
+                               std::map<unsigned int, vtkIdType>&
                                  sourceIdToModelIdMap,
                                vtkVpTrackModel* trackModel,
                                TrackStorageMode storageMode,
@@ -134,7 +134,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   vidtk::track_writer_process writer("vpVidtkTrackIO::WriteTracks");
 
   std::string filestr(filename);
-  vcl_string format = filestr.substr(filestr.rfind('.') + 1);
+  std::string format = filestr.substr(filestr.rfind('.') + 1);
 
   if (!writer.set_params(
         writer.params().set_value("filename", filename)
@@ -153,8 +153,8 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   bool useWorldCoords = this->StorageMode == TSM_TransformedGeoCoords;
   bool useRawImageCoords = this->StorageMode == TSM_ImageCoords;
 
-  vcl_vector<vidtk::track_sptr> tracks;
-  vcl_vector<vidtk::image_object_sptr> objs(1);
+  std::vector<vidtk::track_sptr> tracks;
+  std::vector<vidtk::image_object_sptr> objs(1);
 
   vtkPoints* points = this->TrackModel->GetPoints();
   double imageYExtent = this->Reader.GetImageHeight() - 1;
@@ -165,10 +165,10 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   bool typesFileOpenFailed = false;
   bool regionsFileOpenFailed = false;
 
-  vcl_string typesFilename(filename);
+  std::string typesFilename(filename);
   typesFilename += ".types";
 
-  vcl_string regionsFilename(filename);
+  std::string regionsFilename(filename);
   regionsFilename += ".regions";
 
   // Remove any existing companion files
@@ -191,7 +191,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
     track->set_id(modelTrack->GetId());
 
     vidtk::track_sptr origTrack;
-    vcl_map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
+    std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
       this->TrackMap.find(modelTrack);
     if (itr != this->TrackMap.end())
       {
@@ -221,7 +221,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         }
       }
 
-    vcl_vector<vidtk::track_state_sptr>::const_iterator origTrkStateIter,
+    std::vector<vidtk::track_state_sptr>::const_iterator origTrkStateIter,
                                                         origTrkStateEnd;
     if (origTrack)
       {
@@ -386,7 +386,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
       double lon = 444.0;
       if (orig_state && !orig_state->latitude_longitude(lat, lon))
         {
-        vcl_vector<vidtk::image_object_sptr> objs;
+        std::vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
           const auto& world_loc = objs[0]->get_world_loc();
@@ -410,7 +410,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
         new_state->vel_ = orig_state->vel_;
         new_state->amhi_bbox_ = orig_state->amhi_bbox_;
 
-        vcl_vector<vidtk::image_object_sptr> objs;
+        std::vector<vidtk::image_object_sptr> objs;
         if (orig_state->data_.get(vidtk::tracking_keys::img_objs, objs))
           {
           obj->set_image_loc(objs[0]->get_image_loc());
@@ -477,11 +477,11 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
 }
 
 //-----------------------------------------------------------------------------
-void vpVidtkTrackIO::UpdateTracks(const vcl_vector<vidtk::track_sptr>& tracks,
+void vpVidtkTrackIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                                   unsigned int updateStartFrame,
                                   unsigned int updateEndFrame)
 {
-  for (vcl_vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
+  for (std::vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
        end = tracks.end(); itr != end; ++itr)
     {
     this->ReadTrack(*itr, 0.0f, 0.0f, true, updateStartFrame, updateEndFrame);
@@ -493,7 +493,7 @@ bool vpVidtkTrackIO::GetNextValidTrackFrame(vtkVgTrack* track,
                                             unsigned int startFrame,
                                             vtkVgTimeStamp& timeStamp) const
 {
-  vcl_map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
+  std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
     this->TrackMap.find(track);
   if (itr == this->TrackMap.end())
     {
@@ -501,8 +501,8 @@ bool vpVidtkTrackIO::GetNextValidTrackFrame(vtkVgTrack* track,
     }
 
   vidtk::track_sptr vtrack = itr->second;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator end =
+  std::vector<vidtk::track_state_sptr>::const_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_iterator end =
     vtrack->history().end();
 
   // search forwards through the track history until we find the start frame
@@ -525,7 +525,7 @@ bool vpVidtkTrackIO::GetPrevValidTrackFrame(vtkVgTrack* track,
                                             unsigned int startFrame,
                                             vtkVgTimeStamp& timeStamp) const
 {
-  vcl_map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
+  std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
     this->TrackMap.find(track);
   if (itr == this->TrackMap.end())
     {
@@ -533,8 +533,8 @@ bool vpVidtkTrackIO::GetPrevValidTrackFrame(vtkVgTrack* track,
     }
 
   vidtk::track_sptr vtrack = itr->second;
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator end
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator end
     = vtrack->history().rend();
 
   // search backwards through the track history until we find the start frame
@@ -555,7 +555,7 @@ bool vpVidtkTrackIO::GetPrevValidTrackFrame(vtkVgTrack* track,
 //-----------------------------------------------------------------------------
 vtkIdType vpVidtkTrackIO::GetModelTrackId(unsigned int sourceId) const
 {
-  vcl_map<unsigned int, vtkIdType>::const_iterator itr =
+  std::map<unsigned int, vtkIdType>::const_iterator itr =
     this->SourceIdToModelIdMap.find(sourceId);
 
   if (itr == this->SourceIdToModelIdMap.end())
@@ -624,7 +624,7 @@ void vpVidtkTrackIO::ReadTrack(
                   pvo.get_probability_other());
     }
 
-  const vcl_vector<vidtk::track_state_sptr>& trackHistory =
+  const std::vector<vidtk::track_state_sptr>& trackHistory =
     vidtkTrack->history();
 
   vtkSmartPointer<vtkVgScalars> attrScalars;

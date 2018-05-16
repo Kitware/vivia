@@ -65,8 +65,8 @@ bool vtkVpFileReader::GetNextValidTrackFrame(vtkVgTrack* t, vtkIdType startIndex
     return false;
     }
 
-  vcl_vector<vidtk::track_state_sptr>::const_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator end = track->history().end();
+  std::vector<vidtk::track_state_sptr>::const_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_iterator end = track->history().end();
 
   // search forwards through the track history until we find the start frame
   // or go past
@@ -94,8 +94,8 @@ bool vtkVpFileReader::GetPrevValidTrackFrame(vtkVgTrack* t, vtkIdType startIndex
     return false;
     }
 
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
-  vcl_vector<vidtk::track_state_sptr>::const_reverse_iterator end
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
+  std::vector<vidtk::track_state_sptr>::const_reverse_iterator end
     = track->history().rend();
 
   // search backwards through the track history until we find the start frame
@@ -140,8 +140,8 @@ int vtkVpFileReader::ReadTracks(const char* filename,
     return VTK_ERROR;
     }
 
-  vcl_string fname(filename);
-  vcl_string fext = fname.substr(fname.rfind('.') + 1);
+  std::string fname(filename);
+  std::string fext = fname.substr(fname.rfind('.') + 1);
 
   // Just run this process without making a pipeline (setting one up is probably overkill)
   vidtk::track_reader_process trackReaderProcess("VpFileReader::vtkInternal::ReadTracks");
@@ -167,15 +167,15 @@ int vtkVpFileReader::ReadTracks(const char* filename,
     }
 
   // Look for files containing supplemental track info
-  vcl_string trackTypes(filename);
+  std::string trackTypes(filename);
   trackTypes += ".types";
 
   // Load track types
   if (vtksys::SystemTools::FileExists(trackTypes.c_str(), true))
     {
-    vcl_ifstream file(trackTypes.c_str());
+    std::ifstream file(trackTypes.c_str());
     int id;
-    vcl_string type;
+    std::string type;
     while (file >> id >> type)
       {
       vtkVgTrack* track = this->TrackModel->GetTrack(id);
@@ -199,7 +199,7 @@ int vtkVpFileReader::ReadTracks(const char* filename,
       }
     }
 
-  vcl_string trackRegions(filename);
+  std::string trackRegions(filename);
   trackRegions += ".regions";
 
   // Load polygonal bounding regions
@@ -212,11 +212,11 @@ int vtkVpFileReader::ReadTracks(const char* filename,
       return VTK_OK;
       }
 
-    vcl_ifstream file(trackRegions.c_str());
+    std::ifstream file(trackRegions.c_str());
     int id;
     int frame;
     int numPoints;
-    vcl_vector<float> points;
+    std::vector<float> points;
     bool isKeyFrame;
     while (file >> id >> frame >> isKeyFrame >> numPoints)
       {
@@ -252,7 +252,7 @@ int vtkVpFileReader::ReadTracks(const char* filename,
         }
 
       points.reserve(numPoints * 3);
-      std::back_insert_iterator<vcl_vector<float> > iter(points);
+      std::back_insert_iterator<std::vector<float> > iter(points);
 
       for (int i = 0; i < numPoints; ++i)
         {
@@ -298,7 +298,7 @@ int vtkVpFileReader::ReadTrackTraits(const char* filename)
     return VTK_ERROR;
     }
 
-  vcl_ifstream file(filename);
+  std::ifstream file(filename);
 
   int id;
   double normalcy;
@@ -377,7 +377,7 @@ int vtkVpFileReader::ReadEventLinks(const char* filename)
     return VTK_ERROR;
     }
 
-  vcl_ifstream file(filename);
+  std::ifstream file(filename);
 
   EventLink link;
   while (file >> link.Source >> link.Destination >> link.Probability)
@@ -422,9 +422,9 @@ int vtkVpFileReader::ReadActivities(const char* filename)
 
   // the event manager actually hasthis map, but the reader's need for it should
   // go away, I think, since "ids" are going away "soon"
-  vcl_map<unsigned int, vidtk::event_sptr> eventMap;
+  std::map<unsigned int, vidtk::event_sptr> eventMap;
 
-  vcl_vector<vidtk::event_sptr>::const_iterator eventIter =
+  std::vector<vidtk::event_sptr>::const_iterator eventIter =
     this->InternalBase->Events.begin();
   for (; eventIter != this->InternalBase->Events.end(); eventIter++)
     {

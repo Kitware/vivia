@@ -41,7 +41,7 @@ bool vpVidtkActivityIO::ReadActivities()
     return false;
     }
 
-  vcl_vector<vidtk::activity_sptr>::iterator activityIter = this->Activities.begin();
+  std::vector<vidtk::activity_sptr>::iterator activityIter = this->Activities.begin();
   for (; activityIter != this->Activities.end(); activityIter++)
     {
     vtkSmartPointer<vtkVgActivity> activity = vtkSmartPointer<vtkVgActivity>::New();
@@ -81,8 +81,8 @@ bool vpVidtkActivityIO::SetupActivity(
   vtkVgEventModel* eventModel = this->ActivityManager->GetEventModel();
   assert(eventModel);
 
-  const vcl_vector<vidtk::event_sptr>& events = vidtkActivity->get_supporting_events();
-  vcl_vector<vidtk::event_sptr>::const_iterator eventIter = events.begin();
+  const std::vector<vidtk::event_sptr>& events = vidtkActivity->get_supporting_events();
+  std::vector<vidtk::event_sptr>::const_iterator eventIter = events.begin();
   for (; eventIter != events.end(); eventIter++)
     {
     vtkVgEvent* theEvent = eventModel->GetEvent((*eventIter)->get_id());
