@@ -219,6 +219,11 @@ if(VISGUI_ENABLE_VIDTK)
     vpVidtkIO.cxx
     vpVidtkTrackIO.cxx
   )
+else()
+  list(APPEND vpViewSources
+    vpVdfIO.cxx
+    vpVdfTrackIO.cxx
+  )
 endif()
 
 # END OPTIONAL vidtk io
