@@ -85,6 +85,7 @@
 // VgCommon includes
 #include <vgCheckArg.h>
 
+#include <vgFileDialog.h>
 #include <vgGeoUtil.h>
 
 // VgVideo includes
@@ -737,6 +738,7 @@ void vqCore::endQuerySession(bool clearResults)
     }
   this->SavedQueryPlan.clear();
   emit this->queryPlanAvailabilityChanged(false);
+  emit this->queryIqrModelAvailabilityChanged(false);
 
   if (this->ActiveQueryParser)
     {
@@ -900,6 +902,7 @@ bool vqCore::processQuery(vvQueryInstance mutableQuery)
   // Remember query plan so we can (potentially) save it later
   this->SavedQueryPlan = query;
   emit this->queryPlanAvailabilityChanged(true);
+  emit this->queryIqrModelAvailabilityChanged(query.isSimilarityQuery());
 
   emit this->processingQuery(query);
   return true;
@@ -3035,6 +3038,17 @@ void vqCore::selectItemsOnContext()
 }
 
 //-----------------------------------------------------------------------------
+void vqCore::updateIqrModel()
+{
+  // request updated IQR model before saving
+  // \TODO keep track of any refinement; if none, than no need to get update
+  if (this->ActiveQueryParser) // might this be 0?
+    {
+    this->ActiveQueryParser->updateIqrModel(this->SavedQueryPlan);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vqCore::saveQueryPlan()
 {
   if (!this->SavedQueryPlan.isValid())
@@ -3044,12 +3058,7 @@ void vqCore::saveQueryPlan()
     return;
     }
 
-  // request updated IQR model before saving
-  // \TODO keep track of any refinement; if none, than no need to get update
-  if (this->ActiveQueryParser) // might this be 0?
-    {
-    this->ActiveQueryParser->updateIqrModel(this->SavedQueryPlan);
-    }
+  this->updateIqrModel();
 
   vqQueryDialog::saveQuery(this->SavedQueryPlan);
 }
@@ -3393,6 +3402,45 @@ void vqCore::generateReport(QString path, bool generateVideo)
 
   // Now export KML
   this->exportKml(path);
+}
+
+//-----------------------------------------------------------------------------
+void vqCore::exportIqrModel()
+{
+  this->updateIqrModel();
+
+  const auto& query = *this->SavedQueryPlan.constSimilarityQuery();
+
+  if (query.IqrModel.empty())
+    {
+    QMessageBox::warning(
+      qApp->activeWindow(), "Viqui",
+      "Unable to export IQR model; the current IQR model is empty");
+    return;
+    }
+
+  QString path = vgFileDialog::getSaveFileName(
+                   qApp->activeWindow(), "Save IQR model...",
+                   QString(), "IQR File (*.iqr);;");
+
+  if (path.isEmpty())
+    {
+    return;
+    }
+
+  QFile file(path);
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+    QString msg = "Unable to open file \"%1\" for writing: %2";
+    QMessageBox::critical(qApp->activeWindow(), "Error writing file",
+                          msg.arg(path).arg(file.errorString()));
+    return;
+    }
+
+  const auto modelSize = static_cast<int>(query.IqrModel.size());
+  auto* const modelBytes = reinterpret_cast<const char*>(query.IqrModel.data());
+
+  file.write(QByteArray::fromRawData(modelBytes, modelSize));
 }
 
 //-----------------------------------------------------------------------------
