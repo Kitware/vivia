@@ -9,6 +9,7 @@
 #include "vgGeodesy.h"
 
 #include <qtEnumerate.h>
+#include <qtKstReader.h>
 #include <qtStlUtil.h>
 
 #ifdef VISGUI_USE_VIDTK
@@ -23,10 +24,105 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QSettings>
+#include <QTemporaryFile>
 
 #include <exception>
 #include <iomanip>
 #include <sstream>
+
+namespace
+{
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool readValue(const QSettings& reader, const QString& key, T& value)
+{
+  const QVariant& var = reader.value(key, QVariant::fromValue(value));
+  if (var.isValid())
+    {
+    if (var.canConvert<T>())
+      {
+      value = var.value<T>();
+      return true;
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key, QPointF& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toList();
+    if (l.size() == 2)
+      {
+      bool xOkay = true, yOkay = true;
+      const auto x = l[0].toReal(&xOkay);
+      const auto y = l[1].toReal(&yOkay);
+      if (xOkay && yOkay)
+        {
+        value = {x, y};
+        return true;
+        }
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toList();
+    if (l.size() == 2)
+      {
+      bool widthOkay = true, heightOkay = true;
+      const auto width = l[0].toReal(&widthOkay);
+      const auto height = l[1].toReal(&heightOkay);
+      if (widthOkay && heightOkay)
+        {
+        value = {width, height};
+        return true;
+        }
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key,
+               vgGeoRawCoordinate& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toStringList();
+
+    qtKstReader parser{QString{"[%1];"}.arg(l.join(","))};
+    QList<double> values;
+    if (parser.readRealArray(values) && values.size() == 2)
+      {
+      value = {values[0], values[1]};
+      return true;
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 vpProjectParser::vpProjectParser() :
@@ -257,8 +353,94 @@ bool vpProjectParser::Parse(vpProject* prj)
 
   return true;
 #else // VISGUI_USE_VIDTK
-  // TODO: Write a non-vidtk based project parser.
-  return false;
+  QScopedPointer<QTemporaryFile> streamFile;
+  QString projectFileName;
+  QDir projectDir;
+
+  if (this->UseStream)
+    {
+    streamFile.reset(new QTemporaryFile);
+    if (!streamFile->open())
+      {
+      qWarning() << "Failed to create temporary file for project stream";
+      return false;
+      }
+
+    streamFile->write(this->ProjectStream.data(), this->ProjectStream.size());
+    projectFileName = streamFile->fileName();
+    }
+  else
+    {
+    projectFileName = this->ProjectFileName;
+    projectDir = QDir{QFileInfo{projectFileName}.canonicalPath()};
+    }
+
+  QSettings reader{projectFileName, QSettings::IniFormat};
+
+  // Read file path fields
+  foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
+    {
+    const auto& tag = fileTag.key();
+    auto& filePath = *(fileTag.value());
+
+    // TODO implement token expansion? (Use from KWIVER if available?)
+    filePath = reader.value(tag).toString();
+    if (!filePath.isEmpty())
+      {
+      filePath = projectDir.absoluteFilePath(filePath);
+      }
+
+    if (tag == prj->DataSetSpecifierTag ||
+        tag == prj->TracksFileTag)
+      {
+      const auto expectedState =
+        (filePath.isEmpty() ? vpProject::FILE_NAME_EMPTY
+                            : vpProject::FILE_NAME_NOT_EMPTY);
+      prj->SetIsValid(filePath, expectedState);
+      }
+    else
+      {
+      const auto expectedState =
+        this->CheckIfFileExists(tag, filePath);
+      prj->SetIsValid(filePath, expectedState);
+      }
+    }
+
+  // Read non-string fields
+  readValue(reader, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
+  readValue(reader, prj->OverviewSpacingTag,    prj->OverviewSpacing);
+  readValue(reader, prj->ColorWindowTag,        prj->ColorWindow);
+  readValue(reader, prj->ColorLevelTag,         prj->ColorLevel);
+  readValue(reader, prj->ColorMultiplierTag,    prj->ColorMultiplier);
+  readValue(reader, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
+  readValue(reader, prj->OverviewOriginTag,     prj->OverviewOrigin);
+  readValue(reader, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
+
+  // Read track override color
+  prj->TrackColorOverride.read(reader, prj->TrackColorOverrideTag);
+
+  // Read AOI
+  reader.beginGroup("AOI");
+  if (readValue(reader, "TopLeft", prj->AOI.Coordinate[0]))
+    {
+    readValue(reader, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
+
+    prj->AOI.Coordinate[2] = prj->AOI.Coordinate[0];
+    readValue(reader, "BottomRight", prj->AOI.Coordinate[2]);
+
+    prj->AOI.Coordinate[1].Easting  = prj->AOI.Coordinate[2].Easting;
+    prj->AOI.Coordinate[1].Northing = prj->AOI.Coordinate[0].Northing;
+    prj->AOI.Coordinate[3].Easting  = prj->AOI.Coordinate[0].Easting;
+    prj->AOI.Coordinate[3].Northing = prj->AOI.Coordinate[2].Northing;
+    readValue(reader, "TopRight", prj->AOI.Coordinate[1]);
+    readValue(reader, "BottomLeft", prj->AOI.Coordinate[3]);
+    }
+  reader.endGroup();
+
+  // Read image-to-GCS matrix
+  // TODO
+
+  return true;
 #endif
 }
 
