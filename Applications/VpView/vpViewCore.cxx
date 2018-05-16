@@ -40,6 +40,8 @@
 
 #ifdef VISGUI_USE_VIDTK
 #include "vpVidtkFileIO.h"
+#else
+#include "vpVdfIO.h"
 #endif
 
 #ifdef VISGUI_USE_KWIVER
@@ -2976,9 +2978,10 @@ vpProject* vpViewCore::loadProject(const char* fileName)
   project->ModelIO = fileIO;
   return this->processProject(project);
 #else
-  QMessageBox::warning(0, QString(),
-                       "Cannot open project files without VidTK support.");
-  return 0;
+  QSharedPointer<vpVdfIO> io{new vpVdfIO};
+  io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
+  project->ModelIO = io;
+  return this->processProject(project);
 #endif
 }
 
