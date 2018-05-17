@@ -2825,7 +2825,14 @@ vpProject* vpViewCore::loadProject(const char* fileName)
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId++));
   this->ProjectParser->Parse(project.data());
 
+  return this->loadProject(project);
+}
+
+//-----------------------------------------------------------------------------
+vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
+{
 #ifdef VISGUI_USE_VIDTK
+
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
   fileIO->SetTracksFileName(qPrintable(project->TracksFile));
   fileIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
@@ -2834,13 +2841,16 @@ vpProject* vpViewCore::loadProject(const char* fileName)
   fileIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
   fileIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
   project->ModelIO = fileIO;
-  return this->processProject(project);
+
 #else
+
   QSharedPointer<vpVdfIO> io{new vpVdfIO};
   io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
   project->ModelIO = io;
-  return this->processProject(project);
+
 #endif
+
+  return this->processProject(project);
 }
 
 //-----------------------------------------------------------------------------
@@ -8506,18 +8516,5 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
     emit removeAllFilters();
     }
 
-#ifdef VISGUI_USE_VIDTK
-  QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
-  fileIO->SetTracksFileName(qPrintable(project->TracksFile));
-  fileIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
-  fileIO->SetEventsFileName(qPrintable(project->EventsFile));
-  fileIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
-  fileIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
-  fileIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
-  project->ModelIO = fileIO;
-  this->processProject(project);
-#else
-  QMessageBox::warning(0, QString(),
-                       "Cannot open project files without VidTK support.");
-#endif
+  this->loadProject(project);
 }
