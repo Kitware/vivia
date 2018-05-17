@@ -698,6 +698,8 @@ private:
 
   void initializeImageSource();
 
+  vpProject* loadProject(QScopedPointer<vpProject>& project);
+
   void addEvents(vpProject* project);
   void removeEvents(vpProject* project);
   void addTrackHeads(vpProject* project);
