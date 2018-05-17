@@ -37,15 +37,15 @@ bool vqNoaaCsvExporter::exportResults(const QList<vvQueryResult>& results)
     }
 
   // Write the file
-  file << "#image-index,"
+  file << "#track-id,"
+       << "image-index,"
        << "file-name,"
        << "TL-x,"
        << "TL-y,"
        << "BR-x,"
        << "BR-y,"
-       << "fish-length,"
        << "confidence,"
-       << "track-id,"
+       << "fish-length,"
        << "{class-name,score},..."
        << std::endl;
 
@@ -56,15 +56,15 @@ bool vqNoaaCsvExporter::exportResults(const QList<vvQueryResult>& results)
       bool first = true;
       foreach (const auto trackState, track.Trajectory)
         {
-        file << trackState.TimeStamp.FrameNumber << ","
+        file << track.Id.SerialNumber << ","
+             << trackState.TimeStamp.FrameNumber << ","
              << result.StreamId << ","
              << trackState.ImageBox.TopLeft.X << ","
              << trackState.ImageBox.TopLeft.Y << ","
              << trackState.ImageBox.BottomRight.X << ","
              << trackState.ImageBox.BottomRight.Y << ","
-             << "0.0," // We don't know the fish length yet
              << result.RelevancyScore << ","
-             << track.Id.SerialNumber;
+             << "0.0"; // We don't know the fish length yet
 
         if (first)
           {
