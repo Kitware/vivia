@@ -38,8 +38,8 @@ bool vqNoaaCsvExporter::exportResults(const QList<vvQueryResult>& results)
 
   // Write the file
   file << "#track-id,"
-       << "image-index,"
        << "file-name,"
+       << "image-index,"
        << "TL-x,"
        << "TL-y,"
        << "BR-x,"
@@ -57,8 +57,8 @@ bool vqNoaaCsvExporter::exportResults(const QList<vvQueryResult>& results)
       foreach (const auto trackState, track.Trajectory)
         {
         file << track.Id.SerialNumber << ","
-             << trackState.TimeStamp.FrameNumber << ","
              << result.StreamId << ","
+             << trackState.TimeStamp.FrameNumber << ","
              << trackState.ImageBox.TopLeft.X << ","
              << trackState.ImageBox.TopLeft.Y << ","
              << trackState.ImageBox.BottomRight.X << ","
