@@ -430,11 +430,10 @@ bool vvKipQuerySessionPrivate::stQueryProcess()
     auto const& kwiverRequests =
       iter3->second->get_datum<query_result_set_sptr>();
 
-    int requestCount = 0;
     for (auto const& kwiverRequest : *kwiverRequests)
     {
       auto vvRequest = fromKwiver(*kwiverRequest);
-      vvRequest.Rank = ++requestCount;
+      vvRequest.Rank = ++resultCount;
       vvRequests.push_back(vvRequest);
     }
   }
