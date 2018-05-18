@@ -118,7 +118,7 @@ int vtkVgTrackFilter::GetBestClassifier(vtkVgTrack* track)
   // If unclassified, doesn't matter what the filter setting are
   if (!toc.size())
     {
-    return vtkVgTrack::Unclassified;
+    return -1;
     }
 
   // Iterate over all filters
