@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>222</width>
-    <height>296</height>
+    <width>278</width>
+    <height>251</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -45,94 +45,13 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="colorByStatePVO">
+    <widget class="QRadioButton" name="colorByTypeClassifier">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Color by State PVO</string>
+      <string>Color by Type &amp;Classifiers</string>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string/>
-     </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="personLabel">
-        <property name="toolTip">
-         <string>This color will be used to draw thinner lines and shapes related to the event (e.g. paths, head outlines).</string>
-        </property>
-        <property name="text">
-         <string>Person:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="qtColorButton" name="personColor">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="vehicleLabel">
-        <property name="toolTip">
-         <string>This color will be used to draw thinner lines and shapes related to the event (e.g. paths, head outlines).</string>
-        </property>
-        <property name="text">
-         <string>Vehicle:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="qtColorButton" name="vehicleColor">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="otherLabel">
-        <property name="toolTip">
-         <string>This color will be used to draw thinner lines and shapes related to the event (e.g. paths, head outlines).</string>
-        </property>
-        <property name="text">
-         <string>Other:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="qtColorButton" name="otherColor">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
    <item>
@@ -190,13 +109,6 @@
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>qtColorButton</class>
-   <extends>QPushButton</extends>
-   <header location="global">qtColorButton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>

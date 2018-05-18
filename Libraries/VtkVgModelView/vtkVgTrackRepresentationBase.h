@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -22,6 +22,7 @@ class vtkRenderer;
 class vtkVgContourOperatorManager;
 class vtkVgTrackFilter;
 class vtkVgTrackModel;
+class vtkVgTrackTypeRegistry;
 
 class vtkVgTrackColorHelper
 {
@@ -38,7 +39,7 @@ public:
   enum TrackColorMode
     {
     TCM_Model,      // Use track colors supplied by the model
-    TCM_PVO,        // Color based on PVO classification
+    TCM_TOC,        // Color based on track object classification
     TCM_Random,     // Random coloring based on track id
     TCM_Scalars,    // Color based on scalars
     TCM_StateAttrs, // Color using track state attributes
@@ -76,6 +77,11 @@ public:
   vtkGetObjectMacro(TrackFilter, vtkVgTrackFilter);
 
   // Description:
+  // Set the track type registry that this representation will use.
+  virtual void SetTrackTypeRegistry(vtkVgTrackTypeRegistry* typeRegistry);
+  vtkGetObjectMacro(TrackTypeRegistry, vtkVgTrackTypeRegistry);
+
+  // Description:
   // Set track color helper for the representation. The caller is responsible
   // for managing the life of the helper, and ensuring it is not deleted while
   // the representation holds a reference to it.
@@ -88,8 +94,10 @@ public:
   vtkGetMacro(ColorMode, TrackColorMode);
 
   void SetColorModeToModel()  { this->SetColorMode(TCM_Model); }
-  void SetColorModeToPVO()    { this->SetColorMode(TCM_PVO); }
+  void SetColorModeToTOC()    { this->SetColorMode(TCM_TOC); }
   void SetColorModeToRandom() { this->SetColorMode(TCM_Random); }
+
+  [[deprecated]] void SetColorModeToPVO() { this->SetColorMode(TCM_TOC); }
 
   bool UsingPerFrameColors()
     {
@@ -111,32 +119,33 @@ public:
   void ClearStateAttributeMasks();
 
   // Description:
-  // Set/Get the rgb components of the "Person" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Person" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
-  vtkSetVector3Macro(PersonColor, double);
-  vtkGetVector3Macro(PersonColor, double);
+  [[deprecated]] vtkSetVector3Macro(PersonColor, double);
+  [[deprecated]] vtkGetVector3Macro(PersonColor, double);
 
   // Description:
-  // Set/Get the rgb components of the "Vehicle" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Vehicle" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
-  vtkSetVector3Macro(VehicleColor, double);
-  vtkGetVector3Macro(VehicleColor, double);
+  [[deprecated]] vtkSetVector3Macro(VehicleColor, double);
+  [[deprecated]] vtkGetVector3Macro(VehicleColor, double);
 
   // Description:
-  // Set/Get the rgb components of the "Other" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Other" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
-  vtkSetVector3Macro(OtherColor, double);
-  vtkGetVector3Macro(OtherColor, double);
+  [[deprecated]] vtkSetVector3Macro(OtherColor, double);
+  [[deprecated]] vtkGetVector3Macro(OtherColor, double);
 
   // Description:
-  // Set/Get the rgb components of the "Unclassified" color (if ColorByPVO).
+  // Set/Get the rgb components of the "Unclassified" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
   vtkSetVector3Macro(UnclassifiedColor, double);
   vtkGetVector3Macro(UnclassifiedColor, double);
 
   // Description:
-  // Set the rgb components of the specified track type color (if ColorByPVO).
+  // Set the rgb components of the specified track type color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
+  [[deprecated]]
   void SetColor(vtkVgTrack::enumTrackPVOType type, double color[3]);
 
   // Description:
@@ -159,15 +168,16 @@ protected:
   vtkVgTrackRepresentationBase();
   virtual ~vtkVgTrackRepresentationBase();
 
-  int GetTrackPVOType(vtkVgTrack* track);
+  int GetTrackTOCType(vtkVgTrack* track);
   const double* GetTrackColor(vtkVgTrackInfo track, double scalar = 0.0);
 
   void SetNormalizedColor(double memberColor[3], double inputColor[3]);
 
   vtkVgContourOperatorManager* ContourOperatorManager;
 
-  vtkVgTrackModel*  TrackModel;
+  vtkVgTrackModel* TrackModel;
   vtkVgTrackFilter* TrackFilter;
+  vtkVgTrackTypeRegistry* TrackTypeRegistry;
 
   TrackColorMode   ColorMode;
   double           PersonColor[3];
