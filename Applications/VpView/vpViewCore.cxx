@@ -3344,6 +3344,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackRepresentation->SetZOffset(0.1);
   project->TrackRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
 
   project->SelectedTrackRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackRepresentation->UseAutoUpdateOff();
@@ -3362,6 +3363,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackHeadRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackHeadRepresentation->SetZOffset(0.1);
   project->TrackHeadRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackHeadRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
 
   project->SelectedTrackHeadRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackHeadRepresentation->UseAutoUpdateOff();
