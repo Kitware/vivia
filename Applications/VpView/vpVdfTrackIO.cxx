@@ -323,8 +323,8 @@ bool vpVdfTrackIO::WriteTracks(
       {
       const auto& bbox = track->GetHeadBoundingBox(ts);
       s << trackId << ','
-        << /*imageFile <<*/ ',';
-        << ts.GetFrameNumber() << ','
+        << /*imageFile <<*/ ','
+        << ts.GetFrameNumber() << ',';
       if (this->StorageMode == TSM_InvertedImageCoords)
         {
         s <<               bbox.GetBound(0) << ','
