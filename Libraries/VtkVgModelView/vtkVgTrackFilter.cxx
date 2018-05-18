@@ -118,7 +118,7 @@ int vtkVgTrackFilter::GetBestClassifier(vtkVgTrack* track)
   // If unclassified, doesn't matter what the filter setting are
   if (!toc.size())
     {
-    return -1;
+    return std::numeric_limits<int>::max();
     }
 
   // Iterate over all filters
