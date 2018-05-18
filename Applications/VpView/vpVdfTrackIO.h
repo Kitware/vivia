@@ -33,8 +33,7 @@ public:
   void SetTracksUri(const QUrl&);
 
   virtual bool ReadTracks() QTE_OVERRIDE;
-  virtual bool WriteTracks(const char*, bool) const QTE_OVERRIDE
-    { return false; }
+  virtual bool WriteTracks(const char*, bool) const QTE_OVERRIDE;
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);
