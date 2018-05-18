@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -381,6 +381,7 @@ vvQueryResult fromKwiver(kwiver::vital::query_result const& in)
   out.QueryId = in.query_id().value();
   out.StreamId = in.stream_id();
   out.RelevancyScore = in.relevancy_score();
+  out.PreferenceScore = in.preference_score();
   out.Location = fromKwiver(in.location());
 
   // Copy temporal bounds
