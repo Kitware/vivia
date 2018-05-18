@@ -218,7 +218,7 @@ vpViewCore::vpViewCore() :
   EnableWorldDisplayIfAvailable(true),
   EnableTranslateImage(true),
   CurrentProjectId(0),
-  CurrentTrackColorMode(vtkVgTrackRepresentationBase::TCM_Model),
+  CurrentTrackColorMode(vtkVgTrackRepresentationBase::TCM_TOC),
   Contour(0),
   DrawingContour(false),
   NewTrackId(-1),
@@ -3337,6 +3337,11 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     project->IconManager->RegisterStaticEventIcon(str, type.GetIconIndex());
     }
 
+
+  const auto trackColorMode =
+    static_cast<vtkVgTrackRepresentationBase::TrackColorMode>(
+      this->CurrentTrackColorMode);
+
   project->TrackRepresentation->UseAutoUpdateOff();
   project->TrackRepresentation->SetTrackModel(project->TrackModel);
   project->TrackRepresentation->SetTrackFilter(this->TrackFilter);
@@ -3345,6 +3350,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackRepresentation->SetZOffset(0.1);
   project->TrackRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
   project->TrackRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
+  project->TrackRepresentation->SetColorMode(trackColorMode);
 
   project->SelectedTrackRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackRepresentation->UseAutoUpdateOff();
@@ -3364,6 +3370,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackHeadRepresentation->SetZOffset(0.1);
   project->TrackHeadRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
   project->TrackHeadRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
+  project->TrackHeadRepresentation->SetColorMode(trackColorMode);
 
   project->SelectedTrackHeadRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackHeadRepresentation->UseAutoUpdateOff();
