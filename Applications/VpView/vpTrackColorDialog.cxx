@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -68,12 +68,7 @@ vpTrackColorDialog::vpTrackColorDialog(const vgAttributeSet* trackAttributes,
     }
 
   d->UI.colorByStateAttribute->setEnabled(d->UI.attributeGroup->count() != 0);
-  d->UI.colorByStatePVO->setEnabled(true);
-
-  // TODO: Use the real colors
-  d->UI.personColor->setColor(Qt::blue);
-  d->UI.vehicleColor->setColor(Qt::green);
-  d->UI.otherColor->setColor(Qt::red);
+  d->UI.colorByTypeClassifier->setEnabled(true);
 
   connect(d->UI.colorByStateAttribute, SIGNAL(toggled(bool)),
           d->UI.attributeGroup, SLOT(setEnabled(bool)));
@@ -93,7 +88,7 @@ vpTrackColorDialog::ColoringMode vpTrackColorDialog::mode() const
   QTE_D_CONST(vpTrackColorDialog);
 
   return d->UI.colorByTypeLabel->isChecked() ? ColorByTypeLabel :
-         d->UI.colorByStatePVO->isChecked() ? ColorByStatePVO :
+         d->UI.colorByTypeClassifier->isChecked() ? ColorByTypeClassifier :
          d->UI.colorByStateAttribute->isChecked() ? ColorByStateAttribute :
          d->UI.randomColoring->isChecked() ? RandomColor
                                                   : SingleColor;
@@ -109,8 +104,8 @@ void vpTrackColorDialog::setMode(vpTrackColorDialog::ColoringMode mode)
     case ColorByTypeLabel:
       d->UI.colorByTypeLabel->setChecked(true);
       break;
-    case ColorByStatePVO:
-      d->UI.colorByStatePVO->setChecked(true);
+    case ColorByTypeClassifier:
+      d->UI.colorByTypeClassifier->setChecked(true);
       break;
     case ColorByStateAttribute:
       d->UI.colorByStateAttribute->setChecked(true);
