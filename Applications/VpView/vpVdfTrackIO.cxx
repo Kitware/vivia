@@ -14,11 +14,16 @@
 #include <vdfSourceService.h>
 #include <vdfTrackReader.h>
 
+#include <vtkVgTrackTypeRegistry.h>
+
 #include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
 #include <vtksys/Glob.hxx>
 
+#include <QDebug>
+#include <QFile>
+#include <QTextStream>
 #include <QUrl>
 
 namespace
@@ -260,6 +265,89 @@ bool vpVdfTrackIO::ReadTracks()
 
     track->Close();
     this->AddTrack(track);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpVdfTrackIO::WriteTracks(
+  const char* filename, bool writeSceneElements) const
+{
+  if (writeSceneElements)
+    {
+    qCritical() << "ERROR: Can't write scene element tracks to csv";
+    return false;
+    }
+
+  // Open output file
+  const auto& path = QString::fromLocal8Bit(filename);
+  QFile file{path};
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+    qCritical().nospace()
+      << "Failed to open output track file " << path
+      << ": " << qPrintable(file.errorString());
+    return false;
+    }
+
+  QTextStream s{&file};
+  const auto imageHeight = this->GetImageHeight();
+
+  // Write tracks
+  this->TrackModel->InitTrackTraversal();
+  while (auto* track = this->TrackModel->GetNextTrack().GetTrack())
+    {
+    // Skip scene elements
+    if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+      {
+      continue;
+      }
+
+    const auto trackId = track->GetId();
+
+    // Get track classification
+    auto toc = track->GetTOC();
+    const auto tt = track->GetType();
+    if (tt >= 0)
+      {
+      // Track type overrides classifiers
+      toc.clear();
+      toc.emplace(tt, 1.0);
+      }
+
+    // Iterate over track states
+    vtkVgTimeStamp ts;
+    track->InitPathTraversal();
+    while (track->GetNextPathPt(ts) >= 0)
+      {
+      const auto& bbox = track->GetHeadBoundingBox(ts);
+      s << trackId << ','
+        << /*imageFile <<*/ ','
+        << ts.GetFrameNumber() << ',';
+      if (this->StorageMode == TSM_InvertedImageCoords)
+        {
+        s <<               bbox.GetBound(0) << ','
+          << imageHeight - bbox.GetBound(2) << ','
+          <<               bbox.GetBound(1) << ','
+          << imageHeight - bbox.GetBound(3) << ',';
+        }
+      else
+        {
+        s << bbox.GetBound(0) << ','
+          << bbox.GetBound(2) << ','
+          << bbox.GetBound(1) << ','
+          << bbox.GetBound(3) << ',';
+        }
+      s << "-1"/*confidence*/ << ','
+        << "-1"/*scalar*/;
+      for (const auto& c : toc)
+        {
+        const auto tt = this->TrackTypes->GetType(c.first);
+        s << ',' << tt.GetId() << ',' << c.second;
+        }
+      s << '\n';
+      }
     }
 
   return true;
