@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,8 +13,13 @@
 
 #include <qtStlUtil.h>
 
+#ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/file_formats/file_format_base.h>
+#include <track_oracle/file_formats/file_format_manager.h>
+#else
 #include <track_oracle/file_format_base.h>
 #include <track_oracle/file_format_manager.h>
+#endif
 
 #include <QFile>
 #include <QFileInfo>
@@ -30,32 +35,33 @@ QTE_IMPLEMENT_D_FUNC(vdfTrackOracleArchiveSourcePlugin)
 
 namespace // anonymous
 {
-typedef QMap<vidtk::file_format_enum, vidtk::file_format_base*> FileFormatMap;
+using FileFormatMap =
+  QMap<track_oracle::file_format_enum, track_oracle::file_format_base*>;
 }
 
 //-----------------------------------------------------------------------------
 class vdfTrackOracleArchiveSourcePluginPrivate
 {
 public:
-  void addSchemas(FileFormatMap& map, const vidtk::track_base_impl& schema);
+  void addSchemas(FileFormatMap& map,
+                  const track_oracle::track_base_impl& schema);
 
   bool quickTest(const std::string& fileName) const;
-  vidtk::file_format_base* inspect(const std::string& fileName) const;
+  track_oracle::file_format_base* inspect(const std::string& fileName) const;
 
   FileFormatMap Formats;
 };
 
 //-----------------------------------------------------------------------------
 void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
-  FileFormatMap& map, const vidtk::track_base_impl& schema)
+  FileFormatMap& map, const track_oracle::track_base_impl& schema)
 {
-  vcl_vector<vidtk::file_format_enum> formats =
-    vidtk::file_format_manager::format_matches_schema(schema);
-  for (size_t n = 0, k = formats.size(); n < k; ++n)
+  const auto& formats =
+    track_oracle::file_format_manager::format_matches_schema(schema);
+  for (const auto& format : formats)
     {
-    vidtk::file_format_enum format = formats[n];
-    vidtk::file_format_base* format_instance =
-      vidtk::file_format_manager::get_format(format);
+    auto* const format_instance =
+      track_oracle::file_format_manager::get_format(format);
     if (format_instance)
       {
       map.insert(format, format_instance);
@@ -67,7 +73,7 @@ void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
 bool vdfTrackOracleArchiveSourcePluginPrivate::quickTest(
   const std::string& fileName) const
 {
-  foreach (vidtk::file_format_base* format, this->Formats)
+  foreach (auto* const format, this->Formats)
     {
     if (format->filename_matches_globs(fileName))
       {
@@ -78,10 +84,11 @@ bool vdfTrackOracleArchiveSourcePluginPrivate::quickTest(
 }
 
 //-----------------------------------------------------------------------------
-vidtk::file_format_base* vdfTrackOracleArchiveSourcePluginPrivate::inspect(
+track_oracle::file_format_base*
+vdfTrackOracleArchiveSourcePluginPrivate::inspect(
   const std::string& fileName) const
 {
-  foreach (vidtk::file_format_base* format, this->Formats)
+  foreach (auto* const format, this->Formats)
     {
     if (format->inspect_file(fileName))
       {
@@ -113,11 +120,11 @@ vdfTrackOracleArchiveSourcePlugin::archivePluginInfo() const
 
   vdfArchivePluginInfo info;
 
-  foreach (vidtk::file_format_base* format, d->Formats)
+  foreach (auto* const format, d->Formats)
     {
     vdfArchiveFileType fileType;
     fileType.Description = qtString(format->format_description());
-    vcl_vector<vcl_string> globs = format->format_globs();
+    std::vector<std::string> globs = format->format_globs();
     for (size_t n = 0, k = globs.size(); n < k; ++n)
       {
       fileType.Patterns.append(qtString(globs[n]));
@@ -147,7 +154,7 @@ vdfDataSource* vdfTrackOracleArchiveSourcePlugin::createArchiveSource(
   QFile file(fileName);
   CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), 0);
 
-  vidtk::file_format_base* format_instance = d->inspect(stdString(fileName));
+  auto* const format_instance = d->inspect(stdString(fileName));
 
   return new vdfTrackOracleTrackDataSource(uri, format_instance);
 }
