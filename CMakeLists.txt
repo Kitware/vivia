@@ -39,8 +39,14 @@ include(CMake/coredeps.cmake)
 
 # We currently build static libraries by default. This might change in the
 # future.
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
+set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
 set(VISGUI_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+if(NOT BUILD_SHARED_LIBS)
+  message(WARNING
+    "Building static libraries has known problems related to Qt meta-objects. "
+    "Any application using plugins will likely crash. "
+    "This configuration is NOT recommended.")
+endif()
 
 # Set default visibility to hidden when building shared
 if(BUILD_SHARED_LIBS)
