@@ -147,7 +147,7 @@ int vpTrackIO::GetTrackTypeIndex(const char* typeName)
 
   vgTrackType type;
   type.SetId(typeName);
-  type.SetColor(0.0, 0.0, 0.0);
+  type.SetColor(0.5, 0.5, 0.0);
 
   this->TrackTypes->AddType(type);
   return this->TrackTypes->GetTypeIndex(typeName);
