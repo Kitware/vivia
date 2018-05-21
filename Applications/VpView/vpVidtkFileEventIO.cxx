@@ -12,10 +12,10 @@
 //-----------------------------------------------------------------------------
 vpVidtkFileEventIO::vpVidtkFileEventIO(
   vpVidtkFileReader& reader,
-  vcl_map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
-  vcl_map<unsigned int, vtkIdType>& sourceEventIdToModelIdMap,
-  const vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
-  const vcl_map<unsigned int, vtkIdType>& sourceTrackIdToModelIdMap,
+  std::map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
+  std::map<unsigned int, vtkIdType>& sourceEventIdToModelIdMap,
+  const std::map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
+  const std::map<unsigned int, vtkIdType>& sourceTrackIdToModelIdMap,
   vtkVgEventModel* eventModel,
   vtkVgEventTypeRegistry* eventTypes) :
   vpVidtkEventIO(reader, eventMap, sourceEventIdToModelIdMap,

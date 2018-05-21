@@ -15,8 +15,8 @@ class vpVidtkFileTrackIO : public vpVidtkTrackIO
 {
 public:
   vpVidtkFileTrackIO(vpVidtkFileReader& reader,
-                     vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
-                     vcl_map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
+                     std::map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
+                     std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                      vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
                      TrackTimeStampMode timeStampMode,

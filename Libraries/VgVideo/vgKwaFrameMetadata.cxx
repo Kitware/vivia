@@ -6,13 +6,14 @@
 
 #include "vgKwaFrameMetadata.h"
 
-#include <vcl_vector.h>
 #include <vil/io/vil_io_image_view.h>
 #include <vnl/io/vnl_io_matrix_fixed.h>
 #include <vnl/io/vnl_io_vector_fixed.h>
 #include <vnl/vnl_matrix_fixed.h>
 #include <vsl/vsl_binary_io.h>
 #include <vsl/vsl_vector_io.h>
+
+#include <vector>
 
 const int vgKwaFrameMetadata::SupportedDataVersion = 3;
 
@@ -53,7 +54,7 @@ vgKwaFrameMetadata::vgKwaFrameMetadata(
 
   vxl_int_64 time;
   vnl_matrix_fixed<double, 3, 3> homography;
-  vcl_vector<vnl_vector_fixed<double, 2> > corners;
+  std::vector<vnl_vector_fixed<double, 2> > corners;
 
   vsl_b_read(stream, time);
   if (!isMeta)
@@ -66,7 +67,7 @@ vgKwaFrameMetadata::vgKwaFrameMetadata(
     else
       {
       char imageFormat;
-      vcl_vector<char> imageData;
+      std::vector<char> imageData;
       vsl_b_read(stream, imageFormat);
       vsl_b_read(stream, imageData);
       }

@@ -26,7 +26,7 @@
 #include <QUrl>
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileReader::ReadTracks(vcl_vector<vidtk::track_sptr>& outTracks)
+bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
 {
   if (this->TracksFileName.empty())
     {
@@ -178,7 +178,7 @@ bool vpVidtkFileReader::ReadTracks(vcl_vector<vidtk::track_sptr>& outTracks)
 }
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileReader::ReadEvents(vcl_vector<vidtk::event_sptr>& events)
+bool vpVidtkFileReader::ReadEvents(std::vector<vidtk::event_sptr>& events)
 {
   if (this->EventsFileName.empty())
     {
@@ -191,7 +191,7 @@ bool vpVidtkFileReader::ReadEvents(vcl_vector<vidtk::event_sptr>& events)
     return false;
     }
 
-  vcl_map<vidtk::event_sptr, unsigned int> stepMap;
+  std::map<vidtk::event_sptr, unsigned int> stepMap;
   if (reader.read(events, stepMap))
     {
     // Build the map of event ids to events that will be needed if we read
@@ -209,7 +209,7 @@ bool vpVidtkFileReader::ReadEvents(vcl_vector<vidtk::event_sptr>& events)
 
 //-----------------------------------------------------------------------------
 bool vpVidtkFileReader::ReadActivities(
-  vcl_vector<vidtk::activity_sptr>& activities)
+  std::vector<vidtk::activity_sptr>& activities)
 {
   if (this->ActivitiesFileName.empty())
     {

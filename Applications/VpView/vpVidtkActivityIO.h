@@ -31,8 +31,8 @@ private:
 
 private:
   vpVidtkReader& Reader;
-  vcl_vector<vidtk::activity_sptr> Activities;
-  vcl_map<vtkVgActivity*, vidtk::activity_sptr> ActivityMap;
+  std::vector<vidtk::activity_sptr> Activities;
+  std::map<vtkVgActivity*, vidtk::activity_sptr> ActivityMap;
 };
 
 #endif // __vpVidtkActivityIO_h

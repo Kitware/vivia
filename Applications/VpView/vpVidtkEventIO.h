@@ -23,10 +23,10 @@ class vpVidtkEventIO : public vpEventIO
 {
 public:
   vpVidtkEventIO(vpVidtkReader& reader,
-                 vcl_map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
-                 vcl_map<unsigned int, vtkIdType>& sourceEventIdToModelIdMap,
-                 const vcl_map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
-                 const vcl_map<unsigned int, vtkIdType>& sourceTrackIdToModelIdMap,
+                 std::map<vtkVgEvent*, vidtk::event_sptr>& eventMap,
+                 std::map<unsigned int, vtkIdType>& sourceEventIdToModelIdMap,
+                 const std::map<vtkVgTrack*, vidtk::track_sptr>& trackMap,
+                 const std::map<unsigned int, vtkIdType>& sourceTrackIdToModelIdMap,
                  vtkVgEventModel* eventModel,
                  vtkVgEventTypeRegistry* eventTypes = 0);
 
@@ -52,11 +52,11 @@ private:
 
 private:
   vpVidtkReader& Reader;
-  vcl_vector<vidtk::event_sptr> Events;
-  vcl_map<vtkVgEvent*, vidtk::event_sptr>& EventMap;
-  vcl_map<unsigned int, vtkIdType>& SourceEventIdToModelIdMap;
-  const vcl_map<vtkVgTrack*, vidtk::track_sptr>& TrackMap;
-  const vcl_map<unsigned int, vtkIdType>& SourceTrackIdToModelIdMap;
+  std::vector<vidtk::event_sptr> Events;
+  std::map<vtkVgEvent*, vidtk::event_sptr>& EventMap;
+  std::map<unsigned int, vtkIdType>& SourceEventIdToModelIdMap;
+  const std::map<vtkVgTrack*, vidtk::track_sptr>& TrackMap;
+  const std::map<unsigned int, vtkIdType>& SourceTrackIdToModelIdMap;
 };
 
 #endif // __vpVidtkEventIO_h
