@@ -95,19 +95,14 @@ bool vdfSimpleCsvTrackDataSource::processArchive(const QUrl&)
     // Read track classification (if present)
     if (reader.seek(0, 9))
       {
-      vvTrackObjectClassification toc;
+      vvTrackObjectClassification& toc = trackTocs[trackId];
       QString typeName;
       double typeConfidence;
 
       while (reader.readString(typeName) && reader.nextValue() &&
             reader.readReal(typeConfidence) && reader.nextValue())
         {
-        toc.emplace(stdString(typeName), typeConfidence);
-        }
-
-      if (!toc.empty())
-        {
-        trackTocs.insert(trackId, toc);
+        toc[stdString(typeName)] += typeConfidence;
         }
       }
     }
@@ -116,12 +111,17 @@ bool vdfSimpleCsvTrackDataSource::processArchive(const QUrl&)
   foreach (const auto& ti, qtEnumerate(tracks))
     {
     const auto id = vdfTrackId{this, ti.key()};
-    const auto toc = trackTocs.value(ti.key());
 
     emit d->TrackSourceInterface->trackUpdated(id, ti.value());
 
+    auto toc = trackTocs.value(ti.key());
     if (!toc.empty())
       {
+      const auto k = 1.0 / static_cast<double>(ti.value().size());
+      for (auto& c : toc)
+        {
+        c.second *= k;
+        }
       emit d->TrackSourceInterface->trackClassificationAvailable(id, toc);
       }
 
