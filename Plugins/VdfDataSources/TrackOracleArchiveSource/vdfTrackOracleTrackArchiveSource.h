@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,10 +9,7 @@
 
 #include <vdfThreadedArchiveSource.h>
 
-namespace vidtk
-{
-  class file_format_base;
-}
+#include "track_oracle_file_format_fwd.h"
 
 class vdfTrackOracleTrackDataSourcePrivate;
 
@@ -22,7 +19,7 @@ class vdfTrackOracleTrackDataSource : public vdfThreadedArchiveSource
 
 public:
   vdfTrackOracleTrackDataSource(
-    const QUrl& archiveUri, vidtk::file_format_base* format,
+    const QUrl& archiveUri, track_oracle::file_format_base* format,
     QObject* parent = 0);
   virtual ~vdfTrackOracleTrackDataSource();
 
