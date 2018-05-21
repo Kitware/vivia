@@ -1281,28 +1281,6 @@ int vtkVgTrack::GetBestPVOClassifier()
 //-----------------------------------------------------------------------------
 void vtkVgTrack::SetTOC(const std::map<int, double>& toc)
 {
-  // Get cumulative confidence
-  static const auto extractConfidence =
-    [](double a, const std::pair<int, double>& p){ return a + p.second; };
-  const auto sum =
-    std::accumulate(toc.begin(), toc.end(), 0.0, extractConfidence);
-
-  // If cumulative confidence is not 1.0 (within some slop), normalize the
-  // input TOC and apply that instead
-  if (fabs(sum - 1.0)> 1e-8)
-    {
-    const auto invSum = 1.0 / sum;
-    std::map<int, double> normalizedToc;
-
-    for (const auto& c : toc)
-      {
-      normalizedToc.emplace(c.first, c.second * invSum);
-      }
-
-    this->SetTOC(normalizedToc);
-    return;
-    }
-
   if (this->TOC == toc)
     {
     return;
