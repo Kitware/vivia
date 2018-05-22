@@ -61,6 +61,7 @@ set(vtkVgCoreSrcs
   vtkVgSelectionListRepresentation.cxx
   vtkVgSelectionRepresentation.cxx
   vtkVgSelectionWidget.cxx
+  vtkVgSGIReader.cxx
   vtkVgSpaceConversion.cxx
   vtkVgTemporalFilters.cxx
   vtkVgTimeStamp.cxx
@@ -131,6 +132,7 @@ set(vtkVgCoreInstallHeaders
   vtkVgSelectionWidget.h
   vtkVgSetGet.h
   vtkVgSharedInstance.h
+  vtkVgSGIReader.h
   vtkVgSpaceConversion.h
   vtkVgTemporalFilters.h
   vtkVgTimeStamp.h
