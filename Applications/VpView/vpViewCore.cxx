@@ -129,6 +129,7 @@
 #include <vtkVgPicker.h>
 #include <vtkVgQtUtil.h>
 #include <vtkVgRendererUtils.h>
+#include <vtkVgSGIReader.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrack.h>
 #include <vtkVgTrackFilter.h>
@@ -1735,6 +1736,7 @@ void vpViewCore::initializeSources()
   RegisterVpImageSource registerMRJImageSouce(&vtkVgMultiResJpgImageReader2::Create);
   RegisterVpImageSource registerJP2ImageSource(&vtkVgImageSource::Create);
   RegisterVpImageSource registerJPEGImageSource(&vtkVgJPEGReader::Create);
+  RegisterVpImageSource registerSGIImageSouce(&vtkVgSGIReader::Create);
 
 #if defined(VISGUI_USE_GDAL)
   RegisterVpImageSource registerGDALImageSource(&vtkVgGDALReader::Create);
