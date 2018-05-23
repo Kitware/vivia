@@ -6,9 +6,9 @@
 
 #include "vtkVgSGIReader.h"
 
-#include <vtkImageAppendComponents.h>
+#include "vtkVgImageBuffer.h"
+
 #include <vtkImageData.h>
-#include <vtkImageImport.h>
 #include <vtkInformation.h>
 #include <vtkInformationVector.h>
 #include <vtkObjectFactory.h>
@@ -78,6 +78,35 @@ void DiskToHardware(Enum& enumValue)
   DiskToHardware(castedValue);
 }
 
+//-----------------------------------------------------------------------------
+template <typename T>
+vtkSmartPointer<vtkImageData>
+readImage(std::ifstream& in, const sgiImageHeader& header, int vtkPixelType,
+          std::function<T(T)> convertPixel)
+{
+  // Allocate storage for image
+  vtkVgImageBuffer buffer{vtkPixelType};
+
+  const size_t i = header.XDimension;
+  const size_t j = header.YDimension;
+  const size_t k = header.ZDimension;
+  const ptrdiff_t is = header.BytesPerPixelChannel;
+  const ptrdiff_t js = is * static_cast<ptrdiff_t>(i);
+  const ptrdiff_t ks = js * static_cast<ptrdiff_t>(j);
+  buffer.SetLayout(i, j, k, is, js, ks);
+  buffer.Allocate();
+
+  const auto bufferSize = static_cast<std::streamsize>(buffer.GetSize());
+  in.read(buffer.GetMutableData(), bufferSize);
+  if (!in.good())
+    {
+    return nullptr;
+    }
+
+  // Convert to vtkImageData
+  return buffer.Convert(convertPixel);
+}
+
 } // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
@@ -133,7 +162,7 @@ bool vtkVgSGIReader::CanRead(const std::string& source)
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
-  // Check if it is a filename or if the argument is just an extension.
+  // Check if it is a file name or if the argument is just an extension.
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(ciSource);
   if (ext.compare(".sgi") == 0 || (ciSource.compare("sgi") == 0) ||
       (ciSource.compare(".sgi") == 0))
@@ -221,10 +250,6 @@ int vtkVgSGIReader::RequestInformation(
       post << (post && *post ? " " : "") << " is not supported."); \
     return 1
 
-  if (header.BytesPerPixelChannel < 1 || header.BytesPerPixelChannel > 2)
-    {
-    NOT_SUPPORTED("", header.NumDimensions, "bytes per pixel channel");
-    }
   if (header.StorageFormat != SGI_SF_Normal)
     {
     // TODO also support RLE?
@@ -245,55 +270,27 @@ int vtkVgSGIReader::RequestInformation(
     }
 
   // Read image data
-  unsigned numImageBytes = header.XDimension * header.YDimension *
-                           header.ZDimension * header.BytesPerPixelChannel;
-  char* imageBytes = new char[numImageBytes];
+  switch (header.BytesPerPixelChannel)
+    {
+    case 1:
+      this->Internal->ImageData =
+        readImage<uint8_t>(in, header, VTK_UNSIGNED_CHAR, nullptr);
+      break;
 
-  in.read(imageBytes, numImageBytes);
-  if (!in.good())
+    case 2:
+      this->Internal->ImageData =
+        readImage<uint16_t>(in, header, VTK_UNSIGNED_SHORT, ntohs);
+      break;
+
+    default:
+      NOT_SUPPORTED("", header.NumDimensions, "bytes per pixel channel");
+    }
+
+  if (!this->Internal->ImageData)
     {
     vtkErrorMacro("Failed to read SGI file image data.");
     return 1;
     }
-
-  // Byte swap input data if needed
-  if (header.BytesPerPixelChannel == 2)
-    {
-    for (unsigned i = 0; i < numImageBytes; ++i)
-      {
-      DiskToHardware(*reinterpret_cast<uint16_t*>(imageBytes + i));
-      }
-    }
-
-  // Convert to vtkImageData
-  const int xExtent = header.XDimension - 1;
-  const int yExtent = header.YDimension - 1;
-  const ptrdiff_t planeStride = header.XDimension * header.YDimension *
-                                header.BytesPerPixelChannel;
-  const int pdt = (header.BytesPerPixelChannel == 1 ? VTK_UNSIGNED_CHAR
-                                                    : VTK_UNSIGNED_SHORT);
-
-  auto components = vtkSmartPointer<vtkImageAppendComponents>::New();
-  std::vector<vtkSmartPointer<vtkImageImport>> importers;
-  for (int c = 0; c < header.ZDimension; ++c)
-    {
-    auto importer = vtkSmartPointer<vtkImageImport>::New();
-
-    importer->SetDataScalarType(pdt);
-    importer->SetNumberOfScalarComponents(1);
-    importer->SetImportVoidPointer(imageBytes + (c * planeStride));
-    importer->SetWholeExtent(0, xExtent, 0, yExtent, 0, 0);
-    importer->SetDataExtentToWholeExtent();
-    importer->Modified();
-    importer->Update();
-
-    components->AddInputConnection(importer->GetOutputPort());
-    importers.push_back(importer);
-    }
-  components->Update();
-
-  this->Internal->ImageData = vtkSmartPointer<vtkImageData>::New();
-  this->Internal->ImageData->ShallowCopy(components->GetOutput());
 
   // Set data on info objects
   int extents[6];

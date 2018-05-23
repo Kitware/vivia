@@ -43,6 +43,7 @@ set(vtkVgCoreSrcs
   vtkVgHull2D.cxx
   vtkVgIcon.cxx
   vtkVgIconManager.cxx
+  vtkVgImageBuffer.cxx
   vtkVgImageIcon.cxx
   vtkVgImageSource.cxx
   vtkVgInteractorStyleRubberBand2D.cxx
@@ -109,6 +110,7 @@ set(vtkVgCoreInstallHeaders
   vtkVgHull2D.h
   vtkVgIcon.h
   vtkVgIconManager.h
+  vtkVgImageBuffer.h
   vtkVgImageIcon.h
   vtkVgImageSource.h
   vtkVgInstance.h
@@ -214,6 +216,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES
   LINK_PUBLIC
   LINK_PRIVATE
+  qtExtensionsHeaders
   vgl
   vgl_algo
   vnl
