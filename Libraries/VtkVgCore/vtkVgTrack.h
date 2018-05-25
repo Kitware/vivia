@@ -104,7 +104,8 @@ public:
                        const float* shellPts,
                        bool interpolateShell = false,
                        vtkPoints* fromShellPoints = 0,
-                       vtkIdType fromShellPtsStart = -1);
+                       vtkIdType fromShellPtsStart = -1,
+                       bool forceSkipInterpolation = false);
 
   // Description:
   // Wrapper around InsertNextPoint to facilitate python wrapping by using a
@@ -123,7 +124,8 @@ public:
   void SetPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                 vtkVgGeoCoord geoCoord,
                 vtkIdType numberOfShellPts = 0, const float* shellPts = 0,
-                vtkPoints* fromShellPts = 0, vtkIdType fromShellPtsStart = -1);
+                vtkPoints* fromShellPts = 0, vtkIdType fromShellPtsStart = -1,
+                bool onlyInterpAfter = false, bool onlyInterpBefore = false);
 
   // Description:
   // Delete track point (and head) at the specified timeStamp.
@@ -390,7 +392,9 @@ private:
                               bool warnOnFailure = true);
 
   void BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
-                           vtkIdType newTrackPtId, const double point[2]);
+                           vtkIdType newTrackPtId, const double point[2],
+                           bool onlyInterpolateAfter = false,
+                           bool onlyInterpolateBefore = false);
 
   int Type;
   vtkIdType Id;
