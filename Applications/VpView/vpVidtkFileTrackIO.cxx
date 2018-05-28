@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -31,9 +31,9 @@ bool vpVidtkFileTrackIO::ReadTracks()
   std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
     this->GetReader()).GetTracksFileName();
 
-  vpFileTrackIOImpl::TrackRegionMapType trackRegionMap;
+  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
-                                     &trackRegionMap);
+                                     trackRegionMap);
 
   if (!vpVidtkTrackIO::ReadTracks(&trackRegionMap))
     {
@@ -51,9 +51,10 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
 {
   std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
     this->GetReader()).GetTracksFileName();
-  vpFileTrackIOImpl::TrackRegionMapType trackRegionMap;
+
+  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
-                                     &trackRegionMap);
+                                     trackRegionMap);
 
   if (!vpVidtkTrackIO::ImportTracks(idsOffset, offsetX, offsetY))
     {
