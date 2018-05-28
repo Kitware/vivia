@@ -866,14 +866,13 @@ void vpVidtkTrackIO::ReadTrack(
             inputPoints = &matchingFrame->Points[0];
             }
 
-          std::back_insert_iterator<std::vector<float> > iter(points);
           for (int i = 0; i < numPoints; ++i, inputPoints += 3)
             {
             double pt[2] = {*inputPoints, *(inputPoints + 1)};
             vtkVgApplyHomography(pt, frameMetaData.Homography, pt);
-            iter = static_cast<float>(pt[0]) + offsetX;
-            iter = static_cast<float>(pt[1]) + offsetY;
-            iter = 0.0f;
+            points.push_back(static_cast<float>(pt[0]) + offsetX);
+            points.push_back(static_cast<float>(pt[1]) + offsetY);
+            points.push_back(0.0f);
             }
           shellPoints = &points[0];
           }
