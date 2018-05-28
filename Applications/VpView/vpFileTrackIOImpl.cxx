@@ -129,7 +129,6 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         }
 
       frameRegion.Points.reserve(numPoints * 3);
-      std::back_insert_iterator<std::vector<float> > iter(frameRegion.Points);
       for (int i = 0; i < numPoints; ++i)
         {
         float x, y;
@@ -138,9 +137,9 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
           {
           y = io->GetImageHeight() - y - 1;
           }
-        iter = x + offsetX;
-        iter = y + offsetY;
-        iter = 0.0f;
+        frameRegion.Points.push_back(x + offsetX);
+        frameRegion.Points.push_back(y + offsetY);
+        frameRegion.Points.push_back(0.0f);
         }
 
       trackRegionMap[id].emplace(frame, frameRegion);
