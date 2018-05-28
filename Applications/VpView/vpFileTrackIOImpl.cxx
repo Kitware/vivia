@@ -108,21 +108,13 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
       }
 
     std::ifstream file(trackRegions.c_str());
-    unsigned int lastId = -1, id;
+    unsigned int id;
     int frame;
     int numPoints;
     bool isKeyFrame;
-    TrackRegions currentTrackMap;
 
     while (file >> id >> frame >> isKeyFrame >> numPoints)
       {
-      if (lastId != -1 && lastId != id)
-        {
-        trackRegionMap.emplace(lastId, currentTrackMap);
-        currentTrackMap.clear();
-        }
-      lastId = id;
-      
       FrameRegionInfo frameRegion;
       frameRegion.KeyFrame = isKeyFrame;
       frameRegion.NumberOfPoints = numPoints;
@@ -132,7 +124,7 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         // because we do not insert the point; instead the interpolated points
         // are recalculated.
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        currentTrackMap.emplace(frame, frameRegion);
+        trackRegionMap[id].insert(std::make_pair(frame, frameRegion));
         continue;
         }
 
@@ -151,13 +143,7 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         iter = 0.0f;
         }
 
-      currentTrackMap.emplace(frame, frameRegion);
-      }
-
-    // Need to insert the last track map we were working on
-    if (lastId != -1)
-      {
-      trackRegionMap.emplace(frame, currentTrackMap);
+      trackRegionMap[id].emplace(frame, frameRegion);
       }
     }
 
