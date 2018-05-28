@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -49,12 +49,12 @@ vpVidtkTrackIO::~vpVidtkTrackIO()
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks()
 {
-  return this->ReadTracks(0);
+  return this->ReadTracks(nullptr);
 }
 
 //-----------------------------------------------------------------------------
 vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
-  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap)
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
 {
   vtkIdType numberOfRegionPoints = 0, numberOfTrackPoints = 0;
   for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
@@ -68,8 +68,8 @@ vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
       static_cast<vtkIdType>(history.back()->time_.frame_number() -
       history.front()->time_.frame_number() + 1);
 
-    vpFileTrackIOImpl::TrackRegionMapType::const_iterator matchingTrackIter;
-    const std::map<int, vpFileTrackIOImpl::FrameRegionInfo>* matchingTrack = 0;
+    vpFileTrackIOImpl::TrackRegionMap::const_iterator matchingTrackIter;
+    const vpFileTrackIOImpl::TrackRegions* matchingTrack = nullptr;
     if (trackRegionMap &&
       (matchingTrackIter = trackRegionMap->find(this->Tracks[i]->id())) !=
       trackRegionMap->end())
@@ -92,7 +92,7 @@ vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
         trkStateIter++)
         {
         unsigned int frame_number = (*trkStateIter)->time_.frame_number();
-        std::map<int, vpFileTrackIOImpl::FrameRegionInfo>::const_iterator
+        vpFileTrackIOImpl::TrackRegions::const_iterator
           matchingFrameIter;
         if (matchingTrack &&
           (matchingFrameIter = matchingTrack->find(frame_number)) !=
@@ -113,7 +113,7 @@ vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
 
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks(
-  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap)
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
 {
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
@@ -159,7 +159,7 @@ bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
 
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i], 0, offsetX, offsetY, false, 0,
+    this->ReadTrack(this->Tracks[i], nullptr, offsetX, offsetY, false, 0,
                     0, idsOffset + this->Tracks[i]->id());
     }
 
@@ -529,8 +529,8 @@ void vpVidtkTrackIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
   for (std::vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
        end = tracks.end(); itr != end; ++itr)
     {
-    this->ReadTrack(*itr, 0, 0.0f, 0.0f, true, updateStartFrame,
-                    updateEndFrame);
+    this->ReadTrack(*itr, nullptr, 0.0f, 0.0f, true,
+                    updateStartFrame, updateEndFrame);
     }
 }
 
@@ -621,7 +621,7 @@ unsigned int vpVidtkTrackIO::GetImageHeight() const
 //-----------------------------------------------------------------------------
 void vpVidtkTrackIO::ReadTrack(
   const vidtk::track_sptr vidtkTrack,
-  const vpFileTrackIOImpl::TrackRegionMapType* trackRegionMap,
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
   float offsetX, float offsetY,
   bool update, unsigned int updateStartFrame, unsigned int updateEndFrame,
   vtkIdType desiredId)
@@ -663,8 +663,8 @@ void vpVidtkTrackIO::ReadTrack(
     newTrack = true;
     }
 
-  vpFileTrackIOImpl::TrackRegionMapType::const_iterator matchingTrackIter;
-  const std::map<int, vpFileTrackIOImpl::FrameRegionInfo>* matchingTrack = 0;
+  vpFileTrackIOImpl::TrackRegionMap::const_iterator matchingTrackIter;
+  const vpFileTrackIOImpl::TrackRegions* matchingTrack = nullptr;
   if (trackRegionMap &&
       (matchingTrackIter = trackRegionMap->find(desiredId)) !=
        trackRegionMap->end())
@@ -719,9 +719,9 @@ void vpVidtkTrackIO::ReadTrack(
     {
     unsigned int frame_number = (*trkStateIter)->time_.frame_number();
 
-    std::map<int, vpFileTrackIOImpl::FrameRegionInfo>::const_iterator
+    vpFileTrackIOImpl::TrackRegions::const_iterator
       matchingFrameIter;
-    const vpFileTrackIOImpl::FrameRegionInfo* matchingFrame = 0;
+    const vpFileTrackIOImpl::FrameRegionInfo* matchingFrame = nullptr;
     if (matchingTrack &&
         (matchingFrameIter = matchingTrack->find(frame_number)) !=
          matchingTrack->end())

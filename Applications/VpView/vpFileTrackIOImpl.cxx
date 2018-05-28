@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -92,7 +92,7 @@ void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
 bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
                                         const std::string& tracksFileName,
                                         float offsetX, float offsetY,
-                                        TrackRegionMapType* trackRegionMap)
+                                        TrackRegionMap& trackRegionMap)
 {
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";
@@ -108,17 +108,17 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
       }
 
     std::ifstream file(trackRegions.c_str());
-    int lastId = -1, id;
+    unsigned int lastId = -1, id;
     int frame;
     int numPoints;
     bool isKeyFrame;
-    std::map<int, FrameRegionInfo> currentTrackMap;
+    TrackRegions currentTrackMap;
 
     while (file >> id >> frame >> isKeyFrame >> numPoints)
       {
       if (lastId != -1 && lastId != id)
         {
-        trackRegionMap->insert(std::make_pair(lastId, currentTrackMap));
+        trackRegionMap.emplace(lastId, currentTrackMap);
         currentTrackMap.clear();
         }
       lastId = id;
@@ -132,7 +132,7 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         // because we do not insert the point; instead the interpolated points
         // are recalculated.
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        currentTrackMap.insert(std::make_pair(frame, frameRegion));
+        currentTrackMap.emplace(frame, frameRegion);
         continue;
         }
 
@@ -151,13 +151,13 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         iter = 0.0f;
         }
 
-      currentTrackMap.insert(std::make_pair(frame, frameRegion));
+      currentTrackMap.emplace(frame, frameRegion);
       }
 
     // Need to insert the last track map we were working on
     if (lastId != -1)
       {
-      trackRegionMap->insert(std::make_pair(lastId, currentTrackMap));
+      trackRegionMap.emplace(frame, currentTrackMap);
       }
     }
 
