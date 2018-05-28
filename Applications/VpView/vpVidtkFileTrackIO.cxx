@@ -28,8 +28,8 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
 //-----------------------------------------------------------------------------
 bool vpVidtkFileTrackIO::ReadTracks()
 {
-  std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
-    this->GetReader()).GetTracksFileName();
+  auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
+  const auto& tracksFileName = reader.GetTracksFileName();
 
   vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
@@ -49,8 +49,8 @@ bool vpVidtkFileTrackIO::ReadTracks()
 bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
                                       float offsetX, float offsetY)
 {
-  std::string tracksFileName = static_cast<const vpVidtkFileReader&>(
-    this->GetReader()).GetTracksFileName();
+  auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
+  const auto& tracksFileName = reader.GetTracksFileName();
 
   vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,

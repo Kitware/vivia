@@ -807,8 +807,8 @@ void vpVidtkTrackIO::ReadTrack(
         if (this->StorageMode == TSM_HomographyTransformedImageCoords)
           {
           // we expect there to be a homography for every frame
-          if (!this->FrameMap->getFrame(frame_number,
-               frameMetaData) || !frameMetaData.Homography)
+          if (!this->FrameMap->getFrame(frame_number, frameMetaData) ||
+              !frameMetaData.Homography)
             {
             std::cerr << "ERROR: Homography for frame # "
               << frame_number
@@ -856,14 +856,14 @@ void vpVidtkTrackIO::ReadTrack(
         const float* shellPoints = bbox;
 
         if (this->StorageMode == TSM_HomographyTransformedImageCoords &&
-          frameMetaData.Homography)
+            frameMetaData.Homography)
           {
           const float* inputPoints = bbox;
           if (matchingFrame)
             {
             numPoints = matchingFrame->NumberOfPoints;
             points.reserve(matchingFrame->Points.size());
-            inputPoints = &matchingFrame->Points[0];
+            inputPoints = matchingFrame->Points.data();
             }
 
           for (int i = 0; i < numPoints; ++i, inputPoints += 3)
@@ -874,13 +874,13 @@ void vpVidtkTrackIO::ReadTrack(
             points.push_back(static_cast<float>(pt[1]) + offsetY);
             points.push_back(0.0f);
             }
-          shellPoints = &points[0];
+          shellPoints = points.data();
           }
         else
           {
           if (matchingFrame)
             {
-            shellPoints = &matchingFrame->Points[0];
+            shellPoints = matchingFrame->Points.data();
             numPoints = matchingFrame->NumberOfPoints;
             }
           }
