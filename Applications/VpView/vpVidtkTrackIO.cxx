@@ -174,6 +174,14 @@ bool vpVidtkTrackIO::ReadTracks(
 bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
                                   float offsetX, float offsetY)
 {
+  return this->ImportTracks(nullptr, idsOffset, offsetX, offsetY);
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkTrackIO::ImportTracks(
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+  vtkIdType idsOffset, float offsetX, float offsetY)
+{
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
   assert(this->StorageMode != TSM_InvertedImageCoords ||
@@ -187,8 +195,8 @@ bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
 
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i], nullptr, offsetX, offsetY, false, 0,
-                    0, idsOffset + this->Tracks[i]->id());
+    this->ReadTrack(this->Tracks[i], trackRegionMap, offsetX, offsetY, false,
+                    0, 0, idsOffset + this->Tracks[i]->id());
     }
 
   return true;

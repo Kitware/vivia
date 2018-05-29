@@ -56,7 +56,8 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
                                      trackRegionMap);
 
-  if (!vpVidtkTrackIO::ImportTracks(idsOffset, offsetX, offsetY))
+  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, idsOffset,
+                                    offsetX, offsetY))
     {
     return false;
     }
