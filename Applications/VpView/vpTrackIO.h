@@ -65,7 +65,7 @@ public:
 
   virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename,
+  virtual bool WriteTracks(const QString& filename,
                            bool writeSceneElements) const = 0;
 
   virtual bool GetNextValidTrackFrame(vtkVgTrack* track,

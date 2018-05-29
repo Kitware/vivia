@@ -286,7 +286,7 @@ bool vpVdfTrackIO::ReadTracks()
 
 //-----------------------------------------------------------------------------
 bool vpVdfTrackIO::WriteTracks(
-  const char* filename, bool writeSceneElements) const
+  const QString& filename, bool writeSceneElements) const
 {
   if (writeSceneElements)
     {
@@ -295,12 +295,11 @@ bool vpVdfTrackIO::WriteTracks(
     }
 
   // Open output file
-  const auto& path = QString::fromLocal8Bit(filename);
-  QFile file{path};
+  QFile file{filename};
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
     qCritical().nospace()
-      << "Failed to open output track file " << path
+      << "Failed to open output track file " << filename
       << ": " << qPrintable(file.errorString());
     return false;
     }

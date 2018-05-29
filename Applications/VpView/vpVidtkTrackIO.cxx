@@ -24,7 +24,9 @@
 #include <tracking_data/pvo_probability.h>
 #include <tracking_data/tracking_keys.h>
 
-#include <assert.h>
+#include <qtStlUtil.h>
+
+#include <cassert>
 
 namespace
 {
@@ -204,7 +206,7 @@ bool vpVidtkTrackIO::ImportTracks(
 }
 
 //-----------------------------------------------------------------------------
-bool vpVidtkTrackIO::WriteTracks(const char* filename,
+bool vpVidtkTrackIO::WriteTracks(const QString& filename,
                                  bool writeSceneElements) const
 {
   if (writeSceneElements)
@@ -215,11 +217,11 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
 
   vidtk::track_writer_process writer("vpVidtkTrackIO::WriteTracks");
 
-  std::string filestr(filename);
-  std::string format = filestr.substr(filestr.rfind('.') + 1);
+  const auto& filestr = stdString(filename);
+  const auto& format = filestr.substr(filestr.rfind('.') + 1);
 
   if (!writer.set_params(
-        writer.params().set_value("filename", filename)
+        writer.params().set_value("filename", filestr)
                        .set_value("overwrite_existing", true)
                        .set_value("format", format)
                        .set_value("disabled", false)))
@@ -247,11 +249,8 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
   bool typesFileOpenFailed = false;
   bool regionsFileOpenFailed = false;
 
-  std::string typesFilename(filename);
-  typesFilename += ".types";
-
-  std::string regionsFilename(filename);
-  regionsFilename += ".regions";
+  const auto& typesFilename = filestr + ".types";
+  const auto& regionsFilename = filestr + ".regions";
 
   // Remove any existing companion files
   vtksys::SystemTools::RemoveFile(typesFilename.c_str());
