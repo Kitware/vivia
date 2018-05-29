@@ -68,6 +68,12 @@ public:
   virtual bool WriteTracks(const QString& filename,
                            bool writeSceneElements) const = 0;
 
+  // Return list of supported output formats as UI strings (e.g. "Foo (*.foo)")
+  virtual QStringList GetSupportedFormats() const = 0;
+
+  // Return default output format (i.e. extension without '.')
+  virtual QString GetDefaultFormat() const = 0;
+
   virtual bool GetNextValidTrackFrame(vtkVgTrack* track,
                                       unsigned int startFrame,
                                       vtkVgTimeStamp& timeStamp) const;

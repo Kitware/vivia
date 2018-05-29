@@ -22,6 +22,7 @@
 #include "vpEventTypeRegistry.h"
 #include "vpFileDataSource.h"
 #include "vpFrameMap.h"
+#include "vpFseTrackIO.h"
 #include "vpImageSourceFactory.h"
 #include "vpInformaticsDialog.h"
 #include "vpModelIO.h"
@@ -34,6 +35,7 @@
 #include "vpSessionView.h"
 #include "vpTimelineDialog.h"
 #include "vpTrackConfig.h"
+#include "vpTrackIO.h"
 #include "vpVideoAnimation.h"
 #include "vtkVpTrackModel.h"
 
@@ -791,11 +793,23 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  QString filter = "*.csv";
-  vgFileDialog fileDialog(0, tr("Export Tracks"), QString(), filter);
+  const auto session = this->SessionView->GetCurrentSession();
+  const auto* project = this->Projects[static_cast<size_t>(session)];
+  const auto* trackIO = project->ModelIO->GetTrackIO();
+  const auto* fseIO = project->ModelIO->GetFseTrackIO();
+
+  auto supportedTypes = trackIO->GetSupportedFormats();
+  if (fseIO)
+    {
+    supportedTypes.append(fseIO->GetSupportedFormats());
+    }
+  supportedTypes.append("All files (*)");
+
+  vgFileDialog fileDialog{qApp->activeWindow(), "Export Tracks",
+                          QString{}, supportedTypes.join(";;")};
   fileDialog.setObjectName("ExportTracks");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-  fileDialog.setDefaultSuffix("csv");
+  fileDialog.setDefaultSuffix(trackIO->GetDefaultFormat());
   if (fileDialog.exec() != QDialog::Accepted)
     {
     return;
@@ -808,17 +822,14 @@ void vpViewCore::exportTracksToFile()
   msgBox.setText("Writing tracks...");
   msgBox.show();
 
-  int session = this->SessionView->GetCurrentSession();
   bool success;
-  if (QFileInfo(filename).suffix() == "json")
+  if (fseIO && QFileInfo(filename).suffix() == "json")
     {
-    success = this->Projects[session]->ModelIO->WriteFseTracks(
-                filename, false);
+    success = fseIO->WriteTracks(filename, false);
     }
   else
     {
-    success = this->Projects[session]->ModelIO->WriteTracks(
-                filename);
+    success = trackIO->WriteTracks(filename, false);
     }
 
   if (!success)

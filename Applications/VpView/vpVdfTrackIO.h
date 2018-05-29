@@ -35,6 +35,9 @@ public:
   virtual bool ReadTracks() QTE_OVERRIDE;
   virtual bool WriteTracks(const QString&, bool) const QTE_OVERRIDE;
 
+  virtual QStringList GetSupportedFormats() const QTE_OVERRIDE;
+  virtual QString GetDefaultFormat() const QTE_OVERRIDE;
+
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);
 

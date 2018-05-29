@@ -285,6 +285,18 @@ bool vpVdfTrackIO::ReadTracks()
 }
 
 //-----------------------------------------------------------------------------
+QStringList vpVdfTrackIO::GetSupportedFormats() const
+{
+  return {{"NOAA CSV tracks (*.csv)"}};
+}
+
+//-----------------------------------------------------------------------------
+QString vpVdfTrackIO::GetDefaultFormat() const
+{
+  return "csv";
+}
+
+//-----------------------------------------------------------------------------
 bool vpVdfTrackIO::WriteTracks(
   const QString& filename, bool writeSceneElements) const
 {

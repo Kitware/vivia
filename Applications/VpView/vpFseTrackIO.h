@@ -45,6 +45,9 @@ public:
   virtual bool WriteTracks(const QString& filename,
                            bool writeSceneElements) const;
 
+  virtual QStringList GetSupportedFormats() const;
+  virtual QString GetDefaultFormat() const;
+
 private:
   std::string TracksFileName;
   unsigned int ImageHeight;

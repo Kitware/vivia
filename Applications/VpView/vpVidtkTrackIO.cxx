@@ -26,6 +26,8 @@
 
 #include <qtStlUtil.h>
 
+#include <QStringList>
+
 #include <cassert>
 
 namespace
@@ -203,6 +205,18 @@ bool vpVidtkTrackIO::ImportTracks(
     }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+QStringList vpVidtkTrackIO::GetSupportedFormats() const
+{
+  return {{"Kitware CSV tracks (*.kw18)"}};
+}
+
+//-----------------------------------------------------------------------------
+QString vpVidtkTrackIO::GetDefaultFormat() const
+{
+  return "kw18";
 }
 
 //-----------------------------------------------------------------------------

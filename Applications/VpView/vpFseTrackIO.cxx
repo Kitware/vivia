@@ -19,6 +19,8 @@
 
 #include <qtStlUtil.h>
 
+#include <QStringList>
+
 #include <json.h>
 
 #include <limits>
@@ -256,6 +258,18 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
     }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+QStringList vpFseTrackIO::GetSupportedFormats() const
+{
+  return {{"Scene Elements (JSON) (*.json)"}};
+}
+
+//-----------------------------------------------------------------------------
+QString vpFseTrackIO::GetDefaultFormat() const
+{
+  return "json";
 }
 
 //-----------------------------------------------------------------------------
