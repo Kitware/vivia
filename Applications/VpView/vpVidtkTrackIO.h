@@ -35,7 +35,8 @@ public:
 
   virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename, bool writeSceneElements) const;
+  virtual bool WriteTracks(const QString& filename,
+                           bool writeSceneElements) const;
 
   void UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                     unsigned int updateStartFrame, unsigned int updateEndFrame);

@@ -17,10 +17,13 @@
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
 
-#include <assert.h>
-#include <limits>
+#include <qtStlUtil.h>
 
 #include <json.h>
+
+#include <limits>
+
+#include <cassert>
 
 //-----------------------------------------------------------------------------
 vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
@@ -255,7 +258,7 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
 }
 
 //-----------------------------------------------------------------------------
-bool vpFseTrackIO::WriteTracks(const char* filename,
+bool vpFseTrackIO::WriteTracks(const QString& filename,
                                bool writeSceneElements) const
 {
   vtkPoints* points = this->TrackModel->GetPoints();
@@ -381,11 +384,11 @@ bool vpFseTrackIO::WriteTracks(const char* filename,
     }
   root.push_back(tracks);
 
-  std::ofstream file(filename, ios::out | ios::trunc | ios::binary);
+  std::ofstream file(stdString(filename), ios::out | ios::trunc | ios::binary);
   if (!file.is_open())
     {
     std::cerr << "ERROR: Failed to write tracks to "
-              << filename << '\n';
+              << qPrintable(filename) << '\n';
     return false;
     }
 
