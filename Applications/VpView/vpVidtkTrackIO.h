@@ -38,6 +38,9 @@ public:
   virtual bool WriteTracks(const QString& filename,
                            bool writeSceneElements) const;
 
+  virtual QStringList GetSupportedFormats() const;
+  virtual QString GetDefaultFormat() const;
+
   void UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                     unsigned int updateStartFrame, unsigned int updateEndFrame);
 

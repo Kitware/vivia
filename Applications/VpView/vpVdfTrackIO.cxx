@@ -19,6 +19,7 @@
 
 #include <vtksys/Glob.hxx>
 
+#include <QStringList>
 #include <QUrl>
 
 namespace
@@ -263,4 +264,16 @@ bool vpVdfTrackIO::ReadTracks()
     }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+QStringList vpVdfTrackIO::GetSupportedFormats() const
+{
+  return {};
+}
+
+//-----------------------------------------------------------------------------
+QString vpVdfTrackIO::GetDefaultFormat() const
+{
+  return {};
 }
