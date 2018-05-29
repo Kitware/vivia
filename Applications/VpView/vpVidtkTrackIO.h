@@ -53,6 +53,9 @@ public:
 protected:
   bool ReadTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
 
+  bool ImportTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+                    vtkIdType idsOffset, float offsetX, float offsetY);
+
   const vpVidtkReader& GetReader() const { return this->Reader; }
 
   virtual unsigned int GetImageHeight() const;
