@@ -47,6 +47,7 @@ struct visgui_track_type :
 
   TRACK_ORACLE_FIELD(tracking, frame_number);
   TRACK_ORACLE_FIELD(tracking, world_location);
+  TRACK_ORACLE_FIELD(tracking, world_gcs);
 
   visgui_track_type()
     {
@@ -54,6 +55,7 @@ struct visgui_track_type :
 
     Frame.add_field(frame_number);
     Frame.add_field(world_location);
+    Frame.add_field(world_gcs);
     }
 };
 

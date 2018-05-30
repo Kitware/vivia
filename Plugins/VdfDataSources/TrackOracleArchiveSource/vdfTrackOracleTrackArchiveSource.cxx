@@ -162,6 +162,7 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
     missingFields.remove(fieldName(schema.bounding_box));
     missingFields.remove(fieldName(schema.obj_location));
     missingFields.remove(fieldName(schema.world_location));
+    missingFields.remove(fieldName(schema.world_gcs));
 
     // Check if any mandatory fields are missing
     if (!missingFields.empty())
@@ -260,6 +261,10 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
             const vgl_point_3d<double>& p = oracle.world_location();
             state.WorldLocation =
               vgGeocodedCoordinate(p.y(), p.x(), vgGeodesy::LatLon_Wgs84);
+            if (oracle.world_gcs.exists() && oracle.world_gcs() > 0)
+              {
+              state.WorldLocation.GCS = oracle.world_gcs();
+              }
             }
 
           // Add state
