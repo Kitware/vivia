@@ -35,6 +35,7 @@ if(TARGET kwiver::track_oracle)
   target_link_libraries(${PROJECT_NAME}
     kwiver::track_oracle
     kwiver::track_oracle_file_formats
+    kwiver::vital
   )
 else()
   target_link_libraries(${PROJECT_NAME}
