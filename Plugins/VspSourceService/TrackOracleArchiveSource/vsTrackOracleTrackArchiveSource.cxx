@@ -34,6 +34,17 @@ namespace track_oracle
 }
 #endif
 
+namespace
+{
+
+//-----------------------------------------------------------------------------
+QString fieldName(const track_oracle::track_field_base& field)
+{
+  return qtString(field.get_field_name());
+}
+
+} // namespace <anonymous>
+
 //-----------------------------------------------------------------------------
 class vsTrackOracleTrackArchiveSourcePrivate : public vsArchiveSourcePrivate
 {
@@ -92,7 +103,7 @@ bool vsTrackOracleTrackArchiveSourcePrivate::processArchive(const QUrl& uri)
     // number
     // TODO Allow missing time value once core supports time mapping
     if (missingFields.count() > 1 ||
-        *missingFields.begin() != "frame_number")
+        *missingFields.begin() != fieldName(schema.frame_number))
       {
       qWarning() << "unable to load tracks from" << uri
                  << "due to missing fields" << missingFields;

@@ -28,16 +28,17 @@
 #include <track_oracle/file_format_base.h>
 #endif
 
-#include <boost/lexical_cast.hpp>
-
 #ifndef KWIVER_TRACK_ORACLE
 namespace track_oracle
 {
   using track_oracle_core = ::vidtk::track_oracle;
 }
+#endif
 
 namespace // anonymous
 {
+
+#ifndef KWIVER_TRACK_ORACLE
 
 //-----------------------------------------------------------------------------
 QUuid qtUuid(const boost::uuids::uuid& in)
@@ -56,8 +57,31 @@ QUuid qtUuid(const boost::uuids::uuid& in)
 #endif
 }
 
-} // namespace <anonymous>
+#else
+
+//-----------------------------------------------------------------------------
+QUuid qtUuid(const kwiver::vital::uid& in)
+{
+  const auto& bytes = qtBytes(in.value());
+  const auto result = QUuid{bytes};
+  if (!result.isNull())
+    {
+    return result;
+    }
+
+  // TODO build UUID from hash of input?
+  return result;
+}
+
 #endif
+
+//-----------------------------------------------------------------------------
+QString fieldName(const track_oracle::track_field_base& field)
+{
+  return qtString(field.get_field_name());
+}
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 class vdfTrackOracleTrackDataSourcePrivate
@@ -132,12 +156,12 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
     //       fields means that every frame will have the same fields, we need
     //       to (and do) test this at the frame level anyway, so it's not
     //       crucial for this to detect such cases
-    missingFields.remove("unique_id");
-    missingFields.remove("timestamp_usecs");
-    missingFields.remove("frame_number");
-    missingFields.remove("bounding_box");
-    missingFields.remove("obj_location");
-    missingFields.remove("world_location");
+    missingFields.remove(fieldName(schema.track_uuid));
+    missingFields.remove(fieldName(schema.timestamp_usecs));
+    missingFields.remove(fieldName(schema.frame_number));
+    missingFields.remove(fieldName(schema.bounding_box));
+    missingFields.remove(fieldName(schema.obj_location));
+    missingFields.remove(fieldName(schema.world_location));
 
     // Check if any mandatory fields are missing
     if (!missingFields.empty())
@@ -160,13 +184,8 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
       oracle(trackHandle);
 
       // Get track ID
-#ifdef KWIVER_TRACK_ORACLE
-      // TODO: Remove this when UUID's are supported by KWIVER's track_oracle
-      const QUuid uuid;
-#else
       const QUuid uuid =
-        (oracle.unique_id.exists() ? qtUuid(oracle.unique_id()) : QUuid());
-#endif
+        (oracle.track_uuid.exists() ? qtUuid(oracle.track_uuid()) : QUuid());
       vdfTrackId id(this, oracle.external_id(), uuid);
 
       // Convert track states
