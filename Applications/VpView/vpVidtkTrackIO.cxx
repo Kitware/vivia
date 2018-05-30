@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,6 +13,7 @@
 #include <vtkVgScalars.h>
 #include <vtkVgTrack.h>
 #include <vtkVgTrackTypeRegistry.h>
+#include <vtkVgUtil.h>
 
 #include <vtkBoundingBox.h>
 #include <vtkMatrix4x4.h>
@@ -24,6 +25,50 @@
 #include <tracking_data/tracking_keys.h>
 
 #include <assert.h>
+
+namespace
+{
+
+//-----------------------------------------------------------------------------
+template <typename T>
+T* getValue(T* item)
+{
+  return item;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
+vbl_smart_ptr<T> getValue(const vbl_smart_ptr<T>* ptr)
+{
+  return (ptr ? *ptr : nullptr);
+}
+
+//-----------------------------------------------------------------------------
+template <typename Key, typename Value>
+auto getValue(const std::pair<Key, Value>* pair)
+  -> decltype(getValue(std::declval<const Value*>()))
+{
+  return (pair ? getValue(std::addressof(pair->second)) : nullptr);
+}
+
+//-----------------------------------------------------------------------------
+template <typename Container, typename Key>
+auto getValue(Container const& c, Key const& key)
+  -> decltype(getValue(std::addressof(*c.find(key))))
+{
+  auto const iter = c.find(key);
+  return getValue(iter == c.end() ? nullptr : std::addressof(*iter));
+}
+
+//-----------------------------------------------------------------------------
+template <typename Container, typename Key>
+auto getValue(Container const* c, Key const& key)
+  -> decltype(getValue(std::addressof(*(c->find(key)))))
+{
+  return (c ? getValue(*c, key) : nullptr);
+}
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 vpVidtkTrackIO::vpVidtkTrackIO(vpVidtkReader& reader,
@@ -48,6 +93,56 @@ vpVidtkTrackIO::~vpVidtkTrackIO()
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks()
 {
+  return this->ReadTracks(nullptr);
+}
+
+//-----------------------------------------------------------------------------
+vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
+{
+  vtkIdType numberOfRegionPoints = 0, numberOfTrackPoints = 0;
+  for (const auto& track : this->Tracks)
+    {
+    const auto& history = track->history();
+
+    // These "Track Points" are the points used to draw the trail - one per
+    // frame of the track
+    numberOfTrackPoints +=
+      static_cast<vtkIdType>(history.back()->time_.frame_number() -
+                             history.front()->time_.frame_number() + 1);
+
+    if (const auto* matchingTrack = getValue(trackRegionMap, track->id()))
+      {
+      // Iterate through the frames, adding the number of points necessary to
+      // represent the head region for each frame
+      for (const auto& trackState : history)
+        {
+        const auto frameNumber = trackState->time_.frame_number();
+        if (const auto* matchingFrame = getValue(matchingTrack, frameNumber))
+          {
+          numberOfRegionPoints += matchingFrame->NumberOfPoints;
+          }
+        else
+          {
+          numberOfRegionPoints += 4;
+          }
+        }
+      }
+    else
+      {
+      // We know that all the regions are "simple" bounding boxes if there is
+      // no matching track in the track region map
+      numberOfRegionPoints += static_cast<vtkIdType>(history.size()) * 4;
+      }
+    }
+
+  return numberOfRegionPoints + numberOfTrackPoints;
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkTrackIO::ReadTracks(
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
+{
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
   assert(this->StorageMode != TSM_InvertedImageCoords ||
@@ -59,39 +154,17 @@ bool vpVidtkTrackIO::ReadTracks()
     return false;
     }
 
-  // Make a quick pass through to find out roughly how many points we should
-  // allocate.
   if (this->TrackModel->GetPoints()->GetNumberOfPoints() == 0)
     {
-    vtkIdType numberOfActualPoints = 0, totalNumberOfMissingFrames = 0;
-    for (size_t i = 0, size = this->Tracks.size(); i < size; ++i)
-      {
-      const vcl_vector<vidtk::track_state_sptr>& history =
-        this->Tracks[i]->history();
-
-      numberOfActualPoints += static_cast<vtkIdType>(history.size());
-      vtkIdType numberOfMissingFrames =
-        static_cast<vtkIdType>(history.back()->time_.frame_number() -
-                               history.front()->time_.frame_number() + 1) -
-        static_cast<vtkIdType>(history.size());
-
-      // Perchance we come up with a negative number, which we shouldn't!
-      if (numberOfMissingFrames > 0)
-        {
-        totalNumberOfMissingFrames += numberOfMissingFrames;
-        }
-      }
-
-    // Should be correct for bbox (4pts) + pt for all actual points, and only
-    // single point for missing frames.
+    // Allocate points in the model based on the number of input points
     this->TrackModel->GetPoints()->Allocate(
-      5 * numberOfActualPoints + totalNumberOfMissingFrames);
+      this->ComputeNumberOfPoints(trackRegionMap));
     }
 
   // Process the newly added tracks.
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i]);
+    this->ReadTrack(this->Tracks[i], trackRegionMap);
     }
 
   return true;
@@ -100,6 +173,14 @@ bool vpVidtkTrackIO::ReadTracks()
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
                                   float offsetX, float offsetY)
+{
+  return this->ImportTracks(nullptr, idsOffset, offsetX, offsetY);
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkTrackIO::ImportTracks(
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+  vtkIdType idsOffset, float offsetX, float offsetY)
 {
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
@@ -114,8 +195,8 @@ bool vpVidtkTrackIO::ImportTracks(vtkIdType idsOffset,
 
   for (size_t i = prevTracksSize, size = this->Tracks.size(); i < size; ++i)
     {
-    this->ReadTrack(this->Tracks[i], offsetX, offsetY, false, 0, 0,
-                    idsOffset + this->Tracks[i]->id());
+    this->ReadTrack(this->Tracks[i], trackRegionMap, offsetX, offsetY, false,
+                    0, 0, idsOffset + this->Tracks[i]->id());
     }
 
   return true;
@@ -190,13 +271,7 @@ bool vpVidtkTrackIO::WriteTracks(const char* filename,
     vidtk::track_sptr track(new vidtk::track);
     track->set_id(modelTrack->GetId());
 
-    vidtk::track_sptr origTrack;
-    std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
-      this->TrackMap.find(modelTrack);
-    if (itr != this->TrackMap.end())
-      {
-      origTrack = itr->second;
-      }
+    const auto& origTrack = getValue(this->TrackMap, modelTrack);
 
     // Write out track type to supplemental text file
     if (!typesFileOpenFailed && modelTrack->GetType() != -1)
@@ -481,10 +556,10 @@ void vpVidtkTrackIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                                   unsigned int updateStartFrame,
                                   unsigned int updateEndFrame)
 {
-  for (std::vector<vidtk::track_sptr>::const_iterator itr = tracks.begin(),
-       end = tracks.end(); itr != end; ++itr)
+  for (const auto& track : tracks)
     {
-    this->ReadTrack(*itr, 0.0f, 0.0f, true, updateStartFrame, updateEndFrame);
+    this->ReadTrack(track, nullptr, 0.0f, 0.0f, true,
+                    updateStartFrame, updateEndFrame);
     }
 }
 
@@ -493,27 +568,18 @@ bool vpVidtkTrackIO::GetNextValidTrackFrame(vtkVgTrack* track,
                                             unsigned int startFrame,
                                             vtkVgTimeStamp& timeStamp) const
 {
-  std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
-    this->TrackMap.find(track);
-  if (itr == this->TrackMap.end())
+  if (const auto& vtrack = getValue(this->TrackMap, track))
     {
-    return false;
-    }
-
-  vidtk::track_sptr vtrack = itr->second;
-  std::vector<vidtk::track_state_sptr>::const_iterator iter;
-  std::vector<vidtk::track_state_sptr>::const_iterator end =
-    vtrack->history().end();
-
-  // search forwards through the track history until we find the start frame
-  // or go past
-  for (iter = vtrack->history().begin(); iter != end; ++iter)
-    {
-    if ((*iter)->time_.frame_number() >= startFrame)
+    // Search forwards through the track history until we find the start frame
+    // or go past
+    for (const auto& state : vtrack->history())
       {
-      timeStamp.SetTime((*iter)->time_.time());
-      timeStamp.SetFrameNumber((*iter)->time_.frame_number());
-      return true;
+      if (state->time_.frame_number() >= startFrame)
+        {
+        timeStamp.SetTime(state->time_.time());
+        timeStamp.SetFrameNumber(state->time_.frame_number());
+        return true;
+        }
       }
     }
 
@@ -525,27 +591,20 @@ bool vpVidtkTrackIO::GetPrevValidTrackFrame(vtkVgTrack* track,
                                             unsigned int startFrame,
                                             vtkVgTimeStamp& timeStamp) const
 {
-  std::map<vtkVgTrack*, vidtk::track_sptr>::const_iterator itr =
-    this->TrackMap.find(track);
-  if (itr == this->TrackMap.end())
+  if (const auto& vtrack = getValue(this->TrackMap, track))
     {
-    return false;
-    }
+    const auto& end = vtrack->history().rend();
 
-  vidtk::track_sptr vtrack = itr->second;
-  std::vector<vidtk::track_state_sptr>::const_reverse_iterator iter;
-  std::vector<vidtk::track_state_sptr>::const_reverse_iterator end
-    = vtrack->history().rend();
-
-  // search backwards through the track history until we find the start frame
-  // or go past
-  for (iter = vtrack->history().rbegin(); iter != end; ++iter)
-    {
-    if ((*iter)->time_.frame_number() <= startFrame)
+    // Search backwards through the track history until we find the start frame
+    // or go past
+    for (auto iter = vtrack->history().rbegin(); iter != end; ++iter)
       {
-      timeStamp.SetTime((*iter)->time_.time());
-      timeStamp.SetFrameNumber((*iter)->time_.frame_number());
-      return true;
+      if ((*iter)->time_.frame_number() <= startFrame)
+        {
+        timeStamp.SetTime((*iter)->time_.time());
+        timeStamp.SetFrameNumber((*iter)->time_.frame_number());
+        return true;
+        }
       }
     }
 
@@ -575,6 +634,7 @@ unsigned int vpVidtkTrackIO::GetImageHeight() const
 //-----------------------------------------------------------------------------
 void vpVidtkTrackIO::ReadTrack(
   const vidtk::track_sptr vidtkTrack,
+  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
   float offsetX, float offsetY,
   bool update, unsigned int updateStartFrame, unsigned int updateEndFrame,
   vtkIdType desiredId)
@@ -616,6 +676,9 @@ void vpVidtkTrackIO::ReadTrack(
     newTrack = true;
     }
 
+  const auto* matchingTrack =
+    getValue(trackRegionMap, static_cast<unsigned int>(desiredId));
+
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
@@ -651,20 +714,33 @@ void vpVidtkTrackIO::ReadTrack(
   unsigned int attrType = 0;
 #endif
 
-  vcl_vector<vidtk::image_object_sptr> objs;
-  vcl_vector<vidtk::track_state_sptr>::const_iterator trkStateIter;
-  for (trkStateIter = trackHistory.begin(); trkStateIter != trackHistory.end();
-       trkStateIter++)
+  std::vector<float> points;
+  // reserve enough space for bbox case (4 points, with x,y,z at each point)
+  points.reserve(12);
+
+  bool skippedInterpolationPointSinceLastInsert = false;
+  std::vector<vidtk::image_object_sptr> objs;
+  for (const auto& trackState : trackHistory)
     {
+    const auto frameNumber = trackState->time_.frame_number();
+    const auto* matchingFrame = getValue(matchingTrack, frameNumber);
+    if (matchingFrame && !matchingFrame->KeyFrame)
+      {
+      // Since this is an interpolated frame, don't set it; the track will
+      // object will handle recomputing interpolated frames
+      // TODO - add option to track class to insert interpolated frames
+      skippedInterpolationPointSinceLastInsert = true;
+      continue;
+      }
+
     // Only look at the frames in the update range.
     if (update)
       {
-      unsigned int frame = (*trkStateIter)->time_.frame_number();
-      if (frame < updateStartFrame)
+      if (frameNumber < updateStartFrame)
         {
         continue;
         }
-      if (frame > updateEndFrame)
+      if (frameNumber > updateEndFrame)
         {
         break;
         }
@@ -673,17 +749,17 @@ void vpVidtkTrackIO::ReadTrack(
     vtkVgTimeStamp timeStamp;
     if (this->TimeStampMode & TSF_FrameNumber)
       {
-      timeStamp.SetFrameNumber((*trkStateIter)->time_.frame_number());
+      timeStamp.SetFrameNumber(frameNumber);
       }
     if (this->TimeStampMode & TSF_Time)
       {
-      timeStamp.SetTime((*trkStateIter)->time_.time());
+      timeStamp.SetTime(trackState->time_.time());
       }
 
-    if ((*trkStateIter)->data_.get(vidtk::tracking_keys::img_objs, objs))
+    if (trackState->data_.get(vidtk::tracking_keys::img_objs, objs))
       {
       double lat, lon;
-      if (!(*trkStateIter)->latitude_longitude(lat, lon))
+      if (!trackState->latitude_longitude(lat, lon))
         {
         const auto& world_loc = objs[0]->get_world_loc();
         lon = world_loc[0];
@@ -696,6 +772,7 @@ void vpVidtkTrackIO::ReadTrack(
       double maxY;
       const auto& vglBBox = objs[0]->get_bbox();
       double pt[4] = {0.0, 0.0, 0.0, 1.0};
+      vpFrame frameMetaData;
       if (this->StorageMode == TSM_TransformedGeoCoords)
         {
         // tracks points stored in geo coordinates, head point in image
@@ -726,14 +803,12 @@ void vpVidtkTrackIO::ReadTrack(
         if (this->StorageMode == TSM_HomographyTransformedImageCoords)
           {
           // we expect there to be a homography for every frame
-          vpFrame frameMetaData;
-          if (!this->FrameMap->getFrame((*trkStateIter)->time_.frame_number(),
-                                        frameMetaData) ||
+          if (!this->FrameMap->getFrame(frameNumber, frameMetaData) ||
               !frameMetaData.Homography)
             {
-            std::cerr << "ERROR: Homgraphy for frame # "
-              << (*trkStateIter)->time_.frame_number()
-              << "is unavailable.  Track point not added!\n";
+            std::cerr << "ERROR: Homography for frame # "
+              << frameNumber
+              << " is unavailable.  Track point not added!\n";
             trackPointAvailable = false;
             }
           else
@@ -761,25 +836,64 @@ void vpVidtkTrackIO::ReadTrack(
           }
         }
 
-      float bbox[] =
-        {
-        offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(minY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(maxY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(maxY), 0.0f,
-        offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(minY), 0.0f
-        };
       // Don't currently have ability to add shell (bbox) without setting a
       // track point, but may at some point.
       if (trackPointAvailable)
         {
-        if (update)
+        // Initialize as if we'll be using bbox
+        int numPoints = 4;
+        float bbox[] =
           {
-          track->SetPoint(timeStamp, pt, geoCoord, 4, bbox);
+          offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(minY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.min_x()), offsetY + static_cast<float>(maxY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(maxY), 0.0f,
+          offsetX + static_cast<float>(vglBBox.max_x()), offsetY + static_cast<float>(minY), 0.0f
+          };
+        const float* shellPoints = bbox;
+
+        if (this->StorageMode == TSM_HomographyTransformedImageCoords &&
+            frameMetaData.Homography)
+          {
+          const float* inputPoints = bbox;
+          if (matchingFrame)
+            {
+            numPoints = matchingFrame->NumberOfPoints;
+            points.reserve(matchingFrame->Points.size());
+            inputPoints = matchingFrame->Points.data();
+            }
+
+          for (int i = 0; i < numPoints; ++i, inputPoints += 3)
+            {
+            double pt[2] = {*inputPoints, *(inputPoints + 1)};
+            vtkVgApplyHomography(pt, frameMetaData.Homography, pt);
+            points.push_back(static_cast<float>(pt[0]) + offsetX);
+            points.push_back(static_cast<float>(pt[1]) + offsetY);
+            points.push_back(0.0f);
+            }
+          shellPoints = points.data();
           }
         else
           {
-          track->InsertNextPoint(timeStamp, pt, geoCoord, 4, bbox);
+          if (matchingFrame)
+            {
+            shellPoints = matchingFrame->Points.data();
+            numPoints = matchingFrame->NumberOfPoints;
+            }
           }
+
+        if (update)
+          {
+          track->SetPoint(timeStamp, pt, geoCoord, numPoints, shellPoints);
+          }
+        else
+          {
+          track->InsertNextPoint(timeStamp, pt, geoCoord, numPoints,
+            shellPoints, skippedInterpolationPointSinceLastInsert);
+          skippedInterpolationPointSinceLastInsert = false;
+          }
+        this->TrackModel->AddKeyframe(track->GetId(), timeStamp);
+
+        points.clear();
         }
 
 #ifdef VPVIEW_ASSIGN_FAKE_TRACK_ATTRIBUTES
@@ -815,7 +929,7 @@ void vpVidtkTrackIO::ReadTrack(
                                static_cast<double>(attrs));
 #else
       attrScalars->InsertValue(timeStamp,
-                               static_cast<double>((*trkStateIter)->get_attrs()));
+                               static_cast<double>(trackState->get_attrs()));
 #endif
       }
     }

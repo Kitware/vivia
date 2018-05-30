@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -48,16 +48,8 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
 }
 
 //-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ReadSupplementalFiles(vpTrackIO* io,
-                                              const std::string& tracksFileName)
-{
-  return ImportSupplementalFiles(io, tracksFileName, 0.0f, 0.0f);
-}
-
-//-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
-                                                const std::string& tracksFileName,
-                                                float offsetX, float offsetY)
+void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
+                                      const std::string& tracksFileName)
 {
   // Look for files containing supplemental track info
   std::string trackTypes(tracksFileName);
@@ -94,7 +86,14 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
       track->SetColor(color[0], color[1], color[2]);
       }
     }
+}
 
+//-----------------------------------------------------------------------------
+bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
+                                        const std::string& tracksFileName,
+                                        float offsetX, float offsetY,
+                                        TrackRegionMap& trackRegionMap)
+{
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";
 
@@ -109,40 +108,27 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
       }
 
     std::ifstream file(trackRegions.c_str());
-    int id;
+    unsigned int id;
     int frame;
     int numPoints;
-    std::vector<float> points;
     bool isKeyFrame;
+
     while (file >> id >> frame >> isKeyFrame >> numPoints)
       {
-      vtkVgTrack* track = io->TrackModel->GetTrack(io->GetModelTrackId(id));
-      if (!track)
+      FrameRegionInfo frameRegion;
+      frameRegion.KeyFrame = isKeyFrame;
+      frameRegion.NumberOfPoints = numPoints;
+      if (!isKeyFrame)
         {
-        std::cerr << trackRegions << ": track " << id
-                  << " does not exist!\n";
+        // If this is an interpolated region, we don't need to read the points
+        // because we do not insert the point; instead the interpolated points
+        // are recalculated.
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        trackRegionMap[id].insert(std::make_pair(frame, frameRegion));
         continue;
         }
 
-      if (numPoints < 3)
-        {
-        std::cerr << trackRegions << ": region for track " << id
-                  << " has an invalid number of points (" << numPoints
-                  << ")\n";
-        continue;
-        }
-
-      vtkVgTimeStamp ts;
-      ts.SetFrameNumber(frame);
-
-      if (isKeyFrame)
-        {
-        io->TrackModel->AddKeyframe(id, ts);
-        }
-
-      points.reserve(numPoints * 3);
-      std::back_insert_iterator<std::vector<float> > iter(points);
-
+      frameRegion.Points.reserve(numPoints * 3);
       for (int i = 0; i < numPoints; ++i)
         {
         float x, y;
@@ -151,24 +137,12 @@ bool vpFileTrackIOImpl::ImportSupplementalFiles(vpTrackIO* io,
           {
           y = io->GetImageHeight() - y - 1;
           }
-        *iter++ = x + offsetX;
-        *iter++ = y + offsetY;
-        *iter++ = 0.0f;
+        frameRegion.Points.push_back(x + offsetX);
+        frameRegion.Points.push_back(y + offsetY);
+        frameRegion.Points.push_back(0.0f);
         }
 
-      // Use the original point supplied in the track file (which should be the
-      // same whether using polygons or bounding boxes).
-      double point[2];
-      if (!track->GetPoint(ts, point, false))
-        {
-        std::cerr << trackRegions << ": region for track " << id
-                  << " does not have a point in track file at frame "
-                  << ts.GetFrameNumber() << '\n';
-        continue;
-        }
-
-      track->SetPoint(ts, point, track->GetGeoCoord(ts), numPoints, &points[0]);
-      points.clear();
+      trackRegionMap[id].emplace(frame, frameRegion);
       }
     }
 

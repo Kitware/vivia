@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -28,13 +28,20 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
 //-----------------------------------------------------------------------------
 bool vpVidtkFileTrackIO::ReadTracks()
 {
-  if (!vpVidtkTrackIO::ReadTracks())
+  auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
+  const auto& tracksFileName = reader.GetTracksFileName();
+
+  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
+  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
+                                     trackRegionMap);
+
+  if (!vpVidtkTrackIO::ReadTracks(&trackRegionMap))
     {
     return false;
     }
-  vpFileTrackIOImpl::ReadSupplementalFiles(
-    this, static_cast<const vpVidtkFileReader&>(
-            this->GetReader()).GetTracksFileName());
+
+  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+
   return true;
 }
 
@@ -42,14 +49,21 @@ bool vpVidtkFileTrackIO::ReadTracks()
 bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
                                       float offsetX, float offsetY)
 {
-  if (!vpVidtkTrackIO::ImportTracks(idsOffset, offsetX, offsetY))
+  auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
+  const auto& tracksFileName = reader.GetTracksFileName();
+
+  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
+  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
+                                     trackRegionMap);
+
+  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, idsOffset,
+                                    offsetX, offsetY))
     {
     return false;
     }
-  vpFileTrackIOImpl::ImportSupplementalFiles(
-    this,
-    static_cast<const vpVidtkFileReader&>(this->GetReader()).GetTracksFileName(),
-    offsetX, offsetY);
+
+  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+
   return true;
 }
 

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -8,6 +8,8 @@
 #define __vpVidtkTrackIO_h
 
 #include "vpTrackIO.h"
+
+#include "vpFileTrackIOImpl.h"
 
 #include <tracking_data/track.h>
 
@@ -49,12 +51,20 @@ public:
   virtual vtkIdType GetModelTrackId(unsigned int sourceId) const;
 
 protected:
+  bool ReadTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
+
+  bool ImportTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+                    vtkIdType idsOffset, float offsetX, float offsetY);
+
   const vpVidtkReader& GetReader() const { return this->Reader; }
 
   virtual unsigned int GetImageHeight() const;
 
 private:
+  vtkIdType ComputeNumberOfPoints(
+    const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
   void ReadTrack(const vidtk::track_sptr vidtkTrack,
+                 const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
                  bool update = false,
                  unsigned int updateStartFrame = 0,
