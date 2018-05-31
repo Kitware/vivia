@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -154,13 +154,16 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.get(prj->AOILowerLeftLatLonTag, prj->AOILowerLeftLatLon);
   blk.get(prj->AOILowerRightLatLonTag, prj->AOILowerRightLatLon);
 
-  if (blk.get(prj->TrackColorOverrideTag, prj->TrackColorOverride))
+  try
     {
+    blk.get(prj->TrackColorOverrideTag, prj->TrackColorOverride);
     prj->HasTrackColorOverride = true;
     }
+  catch (...) {}
 
-  if (blk.get(prj->ImageToGcsMatrixTag,  prj->ImageToGcsMatrixArray))
+  try
     {
+    blk.get(prj->ImageToGcsMatrixTag,  prj->ImageToGcsMatrixArray);
     prj->ImageToGcsMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
     // Get the number of rows and columns
@@ -229,6 +232,7 @@ bool vpProjectParser::Parse(vpProject* prj)
                  << noOfCols << "columns are not supported";
       }
     }
+  catch (...) {}
 
   return true;
 #else // VISGUI_USE_VIDTK
