@@ -24,6 +24,7 @@
 
 #include <QDebug>
 #include <QFile>
+#include <QFileInfo>
 #include <QStringList>
 #include <QTextStream>
 #include <QUrl>
@@ -75,6 +76,17 @@ unsigned int vpVdfTrackIO::GetImageHeight() const
 {
   QTE_D();
   return d->Base->GetImageHeight();
+}
+
+//-----------------------------------------------------------------------------
+QString vpVdfTrackIO::GetImageFile(unsigned int frame) const
+{
+  if (this->ImageDataSource)
+    {
+    const auto fi = static_cast<int>(frame);
+    return qtString(this->ImageDataSource->getDataFile(fi));
+    }
+  return {};
 }
 
 //-----------------------------------------------------------------------------
@@ -334,9 +346,11 @@ bool vpVdfTrackIO::WriteTracks(
     track->InitPathTraversal();
     while (track->GetNextPathPt(ts) >= 0)
       {
+      const auto& imagePath = this->GetImageFile(ts.GetFrameNumber());
+      const auto& imageFile = QFileInfo{imagePath}.fileName();
       const auto& bbox = track->GetHeadBoundingBox(ts);
       s << trackId << ','
-        << /*imageFile <<*/ ','
+        << imageFile << ','
         << ts.GetFrameNumber() << ',';
       if (this->StorageMode == TSM_InvertedImageCoords)
         {
