@@ -39,6 +39,7 @@ protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);
 
   virtual unsigned int GetImageHeight() const;
+  QString GetImageFile(unsigned int) const;
 
 private:
   QTE_DECLARE_PRIVATE(vpVdfTrackIO);
