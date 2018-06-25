@@ -6,6 +6,7 @@
 
 #include "vpVdfTrackIO.h"
 
+#include "vpFileDataSource.h"
 #include "vpFrameMap.h"
 #include "vpVdfIO.h"
 #include "vtkVpTrackModel.h"
@@ -55,9 +56,9 @@ vpVdfTrackIO::vpVdfTrackIO(
   vpVdfIO* base, vtkVpTrackModel* trackModel,
   TrackStorageMode storageMode, TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes, vtkMatrix4x4* geoTransform,
-  vpFrameMap* frameMap)
+  vpFileDataSource* imageDataSource, vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, timeStampMode,
-              trackTypes, geoTransform, frameMap},
+              trackTypes, geoTransform, imageDataSource, frameMap},
     d_ptr{new vpVdfTrackIOPrivate}
 {
   QTE_D();

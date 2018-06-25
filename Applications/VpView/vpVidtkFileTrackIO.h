@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -20,9 +20,10 @@ public:
                      vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
                      TrackTimeStampMode timeStampMode,
-                     vtkVgTrackTypeRegistry* trackTypes = 0,
-                     vtkMatrix4x4* geoTransform = 0,
-                     vpFrameMap* frameMap = 0);
+                     vtkVgTrackTypeRegistry* trackTypes = nullptr,
+                     vtkMatrix4x4* geoTransform = nullptr,
+                     vpFileDataSource* imageDataSource = nullptr,
+                     vpFrameMap* frameMap = nullptr);
 
   virtual bool ReadTracks();
 

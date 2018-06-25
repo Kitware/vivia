@@ -28,6 +28,7 @@ public:
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
                              vtkMatrix4x4* geoTransform,
+                             vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap) QTE_OVERRIDE;
 
   virtual void SetEventModel(vtkVgEventModel* eventModel,
