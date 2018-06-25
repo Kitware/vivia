@@ -26,7 +26,7 @@ public:
     vpVdfIO* base, vtkVpTrackModel* trackModel,
     TrackStorageMode storageMode, TrackTimeStampMode timeStampMode,
     vtkVgTrackTypeRegistry* trackTypes, vtkMatrix4x4* geoTransform,
-    vpFrameMap* frameMap);
+    vpFileDataSource* imageDataSource, vpFrameMap* frameMap);
 
   virtual ~vpVdfTrackIO();
 

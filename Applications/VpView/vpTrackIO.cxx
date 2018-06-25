@@ -42,12 +42,14 @@ vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes,
                      vtkMatrix4x4* geoTransform,
+                     vpFileDataSource* imageDataSource,
                      vpFrameMap* frameMap) :
   TrackModel(trackModel),
   TrackTypes(trackTypes),
   StorageMode(storageMode),
   TimeStampMode(timeStampMode),
   GeoTransform(geoTransform),
+  ImageDataSource(imageDataSource),
   FrameMap(frameMap)
 {
   assert(trackModel);

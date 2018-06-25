@@ -3482,7 +3482,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                     vpTrackIO::TTM_FrameNumberOnly,
                                   this->TrackTypeRegistry,
                                   this->LatLonToWorldMatrix,
-                                  this->FrameMap);
+                                  this->ImageDataSource, this->FrameMap);
 
   project->ModelIO->SetEventModel(project->EventModel, this->EventTypeRegistry);
 
