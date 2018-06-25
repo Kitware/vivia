@@ -838,7 +838,7 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  const auto& filename = fileDialog.selectedFiles().first();
+  const auto filename = fileDialog.selectedFiles().first();
 
   QMessageBox msgBox;
   msgBox.setWindowTitle("Writing tracks...");
