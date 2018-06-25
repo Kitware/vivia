@@ -25,9 +25,10 @@ public:
                  vtkVpTrackModel* trackModel,
                  vpTrackIO::TrackStorageMode storageMode,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
-                 vtkVgTrackTypeRegistry* trackTypes = 0,
-                 vtkMatrix4x4* geoTransform = 0,
-                 vpFrameMap* frameMap = 0);
+                 vtkVgTrackTypeRegistry* trackTypes = nullptr,
+                 vtkMatrix4x4* geoTransform = nullptr,
+                 vpFileDataSource* imageDataSource = nullptr,
+                 vpFrameMap* frameMap = nullptr);
 
   virtual ~vpVidtkTrackIO();
 

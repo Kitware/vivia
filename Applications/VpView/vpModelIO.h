@@ -16,6 +16,7 @@
 
 #include <vector>
 
+class vpFileDataSource;
 class vpFrameMap;
 
 class vpModelIO
@@ -29,6 +30,7 @@ public:
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
                              vtkMatrix4x4* geoTransform,
+                             vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap) = 0;
 
   virtual void SetEventModel(vtkVgEventModel* eventModel,

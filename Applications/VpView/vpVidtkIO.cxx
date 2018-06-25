@@ -22,6 +22,7 @@ void vpVidtkIO::SetTrackModel(vtkVpTrackModel* trackModel,
                               vpTrackIO::TrackTimeStampMode timeStampMode,
                               vtkVgTrackTypeRegistry* trackTypes,
                               vtkMatrix4x4* geoTransform,
+                              vpFileDataSource* imageDataSource,
                               vpFrameMap* frameMap)
 {
   this->TrackMap.clear();
@@ -29,7 +30,7 @@ void vpVidtkIO::SetTrackModel(vtkVpTrackModel* trackModel,
     new vpVidtkTrackIO(this->GetReader(), this->TrackMap,
                        this->SourceTrackIdToModelIdMap,
                        trackModel, storageMode, timeStampMode,
-                       trackTypes, geoTransform, frameMap));
+                       trackTypes, geoTransform, imageDataSource, frameMap));
 }
 
 //-----------------------------------------------------------------------------

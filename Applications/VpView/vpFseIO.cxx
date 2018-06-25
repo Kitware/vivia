@@ -26,11 +26,12 @@ void vpFseIO::SetTrackModel(vtkVpTrackModel* trackModel,
                             vpTrackIO::TrackTimeStampMode timeStampMode,
                             vtkVgTrackTypeRegistry* trackTypes,
                             vtkMatrix4x4* geoTransform,
+                            vpFileDataSource* imageDataSource,
                             vpFrameMap* frameMap)
 {
   QScopedPointer<vpFseTrackIO> io(
-    new vpFseTrackIO(trackModel, storageMode, timeStampMode,
-                     trackTypes, geoTransform, frameMap));
+    new vpFseTrackIO(trackModel, storageMode, timeStampMode, trackTypes,
+                     geoTransform, imageDataSource, frameMap));
   io->SetImageHeight(this->ImageHeight);
   io->SetTracksFileName(this->TracksFilename.c_str());
   this->TrackIO.reset(io.take());

@@ -11,6 +11,7 @@
 
 #include <vtkSmartPointer.h>
 
+class vpFileDataSource;
 class vpFrameMap;
 
 class vtkVpTrackModel;
@@ -52,6 +53,7 @@ public:
             TrackTimeStampMode timeStampMode,
             vtkVgTrackTypeRegistry* trackTypes,
             vtkMatrix4x4* geoTransform,
+            vpFileDataSource* imageDataSource,
             vpFrameMap* frameMap);
 
   virtual ~vpTrackIO();
@@ -94,6 +96,7 @@ protected:
   TrackStorageMode StorageMode;
   TrackTimeStampMode TimeStampMode;
   vtkSmartPointer<vtkMatrix4x4> GeoTransform;
+  vpFileDataSource* ImageDataSource;
   vpFrameMap* FrameMap;
   vgColor OverrideColor;
 };

@@ -80,9 +80,10 @@ vpVidtkTrackIO::vpVidtkTrackIO(vpVidtkReader& reader,
                                TrackTimeStampMode timeStampMode,
                                vtkVgTrackTypeRegistry* trackTypes,
                                vtkMatrix4x4* geoTransform,
+                               vpFileDataSource* imageDataSource,
                                vpFrameMap* frameMap) :
   vpTrackIO(trackModel, storageMode, timeStampMode, trackTypes,
-            geoTransform, frameMap),
+            geoTransform, imageDataSource, frameMap),
   Reader(reader), TrackMap(trackMap), SourceIdToModelIdMap(sourceIdToModelIdMap)
 {}
 
