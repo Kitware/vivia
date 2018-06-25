@@ -895,8 +895,8 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  const auto& filename = fileDialog.selectedFiles().first();
-  const auto& aoiOffset = this->computeAOIOffsetForExport();
+  const auto filename = fileDialog.selectedFiles().first();
+  const auto aoiOffset = this->computeAOIOffsetForExport();
 
   QMessageBox msgBox;
   msgBox.setWindowTitle("Writing tracks...");
