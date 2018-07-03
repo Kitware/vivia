@@ -775,11 +775,11 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  QString filter = "*.kw18;;*.json";
+  QString filter = "*.csv";
   vgFileDialog fileDialog(0, tr("Export Tracks"), QString(), filter);
   fileDialog.setObjectName("ExportTracks");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-  fileDialog.setDefaultSuffix("kw18");
+  fileDialog.setDefaultSuffix("csv");
   if (fileDialog.exec() != QDialog::Accepted)
     {
     return;
