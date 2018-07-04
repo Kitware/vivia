@@ -3421,7 +3421,7 @@ void vqCore::exportIqrModel()
 
   QString path = vgFileDialog::getSaveFileName(
                    qApp->activeWindow(), "Save IQR model...",
-                   QString(), "IQR File (*.iqr);;");
+                   QString(), "IQR File (*.svm);;");
 
   if (path.isEmpty())
     {
