@@ -330,6 +330,12 @@ bool vpVdfTrackIO::WriteTracks(
       toc.emplace(tt, 1.0);
       }
 
+    auto confidence = -1.0;
+    for (const auto& c : toc)
+      {
+      confidence = std::max(confidence, c.second);
+      }
+
     // Iterate over track states
     vtkVgTimeStamp ts;
     track->InitPathTraversal();
@@ -355,7 +361,7 @@ bool vpVdfTrackIO::WriteTracks(
           << bbox.GetBound(1) << ','
           << bbox.GetBound(3) << ',';
         }
-      s << "-1"/*confidence*/ << ','
+      s << confidence << ','
         << "-1"/*scalar*/;
       for (const auto& c : toc)
         {
