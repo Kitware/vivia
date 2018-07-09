@@ -3428,6 +3428,11 @@ void vqCore::exportIqrModel()
     return;
     }
 
+  if (!path.lower().endsWith(".svm"))
+    {
+    path = path + ".svm";
+    }
+
   QFile file(path);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate))
     {
