@@ -3428,7 +3428,7 @@ void vqCore::exportIqrModel()
     return;
     }
 
-  if (!path.lower().endsWith(".svm"))
+  if (!path.toLower().endsWith(".svm"))
     {
     path = path + ".svm";
     }
