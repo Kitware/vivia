@@ -3419,10 +3419,16 @@ void vqCore::exportIqrModel()
     return;
     }
 
-  QString path = vgFileDialog::getSaveFileName(
-                   qApp->activeWindow(), "Save IQR model...",
-                   QString(), "IQR File (*.svm);;");
+  QString filter = "IQR File (*.svm);;";
+  vgFileDialog fileDialog{
+    qApp->activeWindow(), "Save IQR model...", {}, filter};
+  fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+  if (fileDialog.exec() != QDialog::Accepted)
+    {
+    return;
+    }
 
+  QString path = fileDialog.selectedFiles().first();
   if (path.isEmpty())
     {
     return;
