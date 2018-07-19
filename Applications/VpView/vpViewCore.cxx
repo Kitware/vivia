@@ -41,6 +41,14 @@
 #include "vpVidtkFileIO.h"
 #endif
 
+#ifdef VISGUI_USE_KWIVER
+#include "vpKwiverImproveTrackWorker.h"
+#include "vpKwiverVideoSource.h"
+
+#include <vital/plugin_loader/plugin_manager.h>
+#include <vital/types/object_track_set.h>
+#endif
+
 // VTK includes.
 #include <vtkActor.h>
 #include <vtkActor2D.h>
@@ -217,6 +225,10 @@ vpViewCore::vpViewCore() :
   GraphRenderingEnabled(true),
   RulerEnabled(false)
 {
+#ifdef VISGUI_USE_KWIVER
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+#endif
+
   this->initializeDisplay();
   this->initializeData();
   this->initializeScene();
@@ -935,6 +947,112 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
     }
 
   return -1;
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::improveTrack(int trackId, int session)
+{
+#ifdef VISGUI_USE_KWIVER
+  namespace kv = kwiver::vital;
+
+  // Get selected track
+  auto project = this->Projects[session];
+  auto* track = project->TrackModel->GetTrack(trackId);
+
+  if (!track)
+    {
+    return;
+    }
+
+  // Ensure time map is complete
+  if (this->UsingTimeStampData && !this->waitForFrameMapRebuild())
+    {
+    return;
+    }
+
+  // Set up progress dialog
+  QProgressDialog progress;
+  progress.setLabelText("Improving track...");
+  progress.setCancelButton(nullptr);
+
+  // Create video source
+  const auto videoSource =
+    std::make_shared<vpKwiverVideoSource>(this->ImageDataSource);
+  const auto videoHeight =
+    static_cast<double>(project->ModelIO->GetImageHeight());
+
+  // Set up worker
+  vpKwiverImproveTrackWorker worker;
+  if (!worker.initialize(track, project->TrackModel, videoSource, videoHeight))
+    {
+    return;
+    }
+
+  connect(&worker, SIGNAL(progressRangeChanged(int, int)),
+          &progress, SLOT(setRange(int, int)));
+  connect(&worker, SIGNAL(progressValueChanged(int)),
+          &progress, SLOT(setValue(int)));
+
+  // Execute worker and get resulting track
+  auto improvedTrack = worker.execute();
+  if (!improvedTrack)
+    {
+    QMessageBox::critical(0, "Improvement Failed",
+                          "The track could not be improved.");
+    return;
+    }
+
+  // Add the new states to the track
+  const auto& timeMap = this->FrameMap->getTimeMap();
+
+  for (auto s : *improvedTrack)
+    {
+    auto state = std::dynamic_pointer_cast<kv::object_track_state>(s);
+    if (!state || !state->detection)
+      {
+      // Bad state (shouldn't happen, but better safe than SEGV'd)
+      continue;
+      }
+
+    // Get time stamp for frame
+    const auto& ts = [&timeMap](const kv::object_track_state& state){
+      const auto frame = static_cast<unsigned int>(state.frame());
+
+      if (!timeMap.empty())
+        {
+        const auto& ti = timeMap.find(frame);
+        return (ti == timeMap.end() ? vtkVgTimeStamp{}
+                                    : vtkVgTimeStamp{ti->second});
+        }
+
+      return vtkVgTimeStamp{vgTimeStamp::InvalidTime(), frame};
+    }(*state);
+
+    if (!ts.IsValid())
+      {
+      // Unable to resolve time stamp (shouldn't happen?)
+      continue;
+      }
+
+    // Replace track point
+    auto narrow = [](double x){ return static_cast<float>(x); };
+    const auto& bbox = state->detection->bounding_box();
+    const auto points = std::array<float, 12>{{
+      narrow(bbox.min_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
+      narrow(bbox.min_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
+      narrow(bbox.max_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
+      narrow(bbox.max_x()), narrow(videoHeight - bbox.min_y()), 0.0f
+    }};
+
+    const auto& center = bbox.center();
+
+    track->SetPoint(ts, center.data(), {}, 4, points.data());
+    }
+
+
+  project->TrackModel->Modified();
+  emit this->objectInfoUpdateNeeded();
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -4049,15 +4167,7 @@ void vpViewCore::exportForWeb(const char* path, int paddingFrames)
         break;
         }
 
-      vtkIdType npts, *ptIds, ptId;
-      track->GetHeadIdentifier(timeStamp, npts, ptIds, ptId);
-
-      vtkBoundingBox bbox;
-      for (vtkIdType i = 0; i < npts; ++i)
-        {
-        bbox.AddPoint(points->GetPoint(ptIds[i]));
-        }
-
+      auto bbox = track->GetHeadBoundingBox(timeStamp);
       if (bbox.IsValid())
         {
         maxWidth = std::max(maxWidth, bbox.GetLength(0));

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -89,6 +89,7 @@ signals:
   void StopEditingTrack(int sessionId);
   void DeleteTrack(int id, int sessionId);
   void SplitTrack(int id, int sessionId);
+  void ImproveTrack(int id, int sessionId);
 
   void AddEventsToGraphModel(QList<int> ids, int sessionId);
   void AddTrackEventsToGraphModel(int id, int sessionId);
@@ -116,6 +117,7 @@ protected slots:
   void StopEditingTrack();
   void DeleteTrack();
   void SplitTrack();
+  void ImproveTrack();
   void AddEventToActivity();
   void RemoveEventFromActivity();
 

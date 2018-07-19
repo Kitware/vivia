@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,6 +10,7 @@
 #include <vtkObject.h>
 #include <vtkSmartPointer.h>
 #include <vtkDenseArray.h>
+#include <vtkBoundingBox.h>
 
 #include "vtkVgSetGet.h"
 #include "vtkVgTimeStamp.h"
@@ -96,7 +97,7 @@ public:
   // either as a float* or vtkPoints* + start index. Caller should pass 0 in
   // fromShellPts if the shell point data is provided in shellPts. If both are
   // given, only the vtkPoints data will be used.
-  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                        const vtkVgGeoCoord& geoCoord,
                        vtkIdType numberOfShellPts,
                        const float* shellPts,
@@ -107,7 +108,7 @@ public:
   // Description:
   // Wrapper around InsertNextPoint to facilitate python wrapping by using a
   // vtkDenseArray instead of a C-style array with a size argument.
-  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void InsertNextPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                        const vtkVgGeoCoord& geoCoord,
                        vtkDenseArray<double>* shellPts = 0);
 
@@ -118,7 +119,7 @@ public:
   // vtkPoints* + start index. Caller should pass 0 in fromShellPts if the shell
   // point data is provided in shellPts. If both are given, only the vtkPoints
   // data will be used.
-  void SetPoint(const vtkVgTimeStamp& timeStamp, double point[2],
+  void SetPoint(const vtkVgTimeStamp& timeStamp, const double point[2],
                 vtkVgGeoCoord geoCoord,
                 vtkIdType numberOfShellPts = 0, const float* shellPts = 0,
                 vtkPoints* fromShellPts = 0, vtkIdType fromShellPtsStart = -1);
@@ -154,7 +155,10 @@ public:
   // frame numbers are available.
   void GetHeadIdentifier(const vtkVgTimeStamp& timeStamp, vtkIdType& npts,
                          vtkIdType*& pts, vtkIdType& trackPointId,
-                         double tolerance = 0.001);
+                         double tolerance = 0.001) const;
+
+  vtkBoundingBox GetHeadBoundingBox(const vtkVgTimeStamp& timeStamp,
+                                    double tolerance = 0.001) const;
 
   // Description:
   // Return the geo coordinate for given time
@@ -364,7 +368,8 @@ private:
   // in a float array. If both are given, only the vtkPoints data will be used.
   void AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
                               const vtkVgTimeStamp& timeStamp,
-                              double previousPoint[2], double point[2],
+                              const double previousPoint[2],
+                              const double point[2],
                               vtkIdType numShellPts,
                               vtkPoints* fromShellPts,
                               vtkIdType fromShellPtsStart,
@@ -372,7 +377,7 @@ private:
                               bool warnOnFailure = true);
 
   void BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
-                           vtkIdType newTrackPtId, double point[2]);
+                           vtkIdType newTrackPtId, const double point[2]);
 
   int Type;
   vtkIdType Id;
