@@ -4,21 +4,6 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include <QClipboard>
-#include <QComboBox>
-#include <QDoubleSpinBox>
-#include <QEventLoop>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QSettings>
-#include <QSlider>
-#include <QSplitter>
-#include <QTimer>
-#include <QTreeWidget>
-#include <QVBoxLayout>
-#include <QWidget>
-
 #include "ui_vpView.h"
 
 #include "vpApplication.h"
@@ -62,6 +47,22 @@
 #include <qtStlUtil.h>
 #include <qtUtil.h>
 
+#include <QClipboard>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QEventLoop>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QSlider>
+#include <QSplitter>
+#include <QTimer>
+#include <QTreeWidget>
+#include <QVBoxLayout>
+#include <QWidget>
+
 //-----------------------------------------------------------------------------
 class vpView::vtkInternal
 {
@@ -82,6 +83,8 @@ public:
   bool DisableFilterPresetUpdates;
 
   QComboBox* executeModeCombo;
+
+  QSignalMapper* EmbeddedPipelineMapper;
 
   QLabel* Coordinates;
   QLabel* Gsd;
@@ -796,6 +799,31 @@ vpView::vpView()
   this->restoreGeometry(settings.value("geometry").toByteArray());
   this->restoreState(settings.value("state").toByteArray());
   settings.endGroup();
+
+#ifdef VISGUI_USE_KWIVER
+  // Set up KWIVER embedded pipelines
+  this->Internal->EmbeddedPipelineMapper = new QSignalMapper{this};
+  connect(this->Internal->EmbeddedPipelineMapper, SIGNAL(mapped(QString)),
+          this, SLOT(executeEmbeddedPipeline(QString)));
+
+  for (auto i : qtIndexRange(settings.beginReadArray("EmbeddedPipelines")))
+    {
+    settings.setArrayIndex(i);
+    const auto& name = settings.value("Name").toString();
+    const auto& path = settings.value("Path").toString();
+    if (!name.isEmpty() && !path.isEmpty())
+      {
+      this->Internal->UI.actionPipelinePlaceholder->setVisible(false);
+      auto pipelineAction = new QAction{name, this};
+      this->Internal->UI.menuPipeline->addAction(pipelineAction);
+      this->Internal->EmbeddedPipelineMapper->setMapping(pipelineAction, path);
+      connect(pipelineAction, SIGNAL(triggered()),
+              this->Internal->EmbeddedPipelineMapper, SLOT(map()));
+      }
+    }
+  settings.endArray();
+#endif
+  this->Internal->UI.menuPipeline->setEnabled(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -829,6 +857,7 @@ void vpView::onDataLoaded()
 
   this->Internal->UI.menuCamera->setEnabled(true);
   this->Internal->UI.menuEventDisplay->setEnabled(true);
+  this->Internal->UI.menuPipeline->setEnabled(true);
   this->Internal->UI.actionRandomEventColors->setEnabled(true);
   this->Internal->UI.actionChangeTrackColors->setEnabled(true);
   this->Internal->UI.actionPreviousAttribute->setEnabled(true);
@@ -1554,6 +1583,13 @@ void vpView::executeExternalProcess()
   this->Core->startExternalProcess(settings.externalProcessProgram(),
                                    settings.externalProcessArgs(),
                                    settings.externalProcessIOPath());
+}
+
+//-----------------------------------------------------------------------------
+void vpView::executeEmbeddedPipeline(const QString& pipelinePath)
+{
+  const auto session = this->Internal->UI.sessionView->GetCurrentSession();
+  this->Core->executeEmbeddedPipeline(session, pipelinePath);
 }
 
 //-----------------------------------------------------------------------------

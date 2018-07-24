@@ -387,6 +387,8 @@ public:
   void startExternalProcess();
   bool isExternalProcessRunning();
 
+  void executeEmbeddedPipeline(int session, const QString& pipelinePath);
+
   void toWindowCoordinates(double&x, double&y);
   void toWindowCoordinates(double (&xy)[2]);
 

@@ -45,6 +45,7 @@
 #endif
 
 #ifdef VISGUI_USE_KWIVER
+#include "vpKwiverEmbeddedPipelineWorker.h"
 #include "vpKwiverImproveTrackWorker.h"
 #include "vpKwiverVideoSource.h"
 
@@ -8542,6 +8543,44 @@ void vpViewCore::startExternalProcess()
 bool vpViewCore::isExternalProcessRunning()
 {
   return this->ExternalProcess->state() == QProcess::Running;
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::executeEmbeddedPipeline(
+  int session, const QString& pipelinePath)
+{
+#ifdef VISGUI_USE_KWIVER
+  auto project = this->Projects[session];
+
+  // Ensure time map is complete
+  if (this->UsingTimeStampData && !this->waitForFrameMapRebuild())
+    {
+    return;
+    }
+
+  // Set up progress dialog
+  QProgressDialog progress;
+  progress.setLabelText("Executing pipeline...");
+  progress.show();
+
+  // Set up worker
+  vpKwiverEmbeddedPipelineWorker worker;
+  if (!worker.initialize(pipelinePath, this->ImageDataSource,
+                         project->TrackModel))
+    {
+    return;
+    }
+
+  connect(&worker, SIGNAL(progressRangeChanged(int, int)),
+          &progress, SLOT(setRange(int, int)));
+  connect(&worker, SIGNAL(progressValueChanged(int)),
+          &progress, SLOT(setValue(int)));
+  connect(&progress, SIGNAL(canceled()),
+          &worker, SLOT(cancel()));
+
+  // Execute worker
+  worker.execute();
+#endif
 }
 
 //-----------------------------------------------------------------------------

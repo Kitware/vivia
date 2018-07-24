@@ -243,11 +243,13 @@ endif()
 
 if(VISGUI_ENABLE_KWIVER)
   list(APPEND vpViewSources
+    vpKwiverEmbeddedPipelineWorker.cxx
     vpKwiverImproveTrackWorker.cxx
     vpKwiverVideoSource.cxx
   )
 
   list(APPEND vpViewHeaders
+    vpKwiverEmbeddedPipelineWorker.h
     vpKwiverImproveTrackWorker.h
   )
 endif()
@@ -303,6 +305,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 
 if(VISGUI_ENABLE_KWIVER)
   target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+    kwiver::sprokit_tools
+    kwiver::kwiver_adapter
     kwiver::kwiver_algo_vxl
     kwiver::kwiver_algo_core
   )
