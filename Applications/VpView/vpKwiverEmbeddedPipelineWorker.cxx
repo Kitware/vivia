@@ -18,6 +18,7 @@
 #include <QEventLoop>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QThread>
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
@@ -55,6 +56,7 @@ public:
   kwiver::embedded_pipeline pipeline;
 
   std::atomic<bool> canceled = {false};
+  QScopedPointer<QProgressDialog> cancelDialog;
 
   QString error;
 
@@ -200,5 +202,12 @@ void vpKwiverEmbeddedPipelineWorker::execute()
 void vpKwiverEmbeddedPipelineWorker::cancel()
 {
   QTE_D();
+
   d->canceled = true;
+
+  d->cancelDialog.reset(new QProgressDialog);
+  d->cancelDialog->setLabelText("Canceling...");
+  d->cancelDialog->setCancelButton(nullptr);
+  d->cancelDialog->setRange(0, 0);
+  d->cancelDialog->show();
 }
