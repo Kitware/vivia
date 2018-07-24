@@ -194,6 +194,7 @@ public slots:
   void pickTimeInterval();
 
   void executeExternalProcess();
+  void executeEmbeddedPipeline(const QString& pipelinePath);
 
 protected:
   virtual void closeEvent(QCloseEvent*);  // reimplemented from QWidget

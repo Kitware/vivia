@@ -198,6 +198,12 @@
      <addaction name="separator"/>
      <addaction name="actionMergeTracks"/>
     </widget>
+    <widget class="QMenu" name="menuPipeline">
+     <property name="title">
+      <string>Execute &amp;Pipeline</string>
+     </property>
+     <addaction name="actionPipelinePlaceholder"/>
+    </widget>
     <addaction name="actionConfigure"/>
     <addaction name="actionDatabaseQuery"/>
     <addaction name="separator"/>
@@ -206,6 +212,7 @@
     <addaction name="actionAdjudicationMode"/>
     <addaction name="actionExitFollowMode"/>
     <addaction name="separator"/>
+    <addaction name="menuPipeline"/>
     <addaction name="actionExternalProcess"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -1560,6 +1567,14 @@
    </property>
    <property name="toolTip">
     <string>Set end frame of filter to current frame</string>
+   </property>
+  </action>
+  <action name="actionPipelinePlaceholder">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>(No pipelines configured)</string>
    </property>
   </action>
  </widget>
