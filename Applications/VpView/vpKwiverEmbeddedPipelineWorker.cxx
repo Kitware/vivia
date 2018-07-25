@@ -23,6 +23,8 @@
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
+#include <vital/types/object_track_set.h>
+
 #include <arrows/vxl/image_io.h>
 
 #include <atomic>
@@ -54,6 +56,8 @@ public:
 
   kwiver::arrows::vxl::image_io loader;
   kwiver::embedded_pipeline pipeline;
+
+  std::map<kv::track_id_t, kv::track_sptr> tracks;
 
   std::atomic<bool> canceled = {false};
   QScopedPointer<QProgressDialog> cancelDialog;
@@ -123,7 +127,19 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
     // Report progress
     emit q->progressValueChanged(static_cast<int>(currentFrame));
 
-    // TODO do something with data received
+    // Look for tracks
+    auto const& iter = ods->find("object_track_set");
+    if (iter != ods->end())
+    {
+      auto const& tracks =
+        iter->second->get_datum<kv::object_track_set_sptr>();
+
+      // Update internal track collection
+      for (const auto tid : tracks->all_track_ids())
+      {
+        this->tracks[tid] = tracks->get_track(tid);
+      }
+    }
   }
 
   this->pipeline.send_end_of_input();
@@ -196,6 +212,11 @@ void vpKwiverEmbeddedPipelineWorker::execute()
   d->start();
   loop.exec();
   d->wait();
+
+  if (!d->error.isEmpty())
+  {
+    QMessageBox::warning(qApp->activeWindow(), "Pipeline Error", d->error);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -210,4 +231,18 @@ void vpKwiverEmbeddedPipelineWorker::cancel()
   d->cancelDialog->setCancelButton(nullptr);
   d->cancelDialog->setRange(0, 0);
   d->cancelDialog->show();
+}
+
+//-----------------------------------------------------------------------------
+kv::object_track_set_sptr vpKwiverEmbeddedPipelineWorker::tracks() const
+{
+  QTE_D();
+
+  std::vector<kv::track_sptr> tracks;
+  for (const auto ti : d->tracks)
+  {
+    tracks.push_back(ti.second);
+  }
+
+  return std::make_shared<kv::object_track_set>(tracks);
 }

@@ -7,22 +7,33 @@
 #ifndef __vpViewCore_h
 #define __vpViewCore_h
 
-#include <QObject>
-#include <QScopedPointer>
-#include <QSharedPointer>
-#include <QString>
-#include <QStringList>
+#include "vpTrackIO.h"
+
+#include <vtkVgTimeStamp.h>   // Required for vtkVgTimeStamp.
 
 #include <vgAttributeSet.h>
 #include <vgNamespace.h>
 
 #include <vtkSmartPointer.h>   // Required for smart pointer internal ivars.
 
-#include <vtkVgTimeStamp.h>   // Required for vtkVgTimeStamp.
+#include <QObject>
+#include <QScopedPointer>
+#include <QSharedPointer>
+#include <QString>
+#include <QStringList>
 
-#include "vpTrackIO.h"
+#include <map>
+#include <memory>
+#include <vector>
 
-// Forward VTK class declarations
+namespace kwiver
+{
+namespace vital
+{
+class track;
+}
+}
+
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
@@ -98,9 +109,6 @@ class vpTrackConfig;
 class vpVideoAnimation;
 
 class vtkVpTrackModel;
-
-// STL includes.
-#include <vector> // STL required.
 
 class vpViewCore : public QObject
 {
@@ -226,6 +234,10 @@ public:
 
   bool createTrack(int trackId, int session, bool isFse = false);
   int  createEvent(int type, vtkIdList* ids, int session);
+
+  void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
+                   const std::map<unsigned int, vgTimeStamp>& timeMap,
+                   double videoHeight);
 
   void improveTrack(int trackId, int session);
   bool splitTrack(int trackId, int newTrackId, int session);
