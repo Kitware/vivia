@@ -190,6 +190,8 @@
 
 #include <GeographicLib/Geodesic.hpp>
 
+namespace kv = kwiver::vital;
+
 static double TrackEditColor[] = { 1.0, .274, .274 };
 static double SelectedColor[] =  { 1.0, 0.08, 0.58 };
 
@@ -954,8 +956,6 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
 void vpViewCore::improveTrack(int trackId, int session)
 {
 #ifdef VISGUI_USE_KWIVER
-  namespace kv = kwiver::vital;
-
   // Get selected track
   auto project = this->Projects[session];
   auto* track = project->TrackModel->GetTrack(trackId);
@@ -1005,10 +1005,22 @@ void vpViewCore::improveTrack(int trackId, int session)
 
   // Add the new states to the track
   const auto& timeMap = this->FrameMap->getTimeMap();
+  this->updateTrack(track, improvedTrack, timeMap, videoHeight);
 
-  for (auto s : *improvedTrack)
+  project->TrackModel->Modified();
+  emit this->objectInfoUpdateNeeded();
+#endif
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::updateTrack(
+  vtkVgTrack* track, const std::shared_ptr<kv::track>& kwiverTrack,
+  const std::map<unsigned int, vgTimeStamp>& timeMap,
+  double videoHeight)
+{
+#ifdef VISGUI_USE_KWIVER
+  for (auto state : *kwiverTrack | kv::as_object_track)
     {
-    auto state = std::dynamic_pointer_cast<kv::object_track_state>(s);
     if (!state || !state->detection)
       {
       // Bad state (shouldn't happen, but better safe than SEGV'd)
@@ -1049,10 +1061,6 @@ void vpViewCore::improveTrack(int trackId, int session)
 
     track->SetPoint(ts, center.data(), {}, 4, points.data());
     }
-
-
-  project->TrackModel->Modified();
-  emit this->objectInfoUpdateNeeded();
 #endif
 }
 
@@ -8606,6 +8614,40 @@ void vpViewCore::executeEmbeddedPipeline(
 
   // Execute worker
   worker.execute();
+
+  // Check if worker produced tracks
+  const auto& tracks = worker.tracks();
+  if (tracks)
+    {
+    const auto videoHeight =
+      static_cast<double>(project->ModelIO->GetImageHeight());
+    const auto& timeMap = this->FrameMap->getTimeMap();
+
+    auto trackModel = this->Projects[session]->TrackModel;
+
+    // Add tracks produced by pipeline
+    for (const auto tid : tracks->all_track_ids())
+      {
+      if (const auto& kwiverTrack = tracks->get_track(tid))
+        {
+        const auto nextId = trackModel->GetNextAvailableId();
+
+        auto* const newTrack = vtkVgTrack::New();
+        newTrack->InterpolateMissingPointsOnInsertOn();
+        newTrack->SetId(nextId);
+        newTrack->SetPoints(trackModel->GetPoints());
+
+        double color[3];
+        vpTrackIO::GetDefaultTrackColor(nextId, color);
+        newTrack->SetColor(color);
+
+        this->updateTrack(newTrack, kwiverTrack, timeMap, videoHeight);
+
+        trackModel->AddTrack(newTrack);
+        newTrack->FastDelete();
+        }
+      }
+    }
 #endif
 }
 

@@ -11,6 +11,16 @@
 
 #include <QObject>
 
+#include <memory>
+
+namespace kwiver
+{
+namespace vital
+{
+class object_track_set;
+}
+}
+
 class vpFileDataSource;
 class vtkVpTrackModel;
 
@@ -26,6 +36,8 @@ public:
 
   bool initialize(const QString& pipelineFile, vpFileDataSource* dataSource,
                   const vtkVpTrackModel* trackModel);
+
+  std::shared_ptr<kwiver::vital::object_track_set> tracks() const;
 
 public slots:
   void execute();
