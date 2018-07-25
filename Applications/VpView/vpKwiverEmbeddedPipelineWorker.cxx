@@ -46,16 +46,36 @@ const T* get(const std::vector<T>& c, K const& key)
 }
 
 //-----------------------------------------------------------------------------
+class vpKwiverEmbeddedPipelineEndcap : public QThread
+{
+public:
+  vpKwiverEmbeddedPipelineEndcap(vpKwiverEmbeddedPipelineWorkerPrivate* q)
+  : q_ptr{q} {}
+
+protected:
+  QTE_DECLARE_PUBLIC_PTR(vpKwiverEmbeddedPipelineWorkerPrivate)
+
+  virtual void run() override;
+
+private:
+  QTE_DECLARE_PUBLIC(vpKwiverEmbeddedPipelineWorkerPrivate)
+};
+
+//-----------------------------------------------------------------------------
 class vpKwiverEmbeddedPipelineWorkerPrivate : public QThread
 {
 public:
   vpKwiverEmbeddedPipelineWorkerPrivate(vpKwiverEmbeddedPipelineWorker* q)
-  : q_ptr{q} {}
+  : endcap{this}, q_ptr{q} {}
+
+  void reportProgress(int);
 
   std::vector<std::string> framePaths;
 
   kwiver::arrows::vxl::image_io loader;
   kwiver::embedded_pipeline pipeline;
+
+  vpKwiverEmbeddedPipelineEndcap endcap;
 
   std::map<kv::track_id_t, kv::track_sptr> tracks;
 
@@ -88,6 +108,9 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
   const auto image_port = get(ports, "image");
   const auto timestamp_port = get(ports, "timestamp");
 
+  this->endcap.start();
+
+  // Iterate over frames
   for (auto currentFrame : qtIndexRange(totalFrames))
   {
     if (this->canceled)
@@ -114,18 +137,38 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
       ids->add_value(*timestamp_port, ts);
     }
 
-    // Step pipeline
+    // Push data into pipeline
     this->pipeline.send(ids);
-    const auto& ods = this->pipeline.receive();
+  }
+
+  this->pipeline.send_end_of_input();
+  this->pipeline.wait();
+  this->endcap.wait();
+}
+
+//-----------------------------------------------------------------------------
+void vpKwiverEmbeddedPipelineWorkerPrivate::reportProgress(int value)
+{
+  QTE_Q();
+  emit q->progressValueChanged(value);
+}
+
+//-----------------------------------------------------------------------------
+void vpKwiverEmbeddedPipelineEndcap::run()
+{
+  QTE_Q();
+
+  for (int currentFrame = 0;; ++currentFrame)
+  {
+    const auto& ods = q->pipeline.receive();
 
     if (ods->is_end_of_data())
     {
-      this->error = "Pipeline shut down unexpectedly";
       return;
     }
 
     // Report progress
-    emit q->progressValueChanged(static_cast<int>(currentFrame));
+    q->reportProgress(currentFrame);
 
     // Look for tracks
     auto const& iter = ods->find("object_track_set");
@@ -137,13 +180,10 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
       // Update internal track collection
       for (const auto tid : tracks->all_track_ids())
       {
-        this->tracks[tid] = tracks->get_track(tid);
+        q->tracks[tid] = tracks->get_track(tid);
       }
     }
   }
-
-  this->pipeline.send_end_of_input();
-  this->pipeline.wait();
 }
 
 //-----------------------------------------------------------------------------
