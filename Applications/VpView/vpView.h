@@ -196,6 +196,8 @@ public slots:
   void executeExternalProcess();
   void executeEmbeddedPipeline(const QString& pipelinePath);
 
+  void updateTrackFilters();
+
 protected:
   virtual void closeEvent(QCloseEvent*);  // reimplemented from QWidget
 

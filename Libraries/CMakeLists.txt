@@ -13,6 +13,10 @@ if(VISGUI_ENABLE_VSPLAY OR VISGUI_ENABLE_VIQUI)
   add_subdirectory(VvWidgets)
 endif()
 
+if(VISGUI_ENABLE_KWIVER)
+  add_subdirectory(VvKwiver)
+endif()
+
 add_subdirectory(VgVideo)
 
 # VTK dependent libraries

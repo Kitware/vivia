@@ -20,6 +20,8 @@
 #include <vtkObjectFactory.h>
 #include <vtkPoints.h>
 
+#include <algorithm>
+
 vtkStandardNewMacro(vtkVQTrackingClip);
 
 //-----------------------------------------------------------------------------

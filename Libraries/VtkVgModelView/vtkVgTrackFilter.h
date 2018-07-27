@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,9 +7,11 @@
 #ifndef __vtkVgTrackFilter_h
 #define __vtkVgTrackFilter_h
 
-#include "vtkObject.h"
-
 #include <vgExport.h>
+
+#include <vtkObject.h>
+
+#include <map>
 
 class vtkVgTrack;
 
@@ -38,20 +40,26 @@ public:
   double GetMaxProbability(int trackType);
 
   // Description:
-  // Get the highest scoring PVO classifier for a track given the current
+  // Get the highest scoring classifier for a track given the current
   // filter settings. Returns -1 if no classifiers pass the filter.
-  int GetBestClassifier(vtkVgTrack* track);
+  virtual int GetBestClassifier(vtkVgTrack* track);
 
-private:
-  vtkVgTrackFilter(const vtkVgTrackFilter&); // Not implemented.
-  void operator=(const vtkVgTrackFilter&);   // Not implemented.
-
+protected:
   vtkVgTrackFilter();
   ~vtkVgTrackFilter();
 
-  bool   FilterShow[3];
-  double FilterMinProbability[3];
-  double FilterMaxProbability[3];
+  struct FilterSettings
+  {
+    bool Show;
+    double MinProbability;
+    double MaxProbability;
+  };
+
+  std::map<int, FilterSettings> Filters;
+
+private:
+  vtkVgTrackFilter(const vtkVgTrackFilter&) = delete;
+  void operator=(const vtkVgTrackFilter&) = delete;
 };
 
 #endif // __vtkVgTrackFilter_h

@@ -7,8 +7,8 @@
 #include "vpViewCore.h"
 
 #include <vgActivityType.h>
-#include <vgColor.h>
 #include <vgEventType.h>
+#include <vgGeodesy.h>
 #include <vgTrackType.h>
 #include <vgFileDialog.h>
 #include <vgMixerWidget.h>
@@ -39,6 +39,8 @@
 
 #ifdef VISGUI_USE_VIDTK
 #include "vpVidtkFileIO.h"
+#else
+#include "vpVdfIO.h"
 #endif
 
 #ifdef VISGUI_USE_KWIVER
@@ -134,7 +136,9 @@
 #include <vtkVgPNGReader.h>
 #include <vtkVgPickData.h>
 #include <vtkVgPicker.h>
+#include <vtkVgQtUtil.h>
 #include <vtkVgRendererUtils.h>
+#include <vtkVgSGIReader.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrack.h>
 #include <vtkVgTrackFilter.h>
@@ -192,12 +196,25 @@
 
 namespace kv = kwiver::vital;
 
+namespace
+{
+
 static double TrackEditColor[] = { 1.0, .274, .274 };
 static double SelectedColor[] =  { 1.0, 0.08, 0.58 };
 
 enum { DefaultTrackExpiration = 10 };
 
 enum RegionEditMode { REM_Auto, REM_BoundingBox, REM_Polygon };
+
+//-----------------------------------------------------------------------------
+vgGeocodedCoordinate getCorner(
+  const vgGeocodedTile& tile, size_t corner, int gcs)
+{
+  const auto c = vgGeocodedCoordinate{tile.Coordinate[corner], tile.GCS};
+  return vgGeodesy::convertGcs(c, gcs);
+}
+
+} // namespace <anonymous>
 
 // Workaround name collision with macro from WinUser.h
 #undef GetProp
@@ -213,7 +230,7 @@ vpViewCore::vpViewCore() :
   EnableWorldDisplayIfAvailable(true),
   EnableTranslateImage(true),
   CurrentProjectId(0),
-  CurrentTrackColorMode(vtkVgTrackRepresentationBase::TCM_Model),
+  CurrentTrackColorMode(vtkVgTrackRepresentationBase::TCM_TOC),
   Contour(0),
   DrawingContour(false),
   NewTrackId(-1),
@@ -383,8 +400,7 @@ void vpViewCore::importProject()
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId + 1));
   this->ProjectParser->Parse(project.data());
 
-  if (project->AnalysisDimensions[0] == -1.0 ||
-      project->AnalysisDimensions[1] == -1.0)
+  if (!project->AnalysisDimensions.isValid())
     {
     emit this->warningError("The source project does not have valid AOI "
                             "dimensions specified in the project file. "
@@ -395,8 +411,7 @@ void vpViewCore::importProject()
 
   if (this->UseRawImageCoordinates)
     {
-    if (project->AOIUpperLeftLatLon[0] == 444.0 ||
-        project->AOIUpperLeftLatLon[1] == 444.0)
+    if (project->AOI.GCS < 0)
       {
       emit this->warningError("The source project does not have valid AOI "
                               "geocoordinates. It cannot be imported while in "
@@ -406,7 +421,7 @@ void vpViewCore::importProject()
     }
 
   if (QDir::cleanPath(qtString(this->ImageDataSource->getDataSetSpecifier())) !=
-      QDir::cleanPath(qtString(project->DataSetSpecifier)))
+      QDir::cleanPath(project->DataSetSpecifier))
     {
     if (QMessageBox::warning(0, QString(),
                              "The project to be imported has a different "
@@ -439,17 +454,17 @@ void vpViewCore::importProject()
     }
 
   // Point current project's IO manager to the files we are importing from.
-  currentIO->SetTracksFileName(project->TracksFile.c_str());
-  currentIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
-  currentIO->SetEventsFileName(project->EventsFile.c_str());
-  currentIO->SetEventLinksFileName(project->EventLinksFile.c_str());
-  currentIO->SetActivitiesFileName(project->ActivitiesFile.c_str());
-  currentIO->SetFseTracksFileName(project->SceneElementsFile.c_str());
+  currentIO->SetTracksFileName(qPrintable(project->TracksFile));
+  currentIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
+  currentIO->SetEventsFileName(qPrintable(project->EventsFile));
+  currentIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
+  currentIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
+  currentIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
 
   // Temporarily change the AOI height to that of the input project, so that
   // imported object points get y-flipped correctly.
-  SetImageHeight sih(currentIO,
-                     static_cast<unsigned int>(project->AnalysisDimensions[1]));
+  SetImageHeight sih{
+    currentIO, static_cast<unsigned int>(project->AnalysisDimensions.height())};
 
   // Compute the offsets needed to transform the track data to the AOI of the
   // current project.
@@ -458,8 +473,8 @@ void vpViewCore::importProject()
   if (this->UseRawImageCoordinates)
     {
     // Compute the image coordinates of the AOI origin for the source project.
-    double point[4] = { project->AOIUpperLeftLatLon[1],
-                        project->AOIUpperLeftLatLon[0], 0.0, 1.0 };
+    const auto& aoiUL = getCorner(project->AOI, 0, vgGeodesy::LatLon_Wgs84);
+    double point[4] = { aoiUL.Easting, aoiUL.Northing, 0.0, 1.0 };
     this->LatLonToImageReferenceMatrix->MultiplyPoint(point, point);
     if (point[3] != 0)
       {
@@ -474,10 +489,10 @@ void vpViewCore::importProject()
   else if (!this->UseGeoCoordinates)
     {
     // Using inverted image coordinates.
-    offsetX = static_cast<float>(currentProject->OverviewOrigin[0] -
-                                 project->OverviewOrigin[0]);
-    offsetY = static_cast<float>(currentProject->OverviewOrigin[1] -
-                                 project->OverviewOrigin[1]);
+    offsetX = static_cast<float>(currentProject->OverviewOrigin.x() -
+                                 project->OverviewOrigin.x());
+    offsetY = static_cast<float>(currentProject->OverviewOrigin.y() -
+                                 project->OverviewOrigin.y());
     }
   else
     {
@@ -561,8 +576,8 @@ bool vpViewCore::importTracksFromFile(vpProject* project)
       {
       const QString msgFormat =
         "Failed to load tracks from file/pattern \"%1\" (for %2)";
-      emit this->warningError(msgFormat.arg(qtString(project->TracksFile),
-                                            qtString(project->TracksFileTag)));
+      emit this->warningError(msgFormat.arg(project->TracksFile,
+                                            QString{project->TracksFileTag}));
       }
 
     // load track traits file if one was given
@@ -718,7 +733,7 @@ bool vpViewCore::importOverviewFromFile(vpProject* project)
   if (project->IsValid(project->OverviewFile) == vpProject::FILE_EXIST)
     {
     const int levelOfDetailToLoad = 3;
-    this->ImageSource->SetFileName(project->OverviewFile.c_str());
+    this->ImageSource->SetFileName(qPrintable(project->OverviewFile));
     this->ImageSource->SetLevel(levelOfDetailToLoad);
     this->ImageSource->Update();
     this->ImageData[0]->DeepCopy(this->ImageSource->GetOutput());
@@ -741,8 +756,8 @@ bool vpViewCore::importOverviewFromFile(vpProject* project)
       this->ImageData[0]->SetSpacing(
         1 << levelOfDetailToLoad, 1 << levelOfDetailToLoad, 1);
       }
-    this->ImageData[0]->SetOrigin(project->OverviewOrigin[0],
-                                  project->OverviewOrigin[1],
+    this->ImageData[0]->SetOrigin(project->OverviewOrigin.x(),
+                                  project->OverviewOrigin.y(),
                                   0);
     this->emit overviewLoaded();
     }
@@ -759,8 +774,7 @@ bool vpViewCore::importNormalcyMapsFromFile(vpProject* project)
 {
   if (project->IsValid(project->NormalcyMapsFile) == vpProject::FILE_EXIST)
     {
-    return this->NormalcyMaps->LoadFromFile(
-             qtString(project->NormalcyMapsFile));
+    return this->NormalcyMaps->LoadFromFile(project->NormalcyMapsFile);
     }
 
   return false;
@@ -776,11 +790,11 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  QString filter = "*.kw18;;*.json";
+  QString filter = "*.csv";
   vgFileDialog fileDialog(0, tr("Export Tracks"), QString(), filter);
   fileDialog.setObjectName("ExportTracks");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-  fileDialog.setDefaultSuffix("kw18");
+  fileDialog.setDefaultSuffix("csv");
   if (fileDialog.exec() != QDialog::Accepted)
     {
     return;
@@ -1415,7 +1429,7 @@ int vpViewCore::loadIcons(vpProject* project)
   msgBox.setModal(false);
   msgBox.show();
 
-  if (project->IconManager->LoadIcons(project->IconsFile.c_str()) != VTK_OK)
+  if (project->IconManager->LoadIcons(qPrintable(project->IconsFile)) != VTK_OK)
     {
     return VTK_ERROR;
     }
@@ -1537,6 +1551,9 @@ void vpViewCore::initializeAllOthers()
   this->ActivityTypeRegistry        = vtkVgActivityTypeRegistry::New();
   this->EventTypeRegistry           = vpEventTypeRegistry::New();
   this->TrackTypeRegistry           = vtkVgTrackTypeRegistry::New();
+
+  vtkConnect(this->TrackTypeRegistry, vtkCommand::ModifiedEvent,
+    this, SIGNAL(trackTypesModified()));
 
   this->TrackConfig                 = new vpTrackConfig(this->TrackTypeRegistry);
   this->EventConfig                 = new vpEventConfig(this->EventTypeRegistry);
@@ -1774,15 +1791,6 @@ void vpViewCore::initializeScene()
   this->IconOffsetX = this->IconOffsetY = 5;
 
   this->TrackFilter = vtkSmartPointer<vtkVgTrackFilter>::New();
-  this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
-  this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
-  this->TrackFilter->SetShowType(vtkVgTrack::Other, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
 
   this->ContourOperatorManager =
     vtkSmartPointer<vtkVgContourOperatorManager>::New();
@@ -1855,6 +1863,7 @@ void vpViewCore::initializeSources()
   RegisterVpImageSource registerMRJImageSouce(&vtkVgMultiResJpgImageReader2::Create);
   RegisterVpImageSource registerJP2ImageSource(&vtkVgImageSource::Create);
   RegisterVpImageSource registerJPEGImageSource(&vtkVgJPEGReader::Create);
+  RegisterVpImageSource registerSGIImageSouce(&vtkVgSGIReader::Create);
 
 #if defined(VISGUI_USE_GDAL)
   RegisterVpImageSource registerGDALImageSource(&vtkVgGDALReader::Create);
@@ -1944,16 +1953,25 @@ void vpViewCore::setupRenderWidget(QVTKWidget* renderWidget)
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::addTrackFilter(
+  vgMixerWidget* filterWidget, int typeId, const QString& typeName)
+{
+    filterWidget->addItem(typeId, typeName);
+    filterWidget->setValue(typeId, 0.0);
+    this->TrackFilter->SetShowType(typeId, true);
+    this->TrackFilter->SetMinProbability(typeId, 0.0);
+    this->TrackFilter->SetMaxProbability(typeId, 1.0);
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::setupTrackFilters(vgMixerWidget* filterWidget)
 {
-  filterWidget->addItem(vtkVgTrack::Person, "Person");
-  filterWidget->setValue(vtkVgTrack::Person, 0.0);
-
-  filterWidget->addItem(vtkVgTrack::Vehicle, "Vehicle");
-  filterWidget->setValue(vtkVgTrack::Vehicle, 0.0);
-
-  filterWidget->addItem(vtkVgTrack::Other, "Other");
-  filterWidget->setValue(vtkVgTrack::Other, 1.0);
+  for (int i = 0; i < this->TrackConfig->GetNumberOfTypes(); ++i)
+    {
+    const auto& type = this->TrackConfig->GetTrackTypeByIndex(i);
+    this->addTrackFilter(
+      filterWidget, i, QString::fromLocal8Bit(type.GetName()));
+    }
 
   connect(filterWidget, SIGNAL(stateChanged(int, bool)),
           this, SLOT(SetTrackTypeDisplayState(int, bool)));
@@ -2936,21 +2954,32 @@ vpProject* vpViewCore::loadProject(const char* fileName)
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId++));
   this->ProjectParser->Parse(project.data());
 
+  return this->loadProject(project);
+}
+
+//-----------------------------------------------------------------------------
+vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
+{
 #ifdef VISGUI_USE_VIDTK
+
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
-  fileIO->SetTracksFileName(project->TracksFile.c_str());
-  fileIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
-  fileIO->SetEventsFileName(project->EventsFile.c_str());
-  fileIO->SetEventLinksFileName(project->EventLinksFile.c_str());
-  fileIO->SetActivitiesFileName(project->ActivitiesFile.c_str());
-  fileIO->SetFseTracksFileName(project->SceneElementsFile.c_str());
+  fileIO->SetTracksFileName(qPrintable(project->TracksFile));
+  fileIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
+  fileIO->SetEventsFileName(qPrintable(project->EventsFile));
+  fileIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
+  fileIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
+  fileIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
   project->ModelIO = fileIO;
-  return this->processProject(project);
+
 #else
-  QMessageBox::warning(0, QString(),
-                       "Cannot open project files without VidTK support.");
-  return 0;
+
+  QSharedPointer<vpVdfIO> io{new vpVdfIO};
+  io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
+  project->ModelIO = io;
+
 #endif
+
+  return this->processProject(project);
 }
 
 //-----------------------------------------------------------------------------
@@ -2962,7 +2991,7 @@ vpProject* vpViewCore::loadProject(const QSharedPointer<vpModelIO>& modelIO,
   this->ProjectParser->SetUseStream(true);
 
   // Not really a filename, but this string will be used in the UI as a label
-  this->ProjectParser->SetFileName(name);
+  this->ProjectParser->SetFileName(qtString(name));
 
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId++));
   this->ProjectParser->Parse(project.data());
@@ -2993,41 +3022,39 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       }
 
     // Allow user to change the data path if not found
+    const auto dataSet = QFileInfo{project->DataSetSpecifier};
+    const auto& path = dataSet.path();
     std::string substitutePath;
-    size_t pos = project->DataSetSpecifier.find_last_of("/\\");
-    if (pos != std::string::npos)
+    if (!QDir{path}.exists())
       {
-      QString path = qtString(project->DataSetSpecifier.substr(0, pos));
-      if (!QDir(path).exists())
+      if (QMessageBox::warning(
+            0, QString(),
+            QString{"\"%1\" doesn't appear to be a valid path. Would you "
+                    "like to change the base path for project image data?"}
+                    .arg(path), QMessageBox::Yes | QMessageBox::Cancel) ==
+          QMessageBox::Yes)
         {
-        if (QMessageBox::warning(
-              0, QString(),
-              QString("%1\n\ndoesn't appear to be a valid path. Would you "
-                      "like to change the base path for project image data?")
-                      .arg(path), QMessageBox::Ok | QMessageBox::Cancel) ==
-            QMessageBox::Ok)
+        for (;;)
           {
-          for (;;)
+          auto newPath =
+            QInputDialog::getText(0, QString(), "Path:", QLineEdit::Normal,
+                                  path);
+
+          if (newPath.isEmpty())
             {
-            QString newPath =
-              QInputDialog::getText(0, QString(), "Path:", QLineEdit::Normal,
-                                    path);
+            break;
+            }
 
-            if (newPath.isEmpty())
-              {
-              break;
-              }
-
-            if (!QDir(newPath).exists())
-              {
-              QMessageBox::warning(0, QString(), "Path does not exist.");
-              }
-            else
-              {
-              substitutePath = stdString(newPath);
-              project->DataSetSpecifier.replace(0, pos, substitutePath);
-              break;
-              }
+          if (!QDir{newPath}.exists())
+            {
+            QMessageBox::warning(0, QString(), "Path does not exist.");
+            }
+          else
+            {
+            substitutePath = stdString(newPath);
+            project->DataSetSpecifier =
+              QDir{newPath}.filePath(dataSet.fileName());
+            break;
             }
           }
         }
@@ -3064,7 +3091,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
 
     if (!hasFrameMap)
       {
-      this->ImageDataSource->setDataSetSpecifier(project->DataSetSpecifier);
+      this->ImageDataSource->setDataSetSpecifier(
+        stdString(project->DataSetSpecifier));
 
       this->NumberOfFrames =
         static_cast<unsigned int>(this->ImageDataSource->getFileCount());
@@ -3085,7 +3113,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
         case vpProject::FILE_EXIST:
           {
           // Populate the image->time map from text file if available.
-          std::ifstream file(project->ImageTimeMapFile.c_str());
+          std::ifstream file(stdString(project->ImageTimeMapFile));
           if (!file.is_open())
             {
             emit this->warningError("Unable to open image time map file.");
@@ -3115,7 +3143,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
         case vpProject::FILE_EXIST:
           {
           // Populate the image->time map from text file if available.
-          std::ifstream file(project->HomographyIndexFile.c_str());
+          std::ifstream file(stdString(project->HomographyIndexFile));
           if (!file.is_open())
             {
             emit this->warningError("Unable to open Homography index file.");
@@ -3190,8 +3218,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     // find a strategy about it.
 
     // This needs to set regardless.
-    this->ImageSource->SetOrigin(project->OverviewOrigin[0],
-                                 project->OverviewOrigin[1], 0.0);
+    this->ImageSource->SetOrigin(project->OverviewOrigin.x(),
+                                 project->OverviewOrigin.y(), 0.0);
 
     this->ImageSource->SetFileName(
       this->ImageDataSource->getDataFile(
@@ -3250,9 +3278,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
         this->TrackStorageMode = vpTrackIO::TSM_TransformedGeoCoords;
         }
       }
-    else if (this->EnableTranslateImage &&
-             project->AOIUpperLeftLatLon[0] != 444 &&
-             project->AOIUpperLeftLatLon[1] != 444 &&
+    else if (this->EnableTranslateImage && project->AOI.GCS > 0 &&
              this->ImageSource->GetGeoCornerPoints())
       {
       // if both the AOI is specified in lat/lon AND there are lat/lon corner
@@ -3287,10 +3313,10 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       // the reference offset
       if (this->ImageTranslationReferenceLatLon[0] == 444)
         {
-        this->ImageTranslationReferenceLatLon[0] =
-          project->AOIUpperLeftLatLon[0];
-        this->ImageTranslationReferenceLatLon[1] =
-          project->AOIUpperLeftLatLon[1];
+        const auto& aoiUL =
+          getCorner(project->AOI, 0, vgGeodesy::LatLon_Wgs84);
+        this->ImageTranslationReferenceLatLon[0] = aoiUL.Easting;
+        this->ImageTranslationReferenceLatLon[1] = aoiUL.Northing;
         double in[4] = {this->ImageTranslationReferenceLatLon[1],
                         this->ImageTranslationReferenceLatLon[0], 0, 1.0};
         double out[4];
@@ -3342,17 +3368,17 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       }
     else
       {
-      this->WholeImageBounds[0] = project->OverviewOrigin[0];
+      this->WholeImageBounds[0] = project->OverviewOrigin.x();
       this->WholeImageBounds[1] = this->WholeImageBounds[0] + dim[0] - 1;
-      this->WholeImageBounds[2] = project->OverviewOrigin[1];
+      this->WholeImageBounds[2] = project->OverviewOrigin.y();
       this->WholeImageBounds[3] = this->WholeImageBounds[2] + dim[1] - 1;
 
       int aoiExtents[4] =
         {
-        static_cast<int>(-project->OverviewOrigin[0]),
-        static_cast<int>(-project->OverviewOrigin[0] + project->AnalysisDimensions[0] - 1),
-        static_cast<int>(-project->OverviewOrigin[1]),
-        static_cast<int>(-project->OverviewOrigin[1] + project->AnalysisDimensions[1] - 1)
+        static_cast<int>(-project->OverviewOrigin.x()),
+        static_cast<int>(-project->OverviewOrigin.x() + project->AnalysisDimensions.width() - 1),
+        static_cast<int>(-project->OverviewOrigin.y()),
+        static_cast<int>(-project->OverviewOrigin.y() + project->AnalysisDimensions.height() - 1)
         };
 
       this->ImageSource->SetReadExtents(aoiExtents);
@@ -3363,15 +3389,11 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       this->ViewExtents[2] = this->WholeImageBounds[2];
       this->ViewExtents[3] = this->WholeImageBounds[3];
 
-      if (project->AnalysisDimensions[0] == -1)
+      if (!project->AnalysisDimensions.isValid())
         {
-        project->AnalysisDimensions[0] =
-          this->ViewExtents[1] - this->ViewExtents[0] + 1;
-        }
-      if (project->AnalysisDimensions[1] == -1)
-        {
-        project->AnalysisDimensions[1] =
-          this->ViewExtents[3] - this->ViewExtents[2] + 1;
+        project->AnalysisDimensions = {
+          this->ViewExtents[1] - this->ViewExtents[0] + 1,
+          this->ViewExtents[3] - this->ViewExtents[2] + 1};
         }
       }
 
@@ -3400,20 +3422,21 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     }
   else
     {
-    if (QDir::cleanPath(qtString(this->ImageDataSource->getDataSetSpecifier()))
-        != QDir::cleanPath(qtString(project->DataSetSpecifier)))
+    const auto& dataSet =
+      qtString(this->ImageDataSource->getDataSetSpecifier());
+    if (QDir::cleanPath(dataSet) != QDir::cleanPath(project->DataSetSpecifier))
       {
       QString str = "Warning: \"%1\" has a dataset specifier that doesn't match"
                     " the currently loaded data.";
-      emit warningError(str.arg(QFileInfo(qtString(
-        this->ProjectParser->GetProjectFileName())).fileName()));
+      emit warningError(str.arg(QFileInfo{
+        this->ProjectParser->GetProjectFileName()}.fileName()));
       }
     if (project->FrameNumberOffset != this->FrameNumberOffset)
       {
       QString str = "Warning: \"%1\" has a frame number offset that doesn't match"
                     " the currently loaded data.";
-      emit warningError(str.arg(QFileInfo(qtString(
-        this->ProjectParser->GetProjectFileName())).fileName()));
+      emit warningError(str.arg(QFileInfo{
+        this->ProjectParser->GetProjectFileName()}.fileName()));
       }
     }
 
@@ -3443,6 +3466,11 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     project->IconManager->RegisterStaticEventIcon(str, type.GetIconIndex());
     }
 
+
+  const auto trackColorMode =
+    static_cast<vtkVgTrackRepresentationBase::TrackColorMode>(
+      this->CurrentTrackColorMode);
+
   project->TrackRepresentation->UseAutoUpdateOff();
   project->TrackRepresentation->SetTrackModel(project->TrackModel);
   project->TrackRepresentation->SetTrackFilter(this->TrackFilter);
@@ -3450,6 +3478,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackRepresentation->SetZOffset(0.1);
   project->TrackRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
+  project->TrackRepresentation->SetColorMode(trackColorMode);
 
   project->SelectedTrackRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackRepresentation->UseAutoUpdateOff();
@@ -3468,6 +3498,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackHeadRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackHeadRepresentation->SetZOffset(0.1);
   project->TrackHeadRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackHeadRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
+  project->TrackHeadRepresentation->SetColorMode(trackColorMode);
 
   project->SelectedTrackHeadRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackHeadRepresentation->UseAutoUpdateOff();
@@ -3564,10 +3596,10 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   // We only support a single AOI at the moment (that of the original project).
   // If the project being loaded is not the first and doesn't have explicit AOI
   // dimensions in the project file, AnalysisDimensions will be -1 here anyways.
-  unsigned int imageHeight =
-    static_cast<unsigned int>(this->Projects.empty()
-                                ? project->AnalysisDimensions[1]
-                                : this->Projects[0]->AnalysisDimensions[1]);
+  const auto imageHeightF =
+    (this->Projects.empty() ? project->AnalysisDimensions.height()
+                            : this->Projects[0]->AnalysisDimensions.height());
+  const auto imageHeight = static_cast<unsigned int>(imageHeightF);
 
   project->ModelIO->SetImageHeight(imageHeight);
 
@@ -3577,7 +3609,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                     vpTrackIO::TTM_FrameNumberOnly,
                                   this->TrackTypeRegistry,
                                   this->LatLonToWorldMatrix,
-                                  this->FrameMap);
+                                  this->ImageDataSource, this->FrameMap);
 
   project->ModelIO->SetEventModel(project->EventModel, this->EventTypeRegistry);
 
@@ -3599,10 +3631,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     project->Picker->SetImageActor(this->ImageActor[0]);
     }
 
-  if (project->HasTrackColorOverride)
-    {
-    project->ModelIO->SetTrackOverrideColor(project->TrackColorOverride);
-    }
+  project->ModelIO->SetTrackOverrideColor(project->TrackColorOverride);
 
   bool tracksImportSuccessful =
     this->importTracksFromFile(project.data());
@@ -3636,24 +3665,24 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   vpProject* projPtr = project.take();
   this->Projects.push_back(projPtr);
 
-  if (projPtr->Name.empty())
+  if (projPtr->Name.isEmpty())
     {
-    QFileInfo fi(qtString(this->ProjectParser->GetProjectFileName()));
-    projPtr->Name = stdString(fi.fileName());
+    QFileInfo fi{this->ProjectParser->GetProjectFileName()};
+    projPtr->Name = fi.fileName();
     }
   this->SessionView->AddSession(this, projPtr->ActivityManager,
                                 projPtr->EventModel, projPtr->TrackModel,
                                 this->EventFilter, this->TrackFilter,
                                 this->EventTypeRegistry,
                                 this->TrackTypeRegistry,
-                                projPtr->Name.c_str());
+                                projPtr->Name);
 
 
 
   // Load bundled filters
   if (projPtr->IsValid(projPtr->FiltersFile) == vpProject::FILE_EXIST)
     {
-    this->loadFilters(projPtr->FiltersFile.c_str());
+    this->loadFilters(qPrintable(projPtr->FiltersFile));
     }
 
   // Prevent the interactor from rendering the window before we have performed
@@ -3760,7 +3789,7 @@ void vpViewCore::writeSpatialFilter(
   else
     {
     // Normal inverted-y coord mode, just unflip the filter points
-    double maxY = this->Projects[0]->AnalysisDimensions[1] - 1;
+    double maxY = this->Projects[0]->AnalysisDimensions.height() - 1.0;
     for (vtkIdType i = 0, npts = filterPoints->GetNumberOfPoints(); i < npts;
          ++i)
       {
@@ -4068,12 +4097,12 @@ void vpViewCore::exportForWeb(const char* path, int paddingFrames)
   int currentExtents[4];
   int aoiExtents[4] =
     {
-    static_cast<int>(-this->Projects[0]->OverviewOrigin[0]),
-    static_cast<int>(-this->Projects[0]->OverviewOrigin[0] +
-                     this->Projects[0]->AnalysisDimensions[0] - 1),
-    static_cast<int>(-this->Projects[0]->OverviewOrigin[1]),
-    static_cast<int>(-this->Projects[0]->OverviewOrigin[1] +
-                     this->Projects[0]->AnalysisDimensions[1] - 1)
+    static_cast<int>(-this->Projects[0]->OverviewOrigin.x()),
+    static_cast<int>(-this->Projects[0]->OverviewOrigin.x() +
+                     this->Projects[0]->AnalysisDimensions.width() - 1),
+    static_cast<int>(-this->Projects[0]->OverviewOrigin.y()),
+    static_cast<int>(-this->Projects[0]->OverviewOrigin.y() +
+                     this->Projects[0]->AnalysisDimensions.height() - 1)
     };
 
   this->ImageSource->GetReadExtents(currentExtents);
@@ -4301,8 +4330,8 @@ again:
       points->GetPoint(id, point);
 
       // TODO: Transform world-based points
-      point[0] -= project->OverviewOrigin[0];
-      point[1] -= project->OverviewOrigin[1];
+      point[0] -= project->OverviewOrigin.x();
+      point[1] -= project->OverviewOrigin.y();
 
       // compute the cropped region of the image
       int extents[6];
@@ -4356,8 +4385,8 @@ again:
             {
             double point[3];
             points->GetPoint(ptIds[i], point);
-            point[0] -= project->OverviewOrigin[0];
-            point[1] -= project->OverviewOrigin[1];
+            point[0] -= project->OverviewOrigin.x();
+            point[1] -= project->OverviewOrigin.y();
             bbox.AddPoint(point);
             }
 
@@ -4766,12 +4795,13 @@ CreateInformaticsDisplay(int vtkNotUsed(x), int vtkNotUsed(y), vtkImageData* vtk
 {
   if (!this->Projects[0]->IsValid(this->Projects[0]->InformaticsIconFile))
     {
-    std::cerr << "ERROR: File ( " << this->Projects[0]->InformaticsIconFile
-              << " ) does not exist or is invalid." << std::endl;
+    qWarning() << "ERROR: File" << this->Projects[0]->InformaticsIconFile
+               << "does not exist or is invalid.";
     return;
     }
 
-  this->InformaticsDialog->SetIconsFile(this->Projects[0]->InformaticsIconFile);
+  this->InformaticsDialog->SetIconsFile(
+    stdString(this->Projects[0]->InformaticsIconFile));
   this->InformaticsDialog->Initialize();
   this->InformaticsDialog->exec();
 }
@@ -5207,8 +5237,9 @@ void vpViewCore::forceUpdate()
         for (size_t i = 0, end = this->Projects.size(); i < end; ++i)
           {
           vpProject* project = this->Projects[i];
-          double in[4] = {project->AOIUpperLeftLatLon[1],
-                          project->AOIUpperLeftLatLon[0], 0, 1.0};
+          const auto& aoiUL =
+            getCorner(project->AOI, 0, vgGeodesy::LatLon_Wgs84);
+          double in[4] = {aoiUL.Easting, aoiUL.Northing, 0.0, 1.0};
           double out[4];
           this->LatLonToImageMatrix->MultiplyPoint(in, out);
           if (out[3] != 0)
@@ -5657,17 +5688,7 @@ void vpViewCore::SetTrackTypeDisplayState(int trackType, bool state)
 //-----------------------------------------------------------------------------
 void vpViewCore::SetTrackTypeProbabilityLimit(int trackType, double prob)
 {
-  // HACK: Invert the sense of the Other filter, so that it becomes low-pass
-  // rather than high-pass. This should be configurable in the UI, via a range
-  // slider filter or some other means.
-  if (trackType == vtkVgTrack::Other)
-    {
-    this->TrackFilter->SetMaxProbability(trackType, prob);
-    }
-  else
-    {
-    this->TrackFilter->SetMinProbability(trackType, prob);
-    }
+  this->TrackFilter->SetMinProbability(trackType, prob);
   this->update();
 }
 
@@ -5741,56 +5762,24 @@ void vpViewCore::createDisplayOutline(vpProject* project)
 
   if (this->UseGeoCoordinates)
     {
-    if (project->AOIUpperLeftLatLon[0] != 444)
+    if (project->AOI.GCS > 0)
       {
-      double ul[] = { project->AOIUpperLeftLatLon[1],
-                      project->AOIUpperLeftLatLon[0], 0.0, 1.0 };
-      this->LatLonToWorldMatrix->MultiplyPoint(ul, ul);
-      ul[0] /= ul[3];
-      ul[1] /= ul[3];
-      if (project->AOILowerRightLatLon[0] != 444)
-        {
-        double lr[] = { project->AOILowerRightLatLon[1],
-                        project->AOILowerRightLatLon[0], 0.0, 1.0 };
-        this->LatLonToWorldMatrix->MultiplyPoint(lr, lr);
-        lr[0] /= lr[3];
-        lr[1] /= lr[3];
-        if (project->AOILowerLeftLatLon[0] != 444 &&
-            project->AOIUpperRightLatLon[0] != 444)
-          {
-          // All 4 corners.
-          double ll[] = { project->AOILowerLeftLatLon[1],
-                          project->AOILowerLeftLatLon[0], 0.0, 1.0 };
-          this->LatLonToWorldMatrix->MultiplyPoint(ll, ll);
-          ll[0] /= ll[3];
-          ll[1] /= ll[3];
-          double ur[] = { project->AOIUpperRightLatLon[1],
-                          project->AOIUpperRightLatLon[0], 0.0, 1.0 };
-          this->LatLonToWorldMatrix->MultiplyPoint(ur, ur);
-          ur[0] /= ur[3];
-          ur[1] /= ur[3];
-          aoiOutlinePoints->SetPoint(0, ll);
-          aoiOutlinePoints->SetPoint(1, lr);
-          aoiOutlinePoints->SetPoint(2, ur);
-          aoiOutlinePoints->SetPoint(3, ul);
-          }
-        else
-          {
-          // Two corners.
-          aoiOutlinePoints->SetPoint(0, ul[0], lr[1], 0);
-          aoiOutlinePoints->SetPoint(1, lr[0], lr[1], 0);
-          aoiOutlinePoints->SetPoint(2, lr[0], ul[1], 0);
-          aoiOutlinePoints->SetPoint(3, ul[0], ul[1], 0);
-          }
-        }
-      else
-        {
-        // Just one corner - show a 'notch' in the upper left corner.
-        aoiOutlinePoints->SetPoint(0, ul[0], ul[1] - 100, 0);
-        aoiOutlinePoints->SetPoint(1, ul[0], ul[1], 0);
-        aoiOutlinePoints->SetPoint(2, ul[0] + 100, ul[1], 0);
-        aoiOutlinePoints->SetPoint(3, ul[0], ul[1], 0);
-        }
+      const auto& aoi =
+        vgGeodesy::convertGcs(project->AOI, vgGeodesy::LatLon_Wgs84);
+      const auto& corners = aoi.Coordinate;
+      double ul[3] = {corners[0].Easting, corners[0].Northing, 0.0};
+      double ur[3] = {corners[1].Easting, corners[1].Northing, 0.0};
+      double lr[3] = {corners[2].Easting, corners[2].Northing, 0.0};
+      double ll[3] = {corners[3].Easting, corners[3].Northing, 0.0};
+      vtkVgApplyHomography(ul, this->LatLonToWorldMatrix, ul);
+      vtkVgApplyHomography(ur, this->LatLonToWorldMatrix, ur);
+      vtkVgApplyHomography(lr, this->LatLonToWorldMatrix, lr);
+      vtkVgApplyHomography(ll, this->LatLonToWorldMatrix, ll);
+
+      aoiOutlinePoints->SetPoint(0, ll);
+      aoiOutlinePoints->SetPoint(1, lr);
+      aoiOutlinePoints->SetPoint(2, ur);
+      aoiOutlinePoints->SetPoint(3, ul);
       }
     else
       {
@@ -5802,58 +5791,26 @@ void vpViewCore::createDisplayOutline(vpProject* project)
     }
   else if (this->UseRawImageCoordinates)
     {
-    if (project->AOILowerRightLatLon[0] != 444)
+    if (project->AOI.GCS > 0)
       {
-      double lr[4] = { project->AOILowerRightLatLon[1],
-                       project->AOILowerRightLatLon[0], 0, 1.0 };
+      const auto& aoi =
+        vgGeodesy::convertGcs(project->AOI, vgGeodesy::LatLon_Wgs84);
+      const auto& corners = aoi.Coordinate;
+      double ur[3] = {corners[1].Easting, corners[1].Northing, 0.0};
+      double lr[3] = {corners[2].Easting, corners[2].Northing, 0.0};
+      double ll[3] = {corners[3].Easting, corners[3].Northing, 0.0};
+      vtkVgApplyHomography(ur, this->LatLonToWorldMatrix, ur);
+      vtkVgApplyHomography(lr, this->LatLonToWorldMatrix, lr);
+      vtkVgApplyHomography(ll, this->LatLonToWorldMatrix, ll);
 
-      this->LatLonToWorldMatrix->MultiplyPoint(lr, lr);
-      if (lr[3] != 0)
-        {
-        lr[0] /= lr[3];
-        lr[1] /= lr[3];
-        }
-
-      if (project->AOILowerLeftLatLon[0] != 444 &&
-          project->AOIUpperRightLatLon[0] != 444)
-        {
-        // All four corners.
-        double ll[4] = { project->AOILowerLeftLatLon[1],
-                         project->AOILowerLeftLatLon[0], 0, 1.0 };
-
-        this->LatLonToWorldMatrix->MultiplyPoint(ll, ll);
-        if (ll[3] != 0)
-          {
-          ll[0] /= ll[3];
-          ll[1] /= ll[3];
-          }
-        double ur[4] = { project->AOIUpperRightLatLon[1],
-                         project->AOIUpperRightLatLon[0], 0, 1.0 };
-
-        this->LatLonToWorldMatrix->MultiplyPoint(ur, ur);
-        if (ur[3] != 0)
-          {
-          ur[0] /= ur[3];
-          ur[1] /= ur[3];
-          }
-
-        aoiOutlinePoints->SetPoint(0, ll[0], ll[1], 0);
-        aoiOutlinePoints->SetPoint(1, lr[0], lr[1], 0);
-        aoiOutlinePoints->SetPoint(2, ur[0], ur[1], 0);
-        aoiOutlinePoints->SetPoint(3, 0, 0, 0);
-        }
-      else
-        {
-        // Two corners.
-        aoiOutlinePoints->SetPoint(0, 0, lr[1], 0);
-        aoiOutlinePoints->SetPoint(1, lr[0], lr[1], 0);
-        aoiOutlinePoints->SetPoint(2, lr[0], 0, 0);
-        aoiOutlinePoints->SetPoint(3, 0, 0, 0);
-        }
+      aoiOutlinePoints->SetPoint(0, ll);
+      aoiOutlinePoints->SetPoint(1, lr);
+      aoiOutlinePoints->SetPoint(2, ur);
+      aoiOutlinePoints->SetPoint(3, 0, 0, 0);
       }
     else
       {
-      // Just one corner - show a 'notch' in the upper left corner.
+      // Don't know AOI corners; show a 'notch' in the upper left corner
       aoiOutlinePoints->SetPoint(0, 0, -100, 0);
       aoiOutlinePoints->SetPoint(1, 0, 0, 0);
       aoiOutlinePoints->SetPoint(2, 100, 0, 0);
@@ -5862,11 +5819,12 @@ void vpViewCore::createDisplayOutline(vpProject* project)
     }
   else // Inverted image coordinates
     {
+    const auto x = project->AnalysisDimensions.width() - 1;
+    const auto y = project->AnalysisDimensions.height() - 1;
     aoiOutlinePoints->SetPoint(0, 0, 0, 0);
-    aoiOutlinePoints->SetPoint(1, project->AnalysisDimensions[0] - 1, 0, 0);
-    aoiOutlinePoints->SetPoint(2, project->AnalysisDimensions[0] - 1,
-                               project->AnalysisDimensions[1] - 1, 0);
-    aoiOutlinePoints->SetPoint(3, 0, project->AnalysisDimensions[1] - 1, 0);
+    aoiOutlinePoints->SetPoint(1, x, 0, 0);
+    aoiOutlinePoints->SetPoint(2, x, y, 0);
+    aoiOutlinePoints->SetPoint(3, 0, y, 0);
     }
 
   vtkSmartPointer<vtkCellArray> aoiOutlineLines = vtkSmartPointer<vtkCellArray>::New();
@@ -5892,14 +5850,14 @@ void vpViewCore::handleDataSetNotFound(vpProject* project)
 {
   emit this->criticalError(
     QString("Unable to read dataset using path (\"%1\").\n").arg(
-      qtString(project->DataSetSpecifier)));
+      project->DataSetSpecifier));
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::handleFileNotFound(const std::string& tag, const std::string& file)
+void vpViewCore::handleFileNotFound(const char* tag, const QString& file)
 {
   QString warningMsg = tr("Unable to find file ( %1 ) for %2")
-                         .arg(QString(file.c_str()), QString(tag.c_str()));
+                         .arg(file, QString{tag});
 
   emit this->warningError(warningMsg);
 }
@@ -6381,8 +6339,9 @@ void vpViewCore::addFilterRegion(const std::string& name,
     if (this->UseRawImageCoordinates)
       {
       // Convert from lat-long points to track-space points
-      double in[4] = { this->Projects[0]->AOIUpperLeftLatLon[1],
-                       this->Projects[0]->AOIUpperLeftLatLon[0], 0, 1.0 };
+      const auto& aoiUL =
+        getCorner(this->Projects[0]->AOI, 0, vgGeodesy::LatLon_Wgs84);
+      double in[4] = {aoiUL.Easting, aoiUL.Northing, 0.0, 1.0};
       double out[4];
       this->LatLonToImageMatrix->MultiplyPoint(in, out);
       if (out[3] == 0.0)
@@ -6435,7 +6394,7 @@ void vpViewCore::addFilterRegion(const std::string& name,
     else
       {
       // Normal image coordinate mode, all we do is y-flip
-      double maxY = this->Projects[0]->AnalysisDimensions[1] - 1;
+      double maxY = this->Projects[0]->AnalysisDimensions.height() - 1;
       for (size_t i = 0, size = points.size(); i < size; i += 2)
         {
         double point[4] =
@@ -7015,6 +6974,7 @@ void vpViewCore::initTrackHeadIndicator()
   pdm->SetInputData(this->TrackHeadIndicatorPolyData);
 
   this->TrackHeadIndicatorActor->SetMapper(pdm);
+  this->TrackHeadIndicatorActor->GetProperty()->SetLineWidth(3);
   this->TrackHeadIndicatorActor->GetProperty()->SetColor(TrackEditColor);
   this->TrackHeadIndicatorActor->SetUserMatrix(this->ImageToWorldMatrix);
 
@@ -8496,7 +8456,7 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
     if ((findToken(fields, "${FF}", Qt::CaseInsensitive) != -1) &&
         this->ExternalExecuteMode == 1) // Scene Learning mode
       {
-      if (currentProject->FiltersFile.empty())
+      if (currentProject->FiltersFile.isEmpty())
         {
         QMessageBox::warning(0, QString(),
           "Aborting process execution; "
@@ -8504,7 +8464,7 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
         return;
         }
 
-      QFileInfo filterFileInfo(currentProject->FiltersFile.c_str());
+      QFileInfo filterFileInfo{currentProject->FiltersFile};
       this->ExternalProcessOutputFile = filterFileInfo.absoluteFilePath();
       startExternalProcessAfterFilterExport = true;
       }
@@ -8512,11 +8472,11 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
     // Mapping of tokens to their values
     QHash<QString, QString> externalProcessKeywords;
     externalProcessKeywords["${TF}"] =
-      (QString("-trackfile ") + qtString(currentProject->TracksFile));
+      (QString("-trackfile ") + currentProject->TracksFile);
     externalProcessKeywords["${EF}"] =
-      (QString("-eventfile ") + qtString(currentProject->EventsFile));
+      (QString("-eventfile ") + currentProject->EventsFile);
     externalProcessKeywords["${FF}"] =
-      (QString("-filtersfile ") + qtString(currentProject->FiltersFile));
+      (QString("-filtersfile ") + currentProject->FiltersFile);
     externalProcessKeywords["${PI}"] =
       (QString("-inputfile ") + processInput);
     externalProcessKeywords["${PO}"] =
@@ -8656,7 +8616,7 @@ void vpViewCore::toWindowCoordinates(double &x, double &y)
 {
   if (!this->Projects.empty())
     {
-    double maxY = this->Projects[0]->AnalysisDimensions[1] - 1;
+    double maxY = this->Projects[0]->AnalysisDimensions.height() - 1;
     y = maxY - y;
     }
 }
@@ -8672,7 +8632,7 @@ void vpViewCore::toGraphicsCoordinates(double &x, double &y)
 {
   if (!this->Projects.empty())
     {
-    double maxY = this->Projects[0]->AnalysisDimensions[1] - 1;
+    double maxY = this->Projects[0]->AnalysisDimensions.height() - 1;
     y = maxY - y;
     }
 }
@@ -8717,7 +8677,7 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
 
   if (this->ExecutedExternalProcessMode == 1)  // Learning mode
     {
-    this->loadFilters(this->ExternalProcessOutputFile.toStdString().c_str());
+    this->loadFilters(qPrintable(this->ExternalProcessOutputFile));
     return;
     }
 
@@ -8725,52 +8685,39 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
   static int memoryProjectCounter = 0;
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId++));
   project->CopyConfig(*this->Projects[this->SessionView->GetCurrentSession()]);
-  QString projectName(
-    this->Projects[this->SessionView->GetCurrentSession()]->Name.c_str());
+  QString projectName =
+    this->Projects[this->SessionView->GetCurrentSession()]->Name;
   projectName += QString(".%1").arg(memoryProjectCounter++);
-  project->Name = projectName.toStdString();
+  project->Name = projectName;
 
   // For now, this is specific to FSE
   if (this->ExecutedExternalProcessMode == 0)
     {
-    project->SceneElementsFile = this->ExternalProcessOutputFile.toStdString();
+    project->SceneElementsFile = this->ExternalProcessOutputFile;
     project->SetIsValid(project->SceneElementsFile, vpProject::FILE_EXIST);
     }
 
   // For now this is specific to normalcy anamoly
   if (this->ExecutedExternalProcessMode == 2)
     {
-    project->EventsFile = this->ExternalProcessOutputFile.toStdString();
+    project->EventsFile = this->ExternalProcessOutputFile;
     project->SetIsValid(project->EventsFile, vpProject::FILE_EXIST);
     }
 
   // For now this is specific to normalcy anamoly
   if (this->ExecutedExternalProcessMode == 3)
     {
-    project->ActivitiesFile = this->ExternalProcessOutputFile.toStdString();
+    project->ActivitiesFile = this->ExternalProcessOutputFile;
     project->SetIsValid(project->ActivitiesFile, vpProject::FILE_EXIST);
     }
 
   project->FrameNumberOffset = this->FrameNumberOffset;
 
   // If filters file is set, wipe out all existing filters before loading
-  if (!project->FiltersFile.empty())
+  if (!project->FiltersFile.isEmpty())
     {
     emit removeAllFilters();
     }
 
-#ifdef VISGUI_USE_VIDTK
-  QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
-  fileIO->SetTracksFileName(project->TracksFile.c_str());
-  fileIO->SetTrackTraitsFileName(project->TrackTraitsFile.c_str());
-  fileIO->SetEventsFileName(project->EventsFile.c_str());
-  fileIO->SetEventLinksFileName(project->EventLinksFile.c_str());
-  fileIO->SetActivitiesFileName(project->ActivitiesFile.c_str());
-  fileIO->SetFseTracksFileName(project->SceneElementsFile.c_str());
-  project->ModelIO = fileIO;
-  this->processProject(project);
-#else
-  QMessageBox::warning(0, QString(),
-                       "Cannot open project files without VidTK support.");
-#endif
+  this->loadProject(project);
 }

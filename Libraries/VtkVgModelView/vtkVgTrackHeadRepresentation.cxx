@@ -99,7 +99,7 @@ vtkVgTrackHeadRepresentation::vtkVgTrackHeadRepresentation()
   this->ActorTransform->FastDelete();
 
   this->HeadActor->GetProperty()->SetColor(1, 1, 0);
-  this->HeadActor->GetProperty()->SetLineWidth(1);
+  this->HeadActor->GetProperty()->SetLineWidth(3);
   this->HeadActor->GetProperty()->SetPointSize(6);
 
   this->NewPropCollection    = vtkPropCollectionRef::New();

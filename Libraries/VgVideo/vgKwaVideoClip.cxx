@@ -586,7 +586,7 @@ bool vgKwaVideoClip::resolvePadding(
     return false;
     }
 
-  CHECK_ARG(startTime <= endTime, false);
+  //CHECK_ARG(startTime <= endTime, false);
 
   // Fix up arguments
   if (startTime == -1 && endTime == -1)
@@ -599,7 +599,7 @@ bool vgKwaVideoClip::resolvePadding(
   // Check for some overlap
   const double myStartTime = d->frames.begin().key().Time;
   const double myEndTime = (d->frames.end() - 1).key().Time;
-  CHECK_ARG(myStartTime < endTime && myEndTime > startTime, false);
+  //CHECK_ARG(myStartTime < endTime && myEndTime > startTime, false);
 
   if (d->metadata.isEmpty() || padding == 0.0)
     {

@@ -149,6 +149,9 @@ public:
 
   void setOverviewDisplay(vpProject* project);
 
+  void addTrackFilter(vgMixerWidget* filterWidget, int typeId,
+                      const QString& typeName);
+
   // Set/Get functions.
   inline int    getNumberOfFrames();
   inline int    getMinimumFrameNumber();
@@ -311,6 +314,16 @@ public:
   inline vtkVgEventTypeRegistry* getEventTypeRegistry()
     {
     return this->EventTypeRegistry;
+    }
+
+  inline const vtkVgTrackTypeRegistry* getTrackTypeRegistry() const
+    {
+    return this->TrackTypeRegistry;
+    }
+
+  inline vtkVgTrackTypeRegistry* getTrackTypeRegistry()
+    {
+    return this->TrackTypeRegistry;
     }
 
   void setTrackTrailLength(const vtkVgTimeStamp& duration);
@@ -616,6 +629,8 @@ signals:
   void overviewLoaded();
   void followTrackChange(int trackId);
 
+  void trackTypesModified();
+
   void displayZoom();
   void frameChanged();
   void timeChanged(double microseconds);
@@ -693,9 +708,11 @@ private:
 
   // Helper functions.
   void handleDataSetNotFound(vpProject* project);
-  void handleFileNotFound(const std::string& tag, const std::string& file);
+  void handleFileNotFound(const char* tag, const QString& file);
 
   void initializeImageSource();
+
+  vpProject* loadProject(QScopedPointer<vpProject>& project);
 
   void addEvents(vpProject* project);
   void removeEvents(vpProject* project);

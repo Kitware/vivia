@@ -640,7 +640,9 @@ void vsCorePrivate::updateTrack(
     wstate.time = state.TimeStamp;
 
     // Use homography to get stabilized coordinates from image coordinates
-    const vtkMatrix4x4& homography = iter.value();
+//     const vtkMatrix4x4& homography = iter.value();
+    vtkVgInstance<vtkMatrix4x4> homography;
+    homography->Identity();
     QVector<float> object;
     double wp[2];
     for (size_t n = 0; n < state.ImageObject.size(); ++n)

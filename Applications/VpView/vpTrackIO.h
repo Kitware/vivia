@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,8 +7,11 @@
 #ifndef __vpTrackIO_h
 #define __vpTrackIO_h
 
+#include <vgColor.h>
+
 #include <vtkSmartPointer.h>
 
+class vpFileDataSource;
 class vpFrameMap;
 
 class vtkVpTrackModel;
@@ -50,11 +53,12 @@ public:
             TrackTimeStampMode timeStampMode,
             vtkVgTrackTypeRegistry* trackTypes,
             vtkMatrix4x4* geoTransform,
+            vpFileDataSource* imageDataSource,
             vpFrameMap* frameMap);
 
   virtual ~vpTrackIO();
 
-  void SetOverrideColor(const double color[3]);
+  void SetOverrideColor(const vgColor&);
 
   virtual bool ReadTracks() = 0;
   virtual bool ReadTrackTraits();
@@ -76,11 +80,15 @@ public:
 
   static void GetDefaultTrackColor(int trackId, double (&color)[3]);
 
+  int GetTrackTypeIndex(const char* typeName);
+
 protected:
   virtual unsigned int GetImageHeight() const = 0;
 
 protected:
   friend class vpFileTrackIOImpl;
+
+  void AddTrack(vtkVgTrack*);
 
   vtkVpTrackModel* TrackModel;
   vtkVgTrackTypeRegistry* TrackTypes;
@@ -88,9 +96,9 @@ protected:
   TrackStorageMode StorageMode;
   TrackTimeStampMode TimeStampMode;
   vtkSmartPointer<vtkMatrix4x4> GeoTransform;
+  vpFileDataSource* ImageDataSource;
   vpFrameMap* FrameMap;
-  double OverrideColor[3];
-  bool HasOverrideColor;
+  vgColor OverrideColor;
 };
 
 #endif // __vpTrackIO_h

@@ -95,6 +95,7 @@ set(vqSources
     vtkVQTrackingClip.cxx
     Backends/vqExporterFactory.cxx
     Backends/vqVqrExporter.cxx
+    Backends/vqNoaaCsvExporter.cxx
 )
 
 set(vqUI

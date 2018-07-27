@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -28,9 +28,10 @@ vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
                            TrackTimeStampMode timeStampMode,
                            vtkVgTrackTypeRegistry* trackTypes,
                            vtkMatrix4x4* geoTransform,
+                           vpFileDataSource* imageDataSource,
                            vpFrameMap* frameMap) :
   vpTrackIO(trackModel, storageMode, timeStampMode, trackTypes,
-            geoTransform, frameMap),
+            geoTransform, imageDataSource, frameMap),
   ImageHeight(0)
 {
   // TSM_TransformedGeoCoords is equal to TSM_ImageCoords for FSEs; the
@@ -242,29 +243,7 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
         points.clear();
         }
 
-      if (this->HasOverrideColor)
-        {
-        track->SetColor(this->OverrideColor);
-        }
-      else
-        {
-        double color[3];
-        int typeIndex = track->GetType();
-        if (typeIndex != -1)
-          {
-          // If the track has a valid type, use that to look up a color
-          const vgTrackType& type = this->TrackTypes->GetType(typeIndex);
-          type.GetColor(color[0], color[1], color[2]);
-          track->SetColor(color[0], color[1], color[2]);
-          }
-        else
-          {
-          this->GetDefaultTrackColor(track->GetId(), color);
-          track->SetColor(color);
-          }
-        }
-      this->TrackModel->AddTrack(track);
-      track->FastDelete();
+      this->AddTrack(track);
       }
     }
   catch (...)

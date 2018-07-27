@@ -376,7 +376,7 @@
        <number>4</number>
       </property>
       <item>
-       <widget class="QGroupBox" name="pvoGroupBox">
+       <widget class="QGroupBox" name="tocGroupBox">
         <property name="title">
          <string>Tracks</string>
         </property>
@@ -394,7 +394,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="vgMixerWidget" name="pvoFilter" native="true">
+          <widget class="vgMixerWidget" name="tocFilter" native="true">
            <property name="enabled">
             <bool>false</bool>
            </property>

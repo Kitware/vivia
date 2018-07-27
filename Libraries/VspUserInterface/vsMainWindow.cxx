@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -1410,7 +1410,7 @@ void vsMainWindow::setTrackColoring()
       dlg.setMode(vsTrackColorDialog::ColorByDynamicData);
       dlg.setDynamicDataSet(d->Scene->trackColorDataId());
       break;
-    case vtkVgTrackRepresentationBase::TCM_PVO:
+    case vtkVgTrackRepresentationBase::TCM_TOC:
       dlg.setMode(vsTrackColorDialog::ColorByClassification);
       break;
     default:
@@ -1424,7 +1424,7 @@ void vsMainWindow::setTrackColoring()
     switch(dlg.mode())
       {
       case vsTrackColorDialog::ColorByClassification:
-        mode = vtkVgTrackRepresentationBase::TCM_PVO;
+        mode = vtkVgTrackRepresentationBase::TCM_TOC;
         break;
       case vsTrackColorDialog::ColorByDynamicData:
         mode = vtkVgTrackRepresentationBase::TCM_Scalars;

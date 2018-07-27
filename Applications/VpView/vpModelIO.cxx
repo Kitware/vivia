@@ -1,12 +1,10 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vpModelIO.h"
-
-#include "vpFseTrackIO.h"
 
 #include <assert.h>
 
@@ -16,7 +14,7 @@ vpModelIO::vpModelIO() :
 {}
 
 //-----------------------------------------------------------------------------
-void vpModelIO::SetTrackOverrideColor(double color[3])
+void vpModelIO::SetTrackOverrideColor(const vgColor& color)
 {
   assert(this->TrackIO);
   this->TrackIO->SetOverrideColor(color);

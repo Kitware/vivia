@@ -6,30 +6,123 @@
 
 #include "vpProjectParser.h"
 
-// Application includes.
-#include "vpProject.h"
+#include "vgGeodesy.h"
 
-// qtExtensions includes.
+#include <qtEnumerate.h>
+#include <qtKstReader.h>
 #include <qtStlUtil.h>
 
-// VIDTK includes.
 #ifdef VISGUI_USE_VIDTK
 #include <utilities/config_block.h>
 #include <utilities/config_block_parser.h>
 #include <utilities/token_expansion.h>
 #endif
 
-// VTK includes.
 #include <vtkMatrix4x4.h>
 #include <vtksys/SystemTools.hxx>
 
-// Qt includes.
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QSettings>
+#include <QTemporaryFile>
 
-// C++ includes.
 #include <exception>
 #include <iomanip>
 #include <sstream>
+
+namespace
+{
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool readValue(const QSettings& reader, const QString& key, T& value)
+{
+  const QVariant& var = reader.value(key, QVariant::fromValue(value));
+  if (var.isValid())
+    {
+    if (var.canConvert<T>())
+      {
+      value = var.value<T>();
+      return true;
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key, QPointF& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toList();
+    if (l.size() == 2)
+      {
+      bool xOkay = true, yOkay = true;
+      const auto x = l[0].toReal(&xOkay);
+      const auto y = l[1].toReal(&yOkay);
+      if (xOkay && yOkay)
+        {
+        value = {x, y};
+        return true;
+        }
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toList();
+    if (l.size() == 2)
+      {
+      bool widthOkay = true, heightOkay = true;
+      const auto width = l[0].toReal(&widthOkay);
+      const auto height = l[1].toReal(&heightOkay);
+      if (widthOkay && heightOkay)
+        {
+        value = {width, height};
+        return true;
+        }
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(const QSettings& reader, const QString& key,
+               vgGeoRawCoordinate& value)
+{
+  const QVariant& var = reader.value(key);
+  if (var.isValid())
+    {
+    const auto& l = var.toStringList();
+
+    qtKstReader parser{QString{"[%1];"}.arg(l.join(","))};
+    QList<double> values;
+    if (parser.readRealArray(values) && values.size() == 2)
+      {
+      value = {values[0], values[1]};
+      return true;
+      }
+    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 vpProjectParser::vpProjectParser() :
@@ -87,17 +180,16 @@ bool vpProjectParser::Parse(vpProject* prj)
   vidtk::config_block_parser blkParser;
   std::istringstream iss;
 
+  QDir projectDir;
   if (this->UseStream)
     {
-    iss.str(this->ProjectStream);
+    iss.str(stdString(this->ProjectStream));
     blkParser.set_input_stream(iss);
     }
   else
     {
-    blkParser.set_filename(this->ProjectFileName);
-    prj->ConfigFileStem =
-      this->ProjectFileName.substr(0, this->ProjectFileName.find_last_of("/\\"));
-    prj->ConfigFileStem = prj->ConfigFileStem.append("/");
+    blkParser.set_filename(stdString(this->ProjectFileName));
+    projectDir = QDir{QFileInfo{this->ProjectFileName}.canonicalPath()};
     }
 
   // \note: Exception is thrown by the parser if a unknown tag is found
@@ -117,114 +209,143 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   // Various file sources used for the data.
-  vpProject::TagFileMapItr bItr = prj->TagFileMap.begin();
-  while (bItr != prj->TagFileMap.end())
+  foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
     {
-    *bItr->second = blk.get<std::string>(bItr->first);
+    const auto& tag = fileTag.key();
+    auto& filePath = *(fileTag.value());
 
-    *bItr->second = vidtk::token_expansion::expand_token(*bItr->second);
-
-    this->ConstructCompletePath(*bItr->second, prj->ConfigFileStem);
-
-    if (bItr->first == prj->DataSetSpecifierTag ||
-        bItr->first == prj->TracksFileTag)
+    const auto& value = blk.get<std::string>(stdString(tag));
+    filePath = qtString(vidtk::token_expansion::expand_token(value));
+    if (!filePath.isEmpty())
       {
-      prj->SetIsValid(*bItr->second, (*bItr->second).empty() ?
-                      vpProject::FILE_NAME_EMPTY : vpProject::FILE_NAME_NOT_EMPTY);
+      filePath = projectDir.absoluteFilePath(filePath);
+      }
+
+    if (tag == prj->DataSetSpecifierTag ||
+        tag == prj->TracksFileTag)
+      {
+      const auto expectedState =
+        (filePath.isEmpty() ? vpProject::FILE_NAME_EMPTY
+                            : vpProject::FILE_NAME_NOT_EMPTY);
+      prj->SetIsValid(filePath, expectedState);
       }
     else
       {
-      prj->SetIsValid(*bItr->second,
-                      this->CheckIfFileExists(bItr->first, *bItr->second));
+      const auto expectedState =
+        this->CheckIfFileExists(tag, filePath);
+      prj->SetIsValid(filePath, expectedState);
       }
-
-    ++bItr;
     }
 
+  // Read non-string fields that can be read directly
   prj->PrecomputeActivity = blk.get<int>(prj->PrecomputeActivityTag);
   prj->OverviewSpacing = blk.get<double>(prj->OverviewSpacingTag);
   prj->ColorWindow = blk.get<double>(prj->ColorWindowTag);
   prj->ColorLevel = blk.get<double>(prj->ColorLevelTag);
   prj->ColorMultiplier = blk.get<double>(prj->ColorMultiplierTag);
   prj->FrameNumberOffset = blk.get<double>(prj->FrameNumberOffsetTag);
-  blk.get(prj->OverviewOriginTag,      prj->OverviewOrigin);
-  blk.get(prj->AnalysisDimensionsTag,  prj->AnalysisDimensions);
-  blk.get(prj->AOIUpperLeftLatLonTag,  prj->AOIUpperLeftLatLon);
-  blk.get(prj->AOIUpperRightLatLonTag, prj->AOIUpperRightLatLon);
-  blk.get(prj->AOILowerLeftLatLonTag, prj->AOILowerLeftLatLon);
-  blk.get(prj->AOILowerRightLatLonTag, prj->AOILowerRightLatLon);
 
+  // Read various fields that consist of two numbers
+  double pt[2];
+
+  blk.get(prj->OverviewOriginTag, pt);
+  prj->OverviewOrigin = {pt[0], pt[1]};
+
+  blk.get(prj->AnalysisDimensionsTag, pt);
+  prj->AnalysisDimensions = {pt[0], pt[1]};
+
+  prj->AOI.GCS = vgGeodesy::LatLon_Wgs84;
+  const char* aoiTags[4] = {
+    prj->AOIUpperLeftLatLonTag,
+    prj->AOIUpperRightLatLonTag,
+    prj->AOILowerRightLatLonTag,
+    prj->AOILowerLeftLatLonTag};
+  for (int i = 0; i < 4; ++i)
+    {
+    blk.get(aoiTags[i], pt);
+    if (fabs(pt[0]) > 360.0 || fabs(pt[1]) > 360.0)
+      {
+      prj->AOI.GCS = -1;
+      break;
+      }
+    prj->AOI.Coordinate[i] = {pt[0], pt[1]};
+    }
+
+  // Read track override color
+  double oc[3];
   try
     {
-    blk.get(prj->TrackColorOverrideTag, prj->TrackColorOverride);
-    prj->HasTrackColorOverride = true;
+    blk.get(prj->TrackColorOverrideTag, oc);
+    prj->TrackColorOverride = vgColor{oc[0], oc[1], oc[2]};
     }
   catch (...) {}
 
+  // Read image-to-GCS matrix
+  double i2gMatrix[18];
   try
     {
-    blk.get(prj->ImageToGcsMatrixTag,  prj->ImageToGcsMatrixArray);
+    blk.get(prj->ImageToGcsMatrixTag,  i2gMatrix);
     prj->ImageToGcsMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 
     // Get the number of rows and columns
-    int noOfRows = prj->ImageToGcsMatrixArray[0];
-    int noOfCols = prj->ImageToGcsMatrixArray[1];
+    int noOfRows = i2gMatrix[0];
+    int noOfCols = i2gMatrix[1];
 
     // 3x3
     if (noOfRows == 3 && noOfCols == 3)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[4]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[5]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[5]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[7]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[9]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[10]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[9]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[10]);
       }
     // 3X4
     else if (noOfRows == 3 && noOfCols == 4)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 2, prj->ImageToGcsMatrixArray[4]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[5]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 2, i2gMatrix[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[5]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[7]);
-      prj->ImageToGcsMatrix->SetElement(1, 2, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[9]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 2, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[9]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[10]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[11]);
-      prj->ImageToGcsMatrix->SetElement(3, 2, prj->ImageToGcsMatrixArray[12]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[13]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[10]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[11]);
+      prj->ImageToGcsMatrix->SetElement(3, 2, i2gMatrix[12]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[13]);
       }
     //4x3
     else if (noOfRows == 4 && noOfCols == 3)
       {
-      prj->ImageToGcsMatrix->SetElement(0, 0, prj->ImageToGcsMatrixArray[2]);
-      prj->ImageToGcsMatrix->SetElement(0, 1, prj->ImageToGcsMatrixArray[3]);
-      prj->ImageToGcsMatrix->SetElement(0, 3, prj->ImageToGcsMatrixArray[4]);
+      prj->ImageToGcsMatrix->SetElement(0, 0, i2gMatrix[2]);
+      prj->ImageToGcsMatrix->SetElement(0, 1, i2gMatrix[3]);
+      prj->ImageToGcsMatrix->SetElement(0, 3, i2gMatrix[4]);
 
-      prj->ImageToGcsMatrix->SetElement(1, 0, prj->ImageToGcsMatrixArray[5]);
-      prj->ImageToGcsMatrix->SetElement(1, 1, prj->ImageToGcsMatrixArray[6]);
-      prj->ImageToGcsMatrix->SetElement(1, 3, prj->ImageToGcsMatrixArray[7]);
+      prj->ImageToGcsMatrix->SetElement(1, 0, i2gMatrix[5]);
+      prj->ImageToGcsMatrix->SetElement(1, 1, i2gMatrix[6]);
+      prj->ImageToGcsMatrix->SetElement(1, 3, i2gMatrix[7]);
 
-      prj->ImageToGcsMatrix->SetElement(2, 0, prj->ImageToGcsMatrixArray[8]);
-      prj->ImageToGcsMatrix->SetElement(2, 1, prj->ImageToGcsMatrixArray[9]);
-      prj->ImageToGcsMatrix->SetElement(2, 3, prj->ImageToGcsMatrixArray[10]);
+      prj->ImageToGcsMatrix->SetElement(2, 0, i2gMatrix[8]);
+      prj->ImageToGcsMatrix->SetElement(2, 1, i2gMatrix[9]);
+      prj->ImageToGcsMatrix->SetElement(2, 3, i2gMatrix[10]);
 
-      prj->ImageToGcsMatrix->SetElement(3, 0, prj->ImageToGcsMatrixArray[11]);
-      prj->ImageToGcsMatrix->SetElement(3, 1, prj->ImageToGcsMatrixArray[12]);
-      prj->ImageToGcsMatrix->SetElement(3, 3, prj->ImageToGcsMatrixArray[13]);
+      prj->ImageToGcsMatrix->SetElement(3, 0, i2gMatrix[11]);
+      prj->ImageToGcsMatrix->SetElement(3, 1, i2gMatrix[12]);
+      prj->ImageToGcsMatrix->SetElement(3, 3, i2gMatrix[13]);
       }
     else if(noOfRows == 4 && noOfCols ==4)
       {
-        prj->ImageToGcsMatrix->DeepCopy(&prj->ImageToGcsMatrixArray[2]);
+        prj->ImageToGcsMatrix->DeepCopy(&i2gMatrix[2]);
       }
     else
       {
@@ -236,42 +357,109 @@ bool vpProjectParser::Parse(vpProject* prj)
 
   return true;
 #else // VISGUI_USE_VIDTK
-  // TODO: Write a non-vidtk based project parser.
-  return false;
+  QScopedPointer<QTemporaryFile> streamFile;
+  QString projectFileName;
+  QDir projectDir;
+
+  if (this->UseStream)
+    {
+    streamFile.reset(new QTemporaryFile);
+    if (!streamFile->open())
+      {
+      qWarning() << "Failed to create temporary file for project stream";
+      return false;
+      }
+
+    streamFile->write(this->ProjectStream.data(), this->ProjectStream.size());
+    projectFileName = streamFile->fileName();
+    }
+  else
+    {
+    projectFileName = this->ProjectFileName;
+    projectDir = QDir{QFileInfo{projectFileName}.canonicalPath()};
+    }
+
+  QSettings reader{projectFileName, QSettings::IniFormat};
+
+  // Read file path fields
+  foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
+    {
+    const auto& tag = fileTag.key();
+    auto& filePath = *(fileTag.value());
+
+    // TODO implement token expansion? (Use from KWIVER if available?)
+    filePath = reader.value(tag).toString();
+    if (!filePath.isEmpty())
+      {
+      filePath = projectDir.absoluteFilePath(filePath);
+      }
+
+    if (tag == prj->DataSetSpecifierTag ||
+        tag == prj->TracksFileTag)
+      {
+      const auto expectedState =
+        (filePath.isEmpty() ? vpProject::FILE_NAME_EMPTY
+                            : vpProject::FILE_NAME_NOT_EMPTY);
+      prj->SetIsValid(filePath, expectedState);
+      }
+    else
+      {
+      const auto expectedState =
+        this->CheckIfFileExists(tag, filePath);
+      prj->SetIsValid(filePath, expectedState);
+      }
+    }
+
+  // Read non-string fields
+  readValue(reader, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
+  readValue(reader, prj->OverviewSpacingTag,    prj->OverviewSpacing);
+  readValue(reader, prj->ColorWindowTag,        prj->ColorWindow);
+  readValue(reader, prj->ColorLevelTag,         prj->ColorLevel);
+  readValue(reader, prj->ColorMultiplierTag,    prj->ColorMultiplier);
+  readValue(reader, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
+  readValue(reader, prj->OverviewOriginTag,     prj->OverviewOrigin);
+  readValue(reader, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
+
+  // Read track override color
+  prj->TrackColorOverride.read(reader, prj->TrackColorOverrideTag);
+
+  // Read AOI
+  reader.beginGroup("AOI");
+  if (readValue(reader, "TopLeft", prj->AOI.Coordinate[0]))
+    {
+    readValue(reader, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
+
+    prj->AOI.Coordinate[2] = prj->AOI.Coordinate[0];
+    readValue(reader, "BottomRight", prj->AOI.Coordinate[2]);
+
+    prj->AOI.Coordinate[1].Easting  = prj->AOI.Coordinate[2].Easting;
+    prj->AOI.Coordinate[1].Northing = prj->AOI.Coordinate[0].Northing;
+    prj->AOI.Coordinate[3].Easting  = prj->AOI.Coordinate[0].Easting;
+    prj->AOI.Coordinate[3].Northing = prj->AOI.Coordinate[2].Northing;
+    readValue(reader, "TopRight", prj->AOI.Coordinate[1]);
+    readValue(reader, "BottomLeft", prj->AOI.Coordinate[3]);
+    }
+  reader.endGroup();
+
+  // Read image-to-GCS matrix
+  // TODO
+
+  return true;
 #endif
 }
 
 //-----------------------------------------------------------------------------
-void vpProjectParser::ConstructCompletePath(std::string& file, const std::string& stem)
+vpProject::FileState vpProjectParser::CheckIfFileExists(
+  const QString& tag, const QString& fileName)
 {
-  // First remove carriage return.
-  std::string::size_type pos = std::string::npos;
-
-  pos = file.rfind('\r', pos);
-
-  if (pos != std::string::npos)
-    {
-    file.erase(pos, 1);
-    }
-
-  if (!file.empty() &&
-      !vtksys::SystemTools::FileIsFullPath(file.c_str()))
-    {
-    file = stem + file;
-    }
-}
-
-//-----------------------------------------------------------------------------
-int vpProjectParser::CheckIfFileExists(const std::string& tag, const std::string& fileName)
-{
-  if (fileName.empty())
+  if (fileName.isEmpty())
     {
     return vpProject::FILE_NAME_EMPTY;
     }
 
-  if (!vtksys::SystemTools::FileExists(fileName.c_str(), true))
+  if (!QFileInfo{fileName}.exists())
     {
-    qWarning() << "WARNING:" << tag.c_str() << '(' << qtString(fileName) << ')'
+    qWarning() << "WARNING:" << tag << '(' << fileName << ')'
                << "does not exist; application may not work properly";
 
     return vpProject::FILE_NOT_EXIST;

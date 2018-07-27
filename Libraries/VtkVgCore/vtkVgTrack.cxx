@@ -21,6 +21,7 @@
 
 #include <limits>
 #include <map>
+#include <numeric>
 
 vtkStandardNewMacro(vtkVgTrack);
 vtkCxxSetObjectMacro(vtkVgTrack, Points, vtkPoints);
@@ -310,6 +311,8 @@ void vtkVgTrack::CopyData(vtkVgTrack* other)
   this->PVO[0] = other->PVO[0];
   this->PVO[1] = other->PVO[1];
   this->PVO[2] = other->PVO[2];
+
+  this->TOC = other->TOC;
 }
 
 //-----------------------------------------------------------------------------
@@ -1276,6 +1279,47 @@ int vtkVgTrack::GetBestPVOClassifier()
     }
 
   return vtkVgTrack::Other;
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgTrack::SetTOC(const std::map<int, double>& toc)
+{
+  if (this->TOC == toc)
+    {
+    return;
+    }
+
+  this->TOC = toc;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+std::map<int, double> vtkVgTrack::GetTOC() const
+{
+  return this->TOC;
+}
+
+//-----------------------------------------------------------------------------
+std::pair<int, double> vtkVgTrack::GetBestTOCClassifier()
+{
+  auto bestClassifier = std::pair<int, double>{-1, 0.0};
+
+  for (auto c : this->TOC)
+    {
+    if (c.second > bestClassifier.second)
+      {
+      bestClassifier = c;
+      }
+    }
+
+  return bestClassifier;
+}
+
+//-----------------------------------------------------------------------------
+double vtkVgTrack::GetTOCScore(int type)
+{
+  auto i = this->TOC.find(type);
+  return (i == this->TOC.end() ? -1.0 : i->second);
 }
 
 //-----------------------------------------------------------------------------

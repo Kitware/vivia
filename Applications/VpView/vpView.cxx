@@ -29,6 +29,7 @@
 #include <vtkVgEventModel.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrackRepresentationBase.h>
+#include <vtkVgTrackTypeRegistry.h>
 
 #include <QVTKWidget.h>
 #include <vtkRenderer.h>
@@ -891,7 +892,7 @@ void vpView::onDataLoaded()
 
   this->Internal->UI.actionViewTracks->setEnabled(true);
   this->Internal->UI.actionViewTrackHeads->setEnabled(true);
-  this->Internal->UI.pvoFilter->setEnabled(true);
+  this->Internal->UI.tocFilter->setEnabled(true);
 
   this->Internal->UI.actionViewEvents->setEnabled(true);
   this->Internal->UI.normalcyFilter->setEnabled(true);
@@ -1732,7 +1733,10 @@ void vpView::setupDock()
 void vpView::postLoadConfig()
 {
   this->Core->setupTrackAttributeColors();
-  this->Core->setupTrackFilters(this->Internal->UI.pvoFilter);
+  this->Core->setupTrackFilters(this->Internal->UI.tocFilter);
+
+  connect(this->Core, SIGNAL(trackTypesModified()),
+          this, SLOT(updateTrackFilters()));
 }
 
 //-----------------------------------------------------------------------------
@@ -1792,6 +1796,40 @@ void vpView::postDataLoaded()
 void vpView::exitApp()
 {
   this->close();
+}
+
+//-----------------------------------------------------------------------------
+void vpView::updateTrackFilters()
+{
+  auto oldTypes = this->Internal->UI.tocFilter->keys().toSet();
+  auto* const ttr = this->Core->getTrackTypeRegistry();
+
+  const int k = ttr->GetNumberOfTypes();
+  for (int i = 0; i < k; ++i)
+    {
+    const auto& tt = ttr->GetEntityType(i);
+    const auto& typeName = QString::fromLocal8Bit(tt.GetName());
+
+    if (typeName.isEmpty())
+      {
+      // Handle "deleted" types
+      if (oldTypes.contains(i))
+        {
+        this->Internal->UI.tocFilter->removeItem(i);
+        }
+      }
+    else
+      {
+      if (oldTypes.contains(i))
+        {
+        this->Internal->UI.tocFilter->setText(i, typeName);
+        }
+      else
+        {
+        this->Core->addTrackFilter(this->Internal->UI.tocFilter, i, typeName);
+        }
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -3159,9 +3197,9 @@ void vpView::changeTrackColors()
       dlg.setMode(vpTrackColorDialog::ColorByStateAttribute);
       break;
       }
-    case vtkVgTrackRepresentationBase::TCM_PVO:
+    case vtkVgTrackRepresentationBase::TCM_TOC:
       {
-      dlg.setMode(vpTrackColorDialog::ColorByStatePVO);
+      dlg.setMode(vpTrackColorDialog::ColorByTypeClassifier);
       break;
       }
     case vtkVgTrackRepresentationBase::TCM_Random:
@@ -3196,10 +3234,10 @@ void vpView::updateTrackColorsFromDialog(vpTrackColorDialog* dlg)
         vtkVgTrackRepresentationBase::TCM_StateAttrs, dlg->attributeGroup());
       break;
       }
-    case vpTrackColorDialog::ColorByStatePVO:
+    case vpTrackColorDialog::ColorByTypeClassifier:
       {
       this->Core->setTrackColorMode(
-        vtkVgTrackRepresentationBase::TCM_PVO, dlg->attributeGroup());
+        vtkVgTrackRepresentationBase::TCM_TOC, dlg->attributeGroup());
       break;
       }
     case vpTrackColorDialog::RandomColor:
