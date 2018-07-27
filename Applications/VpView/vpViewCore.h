@@ -235,9 +235,11 @@ public:
   bool createTrack(int trackId, int session, bool isFse = false);
   int  createEvent(int type, vtkIdList* ids, int session);
 
+  int getTrackTypeIndex(const char* typeName);
+
   void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
                    const std::map<unsigned int, vgTimeStamp>& timeMap,
-                   double videoHeight);
+                   double videoHeight, bool updateToc = false);
 
   void improveTrack(int trackId, int session);
   bool splitTrack(int trackId, int newTrackId, int session);

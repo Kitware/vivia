@@ -1027,10 +1027,28 @@ void vpViewCore::improveTrack(int trackId, int session)
 }
 
 //-----------------------------------------------------------------------------
+int vpViewCore::getTrackTypeIndex(const char* typeName)
+{
+  const auto index = this->TrackTypeRegistry->GetTypeIndex(typeName);
+
+  if (index >= 0)
+    {
+    return index;
+    }
+
+  vgTrackType type;
+  type.SetId(typeName);
+  type.SetColor(0.5, 0.5, 0.0);
+
+  this->TrackTypeRegistry->AddType(type);
+  return this->TrackTypeRegistry->GetTypeIndex(typeName);
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::updateTrack(
   vtkVgTrack* track, const std::shared_ptr<kv::track>& kwiverTrack,
   const std::map<unsigned int, vgTimeStamp>& timeMap,
-  double videoHeight)
+  double videoHeight, bool updateToc)
 {
 #ifdef VISGUI_USE_KWIVER
   for (auto state : *kwiverTrack | kv::as_object_track)
@@ -1074,6 +1092,19 @@ void vpViewCore::updateTrack(
     const auto& center = bbox.center();
 
     track->SetPoint(ts, center.data(), {}, 4, points.data());
+
+    if (updateToc)
+      {
+      if (auto dot = state->detection->type())
+        {
+        std::map<int, double> toc;
+        for (const auto& c : *dot)
+          {
+          toc.emplace(this->getTrackTypeIndex(c.first->c_str()), c.second);
+          }
+        track->SetTOC(toc);
+        }
+      }
     }
 #endif
 }
@@ -8601,7 +8632,7 @@ void vpViewCore::executeEmbeddedPipeline(
         vpTrackIO::GetDefaultTrackColor(nextId, color);
         newTrack->SetColor(color);
 
-        this->updateTrack(newTrack, kwiverTrack, timeMap, videoHeight);
+        this->updateTrack(newTrack, kwiverTrack, timeMap, videoHeight, true);
 
         trackModel->AddTrack(newTrack);
         newTrack->FastDelete();
