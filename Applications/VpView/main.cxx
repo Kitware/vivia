@@ -45,6 +45,8 @@ int main(int argc, char** argv)
   qtCliOptions options;
   options.add("project <file>").add("p", "Load project 'file'");
   options.add("streaming").add("s", "Enable streaming mode");
+  options.add("import-config <file>", "Append settings from 'file'"
+              " to the application's configuration space");
   args.addOptions(options);
 
   vgApplication::addCommandLineOptions(args);
@@ -57,6 +59,18 @@ int main(int argc, char** argv)
   vpApplication app(args.qtArgc(), args.qtArgv());
   app.setCopyright(VPVIEW_COPY_YEAR, "Kitware, Inc.");
 
+  // Import configuration file, if requested
+  foreach (QString config, args.values("import-config"))
+    {
+    QSettings loadSettings(config, QSettings::IniFormat);
+    QSettings saveSettings;
+
+    foreach (QString key, loadSettings.allKeys())
+      saveSettings.setValue(key, loadSettings.value(key));
+    saveSettings.sync();
+    }
+
+  // Create and show the main window
   vpView myView;
   myView.show();
   myView.initialize(&args);
