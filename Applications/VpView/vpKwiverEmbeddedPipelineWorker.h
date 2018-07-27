@@ -35,7 +35,7 @@ public:
   ~vpKwiverEmbeddedPipelineWorker();
 
   bool initialize(const QString& pipelineFile, vpFileDataSource* dataSource,
-                  const vtkVpTrackModel* trackModel);
+                  vtkVpTrackModel* trackModel, double videoHeight);
 
   std::shared_ptr<kwiver::vital::object_track_set> tracks() const;
 

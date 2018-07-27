@@ -8559,6 +8559,8 @@ void vpViewCore::executeEmbeddedPipeline(
 {
 #ifdef VISGUI_USE_KWIVER
   auto project = this->Projects[session];
+  const auto videoHeight =
+    static_cast<double>(project->ModelIO->GetImageHeight());
 
   // Ensure time map is complete
   if (this->UsingTimeStampData && !this->waitForFrameMapRebuild())
@@ -8574,7 +8576,7 @@ void vpViewCore::executeEmbeddedPipeline(
   // Set up worker
   vpKwiverEmbeddedPipelineWorker worker;
   if (!worker.initialize(pipelinePath, this->ImageDataSource,
-                         project->TrackModel))
+                         project->TrackModel, videoHeight))
     {
     return;
     }
@@ -8593,8 +8595,6 @@ void vpViewCore::executeEmbeddedPipeline(
   const auto& tracks = worker.tracks();
   if (tracks)
     {
-    const auto videoHeight =
-      static_cast<double>(project->ModelIO->GetImageHeight());
     const auto& timeMap = this->FrameMap->getTimeMap();
 
     auto trackModel = this->Projects[session]->TrackModel;

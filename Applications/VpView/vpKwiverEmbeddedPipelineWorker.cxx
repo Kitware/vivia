@@ -43,6 +43,42 @@ const T* get(const std::vector<T>& c, K const& key)
   return (iter == c.end() ? nullptr : std::addressof(*iter));
 }
 
+//-----------------------------------------------------------------------------
+kv::track_sptr convertTrack(vtkVgTrack* in, double videoHeight)
+{
+  auto out = kv::track::create();
+  out->set_id(in->GetId());
+
+  vtkIdType id;
+  vtkVgTimeStamp timeStamp;
+  in->InitPathTraversal();
+
+  // Iterate over track states
+  while ((id = in->GetNextPathPt(timeStamp)) != -1)
+  {
+    const vtkBoundingBox& head = in->GetHeadBoundingBox(timeStamp);
+    if (head.IsValid())
+    {
+      const auto xmin = head.GetBound(0);
+      const auto xmax = head.GetBound(1);
+      const auto ymin = videoHeight - head.GetBound(3);
+      const auto ymax = videoHeight - head.GetBound(2);
+      const auto bbox = kv::bounding_box_d{xmin, ymin, xmax, ymax};
+      auto obj = std::make_shared<kv::detected_object>(bbox);
+
+      const auto frame = timeStamp.GetFrameNumber();
+      const auto time = [](const vtkVgTimeStamp& ts){
+        return (ts.HasTime() ? static_cast<kv::time_us_t>(ts.GetTime())
+                              : std::numeric_limits<kv::time_us_t>::min());
+      }(timeStamp);
+      out->append(
+        std::make_shared<kv::object_track_state>(frame, time, obj));
+    }
+  }
+
+  return out;
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -77,7 +113,8 @@ public:
 
   vpKwiverEmbeddedPipelineEndcap endcap;
 
-  std::map<kv::track_id_t, kv::track_sptr> tracks;
+  std::vector<kv::track_sptr> tracksIn;
+  std::map<kv::track_id_t, kv::track_sptr> tracksOut;
 
   std::atomic<bool> canceled = {false};
   QScopedPointer<QProgressDialog> cancelDialog;
@@ -107,6 +144,9 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
   const auto ports = this->pipeline.input_port_names();
   const auto image_port = get(ports, "image");
   const auto timestamp_port = get(ports, "timestamp");
+  const auto tracks_port = get(ports, "object_track_set");
+
+  auto tracks = std::make_shared<kv::object_track_set>(this->tracksIn);
 
   this->endcap.start();
 
@@ -135,6 +175,11 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
       ts.set_frame(static_cast<kv::frame_id_t>(currentFrame));
 
       ids->add_value(*timestamp_port, ts);
+    }
+
+    if (tracks_port)
+    {
+      ids->add_value(*tracks_port, tracks);
     }
 
     // Push data into pipeline
@@ -180,7 +225,7 @@ void vpKwiverEmbeddedPipelineEndcap::run()
       // Update internal track collection
       for (const auto tid : tracks->all_track_ids())
       {
-        q->tracks[tid] = tracks->get_track(tid);
+        q->tracksOut[tid] = tracks->get_track(tid);
       }
     }
   }
@@ -201,7 +246,7 @@ vpKwiverEmbeddedPipelineWorker::~vpKwiverEmbeddedPipelineWorker()
 //-----------------------------------------------------------------------------
 bool vpKwiverEmbeddedPipelineWorker::initialize(
   const QString& pipelineFile, vpFileDataSource* dataSource,
-  const vtkVpTrackModel* trackModel)
+  vtkVpTrackModel* trackModel, double videoHeight)
 {
   QTE_D();
 
@@ -209,6 +254,12 @@ bool vpKwiverEmbeddedPipelineWorker::initialize(
   for (const auto i : qtIndexRange(dataSource->getFileCount()))
   {
     d->framePaths.push_back(dataSource->getDataFile(i));
+  }
+
+  trackModel->InitTrackTraversal();
+  while (const auto& track = trackModel->GetNextTrack())
+  {
+    d->tracksIn.push_back(convertTrack(track.GetTrack(), videoHeight));
   }
 
   // Set up pipeline
@@ -279,7 +330,7 @@ kv::object_track_set_sptr vpKwiverEmbeddedPipelineWorker::tracks() const
   QTE_D();
 
   std::vector<kv::track_sptr> tracks;
-  for (const auto ti : d->tracks)
+  for (const auto ti : d->tracksOut)
   {
     tracks.push_back(ti.second);
   }
