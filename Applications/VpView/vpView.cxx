@@ -804,11 +804,12 @@ vpView::vpView()
   connect(this->Internal->EmbeddedPipelineMapper, SIGNAL(mapped(QString)),
           this, SLOT(executeEmbeddedPipeline(QString)));
 
-  for (auto i : qtIndexRange(settings.beginReadArray("EmbeddedPipelines")))
+  QSettings config;
+  for (auto i : qtIndexRange(config.beginReadArray("EmbeddedPipelines")))
     {
-    settings.setArrayIndex(i);
-    const auto& name = settings.value("Name").toString();
-    const auto& path = settings.value("Path").toString();
+    config.setArrayIndex(i);
+    const auto& name = config.value("Name").toString();
+    const auto& path = config.value("Path").toString();
     if (!name.isEmpty() && !path.isEmpty())
       {
       this->Internal->UI.actionPipelinePlaceholder->setVisible(false);
@@ -819,7 +820,7 @@ vpView::vpView()
               this->Internal->EmbeddedPipelineMapper, SLOT(map()));
       }
     }
-  settings.endArray();
+  config.endArray();
 #endif
   this->Internal->UI.menuPipeline->setEnabled(false);
 }
