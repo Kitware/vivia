@@ -805,6 +805,8 @@ private:
   vtkSmartPointer<vtkMatrix4x4>     LatLonToImageReferenceMatrix;
   vtkSmartPointer<vtkMatrix4x4>     ImageToGcsMatrix;
 
+  int FirstImageY;
+
   int IconSize;
   int IconOffsetX, IconOffsetY;
 

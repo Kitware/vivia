@@ -3262,6 +3262,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     this->ImageData[1]->ShallowCopy(this->ImageSource->GetOutput());
     int dim[2];
     this->ImageSource->GetDimensions(dim);
+    this->FirstImageY = dim[1];
 
     this->UsingTimeStampData = false;
     if (this->UseTimeStampDataIfAvailable)
@@ -5383,6 +5384,23 @@ void vpViewCore::forceUpdate()
             flipMatrix);
           }
         this->Annotation->SetRepresentationMatrix(transformMatrix);
+        }
+      else if (this->TrackStorageMode == vpTrackIO::TSM_InvertedImageCoords)
+        {
+        this->ImageSource->UpdateInformation();
+        int dim[2];
+        this->ImageSource->GetDimensions(dim);
+
+        if (dim[1] != this->FirstImageY)
+          {
+          // Need to translate the image
+          this->ImageActor[1]->SetPosition(0, this->FirstImageY - dim[1], 0);
+          }
+        else
+          {
+          // Make sure the translation component is cleared
+          this->ImageActor[1]->SetPosition(0, 0, 0);
+          }
         }
 
       this->updateAOIImagery();
