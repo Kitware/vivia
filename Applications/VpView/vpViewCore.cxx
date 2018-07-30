@@ -180,6 +180,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <limits>
+#include <array>
 
 // QtExtensions includes.
 #include <qtStlUtil.h>
