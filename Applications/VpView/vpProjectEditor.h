@@ -24,6 +24,8 @@ public:
   QString projectPath() const;
 
 public slots:
+  void setDataset(const QString&);
+
   void saveProject(const QString&);
 
 protected slots:

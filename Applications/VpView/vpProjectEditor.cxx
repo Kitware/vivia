@@ -72,6 +72,13 @@ vpProjectEditor::~vpProjectEditor()
 }
 
 //-----------------------------------------------------------------------------
+void vpProjectEditor::setDataset(const QString& path)
+{
+  QTE_D();
+  d->UI.dataset->setText(path);
+}
+
+//-----------------------------------------------------------------------------
 QString vpProjectEditor::projectPath() const
 {
   QTE_D();
