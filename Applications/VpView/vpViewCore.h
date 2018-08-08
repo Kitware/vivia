@@ -380,7 +380,7 @@ public:
   void toGraphicsCoordinates(double (&xy)[2]);
 
 public slots:
-
+  void newProject();
   void openProject();
   void importProject();
 
