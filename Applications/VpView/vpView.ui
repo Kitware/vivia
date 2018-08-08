@@ -128,7 +128,8 @@
      <addaction name="actionExportTracks"/>
      <addaction name="actionExportFilteredTracks"/>
     </widget>
-    <addaction name="actionOpenFile"/>
+    <addaction name="actionNewProject"/>
+    <addaction name="actionOpenProject"/>
     <addaction name="actionImportProject"/>
     <addaction name="separator"/>
     <addaction name="menuExportTracks"/>
@@ -770,9 +771,9 @@
     </layout>
    </widget>
   </widget>
-  <action name="actionOpenFile">
+  <action name="actionOpenProject">
    <property name="text">
-    <string>&amp;Open Project</string>
+    <string>&amp;Open Project...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -1037,9 +1038,6 @@
    </property>
    <property name="text">
     <string>Object Tags</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionDisplayFullVolume">
@@ -1593,6 +1591,14 @@
    </property>
    <property name="text">
     <string>&amp;Filtered Tracks...</string>
+   </property>
+  </action>
+  <action name="actionNewProject">
+   <property name="text">
+    <string>&amp;New Project...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

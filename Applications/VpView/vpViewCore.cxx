@@ -29,6 +29,7 @@
 #include "vpNormalcyMaps.h"
 #include "vpObjectInfoPanel.h"
 #include "vpProject.h"
+#include "vpProjectEditor.h"
 #include "vpProjectParser.h"
 #include "vpQtViewer3dWidget.h"
 #include "vpRenderWindowDialog.h"
@@ -322,25 +323,40 @@ void vpViewCore::cleanUp()
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::newProject()
+{
+  vpProjectEditor editor{qApp->activeWindow()};
+  if (editor.exec() == QDialog::Accepted)
+    {
+    if (this->loadProject(qPrintable(editor.projectPath())))
+      {
+      // Update view
+      if (this->Projects.size() == 1)
+        {
+        this->refreshView();
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::openProject()
 {
-  QString path = vgFileDialog::getOpenFileName(
-    0, "File Open Dialog:", QString(), "vpView project (*.prj);;");
+  const auto& path = vgFileDialog::getOpenFileName(
+    qApp->activeWindow(), "Open Project", {}, "Project files (*.prj);;");
 
   if (path.isEmpty())
     {
     return;
     }
 
-  if (!this->loadProject(qPrintable(path)))
+  if (this->loadProject(qPrintable(path)))
     {
-    return;
-    }
-
-  // Update view.
-  if (this->Projects.size() == 1)
-    {
-    this->refreshView();
+    // Update view
+    if (this->Projects.size() == 1)
+      {
+      this->refreshView();
+      }
     }
 }
 

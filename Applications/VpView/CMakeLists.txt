@@ -132,6 +132,7 @@ set(vpViewSources
   vpObjectSelectionPanel.cxx
   vpPrimitiveConfig.cxx
   vpProject.cxx
+  vpProjectEditor.cxx
   vpProjectList.cxx
   vpProjectParser.cxx
   vpQtSceneUtils.cxx
@@ -165,6 +166,7 @@ set(vpViewUI
   vpMergeTracksDialog.ui
   vpObjectInfoPanel.ui
   vpObjectSelectionPanel.ui
+  vpProjectEditor.ui
   vpQtViewer3dDialog.ui
   vpQtViewer3dWidget.ui
   vpSelectTimeIntervalDialog.ui
@@ -190,6 +192,7 @@ set(vpViewHeaders
   vpMergeTracksDialog.h
   vpObjectInfoPanel.h
   vpObjectSelectionPanel.h
+  vpProjectEditor.h
   vpProjectList.h
   vpQtViewer3d.h
   vpQtViewer3dDialog.h

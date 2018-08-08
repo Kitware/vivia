@@ -370,7 +370,9 @@ vpView::vpView()
 #endif
 
   // Set up action signals and slots
-  connect(this->Internal->UI.actionOpenFile, SIGNAL(triggered()),
+  connect(this->Internal->UI.actionNewProject, SIGNAL(triggered()),
+          this->Core, SLOT(newProject()));
+  connect(this->Internal->UI.actionOpenProject, SIGNAL(triggered()),
           this->Core, SLOT(openProject()));
   connect(this->Internal->UI.actionImportProject, SIGNAL(triggered()),
           this, SLOT(importProject()));
