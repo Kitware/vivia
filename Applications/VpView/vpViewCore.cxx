@@ -304,6 +304,12 @@ void vpViewCore::cleanUp()
 void vpViewCore::newProject()
 {
   vpProjectEditor editor{qApp->activeWindow()};
+
+  if (!this->Projects.empty())
+    {
+    editor.setDataset(qtString(this->ImageDataSource->getDataSetSpecifier()));
+    }
+
   if (editor.exec() == QDialog::Accepted)
     {
     if (this->loadProject(qPrintable(editor.projectPath())))
