@@ -15,7 +15,7 @@ public:
   vqNoaaCsvExporter() {}
   ~vqNoaaCsvExporter() {}
 
-  virtual bool exportResults(const QList<vvQueryResult>& results);
+  virtual bool exportResults(const QList<vvQueryResult>& results) override;
 };
 
 #endif // __vqNoaaCsvExporter_h
