@@ -423,7 +423,7 @@ public slots:
   bool importOverviewFromFile(vpProject* project);
   bool importNormalcyMapsFromFile(vpProject* project);
 
-  void exportTracksToFile();
+  void exportTracksToFile(bool filtered = false);
   void exportEventsToFile();
   void exportSceneElementsToFile();
   void exportImageTimeStampsToFile();

@@ -784,7 +784,7 @@ bool vpViewCore::importNormalcyMapsFromFile(vpProject* project)
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::exportTracksToFile()
+void vpViewCore::exportTracksToFile(bool filtered)
 {
   if (this->isEditingTrack())
     {
@@ -822,14 +822,16 @@ void vpViewCore::exportTracksToFile()
   msgBox.setText("Writing tracks...");
   msgBox.show();
 
+  auto* filter = (filtered ? this->TrackFilter.Get() : nullptr);
+
   bool success;
   if (fseIO && QFileInfo(filename).suffix() == "json")
     {
-    success = fseIO->WriteTracks(filename, false);
+    success = fseIO->WriteTracks(filename, nullptr, false);
     }
   else
     {
-    success = trackIO->WriteTracks(filename, false);
+    success = trackIO->WriteTracks(filename, filter, false);
     }
 
   if (!success)

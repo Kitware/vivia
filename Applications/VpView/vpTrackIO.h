@@ -18,6 +18,7 @@ class vtkVpTrackModel;
 
 class vtkVgTimeStamp;
 class vtkVgTrack;
+class vtkVgTrackFilter;
 class vtkVgTrackTypeRegistry;
 
 class vtkMatrix4x4;
@@ -65,7 +66,7 @@ public:
 
   virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const QString& filename,
+  virtual bool WriteTracks(const QString& filename, vtkVgTrackFilter* filter,
                            bool writeSceneElements) const = 0;
 
   // Return list of supported output formats as UI strings (e.g. "Foo (*.foo)")

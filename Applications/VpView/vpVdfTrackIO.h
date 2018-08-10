@@ -33,7 +33,8 @@ public:
   void SetTracksUri(const QUrl&);
 
   virtual bool ReadTracks() QTE_OVERRIDE;
-  virtual bool WriteTracks(const QString&, bool) const QTE_OVERRIDE;
+  virtual bool WriteTracks(
+    const QString&, vtkVgTrackFilter*, bool) const QTE_OVERRIDE;
 
   virtual QStringList GetSupportedFormats() const QTE_OVERRIDE;
   virtual QString GetDefaultFormat() const QTE_OVERRIDE;

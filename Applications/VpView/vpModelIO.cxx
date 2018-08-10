@@ -63,10 +63,10 @@ bool vpModelIO::ImportTracks(vtkIdType idsOffset,
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::WriteTracks(const QString& filename)
+bool vpModelIO::WriteTracks(const QString& filename, vtkVgTrackFilter* filter)
 {
   assert(this->TrackIO);
-  return this->TrackIO->WriteTracks(filename, false);
+  return this->TrackIO->WriteTracks(filename, filter, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -125,5 +125,5 @@ bool vpModelIO::WriteFseTracks(const QString& filename,
                                bool writeSceneElements)
 {
   assert(this->FseTrackIO);
-  return this->FseTrackIO->WriteTracks(filename, writeSceneElements);
+  return this->FseTrackIO->WriteTracks(filename, nullptr, writeSceneElements);
 }

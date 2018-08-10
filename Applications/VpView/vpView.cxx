@@ -377,6 +377,8 @@ vpView::vpView()
 
   connect(this->Internal->UI.actionExportTracks,
           SIGNAL(triggered()), SLOT(exportTracks()));
+  connect(this->Internal->UI.actionExportFilteredTracks,
+          SIGNAL(triggered()), SLOT(exportFilteredTracks()));
   connect(this->Internal->UI.actionExportEvents,
           SIGNAL(triggered()), SLOT(exportEvents()));
   connect(this->Internal->UI.actionExportSceneElements,
@@ -878,7 +880,9 @@ void vpView::onDataLoaded()
   this->Internal->UI.actionCreateSceneElement->setEnabled(true);
   this->Internal->UI.actionMergeTracks->setEnabled(true);
 
+  this->Internal->UI.menuExportTracks->setEnabled(true);
   this->Internal->UI.actionExportTracks->setEnabled(true);
+  this->Internal->UI.actionExportFilteredTracks->setEnabled(true);
   this->Internal->UI.actionExportEvents->setEnabled(true);
   this->Internal->UI.actionExportSceneElements->setEnabled(true);
   this->Internal->UI.actionExportFilters->setEnabled(true);
@@ -3025,6 +3029,18 @@ void vpView::selectEvent(int id)
 //-----------------------------------------------------------------------------
 void vpView::exportTracks()
 {
+  this->exportTracks(false);
+}
+
+//-----------------------------------------------------------------------------
+void vpView::exportFilteredTracks()
+{
+  this->exportTracks(true);
+}
+
+//-----------------------------------------------------------------------------
+void vpView::exportTracks(bool filtered)
+{
   if (this->Internal->UI.actionCreateTrack->isChecked())
     {
     this->onWarningError(
@@ -3032,7 +3048,7 @@ void vpView::exportTracks()
     }
   else
     {
-    this->Core->exportTracksToFile();
+    this->Core->exportTracksToFile(filtered);
     }
 }
 

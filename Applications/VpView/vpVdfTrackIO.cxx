@@ -15,6 +15,7 @@
 #include <vdfSourceService.h>
 #include <vdfTrackReader.h>
 
+#include <vtkVgTrackFilter.h>
 #include <vtkVgTrackTypeRegistry.h>
 
 #include <qtEnumerate.h>
@@ -298,7 +299,8 @@ QString vpVdfTrackIO::GetDefaultFormat() const
 
 //-----------------------------------------------------------------------------
 bool vpVdfTrackIO::WriteTracks(
-  const QString& filename, bool writeSceneElements) const
+  const QString& filename, vtkVgTrackFilter* filter,
+  bool writeSceneElements) const
 {
   if (writeSceneElements)
     {
@@ -325,6 +327,12 @@ bool vpVdfTrackIO::WriteTracks(
     {
     // Skip scene elements
     if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+      {
+      continue;
+      }
+
+    // Skip filtered tracks
+    if (filter && filter->GetBestClassifier(track) == -1)
       {
       continue;
       }

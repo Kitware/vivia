@@ -56,7 +56,7 @@ public:
   bool ImportTracks(vtkIdType idsOffset = 0,
                     float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteTracks(const QString& filename);
+  bool WriteTracks(const QString& filename, vtkVgTrackFilter* filter);
 
   bool ReadEvents();
   bool ReadEventLinks();

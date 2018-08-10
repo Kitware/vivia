@@ -220,8 +220,9 @@ QString vpVidtkTrackIO::GetDefaultFormat() const
 }
 
 //-----------------------------------------------------------------------------
-bool vpVidtkTrackIO::WriteTracks(const QString& filename,
-                                 bool writeSceneElements) const
+bool vpVidtkTrackIO::WriteTracks(
+  const QString& filename, vtkVgTrackFilter* filter,
+  bool writeSceneElements) const
 {
   if (writeSceneElements)
     {
@@ -278,6 +279,11 @@ bool vpVidtkTrackIO::WriteTracks(const QString& filename,
       (modelTrack->GetDisplayFlags() & vtkVgTrack::DF_SceneElement) != 0;
 
     if (isSceneElement)
+      {
+      continue;
+      }
+
+    if (filter && filter->GetBestClassifier(track) == -1)
       {
       continue;
       }

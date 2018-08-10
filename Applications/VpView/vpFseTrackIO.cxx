@@ -273,8 +273,8 @@ QString vpFseTrackIO::GetDefaultFormat() const
 }
 
 //-----------------------------------------------------------------------------
-bool vpFseTrackIO::WriteTracks(const QString& filename,
-                               bool writeSceneElements) const
+bool vpFseTrackIO::WriteTracks(
+  const QString& filename, vtkVgTrackFilter*, bool writeSceneElements) const
 {
   vtkPoints* points = this->TrackModel->GetPoints();
   double imageYExtent = this->GetImageHeight() - 1;

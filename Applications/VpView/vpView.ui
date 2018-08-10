@@ -118,10 +118,20 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuExportTracks">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Export Tracks</string>
+     </property>
+     <addaction name="actionExportTracks"/>
+     <addaction name="actionExportFilteredTracks"/>
+    </widget>
     <addaction name="actionOpenFile"/>
     <addaction name="actionImportProject"/>
     <addaction name="separator"/>
-    <addaction name="actionExportTracks"/>
+    <addaction name="menuExportTracks"/>
     <addaction name="actionExportEvents"/>
     <addaction name="actionExportSceneElements"/>
     <addaction name="separator"/>
@@ -1224,14 +1234,6 @@
     <string>Add a new filter</string>
    </property>
   </action>
-  <action name="actionExportTracks">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Export Tracks</string>
-   </property>
-  </action>
   <action name="actionShowEventsUntilEventEnd">
    <property name="checkable">
     <bool>true</bool>
@@ -1575,6 +1577,22 @@
    </property>
    <property name="text">
     <string>(No pipelines configured)</string>
+   </property>
+  </action>
+  <action name="actionExportTracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;All Tracks...</string>
+   </property>
+  </action>
+  <action name="actionExportFilteredTracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Filtered Tracks...</string>
    </property>
   </action>
  </widget>

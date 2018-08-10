@@ -166,6 +166,8 @@ public slots:
   void selectEvent(int id);
 
   void exportTracks();
+  void exportFilteredTracks();
+  void exportTracks(bool filtered);
   void exportEvents();
   void exportSceneElements();
   void exportFilters();

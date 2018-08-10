@@ -42,7 +42,7 @@ public:
   virtual bool ReadTracks();
   virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const QString& filename,
+  virtual bool WriteTracks(const QString& filename, vtkVgTrackFilter* filter,
                            bool writeSceneElements) const;
 
   virtual QStringList GetSupportedFormats() const;
