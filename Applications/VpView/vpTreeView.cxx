@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -47,6 +47,21 @@ public:
     tree->scheduleDelayedItemsLayout();
     }
 };
+
+//-----------------------------------------------------------------------------
+static int getTrackType(vtkVgTrack* track)
+{
+  const auto userType = track->GetType();
+  if (userType == -1)
+    {
+    const auto bestTOC = track->GetBestTOCClassifier();
+    if (bestTOC.first != -1)
+      {
+      return bestTOC.first;
+      }
+    }
+  return userType;
+}
 
 //-----------------------------------------------------------------------------
 class vpTreeView::TreeWidgetItem : public QTreeWidgetItem
@@ -170,7 +185,7 @@ QTreeWidgetItem* vpTreeView::CreateItem(ItemTypeEnum type, const char* name,
 //-----------------------------------------------------------------------------
 QTreeWidgetItem* vpTreeView::CreateItem(vtkVgTrack* track, bool isFseTrack)
 {
-  int type = track->GetType();
+  const auto type = getTrackType(track);
 
   QTreeWidgetItem* item =
     this->CreateItem(isFseTrack ? ItemType::SceneElement : ItemType::Track,
