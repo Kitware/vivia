@@ -312,9 +312,13 @@ public:
   void setImageSourceLevelOfDetailFactor(double factor);
   bool hasMultiLevelOfDetailSource();
 
+  int sessionCount() const;
+  bool isSessionEnabled(int session) const;
+
   vtkVpTrackModel* getTrackModel(int session);
   vtkVgEventModel* getEventModel(int session);
 
+  vtkVgTrackFilter* getTrackFilter();
   vtkVgEventFilter* getEventFilter();
 
   inline const vtkVgEventTypeRegistry* getEventTypeRegistry() const
@@ -675,6 +679,10 @@ signals:
 
   void trackPicked(int id, int session);
 
+  void trackFiltersChanged();
+
+  void projectOpened();
+  void projectClosed();
   void projectVisibilityChanged(int index, bool visible);
 
   void updateFinished();

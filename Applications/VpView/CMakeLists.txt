@@ -142,6 +142,7 @@ set(vpViewSources
   vpSelectTimeIntervalDialog.cxx
   vpSessionView.cxx
   vpSettings.cxx
+  vpStatisticsPanel.cxx
   vpTimelineDialog.cxx
   vpTrackColorDialog.cxx
   vpTrackTypeDialog.cxx
@@ -201,6 +202,7 @@ set(vpViewHeaders
   vpQtViewer3dWidget.h
   vpSelectTimeIntervalDialog.h
   vpSessionView.h
+  vpStatisticsPanel.h
   vpTimelineDialog.h
   vpTabWidget.h
   vpTrackColorDialog.h

@@ -2037,6 +2037,8 @@ void vpViewCore::addTrackFilter(
     this->TrackFilter->SetShowType(typeId, true);
     this->TrackFilter->SetMinProbability(typeId, 0.0);
     this->TrackFilter->SetMaxProbability(typeId, 1.0);
+
+    emit this->trackFiltersChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -3799,6 +3801,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
 
   // Notify observers.
   this->dataChanged();
+  emit this->projectOpened();
 
   return this->Projects.back();
 }
@@ -3813,6 +3816,20 @@ void vpViewCore::closeProject(int sessionId)
   this->SceneRenderer->RemoveViewProp(project->IconManager->GetIconActor());
   this->Projects.erase(this->Projects.begin() + sessionId);
   delete project;
+
+  emit this->projectClosed();
+}
+
+//-----------------------------------------------------------------------------
+int vpViewCore::sessionCount() const
+{
+  return static_cast<int>(this->Projects.size());
+}
+
+//-----------------------------------------------------------------------------
+bool vpViewCore::isSessionEnabled(int session) const
+{
+  return this->Projects[session]->IsVisible;
 }
 
 //-----------------------------------------------------------------------------
@@ -5805,6 +5822,7 @@ void vpViewCore::SetTrackTypeDisplayState(int trackType, bool state)
 {
   this->TrackFilter->SetShowType(trackType, state);
   this->update();
+  emit this->trackFiltersChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -5812,6 +5830,7 @@ void vpViewCore::SetTrackTypeProbabilityLimit(int trackType, double prob)
 {
   this->TrackFilter->SetMinProbability(trackType, prob);
   this->update();
+  emit this->trackFiltersChanged();
 }
 
 //-----------------------------------------------------------------------------
@@ -7513,6 +7532,12 @@ vtkVpTrackModel* vpViewCore::getTrackModel(int session)
 vtkVgEventModel* vpViewCore::getEventModel(int session)
 {
   return this->Projects[session]->EventModel;
+}
+
+//-----------------------------------------------------------------------------
+vtkVgTrackFilter* vpViewCore::getTrackFilter()
+{
+  return this->TrackFilter;
 }
 
 //-----------------------------------------------------------------------------

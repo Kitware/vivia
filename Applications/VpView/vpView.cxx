@@ -1751,6 +1751,17 @@ void vpView::postLoadConfig()
 
   connect(this->Core, SIGNAL(trackTypesModified()),
           this, SLOT(updateTrackFilters()));
+
+  this->Internal->UI.statistics->bind(this->Core);
+
+  connect(this->Core, SIGNAL(projectOpened()),
+          this->Internal->UI.statistics, SLOT(invalidate()));
+  connect(this->Core, SIGNAL(projectClosed()),
+          this->Internal->UI.statistics, SLOT(invalidate()));
+  connect(this->Core, SIGNAL(projectVisibilityChanged(int, bool)),
+          this->Internal->UI.statistics, SLOT(invalidate()));
+  connect(this->Core, SIGNAL(trackFiltersChanged()),
+          this->Internal->UI.statistics, SLOT(invalidate()));
 }
 
 //-----------------------------------------------------------------------------

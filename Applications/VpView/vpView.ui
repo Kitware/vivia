@@ -772,6 +772,15 @@
     </layout>
    </widget>
   </widget>
+  <widget class="QDockWidget" name="statisticsDock">
+   <property name="windowTitle">
+    <string>Statistics</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="vpStatisticsPanel" name="statistics"/>
+  </widget>
   <action name="actionOpenProject">
    <property name="text">
     <string>&amp;Open Project...</string>
@@ -1661,6 +1670,12 @@
    <class>vpGraphModelWidget</class>
    <extends>QWidget</extends>
    <header>vpGraphModelWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpStatisticsPanel</class>
+   <extends>QWidget</extends>
+   <header>vpStatisticsPanel.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
