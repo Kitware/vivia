@@ -323,6 +323,16 @@ void vtkVgTrack::Merge(vtkVgTrack* other)
 
   vtkVgTimeStamp origStart = this->GetStartFrame();
   vtkVgTimeStamp origEnd = this->GetEndFrame();
+  bool onlyAfter = false;
+  bool onlyBefore = false;
+  if (origEnd < other->GetStartFrame())
+    {
+    onlyAfter = true;
+    }
+  else if (other->GetEndFrame() < origStart)
+    {
+    onlyBefore = true;
+    }
 
   for (TimeToIdMapConstIter iter = other->Internal->PointIdMap.begin(),
                              end = other->Internal->PointIdMap.end();
@@ -352,7 +362,8 @@ void vtkVgTrack::Merge(vtkVgTrack* other)
       }
 
     this->SetPoint(iter->first, point, geoCoord, npts, 0,
-                   other->Points, firstPtId);
+                   other->Points, firstPtId, onlyAfter, onlyBefore);
+    onlyAfter = false;
     }
 }
 
@@ -394,7 +405,8 @@ void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
                                  const float* shellPts,
                                  bool interpolateShell,
                                  vtkPoints* fromShellPoints,
-                                 vtkIdType fromShellPtsStart)
+                                 vtkIdType fromShellPtsStart,
+                                 bool forceSkipInterpolation/*=false*/)
 {
   if (!this->Points)
     {
@@ -422,7 +434,7 @@ void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
       this->EndFrame = timeStamp;
       }
     }
-  else if (this->InterpolateMissingPointsOnInsert)
+  else if (this->InterpolateMissingPointsOnInsert && !forceSkipInterpolation)
     {
     const vtkVgTimeStamp& prevTimeStamp
       = this->Internal->PointIdMap.rbegin()->first;
@@ -617,7 +629,9 @@ void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp,
                           vtkVgGeoCoord geoCoord,
                           vtkIdType numberOfShellPts, const float* shellPts,
                           vtkPoints* fromShellPts,
-                          vtkIdType fromShellPtsStart)
+                          vtkIdType fromShellPtsStart,
+                          bool onlyInterpAfter/* = false*/,
+                          bool onlyInterpBefore/* = false*/)
 {
   // if not closed and after the last point, just use InsertNextPoint()
   if (!this->EndFrame.IsValid() &&
@@ -626,7 +640,7 @@ void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp,
     {
     this->InsertNextPoint(timeStamp, point, geoCoord,
                           numberOfShellPts, shellPts, true,
-                          fromShellPts, fromShellPtsStart);
+                          fromShellPts, fromShellPtsStart, onlyInterpAfter);
     return;
     }
 
@@ -654,7 +668,7 @@ void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp,
 
   vtkIdType ptId = this->Points->InsertNextPoint(point[0], point[1], 0.0);
   this->Internal->PointIdMap[timeStamp] = ptId;
-  this->BuildAllPointsIdMap(timeStamp, ptId, point);
+  this->BuildAllPointsIdMap(timeStamp, ptId, point, onlyInterpAfter, onlyInterpBefore);
   this->PointIds->Reset();
 
   if (geoCoord.IsValid())
@@ -759,7 +773,9 @@ void vtkVgTrack::DeletePoint(const vtkVgTimeStamp& timeStamp,
 //-----------------------------------------------------------------------------
 void vtkVgTrack::BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
                                      vtkIdType newTrackPtId,
-                                     const double point[2])
+                                     const double point[2],
+                                     bool onlyInterpolateAfter/* = false*/,
+                                     bool onlyInterpolateBefore/* = false*/)
 {
   // current assumption is that this method is called only from SetPoint, and
   // every time a new point is added (and not simple case where we can call
@@ -812,7 +828,7 @@ void vtkVgTrack::BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
     }
 
   // interpolate before new point
-  if (currentPointIdIter != this->Internal->PointIdMap.begin())
+  if (currentPointIdIter != this->Internal->PointIdMap.begin() && !onlyInterpolateAfter)
     {
     TimeToIdMapConstIter pointBeforeIter(currentPointIdIter);
     --pointBeforeIter;
@@ -833,7 +849,7 @@ void vtkVgTrack::BuildAllPointsIdMap(const vtkVgTimeStamp& timeStamp,
   this->Internal->AllPointsIdMap[timeStamp] = newTrackPtId;
 
   // interpolate after new point
-  if (currentPointIdIter != --this->Internal->PointIdMap.end())
+  if (currentPointIdIter != --this->Internal->PointIdMap.end() && !onlyInterpolateBefore)
     {
     TimeToIdMapConstIter pointAfterIter(currentPointIdIter);
     ++pointAfterIter;

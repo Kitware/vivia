@@ -169,7 +169,7 @@ bool vpVdfTrackIO::ReadTracks()
     const vdfTrackReader::Track& in = ti.value();
 
     auto* const track = vtkVgTrack::New();
-    track->InterpolateMissingPointsOnInsertOn();
+    track->InterpolateMissingPointsOnInsertOff();
     track->SetPoints(this->TrackModel->GetPoints());
 
     // Set track model identifier
