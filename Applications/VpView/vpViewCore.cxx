@@ -3042,6 +3042,7 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
 
   QSharedPointer<vpVdfIO> io{new vpVdfIO};
   io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
+  io->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
   project->ModelIO = io;
 
 #endif
