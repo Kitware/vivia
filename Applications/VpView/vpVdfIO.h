@@ -40,12 +40,15 @@ public:
 
   void SetTracksUri(const QUrl& uri);
 
+  void SetFseTracksFileName(const char* fseTracksFileName);
+
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfIO);
 
 private:
   QTE_DECLARE_PRIVATE(vpVdfIO);
   QTE_DISABLE_COPY(vpVdfIO);
+  std::string FseTracksFileName;
 };
 
 #endif

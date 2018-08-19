@@ -76,6 +76,12 @@ void vpVdfIO::SetTrackModel(
                      trackTypes, geoTransform, imageDataSource, frameMap};
   this->TrackIO.reset(trackIO);
 
+  this->FseTrackIO.reset(
+    new vpFseTrackIO(trackModel, storageMode, timeStampMode,
+      trackTypes, geoTransform, imageDataSource, frameMap));
+  this->FseTrackIO->SetTracksFileName(this->FseTracksFileName.c_str());
+  this->FseTrackIO->SetImageHeight(d->ImageHeight);
+
   trackIO->SetTracksUri(d->TracksUri);
 }
 
@@ -98,6 +104,10 @@ void vpVdfIO::SetImageHeight(unsigned int imageHeight)
 {
   QTE_D();
   d->ImageHeight = imageHeight;
+  if (this->FseTrackIO)
+  {
+    this->FseTrackIO->SetImageHeight(imageHeight);
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,4 +126,14 @@ void vpVdfIO::SetTracksUri(const QUrl& uri)
     {
     trackIO->SetTracksUri(uri);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetFseTracksFileName(const char* fseTracksFileName)
+{
+  this->FseTracksFileName = fseTracksFileName;
+  if (this->FseTrackIO)
+  {
+    this->FseTrackIO->SetTracksFileName(fseTracksFileName);
+  }
 }
