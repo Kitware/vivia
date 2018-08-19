@@ -288,7 +288,7 @@ bool vpVdfTrackIO::ReadTracks()
 //-----------------------------------------------------------------------------
 QStringList vpVdfTrackIO::GetSupportedFormats() const
 {
-  return {{"NOAA CSV tracks (*.csv)"}};
+  return QStringList("NOAA CSV tracks (*.csv)");
 }
 
 //-----------------------------------------------------------------------------

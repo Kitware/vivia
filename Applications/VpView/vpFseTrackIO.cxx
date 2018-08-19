@@ -263,7 +263,7 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
 //-----------------------------------------------------------------------------
 QStringList vpFseTrackIO::GetSupportedFormats() const
 {
-  return {{"Scene Elements (JSON) (*.json)"}};
+  return QStringList("Scene Elements (JSON) (*.json)");
 }
 
 //-----------------------------------------------------------------------------
