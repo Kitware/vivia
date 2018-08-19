@@ -243,6 +243,7 @@ vpViewCore::vpViewCore() :
   TrackHeadRegion(0),
   HideTrackHeadIndicator(false),
   RegionEditMode(REM_Auto),
+  SingleFrameAnnotationMode(false),
   ExternalExecuteMode(-1),
   TrackUpdateChunkSize(10),
   VideoAnimation(new vpVideoAnimation(this)),
@@ -945,6 +946,12 @@ void vpViewCore::exportImageTimeStampsToFile()
     {
     out << imageTimes[i].first << ' ' << imageTimes[i].second / 1e6 << '\n';
     }
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setSingleFrameAnnotation(bool state)
+{
+  this->SingleFrameAnnotationMode = state;
 }
 
 //-----------------------------------------------------------------------------
@@ -2340,6 +2347,20 @@ void vpViewCore::onLeftClick()
     }
 
   this->setTrackHeadAndAdvance(points);
+
+  // If in single frame annotation mode, stop annotationing the current track
+  // and begin editing a new track (ready to receive the next click)
+  if (this->SingleFrameAnnotationMode)
+    {
+    int session = this->SessionView->GetCurrentSession();
+    int nextId = this->getCreateTrackId(session);
+    this->stopEditingTrack();
+    this->setCreateTrackId(nextId + 1, session);
+    this->createTrack(nextId, session, false);
+    this->SessionView->AddAndSelectItem(
+      vgObjectTypeDefinitions::Track, nextId);
+    this->beginEditingTrack(nextId);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2348,6 +2369,7 @@ void vpViewCore::onRightClick()
   if (this->isEditingTrack())
     {
     this->stopEditingTrack();
+    this->SingleFrameAnnotationMode = false;
     return;
     }
 
@@ -6842,6 +6864,16 @@ void vpViewCore::stopEditingTrack(bool autoremove)
     return;
     }
 
+  if (this->SingleFrameAnnotationMode)
+    {
+    // If in single frame mode, we'd lose a track id when stopping editing. So,
+    // every time call this function when in that mode, set nextId back one. If
+    // still in single frame mode (not actually stopping) we'll increment it
+    // again when we return to the calling function.
+    int session = this->SessionView->GetCurrentSession();
+    this->setCreateTrackId(this->getCreateTrackId(session) - 1, session);
+    }
+
   int projectId = this->TrackEditProjectId;
 
   this->TrackEditProjectId = -1;
@@ -6896,6 +6928,7 @@ void vpViewCore::deleteTrack(int trackId, int session)
 {
   if (this->isEditingTrack())
     {
+    this->SingleFrameAnnotationMode = false;
     this->stopEditingTrack(false);
     }
 
@@ -7399,21 +7432,29 @@ void vpViewCore::setTrackHeadAndAdvance(vtkPoints* points)
 
   this->setTrackHead(points);
 
-  // If the newly added head is past the end of the track, or this is a new
-  // track with no points, advance to the next frame. If the head is inserted
-  // before the start of the track, rewind to the previous frame. Otherwise
-  // stay put on the current frame.
-  if (this->AutoAdvanceDuringCreation && (isNewTrack || track->GetEndFrame() > ef))
+  if (this->SingleFrameAnnotationMode)
     {
-    this->nextFrame();
-    }
-  else if (this->AutoAdvanceDuringCreation && track->GetStartFrame() < sf)
-    {
-    this->prevFrame();
+    // No possibility of auto-advance in single frame mode
+    this->update();
     }
   else
     {
-    this->update();
+    // If the newly added head is past the end of the track, or this is a new
+    // track with no points, advance to the next frame. If the head is inserted
+    // before the start of the track, rewind to the previous frame. Otherwise
+    // stay put on the current frame.
+    if (this->AutoAdvanceDuringCreation && (isNewTrack || track->GetEndFrame() > ef))
+      {
+      this->nextFrame();
+      }
+    else if (this->AutoAdvanceDuringCreation && track->GetStartFrame() < sf)
+      {
+      this->prevFrame();
+      }
+    else
+      {
+      this->update();
+      }
     }
 }
 

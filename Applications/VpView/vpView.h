@@ -145,6 +145,7 @@ public slots:
   void onTestingStopped();
 
   void createTrack(bool start);
+  void createSingleFrameTracks();
   void createEvent(bool start);
   void createSceneElement(bool start);
 
@@ -157,6 +158,7 @@ public slots:
   void onEventCreated(int id);
   void onTracksMerged(int id);
 
+  void beginEditingTrack(int id);
   void splitTrack(int id, int sessionId);
   void improveTrack(int id, int sessionId);
 

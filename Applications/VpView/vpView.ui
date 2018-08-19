@@ -204,6 +204,7 @@
       <string>Annotation</string>
      </property>
      <addaction name="actionCreateTrack"/>
+     <addaction name="actionCreateSingleFrameTracks"/>
      <addaction name="actionCreateEvent"/>
      <addaction name="actionCreateSceneElement"/>
      <addaction name="separator"/>
@@ -1599,6 +1600,20 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionCreateSingleFrameTracks">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Create Single Frame Tracks</string>
+   </property>
+   <property name="toolTip">
+    <string>Once activated, a new track is started with each left click</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+F</string>
    </property>
   </action>
  </widget>

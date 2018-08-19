@@ -232,6 +232,7 @@ public:
   int  getCreateTrackId(int session);
   void setCreateTrackId(int id, int session);
 
+  void setSingleFrameAnnotation(bool state);
   bool createTrack(int trackId, int session, bool isFse = false);
   int  createEvent(int type, vtkIdList* ids, int session);
 
@@ -952,6 +953,7 @@ private:
   vtkVgTimeStamp NewTrackTimeStamp;
   vtkIdType EditingTrackId;
   double EditedTrackPrevColor[3];
+  bool SingleFrameAnnotationMode;
 
   vpBox* TrackHeadBox;
   vpContour* TrackHeadContour;

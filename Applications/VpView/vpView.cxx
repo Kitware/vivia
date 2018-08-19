@@ -520,7 +520,7 @@ vpView::vpView()
           this->Core, SLOT(setProjectVisible(int, bool)));
 
   connect(this->Internal->UI.sessionView, SIGNAL(EditTrack(int, int)),
-          this->Core, SLOT(beginEditingTrack(int)));
+          this, SLOT(beginEditingTrack(int)));
   connect(this->Internal->UI.sessionView, SIGNAL(StopEditingTrack(int)),
           this->Core, SLOT(stopEditingTrack()));
   connect(this->Internal->UI.sessionView, SIGNAL(DeleteTrack(int, int)),
@@ -759,6 +759,8 @@ vpView::vpView()
   // Annotation tools
   connect(this->Internal->UI.actionCreateTrack, SIGNAL(toggled(bool)),
           this, SLOT(createTrack(bool)));
+  connect(this->Internal->UI.actionCreateSingleFrameTracks, SIGNAL(triggered()),
+          this, SLOT(createSingleFrameTracks()));
   connect(this->Internal->UI.actionCreateEvent, SIGNAL(toggled(bool)),
           this, SLOT(createEvent(bool)));
   connect(this->Internal->UI.actionCreateSceneElement, SIGNAL(toggled(bool)),
@@ -878,6 +880,7 @@ void vpView::onDataLoaded()
   this->Internal->UI.actionViewportBookmark->setEnabled(true);
 
   this->Internal->UI.actionCreateTrack->setEnabled(true);
+  this->Internal->UI.actionCreateSingleFrameTracks->setEnabled(true);
   this->Internal->UI.actionCreateEvent->setEnabled(true);
   this->Internal->UI.actionCreateSceneElement->setEnabled(true);
   this->Internal->UI.actionMergeTracks->setEnabled(true);
@@ -2651,6 +2654,56 @@ void vpView::onTestingStopped()
 }
 
 //-----------------------------------------------------------------------------
+void vpView::createSingleFrameTracks()
+{
+  // In case in edit mode already, first stop editing
+  this->Core->stopEditingTrack();
+
+  int startId;
+  int session = this->Internal->UI.sessionView->GetCurrentSession();
+  while(1)
+    {
+    bool ok;
+    startId = QInputDialog::getInt(this,
+      tr("Add Single Frame Tracks"),
+      tr("Starting Track Id:"),
+      this->Core->getCreateTrackId(session),
+      0, 2147483647, 1, &ok);
+    if (!ok)
+      {
+      return;
+      }
+
+    if (this->Core->getTrackModel(session)->GetTrack(startId))
+      {
+      QMessageBox::warning(0,
+        QString(),
+        "A track with this ID already exists.");
+      }
+    else
+      {
+      break;
+      }
+    }
+
+  this->Core->setSingleFrameAnnotation(true);
+
+  // Start single track creation
+  if (this->Core->createTrack(startId, session))
+    {
+    this->Core->setCreateTrackId(startId + 1, session);
+    this->Internal->UI.sessionView->AddAndSelectItem(
+      vgObjectTypeDefinitions::Track, startId);
+    this->Core->beginEditingTrack(startId);
+
+    this->Internal->UI.actionViewTrackHeads->setChecked(true);
+
+    // Disable track follow, which doesn't make sense in this mode
+    this->Core->setIdOfTrackToFollow(-1);
+    }
+ }
+
+//-----------------------------------------------------------------------------
 void vpView::createTrack(bool start)
 {
   if (!start)
@@ -2658,6 +2711,7 @@ void vpView::createTrack(bool start)
     this->Core->stopEditingTrack();
     return;
     }
+  this->Core->setSingleFrameAnnotation(false);
 
   // stop event creation
   this->Internal->UI.actionCreateEvent->setChecked(false);
@@ -2759,12 +2813,12 @@ void vpView::createSceneElement(bool start)
 {
   // This is almost the same as createTrack since we will be using the normal
   // track creation machinery.
-
   if (!start)
     {
     this->Core->stopEditingTrack();
     return;
     }
+  this->Core->setSingleFrameAnnotation(false);
 
   // stop event creation
   this->Internal->UI.actionCreateTrack->setChecked(false);
@@ -2903,6 +2957,14 @@ void vpView::onTracksMerged(int id)
   this->rebuildObjectViews();
   this->Internal->UI.sessionView->SelectItem(vgObjectTypeDefinitions::Track, id);
   this->Core->updateScene();
+}
+
+//-----------------------------------------------------------------------------
+void vpView::beginEditingTrack(int id)
+{
+  this->Core->stopEditingTrack();
+  this->Core->setSingleFrameAnnotation(false);
+  this->Core->beginEditingTrack(id);
 }
 
 //-----------------------------------------------------------------------------
