@@ -369,9 +369,9 @@ bool vpVdfTrackIO::WriteTracks(
       if (this->StorageMode == TSM_InvertedImageCoords)
         {
         s <<               bbox.GetBound(0) << ','
-          << imageHeight - bbox.GetBound(2) << ','
+          << imageHeight - bbox.GetBound(3) << ','
           <<               bbox.GetBound(1) << ','
-          << imageHeight - bbox.GetBound(3) << ',';
+          << imageHeight - bbox.GetBound(2) << ',';
         }
       else
         {
