@@ -749,7 +749,6 @@ void vpObjectSelectionPanel::RemoveEventFromActivity()
   emit this->ItemsChanged();
 }
 
-
 //-----------------------------------------------------------------------------
 void vpObjectSelectionPanel::SetTracksType()
 {
@@ -757,8 +756,17 @@ void vpObjectSelectionPanel::SetTracksType()
                                                 this->TrackModel,
                                                 this->TrackTypeRegistry,
                                                 this);
+  connect(this->TrackTypeDialog, SIGNAL(accepted()),
+          SLOT(typeUpdateAccepted()));
 
+  //  updateInfoWidget
   this->TrackTypeDialog->show();
+}
+
+//-----------------------------------------------------------------------------
+void vpObjectSelectionPanel::typeUpdateAccepted()
+{
+  emit this->ViewCoreInstance->refreshSelectionPanel();
 }
 
 //-----------------------------------------------------------------------------

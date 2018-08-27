@@ -122,6 +122,7 @@ protected slots:
   void AddEventToActivity();
   void RemoveEventFromActivity();
   void SetTracksType();
+  void typeUpdateAccepted();
 
   void SetEventStatus(int status);
   void SetActivityStatus(int status);
