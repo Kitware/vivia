@@ -508,6 +508,9 @@ vpView::vpView()
   connect(this->Internal->UI.sessionView, SIGNAL(ItemsChanged()),
           this, SLOT(updateCore()));
 
+  connect(this->Internal->UI.sessionView, SIGNAL(ObjectTypeUpdated()),
+          this, SLOT(updateEverything()));
+
   connect(this->Internal->UI.sessionView,
           SIGNAL(CreateEvent(int, vtkIdList*, int)),
           this, SLOT(onCreateEvent(int, vtkIdList*)));

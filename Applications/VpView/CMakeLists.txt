@@ -144,6 +144,7 @@ set(vpViewSources
   vpSettings.cxx
   vpTimelineDialog.cxx
   vpTrackColorDialog.cxx
+  vpTrackTypeDialog.cxx
   vpTrackConfig.cxx
   vpTrackIO.cxx
   vpTreeView.cxx
@@ -173,6 +174,7 @@ set(vpViewUI
   vpTimelineDialog.ui
   vpTrackAttributeColorDialog.ui
   vpTrackColorDialog.ui
+  vpTrackTypeDialog.ui
   vpView.ui
 )
 
@@ -202,6 +204,7 @@ set(vpViewHeaders
   vpTimelineDialog.h
   vpTabWidget.h
   vpTrackColorDialog.h
+  vpTrackTypeDialog.h
   vpTreeView.h
   vpVideoAnimation.h
   vpView.h

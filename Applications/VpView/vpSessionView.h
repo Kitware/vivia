@@ -70,6 +70,7 @@ signals:
   void HoverItemChanged(int sessionId);
 
   void ItemsChanged();
+  void ObjectTypeUpdated();
 
   void CreateEvent(int type, vtkIdList* ids, int sessionId);
   void DeleteEvent(int type, int sessionId);

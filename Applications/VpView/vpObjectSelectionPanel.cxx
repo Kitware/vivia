@@ -7,6 +7,7 @@
 #include "ui_vpObjectSelectionPanel.h"
 
 #include "vpObjectSelectionPanel.h"
+#include "vpTrackTypeDialog.h"
 
 #include "vgEventType.h"
 #include "vpViewCore.h"
@@ -481,6 +482,8 @@ void vpObjectSelectionPanel::OnTreeContextMenu(QMenu& menu)
         return;
         }
 
+      menu.addAction("Set Type", this, SLOT(SetTracksType()));
+
       vtkVgTrack* track = this->TrackModel->GetTrack(this->SelectedItem.Id);
 
       this->AddSetStatusActions(submenu, this->SetTrackStatusMapper,
@@ -744,6 +747,25 @@ void vpObjectSelectionPanel::RemoveEventFromActivity()
 
   this->ActivityManager->Modified();
   emit this->ItemsChanged();
+}
+
+//-----------------------------------------------------------------------------
+void vpObjectSelectionPanel::SetTracksType()
+{
+  this->TrackTypeDialog = new vpTrackTypeDialog(this->CurrentTree(), 
+                                                this->TrackModel,
+                                                this->TrackTypeRegistry,
+                                                this);
+  connect(this->TrackTypeDialog, SIGNAL(accepted()),
+          SLOT(typeUpdateAccepted()));
+
+  this->TrackTypeDialog->show();
+}
+
+//-----------------------------------------------------------------------------
+void vpObjectSelectionPanel::typeUpdateAccepted()
+{
+  emit this->ObjectTypeUpdated();
 }
 
 //-----------------------------------------------------------------------------

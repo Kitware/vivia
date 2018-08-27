@@ -112,6 +112,7 @@ void vpSessionView::AddSession(vpViewCore* viewCore,
   connect(osp, SIGNAL(SelectionChanged(int)), SIGNAL(SelectionChanged(int)));
   connect(osp, SIGNAL(HoverItemChanged(int)), SIGNAL(HoverItemChanged(int)));
   connect(osp, SIGNAL(ItemsChanged()), SIGNAL(ItemsChanged()));
+  connect(osp, SIGNAL(ObjectTypeUpdated()), SIGNAL(ObjectTypeUpdated()));
 
   connect(osp, SIGNAL(CreateEvent(int, vtkIdList*, int)),
           SIGNAL(CreateEvent(int, vtkIdList*, int)));
