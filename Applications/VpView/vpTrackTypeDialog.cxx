@@ -93,6 +93,7 @@ void vpTrackTypeDialog::accept()
     d->TreeView->GetItemInfo(item, type, id, parentId, index);
     d->TrackModel->GetTrack(id)->SetType(d->UI.trackType->currentIndex() - 1);
     }
+  d->TrackModel->Modified();
 
   QDialog::accept();
 }

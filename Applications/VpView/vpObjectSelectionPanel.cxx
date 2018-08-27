@@ -759,14 +759,13 @@ void vpObjectSelectionPanel::SetTracksType()
   connect(this->TrackTypeDialog, SIGNAL(accepted()),
           SLOT(typeUpdateAccepted()));
 
-  //  updateInfoWidget
   this->TrackTypeDialog->show();
 }
 
 //-----------------------------------------------------------------------------
 void vpObjectSelectionPanel::typeUpdateAccepted()
 {
-  emit this->ViewCoreInstance->refreshSelectionPanel();
+  emit this->ObjectTypeUpdated();
 }
 
 //-----------------------------------------------------------------------------

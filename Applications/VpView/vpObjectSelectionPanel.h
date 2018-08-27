@@ -104,6 +104,7 @@ signals:
   void DisplaySceneElements(bool enable);
 
   void ItemsChanged();
+  void ObjectTypeUpdated();
 
 public slots:
   void FocusItemAlone();
