@@ -2352,15 +2352,21 @@ void vpViewCore::onLeftClick()
   // and begin editing a new track (ready to receive the next click)
   if (this->SingleFrameAnnotationMode)
     {
-    int session = this->SessionView->GetCurrentSession();
-    int nextId = this->getCreateTrackId(session);
-    this->stopEditingTrack();
-    this->setCreateTrackId(nextId + 1, session);
-    this->createTrack(nextId, session, false);
-    this->SessionView->AddAndSelectItem(
-      vgObjectTypeDefinitions::Track, nextId);
-    this->beginEditingTrack(nextId);
+    this->nextSingleClickTrack();
     }
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::nextSingleClickTrack()
+{
+  int session = this->SessionView->GetCurrentSession();
+  int nextId = this->getCreateTrackId(session);
+  this->stopEditingTrack();
+  this->setCreateTrackId(nextId + 1, session);
+  this->createTrack(nextId, session, false);
+  this->SessionView->AddAndSelectItem(
+    vgObjectTypeDefinitions::Track, nextId);
+  this->beginEditingTrack(nextId);
 }
 
 //-----------------------------------------------------------------------------
@@ -2368,6 +2374,12 @@ void vpViewCore::onRightClick()
 {
   if (this->isEditingTrack())
     {
+    if (this->SingleFrameAnnotationMode &&
+        this->NewTrackId != this->EditingTrackId)
+      {
+      this->nextSingleClickTrack();
+      return;
+      }
     this->stopEditingTrack();
     this->SingleFrameAnnotationMode = false;
     return;

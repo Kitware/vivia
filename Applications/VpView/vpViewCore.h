@@ -766,6 +766,8 @@ private:
 
   vpContour* makeFilterContour();
 
+  void nextSingleClickTrack();
+
   bool UpdatePending;
   bool UpdateObjectViews;
   bool ForceFullUpdate;
