@@ -20,6 +20,7 @@ class vpObjectSelectionPanel;
 
 class vpViewCore;
 class vpTreeView;
+class vpTrackTypeDialog;
 class vtkVpTrackModel;
 class vtkIdList;
 class vtkVgActivityManager;
@@ -120,6 +121,7 @@ protected slots:
   void ImproveTrack();
   void AddEventToActivity();
   void RemoveEventFromActivity();
+  void SetTracksType();
 
   void SetEventStatus(int status);
   void SetActivityStatus(int status);
@@ -199,6 +201,8 @@ private:
 
 private:
   Ui::vpObjectSelectionPanel* Ui;
+
+  vpTrackTypeDialog* TrackTypeDialog;
 
   QSignalMapper* CreateEventMapper;
   QSignalMapper* SetEventStatusMapper;
