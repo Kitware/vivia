@@ -7,6 +7,8 @@
 #ifndef __vpView_h
 #define __vpView_h
 
+#include "vpViewCore.h"
+
 #include <QMainWindow>
 
 class qtCliArgs;
@@ -25,7 +27,6 @@ class vpMergeTracksDialog;
 class vpQtViewer3dDialog;
 class vpTimelineDialog;
 class vpTrackColorDialog;
-class vpViewCore;
 
 class QTreeWidgetItem;
 
@@ -151,7 +152,8 @@ public slots:
 
   void mergeTracks(bool start);
 
-  void stopCreatingTrack();
+  void stopCreatingTrack(vpViewCore::enumAnnotationMode annotationMode =
+                         vpViewCore::AM_None);
   void stopCreatingEvent();
   void stopMergingTracks();
 

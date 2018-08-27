@@ -21,7 +21,6 @@
 #include "vpTrackColorDialog.h"
 #include "vpVersion.h"
 #include "vpView.h"
-#include "vpViewCore.h"
 #include "vtkVpTrackModel.h"
 
 #include <vtkVgEvent.h>
@@ -771,8 +770,10 @@ vpView::vpView()
   connect(this->Internal->UI.actionMergeTracks, SIGNAL(toggled(bool)),
           this, SLOT(mergeTracks(bool)));
 
-  connect(this->Core, SIGNAL(stoppedEditingTrack()),
-          this, SLOT(stopCreatingTrack()));
+  connect(this->Core,
+          SIGNAL(stoppedEditingTrack(vpViewCore::enumAnnotationMode)),
+          this,
+          SLOT(stopCreatingTrack(vpViewCore::enumAnnotationMode)));
 
   // Streaming mode
   connect(this->Internal->UI.actionAutoUpdate, SIGNAL(toggled(bool)),
@@ -2660,7 +2661,7 @@ void vpView::onTestingStopped()
 void vpView::createSingleFrameTracks()
 {
   // In case in edit mode already, first stop editing
-  this->Core->stopEditingTrack();
+  this->Core->stopEditingTrack(vpViewCore::AM_SingleFrameTrack);
 
   int startId;
   int session = this->Internal->UI.sessionView->GetCurrentSession();
@@ -2697,7 +2698,7 @@ void vpView::createSingleFrameTracks()
     this->Core->setCreateTrackId(startId + 1, session);
     this->Internal->UI.sessionView->AddAndSelectItem(
       vgObjectTypeDefinitions::Track, startId);
-    this->Core->beginEditingTrack(startId);
+    this->Core->beginEditingTrack(vpViewCore::AM_SingleFrameTrack, startId);
 
     this->Internal->UI.actionViewTrackHeads->setChecked(true);
 
@@ -2711,7 +2712,7 @@ void vpView::createTrack(bool start)
 {
   if (!start)
     {
-    this->Core->stopEditingTrack();
+    this->Core->stopEditingTrack(vpViewCore::AM_Track);
     return;
     }
   this->Core->setSingleFrameAnnotation(false);
@@ -2719,6 +2720,7 @@ void vpView::createTrack(bool start)
   // stop event creation
   this->Internal->UI.actionCreateEvent->setChecked(false);
   this->Internal->UI.actionCreateSceneElement->setChecked(false);
+  this->Internal->UI.actionCreateSingleFrameTracks->setChecked(false);
 
   int session = this->Internal->UI.sessionView->GetCurrentSession();
 
@@ -2755,7 +2757,7 @@ void vpView::createTrack(bool start)
     this->Core->setCreateTrackId(id + 1, session);
     this->Internal->UI.sessionView->AddAndSelectItem(
       vgObjectTypeDefinitions::Track, id);
-    this->Core->beginEditingTrack(id);
+    this->Core->beginEditingTrack(vpViewCore::AM_Track, id);
 
     this->Internal->UI.actionViewTrackHeads->setChecked(true);
     if (this->Core->getAutoAdvanceDuringCreation())
@@ -2783,6 +2785,7 @@ void vpView::createEvent(bool start)
 
   // stop track creation
   this->Internal->UI.actionCreateTrack->setChecked(false);
+  this->Internal->UI.actionCreateSingleFrameTracks->setChecked(false);
   this->Internal->UI.actionCreateSceneElement->setChecked(false);
 
   // make only the current project visible
@@ -2818,13 +2821,14 @@ void vpView::createSceneElement(bool start)
   // track creation machinery.
   if (!start)
     {
-    this->Core->stopEditingTrack();
+    this->Core->stopEditingTrack(vpViewCore::AM_SceneElement);
     return;
     }
   this->Core->setSingleFrameAnnotation(false);
 
   // stop event creation
   this->Internal->UI.actionCreateTrack->setChecked(false);
+  this->Internal->UI.actionCreateSingleFrameTracks->setChecked(false);
   this->Internal->UI.actionCreateEvent->setChecked(false);
 
   int session = this->Internal->UI.sessionView->GetCurrentSession();
@@ -2864,7 +2868,7 @@ void vpView::createSceneElement(bool start)
     this->Core->setCreateTrackId(id + 1, session);
     this->Internal->UI.sessionView->AddAndSelectItem(
       vgObjectTypeDefinitions::SceneElement, id);
-    this->Core->beginEditingTrack(id);
+    this->Core->beginEditingTrack(vpViewCore::AM_SceneElement, id);
 
     this->Internal->UI.actionViewSceneElements->setChecked(true);
     if (this->Core->getAutoAdvanceDuringCreation())
@@ -2892,6 +2896,7 @@ void vpView::mergeTracks(bool start)
 
   // stop track / event creation
   this->Internal->UI.actionCreateTrack->setChecked(false);
+  this->Internal->UI.actionCreateSingleFrameTracks->setChecked(false);
   this->Internal->UI.actionCreateEvent->setChecked(false);
 
   // make only the current project visible
@@ -2922,10 +2927,20 @@ void vpView::mergeTracks(bool start)
 }
 
 //-----------------------------------------------------------------------------
-void vpView::stopCreatingTrack()
+void vpView::stopCreatingTrack(vpViewCore::enumAnnotationMode annotationMode)
 {
-  this->Internal->UI.actionCreateTrack->setChecked(false);
-  this->Internal->UI.actionCreateSceneElement->setChecked(false);
+  if (annotationMode != vpViewCore::AM_Track)
+    {
+    this->Internal->UI.actionCreateTrack->setChecked(false);
+    }
+  if (annotationMode != vpViewCore::AM_SceneElement)
+    {
+    this->Internal->UI.actionCreateSceneElement->setChecked(false);
+    }
+  if (annotationMode != vpViewCore::AM_SingleFrameTrack)
+    {
+    this->Internal->UI.actionCreateSingleFrameTracks->setChecked(false);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2967,7 +2982,7 @@ void vpView::beginEditingTrack(int id)
 {
   this->Core->stopEditingTrack();
   this->Core->setSingleFrameAnnotation(false);
-  this->Core->beginEditingTrack(id);
+  this->Core->beginEditingTrack(vpViewCore::AM_None, id);
 }
 
 //-----------------------------------------------------------------------------

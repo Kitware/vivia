@@ -128,6 +128,14 @@ public:
     ShowUntilTrackEnd
     };
 
+  enum enumAnnotationMode
+    {
+    AM_None,
+    AM_Track,
+    AM_SingleFrameTrack,
+    AM_SceneElement,
+    };
+
   // Constructor/Destructor
   vpViewCore();
   virtual ~vpViewCore();
@@ -580,8 +588,9 @@ public slots:
   void saveCameraPosition();
   void restoreCameraPosition();
 
-  void beginEditingTrack(int trackId);
-  void stopEditingTrack(bool autoremove = true);
+  void beginEditingTrack(enumAnnotationMode annotationMode, int trackId);
+  void stopEditingTrack(enumAnnotationMode annotationMode = AM_None,
+                        bool autoremove = true);
   void deleteTrack(int trackId, int session);
   void deleteEvent(int eventId, int session);
   void deleteTrackPoint();
@@ -660,7 +669,7 @@ signals:
 
   void mouseMoved(int x, int y);
 
-  void stoppedEditingTrack();
+  void stoppedEditingTrack(vpViewCore::enumAnnotationMode annotationMode);
 
   void objectInfoUpdateNeeded();
 

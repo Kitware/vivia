@@ -2361,12 +2361,12 @@ void vpViewCore::nextSingleClickTrack()
 {
   int session = this->SessionView->GetCurrentSession();
   int nextId = this->getCreateTrackId(session);
-  this->stopEditingTrack();
+  this->stopEditingTrack(AM_SingleFrameTrack);
   this->setCreateTrackId(nextId + 1, session);
   this->createTrack(nextId, session, false);
   this->SessionView->AddAndSelectItem(
     vgObjectTypeDefinitions::Track, nextId);
-  this->beginEditingTrack(nextId);
+  this->beginEditingTrack(AM_SingleFrameTrack, nextId);
 }
 
 //-----------------------------------------------------------------------------
@@ -2395,7 +2395,7 @@ void vpViewCore::onRightClick()
       this->pickScene() == vtkVgPickData::PickedTrack)
     {
     int session = this->SessionView->GetCurrentSession();
-    this->beginEditingTrack(this->Projects[session]->Picker->GetPickedId());
+    this->beginEditingTrack(AM_None, this->Projects[session]->Picker->GetPickedId());
     }
 }
 
@@ -6838,9 +6838,10 @@ void vpViewCore::removeAllTemporalFilters()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::beginEditingTrack(int trackId)
+void vpViewCore::beginEditingTrack(enumAnnotationMode annotationMode,
+                                   int trackId)
 {
-  this->stopEditingTrack();
+  this->stopEditingTrack(annotationMode);
 
   int session = this->SessionView->GetCurrentSession();
   this->TrackEditProjectId = this->Projects[session]->ProjectId;
@@ -6870,7 +6871,8 @@ void vpViewCore::beginEditingTrack(int trackId)
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::stopEditingTrack(bool autoremove)
+void vpViewCore::stopEditingTrack(enumAnnotationMode annotationMode,
+                                  bool autoremove)
 {
   if (!this->isEditingTrack())
     {
@@ -6900,7 +6902,7 @@ void vpViewCore::stopEditingTrack(bool autoremove)
 
   if (autoremove)
     {
-    emit this->stoppedEditingTrack();
+    emit this->stoppedEditingTrack(annotationMode);
     }
 
   if (this->EditingTrackId == this->NewTrackId)
@@ -6942,7 +6944,7 @@ void vpViewCore::deleteTrack(int trackId, int session)
   if (this->isEditingTrack())
     {
     this->SingleFrameAnnotationMode = false;
-    this->stopEditingTrack(false);
+    this->stopEditingTrack();
     }
 
   vpProject* project = this->Projects[session];
