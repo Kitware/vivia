@@ -26,6 +26,7 @@ set(vtkVgCoreSrcs
   vtkVgAssignCoordinatesLayoutStrategy.cxx
   vtkVgAtomic.cxx
   vtkVgBaseImageSource.cxx
+  vtkVgBMPReader.cxx
   vtkVgBorderRepresentation.cxx
   vtkVgCellPicker.cxx
   vtkVgChartTimeline.cxx
@@ -91,6 +92,7 @@ set(vtkVgCoreInstallHeaders
   vtkVgAssignCoordinatesLayoutStrategy.h
   vtkVgAtomic.h
   vtkVgBaseImageSource.h
+  vtkVgBMPReader.h
   vtkVgBorderRepresentation.h
   vtkVgCellPicker.h
   vtkVgChartTimeline.h

@@ -121,6 +121,7 @@
 #include <vtkVgActivity.h>
 #include <vtkVgActivityManager.h>
 #include <vtkVgActivityTypeRegistry.h>
+#include <vtkVgBMPReader.h>
 #include <vtkVgContourOperatorManager.h>
 #include <vtkVgEvent.h>
 #include <vtkVgEventFilter.h>
@@ -1933,6 +1934,7 @@ void vpViewCore::initializeViewInteractions()
 //-----------------------------------------------------------------------------
 void vpViewCore::initializeSources()
 {
+  RegisterVpImageSource registerBMPImageSouce(&vtkVgBMPReader::Create);
   RegisterVpImageSource registerPNGImageSouce(&vtkVgPNGReader::Create);
   RegisterVpImageSource registerMRJImageSouce(&vtkVgMultiResJpgImageReader2::Create);
   RegisterVpImageSource registerJP2ImageSource(&vtkVgImageSource::Create);
