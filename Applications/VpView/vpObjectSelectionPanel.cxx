@@ -252,7 +252,7 @@ void vpObjectSelectionPanel::Initialize(vpViewCore* viewCore,
           SLOT(OnTabBarContextMenu(QContextMenuEvent*, int)));
 
   connect(viewCore,
-          SIGNAL(stoppedEditingTrack()),
+          SIGNAL(stoppedEditingTrack(vpViewCore::enumAnnotationMode)),
           SLOT(StopEditingTrack()));
 }
 
