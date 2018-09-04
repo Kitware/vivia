@@ -1031,6 +1031,23 @@ QList<vtkVgVideoNode*> vqTreeView::GetSelectedNodes()
 }
 
 //-----------------------------------------------------------------------------
+QList<vtkVgVideoNode*> vqTreeView::GetStarredNodes()
+{
+  QList<vtkVgVideoNode*> nodeList;
+
+  foreach_child (auto* item, this->invisibleRootItem())
+    {
+    vtkVgVideoNode* node = this->GetVideoNode(item);
+    if (node->GetIsStarResult())
+      {
+      nodeList.append(node);
+      }
+    }
+
+  return nodeList;
+}
+
+//-----------------------------------------------------------------------------
 void vqTreeView::ShowTrackingClips()
 {
   if (this->selectedItems().empty())

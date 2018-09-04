@@ -194,6 +194,7 @@ public slots:
   void saveQueryPlan();
   void saveResults();
   void exportResults(QList<vtkVgVideoNode*> results, QString exporterId);
+  void exportResults(QString exporterId);
 
   void openExternal(QUrl clipUri, QString streamId, double time);
 
