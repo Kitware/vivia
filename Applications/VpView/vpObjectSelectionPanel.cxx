@@ -1109,8 +1109,7 @@ void vpObjectSelectionPanel::ToggleLinkedEvents(bool state)
 {
   QList<QTreeWidgetItem*> trackItems = this->CurrentTree()->selectedItems();
 
-  QTreeWidgetItem* trackItem;
-  foreach (trackItem, trackItems)
+  foreach (auto trackItem, trackItems)
     {
     vgItemInfo info;
     this->CurrentTree()->GetItemInfo(trackItem, info.Type, info.Id,
@@ -1136,8 +1135,7 @@ void vpObjectSelectionPanel::ToggleLinkedActivities(bool state)
 {
   QList<QTreeWidgetItem*> trackItems = this->CurrentTree()->selectedItems();
 
-  QTreeWidgetItem* trackItem;
-  foreach (trackItem, trackItems)
+  foreach (auto trackItem, trackItems)
     {
     vgItemInfo info;
     this->CurrentTree()->GetItemInfo(trackItem, info.Type, info.Id,
