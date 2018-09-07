@@ -3111,6 +3111,25 @@ void vqCore::exportResults(QList<vtkVgVideoNode*> results, QString exporterId)
 }
 
 //-----------------------------------------------------------------------------
+void vqCore::exportResults(QString exporterId)
+{
+  if (this->QueryResults.isEmpty())
+    {
+    QMessageBox::warning(0, "Viqui", "Unable to export;"
+                         " result set is empty");
+    }
+  else
+    {
+    vqExporter* exporter = vqExporterFactory::createExporter(exporterId);
+    if (exporter)
+      {
+      exporter->exportResults(this->QueryResults.values());
+      delete exporter;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vqCore::openExternal(QUrl clipUri, QString streamId, double time)
 {
   // Get external player application

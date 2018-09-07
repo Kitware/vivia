@@ -38,6 +38,7 @@ public:
                   bool showEventType = false);
 
   QList<vtkVgVideoNode*> GetSelectedNodes();
+  QList<vtkVgVideoNode*> GetStarredNodes();
 
   // reimplemented from QWidget
   virtual void contextMenuEvent(QContextMenuEvent* event);

@@ -93,7 +93,9 @@ protected slots:
   void cancelNewQuery();
   void formulateQuery(vvProcessingRequest request, long long initialTime);
 
-  void exportResults(const QString& exporterId);
+  void exportSelectedResults(const QString& exporterId);
+  void exportStarredResults(const QString& exporterId);
+  void exportAllResults(const QString& exporterId);
 
   void setGroundTruthEventType(int index);
 
