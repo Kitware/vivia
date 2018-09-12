@@ -133,6 +133,10 @@ vpTreeView::vpTreeView(QWidget* p)
 
   connect(this, SIGNAL(itemChanged(QTreeWidgetItem*, int)),
           this, SLOT(OnItemChanged(QTreeWidgetItem*)));
+
+  (void)&vpTreeView::itemDoubleClicked;
+  connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+          this, SIGNAL(GoToStartFrame()));
 }
 
 //-----------------------------------------------------------------------------
