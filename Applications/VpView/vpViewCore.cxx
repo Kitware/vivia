@@ -1113,7 +1113,8 @@ void vpViewCore::updateTrack(
       narrow(bbox.max_x()), narrow(videoHeight - bbox.min_y()), 0.0f
     }};
 
-    const auto& center = bbox.center();
+    auto center = bbox.center();
+    center[1] = videoHeight - center[1];
 
     track->SetPoint(ts, center.data(), {}, 4, points.data());
 
