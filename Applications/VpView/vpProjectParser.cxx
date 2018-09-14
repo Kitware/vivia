@@ -21,9 +21,11 @@
 #include <vtkMatrix4x4.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QSettings>
 #include <QTemporaryFile>
 
@@ -35,10 +37,23 @@ namespace
 {
 
 //-----------------------------------------------------------------------------
-template <typename T>
-bool readValue(const QSettings& reader, const QString& key, T& value)
+struct SettingsContext
 {
-  const QVariant& var = reader.value(key, QVariant::fromValue(value));
+  const QSettings& reader;
+  QStringList errors;
+
+  QDebug warn()
+  {
+    errors.append(QString{});
+    return QDebug{&errors.last()};
+  }
+};
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool readValue(SettingsContext& context, const QString& key, T& value)
+{
+  const QVariant& var = context.reader.value(key, QVariant::fromValue(value));
   if (var.isValid())
     {
     if (var.canConvert<T>())
@@ -46,7 +61,7 @@ bool readValue(const QSettings& reader, const QString& key, T& value)
       value = var.value<T>();
       return true;
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
 
   return false;
@@ -54,9 +69,9 @@ bool readValue(const QSettings& reader, const QString& key, T& value)
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key, QPointF& value)
+bool readValue(SettingsContext& context, const QString& key, QPointF& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toList();
@@ -71,16 +86,16 @@ bool readValue(const QSettings& reader, const QString& key, QPointF& value)
         return true;
         }
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
+bool readValue(SettingsContext& context, const QString& key, QSizeF& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toList();
@@ -95,17 +110,17 @@ bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
         return true;
         }
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key,
+bool readValue(SettingsContext& context, const QString& key,
                vgGeoRawCoordinate& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toStringList();
@@ -117,7 +132,23 @@ bool readValue(const QSettings& reader, const QString& key,
       value = {values[0], values[1]};
       return true;
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(SettingsContext& context, const QString& key, vgColor& value)
+{
+  const QVariant& var = context.reader.value(key);
+  if (var.isValid())
+    {
+    if (value.read(context.reader, key))
+      {
+      return true;
+      }
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
@@ -380,6 +411,7 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   QSettings reader{projectFileName, QSettings::IniFormat};
+  SettingsContext context{reader, {}};
 
   // Read file path fields
   foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
@@ -411,38 +443,45 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   // Read non-string fields
-  readValue(reader, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
-  readValue(reader, prj->OverviewSpacingTag,    prj->OverviewSpacing);
-  readValue(reader, prj->ColorWindowTag,        prj->ColorWindow);
-  readValue(reader, prj->ColorLevelTag,         prj->ColorLevel);
-  readValue(reader, prj->ColorMultiplierTag,    prj->ColorMultiplier);
-  readValue(reader, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
-  readValue(reader, prj->OverviewOriginTag,     prj->OverviewOrigin);
-  readValue(reader, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
-
-  // Read track override color
-  prj->TrackColorOverride.read(reader, prj->TrackColorOverrideTag);
+  readValue(context, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
+  readValue(context, prj->OverviewSpacingTag,    prj->OverviewSpacing);
+  readValue(context, prj->ColorWindowTag,        prj->ColorWindow);
+  readValue(context, prj->ColorLevelTag,         prj->ColorLevel);
+  readValue(context, prj->ColorMultiplierTag,    prj->ColorMultiplier);
+  readValue(context, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
+  readValue(context, prj->OverviewOriginTag,     prj->OverviewOrigin);
+  readValue(context, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
+  readValue(context, prj->TrackColorOverrideTag, prj->TrackColorOverride);
 
   // Read AOI
   reader.beginGroup("AOI");
-  if (readValue(reader, "TopLeft", prj->AOI.Coordinate[0]))
+  if (readValue(context, "TopLeft", prj->AOI.Coordinate[0]))
     {
-    readValue(reader, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
+    readValue(context, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
 
     prj->AOI.Coordinate[2] = prj->AOI.Coordinate[0];
-    readValue(reader, "BottomRight", prj->AOI.Coordinate[2]);
+    readValue(context, "BottomRight", prj->AOI.Coordinate[2]);
 
     prj->AOI.Coordinate[1].Easting  = prj->AOI.Coordinate[2].Easting;
     prj->AOI.Coordinate[1].Northing = prj->AOI.Coordinate[0].Northing;
     prj->AOI.Coordinate[3].Easting  = prj->AOI.Coordinate[0].Easting;
     prj->AOI.Coordinate[3].Northing = prj->AOI.Coordinate[2].Northing;
-    readValue(reader, "TopRight", prj->AOI.Coordinate[1]);
-    readValue(reader, "BottomLeft", prj->AOI.Coordinate[3]);
+    readValue(context, "TopRight", prj->AOI.Coordinate[1]);
+    readValue(context, "BottomLeft", prj->AOI.Coordinate[3]);
     }
   reader.endGroup();
 
   // Read image-to-GCS matrix
   // TODO
+
+  if (!context.errors.isEmpty())
+    {
+    QMessageBox mb{QMessageBox::Warning, "Load Project",
+                   "Warnings were reported while parsing the project",
+                   QMessageBox::Ok, qApp->activeWindow()};
+    mb.setDetailedText(context.errors.join("\n"));
+    mb.exec();
+    }
 
   return true;
 #endif
