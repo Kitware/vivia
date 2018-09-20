@@ -247,7 +247,7 @@ public:
   int getTrackTypeIndex(const char* typeName);
 
   void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
-                   const std::map<unsigned int, vgTimeStamp>& timeMap,
+                   const QMap<int, vgTimeStamp>& timeMap,
                    double videoHeight, bool updateToc = false);
 
   void improveTrack(int trackId, int session);
