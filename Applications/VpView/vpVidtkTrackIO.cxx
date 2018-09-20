@@ -941,29 +941,7 @@ void vpVidtkTrackIO::ReadTrack(
 
   if (newTrack)
     {
-    if (this->HasOverrideColor)
-      {
-      track->SetColor(this->OverrideColor);
-      }
-    else
-      {
-      double color[3];
-      int typeIndex = track->GetType();
-      if (typeIndex != -1)
-        {
-        // If the track has a valid type, use that to look up a color
-        const vgTrackType& type = this->TrackTypes->GetType(typeIndex);
-        type.GetColor(color[0], color[1], color[2]);
-        track->SetColor(color[0], color[1], color[2]);
-        }
-      else
-        {
-        this->GetDefaultTrackColor(track->GetId(), color);
-        track->SetColor(color);
-        }
-      }
-    this->TrackModel->AddTrack(track);
-    track->FastDelete();
+    this->AddTrack(track);
     }
 
   this->TrackMap[track] = vidtkTrack;

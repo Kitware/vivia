@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,6 +13,9 @@
 
 struct vgGeocodedCoordinate;
 struct vgGeocodedPoly;
+
+template <int K> struct vgGeocodedFixedPoly;
+using vgGeocodedTile = vgGeocodedFixedPoly<4>;
 
 namespace vgGeodesy
 {
@@ -35,6 +38,9 @@ namespace vgGeodesy
 
   VG_COMMON_EXPORT vgGeocodedCoordinate convertGcs(
     const vgGeocodedCoordinate&, int desiredGcs);
+
+  VG_COMMON_EXPORT vgGeocodedTile convertGcs(
+    const vgGeocodedTile&, int desiredGcs);
 
   VG_COMMON_EXPORT vgGeocodedPoly convertGcs(
     const vgGeocodedPoly&, int desiredGcs);

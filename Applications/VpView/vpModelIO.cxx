@@ -16,7 +16,7 @@ vpModelIO::vpModelIO() :
 {}
 
 //-----------------------------------------------------------------------------
-void vpModelIO::SetTrackOverrideColor(double color[3])
+void vpModelIO::SetTrackOverrideColor(const vgColor& color)
 {
   assert(this->TrackIO);
   this->TrackIO->SetOverrideColor(color);
