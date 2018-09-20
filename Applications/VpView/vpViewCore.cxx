@@ -328,7 +328,7 @@ void vpViewCore::newProject()
 
   if (!this->Projects.empty())
     {
-    editor.setDataset(qtString(this->ImageDataSource->getDataSetSpecifier()));
+    editor.setDataset(this->ImageDataSource->dataSetSpecifier());
     }
 
   if (editor.exec() == QDialog::Accepted)
@@ -444,7 +444,7 @@ void vpViewCore::importProject()
       }
     }
 
-  if (QDir::cleanPath(qtString(this->ImageDataSource->getDataSetSpecifier())) !=
+  if (QDir::cleanPath(this->ImageDataSource->dataSetSpecifier()) !=
       QDir::cleanPath(project->DataSetSpecifier))
     {
     if (QMessageBox::warning(0, QString(),
@@ -1599,8 +1599,8 @@ void vpViewCore::initializeAllOthers()
   this->ImageDataSource             = new vpFileDataSource();
   this->FrameMap                    = new vpFrameMap(this->ImageDataSource);
 
-  connect(this->ImageDataSource, SIGNAL(dataFilesChanged()), this,
-          SLOT(reactToDataChanged()));
+  connect(this->ImageDataSource, SIGNAL(frameSetChanged()),
+          this, SLOT(reactToDataChanged()));
 
   this->ProjectParser               = new vpProjectParser();
 
@@ -3123,10 +3123,15 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     if (hasFrameMap)
       {
       // Use the image filenames retrieved as the dataset
-      this->ImageDataSource->setDataFiles(project->ModelIO->GetImageFiles());
+      QStringList frames;
+      foreach (const auto& f, project->ModelIO->GetImageFiles())
+        {
+        frames.append(qtString(f));
+        }
+      this->ImageDataSource->setDataFiles(frames);
 
       this->NumberOfFrames =
-        static_cast<unsigned int>(this->ImageDataSource->getFileCount());
+        static_cast<unsigned int>(this->ImageDataSource->frames());
 
       // If the expected metadata is not there, fall back to determining the
       // dataset from the project parameters.
@@ -3138,7 +3143,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       else
         {
         if (project->ModelIO->GetHomographyCount() <
-            this->ImageDataSource->getFileCount())
+            this->ImageDataSource->frames())
           {
           emitHomographyCountWarning();
           }
@@ -3149,11 +3154,10 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
 
     if (!hasFrameMap)
       {
-      this->ImageDataSource->setDataSetSpecifier(
-        stdString(project->DataSetSpecifier));
+      this->ImageDataSource->setDataSetSpecifier(project->DataSetSpecifier);
 
       this->NumberOfFrames =
-        static_cast<unsigned int>(this->ImageDataSource->getFileCount());
+        static_cast<unsigned int>(this->ImageDataSource->frames());
 
       if (this->NumberOfFrames == 0)
         {
@@ -3208,12 +3212,12 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
             break;
             }
 
+          const auto frameCount = this->ImageDataSource->frames();
           int homographyCount = 0;
           bool endOfFile = false;
           int frameIndex;
           double timeStamp, matrixElement;
-          vtkSmartPointer<vtkMatrix4x4> homography =
-            vtkSmartPointer<vtkMatrix4x4>::New();
+          vtkNew<vtkMatrix4x4> homography;
           while (file >> frameIndex >> timeStamp)
             {
             for (int i = 0; i < 3 && !endOfFile; ++i)
@@ -3230,17 +3234,17 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                        matrixElement);
                 }
               }
-            // trusting that a negative frameIndex won't occur?
-            if (frameIndex >= this->ImageDataSource->getFileCount())
+            if (frameIndex < 0 || frameIndex >= frameCount)
               {
               break;
               }
 
-            this->FrameMap->setImageHomography(
-              this->ImageDataSource->getDataFile(frameIndex), homography);
+            const auto& frameName =
+              stdString(this->ImageDataSource->frameName(frameIndex));
+            this->FrameMap->setImageHomography(frameName, homography.Get());
             ++homographyCount;
             }
-          if (homographyCount < this->ImageDataSource->getFileCount())
+          if (homographyCount < frameCount)
             {
             emitHomographyCountWarning();
             }
@@ -3279,9 +3283,9 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     this->ImageSource->SetOrigin(project->OverviewOrigin.x(),
                                  project->OverviewOrigin.y(), 0.0);
 
+    const auto frame = static_cast<int>(this->CoreTimeStamp.GetFrameNumber());
     this->ImageSource->SetFileName(
-      this->ImageDataSource->getDataFile(
-        this->CoreTimeStamp.GetFrameNumber()).c_str());
+      qPrintable(this->ImageDataSource->frameName(frame)));
 
     this->ImageSource->SetLevel(3);
     this->ImageSource->SetReadExtents(-1, -1, -1, -1);
@@ -3480,8 +3484,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     }
   else
     {
-    const auto& dataSet =
-      qtString(this->ImageDataSource->getDataSetSpecifier());
+    const auto& dataSet = this->ImageDataSource->dataSetSpecifier();
     if (QDir::cleanPath(dataSet) != QDir::cleanPath(project->DataSetSpecifier))
       {
       QString str = "Warning: \"%1\" has a dataset specifier that doesn't match"
@@ -4166,11 +4169,11 @@ void vpViewCore::exportForWeb(const char* path, int paddingFrames)
   this->ImageSource->SetLevel(currentLevel);
   this->ImageSource->SetReadExtents(currentExtents);
 
-  std::string fileName = this->ImageDataSource->getDataFile(0);
+  const auto& firstFileName = this->ImageDataSource->frameName(0);
 
   vtkSmartPointer<vtkVgBaseImageSource> imageSource;
   imageSource.TakeReference(
-    vpImageSourceFactory::GetInstance()->Create(fileName));
+    vpImageSourceFactory::GetInstance()->Create(stdString(firstFileName)));
 
   if (!imageSource)
     {
@@ -4347,14 +4350,13 @@ void vpViewCore::exportForWeb(const char* path, int paddingFrames)
         id = newId;
         }
 
-      std::string fileName =
-        this->ImageDataSource->getDataFile(timeStamp.GetFrameNumber() -
-                                           this->FrameNumberOffset);
-      if (fileName.empty())
+      const auto frameNum =
+        static_cast<int>(timeStamp.GetFrameNumber() - this->FrameNumberOffset);
+      const auto& fileName =
+        this->ImageDataSource->frameName(frameNum);
+      if (fileName.isEmpty())
         {
-        qDebug() << "Image for frame"
-                 << timeStamp.GetFrameNumber() - this->FrameNumberOffset
-                 << "not found, skipping";
+        qDebug() << "Image for frame" << frameNum << "not found, skipping";
         continue;
         }
 
@@ -4390,7 +4392,7 @@ again:
       extents[3] = extents[2] + dim[1] - 1;
       extents[4] = extents[5] = 0;
 
-      imageSource->SetFileName(fileName.c_str());
+      imageSource->SetFileName(qPrintable(fileName));
       imageSource->UpdateInformation();
 
       int imageDimensions[2];
@@ -4594,7 +4596,7 @@ void vpViewCore::forceRender()
 void vpViewCore::reactToDataChanged()
 {
   this->NumberOfFrames =
-    static_cast<unsigned int>(this->ImageDataSource->getFileCount());
+    static_cast<unsigned int>(this->ImageDataSource->frames());
 
   if (this->UsingTimeStampData)
     {
@@ -5241,16 +5243,16 @@ void vpViewCore::forceUpdate()
   // Update the image data if the timestamp differs from last update
   if (this->ForceFullUpdate || this->CurrentFrame != this->LastFrame)
     {
-    std::string imageFile =
-      this->ImageDataSource->getDataFile(this->CurrentFrame);
-    if (imageFile.empty())
+    const auto& imageFile =
+      this->ImageDataSource->frameName(static_cast<int>(this->CurrentFrame));
+    if (imageFile.isEmpty())
       {
       return;
       }
 
     this->ForceFullUpdate = false;
     this->LastFrame = this->CurrentFrame;
-    this->ImageSource->SetFileName(imageFile.c_str());
+    this->ImageSource->SetFileName(qPrintable(imageFile));
 
     if (this->UseGeoCoordinates || this->UseRawImageCoordinates)
       {
@@ -6031,13 +6033,14 @@ void vpViewCore::initializeImageSource()
 {
   // Check here the extension of the files.
   // Grab the first file.
-  std::string fileName = this->ImageDataSource->getDataFile(0);
-  this->ImageSource.TakeReference(vpImageSourceFactory::GetInstance()->Create(fileName));
+  const auto& fileName = this->ImageDataSource->frameName(0);
+  this->ImageSource.TakeReference(
+    vpImageSourceFactory::GetInstance()->Create(stdString(fileName)));
 
   if (!this->ImageSource)
     {
     QString errorMsg = QString("Unable to create image souce for \"%1\"");
-    emit this->criticalError(errorMsg.arg(qtString(fileName)));
+    emit this->criticalError(errorMsg.arg(fileName));
     return;
     }
 }
@@ -8215,8 +8218,8 @@ void vpViewCore::startFrameMapRebuild()
 //-----------------------------------------------------------------------------
 bool vpViewCore::waitForFrameMapRebuild()
 {
-  int numFiles = this->ImageDataSource->getFileCount();
-  if (!this->FrameMap->isRunning() && this->FrameMap->progress() < numFiles)
+  const auto numFrames = this->ImageDataSource->frames();
+  if (!this->FrameMap->isRunning() && this->FrameMap->progress() < numFrames)
     {
     // This shouldn't ever happen.
     qDebug() << "Trying to wait for frame map build thread to complete, but "
@@ -8225,7 +8228,7 @@ bool vpViewCore::waitForFrameMapRebuild()
     }
 
   QProgressDialog progress("Decoding image timestamps...", "Cancel",
-                           0, numFiles);
+                           0, numFrames);
   progress.setWindowModality(Qt::ApplicationModal);
 
   // Manually force the dialog to be shown. Otherwise, in release builds a
@@ -8234,7 +8237,7 @@ bool vpViewCore::waitForFrameMapRebuild()
   progress.show();
 
   int curProgress;
-  while ((curProgress = this->FrameMap->progress()) < numFiles)
+  while ((curProgress = this->FrameMap->progress()) < numFrames)
     {
     progress.setValue(curProgress);
 
@@ -8250,7 +8253,7 @@ bool vpViewCore::waitForFrameMapRebuild()
       return false;
       }
     }
-  progress.setValue(numFiles);
+  progress.setValue(numFrames);
   return true;
 }
 

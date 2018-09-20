@@ -727,13 +727,13 @@ void vpQtViewer3d::updateContext(const vtkVgTimeStamp& timestamp)
     return;
     }
 
-  std::string nextDataFile =
-    this->ContextDataSource->getDataFile(timestamp.GetFrameNumber());
+  const auto frame = static_cast<int>(timestamp.GetFrameNumber());
+  const auto& nextDataFile = this->ContextDataSource->frameName(frame);
 
   if (!this->Internal->ContextSource)
     {
     this->Internal->ContextSource.TakeReference(
-      vpImageSourceFactory::GetInstance()->Create(nextDataFile));
+      vpImageSourceFactory::GetInstance()->Create(stdString(nextDataFile)));
     this->Internal->ContextSource->SetOrigin(this->Project->OverviewOrigin.x(),
                                              this->Project->OverviewOrigin.y(),
                                              0.0);
@@ -745,8 +745,7 @@ void vpQtViewer3d::updateContext(const vtkVgTimeStamp& timestamp)
       }
     }
 
-  this->Internal->ContextSource->SetFileName(
-    this->ContextDataSource->getDataFile(timestamp.GetFrameNumber()).c_str());
+  this->Internal->ContextSource->SetFileName(qPrintable(nextDataFile));
 
   double bounds[6];
   this->Internal->ContextPlaneActor->GetBounds(bounds);
