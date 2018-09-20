@@ -84,8 +84,7 @@ QString vpVdfTrackIO::GetImageFile(unsigned int frame) const
 {
   if (this->ImageDataSource)
     {
-    const auto fi = static_cast<int>(frame);
-    return qtString(this->ImageDataSource->getDataFile(fi));
+    return this->ImageDataSource->frameName(static_cast<int>(frame));
     }
   return {};
 }

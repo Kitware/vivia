@@ -1,35 +1,60 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vpFileDataSource.h"
 
-#include <vtksys/Glob.hxx>
-#include <vtksys/SystemTools.hxx>
+#include <qtNaturalSort.h>
 
-// C++ includes.
-#include <iostream>
-#include <fstream>
-
-// VTK includes.
-#include <vtkNew.h>
-#include <vtkSortFileNames.h>
-#include <vtkStringArray.h>
-
-// Qt includes.
+#include <QDebug>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <QFileSystemWatcher>
-#include <QMutexLocker>
 #include <QStringList>
 
-#include <qtStlUtil.h>
+#include <algorithm>
+
+namespace // anonymous
+{
 
 //-----------------------------------------------------------------------------
-vpFileDataSource::vpFileDataSource() :
-  MonitoringEnabled(false), DataFilesMutex(QMutex::Recursive)
+QStringList glob(const QDir& base, const QString& pattern)
 {
-  this->DataFiles = vtkSmartPointer<vtkStringArray>::New();
+  QStringList matches;
+
+  // TODO handle multi-level globs
+  foreach (const auto& p, base.entryList(QDir::Files))
+  {
+    if (QDir::match(pattern, p))
+    {
+      matches.append(p);
+    }
+  }
+
+  return matches;
+}
+
+} // namespace <anonymous>
+
+//-----------------------------------------------------------------------------
+class vpFileDataSourcePrivate
+{
+public:
+  QString DataSetSpecifier;
+  QStringList DataFiles;
+
+  bool MonitoringEnabled = false;
+  QScopedPointer<QFileSystemWatcher> DataFilesWatcher;
+};
+
+QTE_IMPLEMENT_D_FUNC(vpFileDataSource)
+
+//-----------------------------------------------------------------------------
+vpFileDataSource::vpFileDataSource() : d_ptr{new vpFileDataSourcePrivate}
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -38,213 +63,172 @@ vpFileDataSource::~vpFileDataSource()
 }
 
 //-----------------------------------------------------------------------------
-void vpFileDataSource::setDataSetSpecifier(const std::string& source)
+void vpFileDataSource::setDataSetSpecifier(const QString& source)
 {
-  this->DataSetSpecifier = source;
-  this->ModifiedTime.Modified();
-}
+  QTE_D();
 
-//-----------------------------------------------------------------------------
-std::string vpFileDataSource::getDataSetSpecifier()
-{
-  return this->DataSetSpecifier;
-}
-
-//-----------------------------------------------------------------------------
-void vpFileDataSource::setDataFiles(const std::vector<std::string>& filenames)
-{
-  this->clear();
-  this->DataSetSpecifier.clear();
-
-  for (size_t i = 0, size = filenames.size(); i < size; ++i)
-    {
-    this->DataFiles->InsertNextValue(filenames[i]);
-    }
-}
-
-//-----------------------------------------------------------------------------
-int vpFileDataSource::getFileCount()
-{
-  QMutexLocker ml(&this->DataFilesMutex);
+  d->DataSetSpecifier = source;
+  d->DataFilesWatcher.reset();
   this->update();
-  return static_cast<int>(this->DataFiles->GetNumberOfValues());
 }
 
 //-----------------------------------------------------------------------------
-std::string vpFileDataSource::getDataFile(int index)
+QString vpFileDataSource::dataSetSpecifier() const
 {
-  QMutexLocker ml(&this->DataFilesMutex);
-  this->update();
+  QTE_D();
+  return d->DataSetSpecifier;
+}
 
-  if (index < 0 || index >= this->DataFiles->GetNumberOfValues())
-    {
-    return std::string();
-    }
+//-----------------------------------------------------------------------------
+void vpFileDataSource::setDataFiles(const QStringList& filenames)
+{
+  QTE_D();
 
-  return this->DataFiles->GetValue(index);
+  d->DataSetSpecifier.clear();
+  d->DataFiles = filenames;
+
+  d->MonitoringEnabled = false;
+  d->DataFilesWatcher.reset();
+}
+
+//-----------------------------------------------------------------------------
+int vpFileDataSource::frames() const
+{
+  QTE_D();
+  return d->DataFiles.count();
+}
+
+//-----------------------------------------------------------------------------
+QString vpFileDataSource::frameName(int index) const
+{
+  QTE_D();
+  return d->DataFiles.value(index);
+}
+
+//-----------------------------------------------------------------------------
+QStringList vpFileDataSource::frameNames() const
+{
+  QTE_D();
+  return d->DataFiles;
 }
 
 //-----------------------------------------------------------------------------
 void vpFileDataSource::setMonitoringEnabled(bool enable)
 {
-  QMutexLocker ml(&this->DataFilesMutex);
-  this->ModifiedTime.Modified();
-  this->MonitoringEnabled = enable;
-  if (!enable)
-    {
-    this->DataFilesWatcher.reset();
-    }
-  else
-    {
+  QTE_D();
+
+  d->MonitoringEnabled = enable;
+  if (enable)
+  {
     this->update();
-    }
+  }
+  else
+  {
+    d->DataFilesWatcher.reset();
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vpFileDataSource::update()
 {
-  QMutexLocker ml(&this->DataFilesMutex);
-  if (this->UpdateTime > this->ModifiedTime)
-    {
+  QTE_D();
+
+  if (d->DataSetSpecifier.isEmpty())
+  {
     return;
-    }
+  }
 
-  this->UpdateTime.Modified();
+  d->DataFiles.clear();
 
-  if (this->DataSetSpecifier.empty())
+  QString watchPath;
+  QFileInfo fi{d->DataSetSpecifier};
+
+  if (fi.exists())
+  {
+    watchPath = fi.absoluteFilePath();
+
+    const auto baseDir = fi.absoluteDir();
+
+    QFile file{d->DataSetSpecifier};
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-    return;
-    }
-
-  // First clear any data structure before we read new data source.
-  this->clear();
-
-  std::string line;
-  std::string watchPath;
-
-  if (vtksys::SystemTools::FileExists(this->DataSetSpecifier.c_str(), true))
-    {
-    std::string basePath =
-      vtksys::SystemTools::GetFilenamePath(this->DataSetSpecifier.c_str());
-    basePath.append("/");
-
-    std::string completePath;
-    watchPath = this->DataSetSpecifier;
-
-    std::ifstream file(this->DataSetSpecifier.c_str());
-
-    if (file.is_open())
+      while (!file.atEnd())
       {
-      while (!file.eof() || file.good())
+        const auto line = file.readLine();
+        if (line.isEmpty())
         {
-        std::getline(file, line);
-
-        if (line.empty())
-          {
           continue;
-          }
-
-        // If each line is not a full path then append the base path or
-        // if the file is not found try finding the file using base path.
-        if (!vtksys::SystemTools::FileIsFullPath(line.c_str()) ||
-            !vtksys::SystemTools::FileExists(line.c_str(), true))
-          {
-          completePath = basePath + line;
-          }
-        else
-          {
-          completePath = line;
-          }
-
-        if (!vtksys::SystemTools::FileExists(completePath.c_str(), true))
-          {
-          std::cerr << "Image data file (" << completePath
-                    << ") does not exist. " << std::endl;
-          continue;
-          }
-
-        std::cerr << "Archiving (" << completePath << "). " << std::endl;
-
-        this->DataFiles->InsertNextValue(completePath);
         }
+
+        const auto path = baseDir.absoluteFilePath(QString::fromUtf8(line));
+        if (!QFileInfo{path}.exists())
+        {
+          qWarning() << "Image data file" << path << "does not exist";
+          continue;
+        }
+
+        qDebug() << "Archiving" << path;
+        d->DataFiles.append(path);
       }
+    }
     else
-      {
-      std::cerr << "Unable to open this  (" << this->DataSetSpecifier
-                << ") data source. " << std::endl;
-      return;
-      }
-    }
-  else
     {
-    // Interpret the specifier as a glob
-    vtksys::Glob glob;
-    glob.FindFiles(this->DataSetSpecifier);
-    glob.SetRecurse(true);
-    std::vector<std::string>& files = glob.GetFiles();
-    if (files.empty())
-      {
+      qWarning().nospace()
+        << "Unable to open data source " << d->DataSetSpecifier
+        << ": " << file.errorString();
       return;
-      }
-
-    int numFiles = static_cast<int>(files.size());
-    vtkNew<vtkStringArray> fileNames;
-    fileNames->SetNumberOfValues(numFiles);
-    for (int i = 0; i < numFiles; i++)
-      {
-      fileNames->SetValue(i, files[i].c_str());
-      }
-
-    vtkNew<vtkSortFileNames> sort;
-    sort->NumericSortOn();
-    sort->SetInputFileNames(fileNames.GetPointer());
-    this->DataFiles = sort->GetFileNames();
-
-    watchPath =
-     vtksys::SystemTools::GetFilenamePath(this->DataFiles->GetValue(0));
     }
+  }
+  else
+  {
+    const auto& dir = fi.absoluteDir();
+    const auto& pattern = fi.fileName();
+
+    // auto files = glob(QDir::current(), d->DataSetSpecifier); TODO
+    auto files = glob(dir, pattern);
+    std::sort(files.begin(), files.end(), qtNaturalSort::compare{});
+
+    d->DataFiles = files;
+    watchPath = dir.absolutePath();
+    // TODO get watch paths for multi-level glob
+  }
 
   // Begin monitoring the parent directory or the text file containing the
   // image filenames for changes. When a change is detected, we will update
   // ourselves automatically.
-  if (this->MonitoringEnabled &&
-      !this->DataFilesWatcher && !watchPath.empty())
-    {
-    std::cout << "Starting image data monitoring.\n";
-    this->DataFilesWatcher.reset(new QFileSystemWatcher);
+  if (d->MonitoringEnabled && !d->DataFilesWatcher && !watchPath.isEmpty())
+  {
+    // TODO handle multiple watch paths and the potential need to add paths
+    // if new directories match a multi-level glob
+    qDebug() << "Starting image data monitoring for path" << watchPath;
+    d->DataFilesWatcher.reset(new QFileSystemWatcher);
 
     // Force watcher to use polling since the normal engine doesn't work
-    // with network shares.
-    this->DataFilesWatcher->setObjectName(
+    // with network shares. See https://bugreports.qt.io/browse/QTBUG-8351.
+    d->DataFilesWatcher->setObjectName(
       QLatin1String("_qt_autotest_force_engine_poller"));
 
-    connect(this->DataFilesWatcher.data(),
-            SIGNAL(directoryChanged(QString)),
+    connect(d->DataFilesWatcher.data(), SIGNAL(directoryChanged(QString)),
             this, SLOT(updateDataFiles()));
 
-    connect(this->DataFilesWatcher.data(),
-            SIGNAL(fileChanged(QString)),
+    connect(d->DataFilesWatcher.data(), SIGNAL(fileChanged(QString)),
             this, SLOT(updateDataFiles()));
 
-    this->DataFilesWatcher->addPath(qtString(watchPath));
-    std::cout << "Image data monitoring started.\n";
-    }
-}
-
-//-----------------------------------------------------------------------------
-void vpFileDataSource::clear()
-{
-  QMutexLocker ml(&this->DataFilesMutex);
-  this->DataFiles->Reset();
+    d->DataFilesWatcher->addPath(watchPath);
+    qDebug() << "Image data monitoring started";
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vpFileDataSource::updateDataFiles()
 {
-    {
-    QMutexLocker ml(&this->DataFilesMutex);
-    this->ModifiedTime.Modified();
-    this->update();
-    }
-  emit this->dataFilesChanged();
+  QTE_D();
+
+  auto oldDataFiles = d->DataFiles;
+  this->update();
+
+  if (d->DataFiles != oldDataFiles)
+  {
+    emit this->frameSetChanged();
+  }
 }
