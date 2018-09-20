@@ -909,29 +909,30 @@ void vpViewCore::exportSceneElementsToFile()
 //-----------------------------------------------------------------------------
 void vpViewCore::exportImageTimeStampsToFile()
 {
-  QString filter = "*.txt;;";
-  vgFileDialog fileDialog(0, tr("Export Image Timestamps"), QString(), filter);
+  vgFileDialog fileDialog{qApp->activeWindow(), "Export Image Timestamps"};
   fileDialog.setObjectName("ExportImageTimeStamps");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
+  fileDialog.setNameFilters({"Text files (*.txt)", "All files (*)"});
   fileDialog.setDefaultSuffix("txt");
   if (fileDialog.exec() != QDialog::Accepted)
     {
     return;
     }
 
-  std::ofstream out(qPrintable(fileDialog.selectedFiles().front()));
-  if (!out.is_open())
+  const auto outPath = fileDialog.selectedFiles().first();
+  QFile out{outPath};
+  if (!out.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-    emit this->warningError("Could not open image timestamp file for writing.");
+    emit this->warningError("Failed to open image timestamp file " +
+                            outPath + " for writing: " + out.errorString());
     return;
     }
 
-  out.precision(20);
-  std::vector<std::pair<std::string, double> > imageTimes;
-  this->FrameMap->exportImageTimes(imageTimes);
-  for (size_t i = 0, size = imageTimes.size(); i < size; ++i)
+  QTextStream os{&out};
+  foreach (const auto& iter, this->FrameMap->imageTimes())
     {
-    out << imageTimes[i].first << ' ' << imageTimes[i].second / 1e6 << '\n';
+    os << iter.first << ' '
+       << QString::number(iter.second / 1e6, 'f', 20) << '\n';
     }
 }
 
@@ -1042,7 +1043,7 @@ void vpViewCore::improveTrack(int trackId, int session)
     }
 
   // Add the new states to the track
-  const auto& timeMap = this->FrameMap->getTimeMap();
+  const auto& timeMap = this->FrameMap->timeMap();
   this->updateTrack(track, improvedTrack, timeMap, videoHeight);
 
   project->TrackModel->Modified();
@@ -1071,7 +1072,7 @@ int vpViewCore::getTrackTypeIndex(const char* typeName)
 //-----------------------------------------------------------------------------
 void vpViewCore::updateTrack(
   vtkVgTrack* track, const std::shared_ptr<kv::track>& kwiverTrack,
-  const std::map<unsigned int, vgTimeStamp>& timeMap,
+  const QMap<int, vgTimeStamp>& timeMap,
   double videoHeight, bool updateToc)
 {
 #ifdef VISGUI_USE_KWIVER
@@ -1085,16 +1086,15 @@ void vpViewCore::updateTrack(
 
     // Get time stamp for frame
     const auto& ts = [&timeMap](const kv::object_track_state& state){
-      const auto frame = static_cast<unsigned int>(state.frame());
+      const auto frame = static_cast<int>(state.frame());
 
       if (!timeMap.empty())
         {
-        const auto& ti = timeMap.find(frame);
-        return (ti == timeMap.end() ? vtkVgTimeStamp{}
-                                    : vtkVgTimeStamp{ti->second});
+        return vtkVgTimeStamp{timeMap.value(frame)};
         }
 
-      return vtkVgTimeStamp{vgTimeStamp::InvalidTime(), frame};
+      return vtkVgTimeStamp{vgTimeStamp::InvalidTime(),
+                            static_cast<unsigned int>(frame)};
     }(*state);
 
     if (!ts.IsValid())
@@ -3190,7 +3190,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
             // Expand any environment variable tokens
             imageFile = vidtk::token_expansion::expand_token(imageFile);
 #endif
-            this->FrameMap->setImageTime(imageFile, seconds * 1e6);
+            this->FrameMap->setImageTime(qtString(imageFile), seconds * 1e6);
             }
           hasFrameMap = true;
           }
@@ -3240,7 +3240,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
               }
 
             const auto& frameName =
-              stdString(this->ImageDataSource->frameName(frameIndex));
+              this->ImageDataSource->frameName(frameIndex);
             this->FrameMap->setImageHomography(frameName, homography.Get());
             ++homographyCount;
             }
@@ -8632,7 +8632,7 @@ void vpViewCore::executeEmbeddedPipeline(
   const auto& tracks = worker.tracks();
   if (tracks)
     {
-    const auto& timeMap = this->FrameMap->getTimeMap();
+    const auto& timeMap = this->FrameMap->timeMap();
 
     auto trackModel = this->Projects[session]->TrackModel;
 
