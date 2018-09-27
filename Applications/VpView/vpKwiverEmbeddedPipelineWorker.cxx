@@ -187,6 +187,7 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
 
     if (image_port)
     {
+      // FIXME must use VTK loader
       auto frameImage = this->loader.load(
         stdString(this->framePaths[currentFrame]));
 
