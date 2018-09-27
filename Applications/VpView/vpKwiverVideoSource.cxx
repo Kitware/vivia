@@ -122,6 +122,7 @@ kv::image_container_sptr vpKwiverVideoSource::frame_image()
     return nullptr;
     }
 
+  // FIXME must use VTK loader
   return this->Loader.load(
     this->FramePaths[static_cast<size_t>(this->CurrentFrame)]);
 }

@@ -59,6 +59,7 @@ include_directories(
 
 set(vgSdkTargets
   vgCommon
+  vgVideo
   vgVtkVideo
   qtExtensions
   qtVgCommon
