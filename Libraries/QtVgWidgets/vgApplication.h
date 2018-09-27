@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -15,9 +15,11 @@
 
 class QMenu;
 
+class qtCliArgs;
+
 class vgApplicationPrivate;
 
-/// Base class for VisGUI applications.
+/// Base class for ViViA applications.
 ///
 /// This class extends QApplication to provide some common properties that are
 /// used by vgAboutDialog and vgUserManualAction.
@@ -120,6 +122,22 @@ public:
   /// menu. This includes activation slots for the actions, i.e. the actions
   /// will function with no additional setup required.
   static void setupHelpMenu(QMenu*, HelpMenuEntries = FullHelpMenu);
+
+  /// Add standard command line options.
+  ///
+  /// This sets up command line options that are shared across various ViViA
+  /// applications.
+  ///
+  /// \sa parseCommandLine()
+  static void addCommandLineOptions(qtCliArgs&);
+
+  /// Handle standard command line options.
+  ///
+  /// This checks the command line parser for the presence of standard command
+  /// line options (as set up by addCommandLineOptions()) and, if present,
+  /// takes appropriate action. Applications should call this function at some
+  /// point after calling qtCliArgs::parse().
+  static void parseCommandLine(qtCliArgs&);
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vgApplication)
