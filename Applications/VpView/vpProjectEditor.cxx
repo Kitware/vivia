@@ -143,6 +143,7 @@ void vpProjectEditor::saveProject(const QString& path)
 {
   QTE_D();
   d->ProjectPath = path;
+  d->UI.saveInfo->setText(QString{"Project will be saved to %1."}.arg(path));
 }
 
 //-----------------------------------------------------------------------------
