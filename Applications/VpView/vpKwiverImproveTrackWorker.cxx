@@ -16,6 +16,7 @@
 #include <vital/algo/interpolate_track.h>
 #include <vital/exceptions/plugin.h>
 
+#include <QDebug>
 #include <QEventLoop>
 #include <QMessageBox>
 #include <QSettings>
@@ -48,8 +49,10 @@ void vpKwiverImproveTrackWorkerPrivate::run()
     {
     this->ImprovedTrack = this->Algorithm->interpolate(this->InitialTrack);
     }
-  catch (...)
+  catch (const std::exception& e)
     {
+    qWarning() << "vpKwiverImproveTrackWorker: algorithm exception:"
+               << e.what();
     }
 }
 
