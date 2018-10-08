@@ -1915,14 +1915,16 @@ void vpViewCore::initializeViewInteractions()
 //-----------------------------------------------------------------------------
 void vpViewCore::initializeSources()
 {
-  RegisterVpImageSource registerPNGImageSouce(&vtkVgPNGReader::Create);
-  RegisterVpImageSource registerMRJImageSouce(&vtkVgMultiResJpgImageReader2::Create);
-  RegisterVpImageSource registerJP2ImageSource(&vtkVgImageSource::Create);
-  RegisterVpImageSource registerJPEGImageSource(&vtkVgJPEGReader::Create);
-  RegisterVpImageSource registerSGIImageSouce(&vtkVgSGIReader::Create);
+  auto* const factory = vpImageSourceFactory::GetInstance();
+
+  factory->Register(&vtkVgPNGReader::Create);
+  factory->Register(&vtkVgMultiResJpgImageReader2::Create);
+  factory->Register(&vtkVgImageSource::Create);
+  factory->Register(&vtkVgJPEGReader::Create);
+  factory->Register(&vtkVgSGIReader::Create);
 
 #if defined(VISGUI_USE_GDAL)
-  RegisterVpImageSource registerGDALImageSource(&vtkVgGDALReader::Create);
+  factory->Register(&vtkVgGDALReader::Create);
 #endif
 }
 
