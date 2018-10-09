@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -100,7 +100,7 @@ public:
   // Get image timestamp
   virtual vtkVgTimeStamp GetImageTimeStamp()
     {
-    return this->ImageTimeStamp;
+    return {};
     }
 
   // Description:
@@ -164,8 +164,6 @@ protected:
   double  Spacing[3];
 
   char*   FileName;
-
-  vtkVgTimeStamp ImageTimeStamp;
 };
 
 #endif // __vtkVgBaseImageSource_h
