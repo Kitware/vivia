@@ -6,6 +6,18 @@
 
 #include "vgKwaVideoClip.h"
 
+#include "vgKwaFrameMetadata.h"
+#include "vgKwaUtilPrivate.h"
+#include "vgVideoFramePtrPrivate.h"
+#include "vgVideoPrivate.h"
+
+#include <vgCheckArg.h>
+
+#include <vgDebug.h>
+
+#include <vsl/vsl_binary_io.h>
+#include <vsl/vsl_stream.h>
+
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -13,29 +25,9 @@
 #include <QUrl>
 #include <QUrlQuery>
 
-#include <vgCheckArg.h>
-
-#include <vgDebug.h>
-
-#include <vil/file_formats/vil_jpeg.h>
-#include <vil/vil_stream_core.h>
-
-#include <vil/io/vil_io_image_view.h>
-#include <vsl/vsl_binary_io.h>
-#include <vsl/vsl_stream.h>
-#include <vsl/vsl_vector_io.h>
-#include <vsl/vsl_vector_io.hxx>
-
 #include <limits>
-#include <vector>
 
-#include "vgIStream.h"
-#include "vgKwaFrameMetadata.h"
-#include "vgKwaUtil.h"
-#include "vgVideoFramePtrPrivate.h"
-#include "vgVideoPrivate.h"
-
-VSL_VECTOR_IO_INSTANTIATE(char);
+#include <cmath>
 
 #define die(...) do { \
   qDebug() << "vgKwaVideoClip:" << __VA_ARGS__; \
@@ -47,21 +39,6 @@ uint qHash(const vgTimeStamp& ts)
 {
   return qHash(qRound64(ts.Time));
 }
-
-namespace // anonymous
-{
-
-//-----------------------------------------------------------------------------
-void vilCleanup(void* data)
-{
-  // Destroy our memory chunk pointer, which will cleanly release our reference
-  // to the memory chunk
-  vil_memory_chunk_sptr* chunk =
-    reinterpret_cast<vil_memory_chunk_sptr*>(data);
-  delete chunk;
-}
-
-} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 class vgKwaVideoClipPrivate : public vgVideoPrivate
@@ -201,82 +178,23 @@ vgKwaVideoFramePtr::vgKwaVideoFramePtr(
 //-----------------------------------------------------------------------------
 vgImage vgKwaVideoFramePtr::data() const
 {
-  // Seek stream to appropriate location
-  if (!this->dataStore->seek(this->dataOffset))
-    {
-    qDebug() << "vgKwaVideoFramePtr: failed to seek to position"
-             << this->dataOffset << "for timestamp" << this->time;
-    return vgImage();
-    }
-
-  vxl_int_64 ts;
-  vil_image_view<vxl_byte> vilImage;
-
-  // Read timestamp and image from data stream
-  this->dataStream->clear_serialisation_records();
-  vsl_b_read(*this->dataStream, ts);
-  if (this->dataVersion < 3)
-    {
-    vsl_b_read(*this->dataStream, vilImage);
-    }
-  else
-    {
-    QScopedPointer<vil_file_format> format;
-    char formatMarker;
-    vsl_b_read(*this->dataStream, formatMarker);
-    switch (formatMarker)
-      {
-      case 'j':
-      case 'J':
-        format.reset(new vil_jpeg_file_format);
-        break;
-      default:
-        qDebug() << "vgKwaVideoFramePtr: unknown compression format"
-                 << formatMarker;
-        return vgImage();
-      }
-    vil_stream* memoryStream = new vil_stream_core();
-    memoryStream->ref();
-    std::vector<char> bytes;
-    vsl_b_read(*this->dataStream, bytes);
-    memoryStream->write(&bytes[0], bytes.size());
-    vil_image_resource_sptr imageResource =
-      format->make_input_image(memoryStream);
-    if (!imageResource)
-      {
-      qDebug() << "vgKwaVideoFramePtr: failed to read frame image at"
-               << this->dataOffset;
-      memoryStream->unref();
-      return vgImage();
-      }
-    vilImage = imageResource->get_view();
-    memoryStream->unref();
-    }
+  const auto offset = static_cast<qint64>(this->dataOffset);
+  const auto frameData =
+    vgKwaUtil::readFrame(this->dataStore.data(), this->dataStream.data(),
+                         this->dataVersion, offset, "vgKwaVideoFramePtr:",
+                         this->time);
 
   // Sanity check timestamp
   vgTimeStamp dataTime, indexTime = this->time;
   indexTime.FrameNumber = vgTimeStamp::InvalidFrameNumber();
-  dataTime.Time = ts;
+  dataTime.Time = frameData.first;
   if (dataTime != indexTime)
     {
     qDebug() << "vgKwaVideoFramePtr: warning: time" << dataTime
              << "in data does not match time" << this->time << "from index";
     }
 
-  if (!vilImage.is_contiguous())
-    {
-    qDebug() << "vgKwaVideoFramePtr: cannot convert non-contiguous image";
-    return vgImage();
-    }
-
-  // Convert to vgImage
-  vil_memory_chunk_sptr* chunk =
-    new vil_memory_chunk_sptr(vilImage.memory_chunk());
-  vgImage::Closure cleanup(&vilCleanup, chunk);
-  return vgImage(vilImage.top_left_ptr(),
-                 vilImage.ni(), vilImage.nj(), vilImage.nplanes(),
-                 vilImage.istep(), vilImage.jstep(), vilImage.planestep(),
-                 cleanup);
+  return frameData.second;
 }
 
 //END vgKwaVideoFramePtr
