@@ -136,6 +136,7 @@
 #include <vtkVgImageSource.h>
 #include <vtkVgInteractorStyleRubberBand2D.h>
 #include <vtkVgJPEGReader.h>
+#include <vtkVgKWAReader.h>
 #include <vtkVgMultiResJpgImageReader2.h>
 #include <vtkVgPNGReader.h>
 #include <vtkVgPickData.h>
@@ -1937,6 +1938,7 @@ void vpViewCore::initializeSources()
 {
   auto* const factory = vpImageSourceFactory::GetInstance();
 
+  factory->Register(&vtkVgKWAReader::Create);
   factory->Register(&vtkVgBMPReader::Create);
   factory->Register(&vtkVgPNGReader::Create);
   factory->Register(&vtkVgMultiResJpgImageReader2::Create);

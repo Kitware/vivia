@@ -67,6 +67,7 @@ set(vgSdkTargets
   vtkVgCore
   vtkVgModelView
   vtkVgQtUtil
+  vtkVgVideo
   vgDataFramework
 )
 
