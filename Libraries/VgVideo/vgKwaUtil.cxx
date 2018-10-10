@@ -6,6 +6,8 @@
 
 #include "vgKwaUtilPrivate.h"
 
+#include "vgKwaFrameMetadata.h"
+
 #include <vgDebug.h>
 
 #include <vil/file_formats/vil_jpeg.h>
@@ -185,4 +187,34 @@ QPair<long long, vgImage> vgKwaUtil::readFrame(
                        cleanup};
 
   return {ts, image};
+}
+
+//-----------------------------------------------------------------------------
+QPair<long long, vgImage> vgKwaUtil::readFrame(
+    const QString& dataPath, long long offset)
+{
+  static const char* warningPrefix = "vgKwaUtil::readFrame:";
+  vgIStream store;
+
+  if (!store.open(dataPath))
+    {
+    qDebug() << warningPrefix << "failed to open KWA data file" << dataPath;
+    return {};
+    }
+
+  // Read data version
+  vsl_b_istream stream(store);
+
+  int dataVersion;
+  vsl_b_read(stream, dataVersion);
+
+  if (dataVersion < 1 ||
+      dataVersion > vgKwaFrameMetadata::SupportedDataVersion)
+    {
+    qDebug() << warningPrefix << "KWA version" << dataVersion
+             << "is not supported";
+    return {};
+    }
+
+  return readFrame(&store, &stream, dataVersion, offset, warningPrefix);
 }

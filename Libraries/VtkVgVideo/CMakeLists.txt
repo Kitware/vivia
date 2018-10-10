@@ -6,11 +6,13 @@ include_directories(SYSTEM
 
 set(vtkVgVideoSources
   vtkVgAdaptImage.cxx
+  vtkVgKWAReader.cxx
   vtkVgKwaVideoSource.cxx
 )
 
 set(vtkVgVideoInstallHeaders
   vtkVgAdaptImage.h
+  vtkVgKWAReader.h
   vtkVgKwaVideoSource.h
 )
 
