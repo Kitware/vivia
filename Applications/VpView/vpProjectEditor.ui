@@ -131,7 +131,7 @@
   </layout>
   <action name="actionDatasetPickFile">
    <property name="text">
-    <string>Pick &amp;Image List / KWA...</string>
+    <string>Pick &amp;Image List or .index file...</string>
    </property>
   </action>
   <action name="actionDatasetPickDirectory">
