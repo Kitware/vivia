@@ -47,7 +47,7 @@ QStringList glob(const QDir& base, const QString& pattern)
   {
     if (QDir::match(pattern, p))
     {
-      matches.append(p);
+      matches.append(base.filePath(p));
     }
   }
 
