@@ -16,7 +16,7 @@
 // Forward declaration.
 class vtkKWAReader;
 
-class VTKVG_CORE_EXPORT vtkVgKWAReader : public vtkVgBaseImageSource
+class VTKVG_VIDEO_EXPORT vtkVgKWAReader : public vtkVgBaseImageSource
 {
 public:
   // Description:
