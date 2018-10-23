@@ -927,7 +927,10 @@ void vpViewCore::exportImageTimeStampsToFile()
   vgFileDialog fileDialog{qApp->activeWindow(), "Export Image Timestamps"};
   fileDialog.setObjectName("ExportImageTimeStamps");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-  fileDialog.setNameFilters({"Text files (*.txt)", "All files (*)"});
+  QList<QString> tmp;
+  tmp.append("Text files (*.txt)");
+  tmp.append("All files (*)");
+  fileDialog.setNameFilters(QStringList(tmp));
   fileDialog.setDefaultSuffix("txt");
   if (fileDialog.exec() != QDialog::Accepted)
     {
