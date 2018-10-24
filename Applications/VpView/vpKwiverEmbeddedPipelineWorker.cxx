@@ -163,11 +163,17 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
 
     if (image_port)
     {
-      // FIXME must use VTK loader
-      auto frameImage = this->loader.load(
-        stdString(this->framePaths[currentFrame]));
+      try
+      {
+        auto frameImage = this->loader.load(
+          stdString(this->framePaths[currentFrame]));
 
-      ids->add_value(*image_port, frameImage);
+        ids->add_value(*image_port, frameImage);
+      }
+      catch( const kwiver::vital::image_exception& e )
+      {
+        ids->add_value(*image_port, kwiver::vital::image_container_sptr());
+      }
     }
 
     if (timestamp_port)
