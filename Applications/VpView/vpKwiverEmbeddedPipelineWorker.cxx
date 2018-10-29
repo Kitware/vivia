@@ -68,8 +68,8 @@ kv::track_sptr convertTrack(vtkVgTrack* in, double videoHeight)
 
       const auto frame = timeStamp.GetFrameNumber();
       const auto time = [](const vtkVgTimeStamp& ts){
-        return (ts.HasTime() ? static_cast<kv::time_us_t>(ts.GetTime())
-                              : std::numeric_limits<kv::time_us_t>::min());
+        return (ts.HasTime() ? static_cast<kv::time_usec_t>(ts.GetTime())
+                              : std::numeric_limits<kv::time_usec_t>::min());
       }(timeStamp);
       out->append(
         std::make_shared<kv::object_track_state>(frame, time, obj));
