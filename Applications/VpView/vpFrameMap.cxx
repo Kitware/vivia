@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -233,6 +233,26 @@ bool vpFrameMap::getFrame(unsigned int frameIndex, vpFrame& frame)
   frame.set(frameIndex, vgTimeStamp(image2DataItr->second.Time),
             image2DataItr->second.Homography);
   return true;
+}
+
+//-----------------------------------------------------------------------------
+std::map<unsigned int, vgTimeStamp> vpFrameMap::getTimeMap()
+{
+  QTE_D(vpFrameMap);
+
+  QMutexLocker ml(&d->TimeToImageMapMutex);
+
+  std::map<unsigned int, vgTimeStamp> result;
+
+  for (const auto& ts : d->TimeToImageMap.keys())
+    {
+    if (ts.HasFrameNumber())
+      {
+      result.emplace(ts.FrameNumber, ts);
+      }
+    }
+
+  return result;
 }
 
 //-----------------------------------------------------------------------------

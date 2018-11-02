@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -519,6 +519,8 @@ vpView::vpView()
           this->Core, SLOT(deleteTrack(int, int)));
   connect(this->Internal->UI.sessionView, SIGNAL(SplitTrack(int, int)),
           this, SLOT(splitTrack(int, int)));
+  connect(this->Internal->UI.sessionView, SIGNAL(ImproveTrack(int, int)),
+          this, SLOT(improveTrack(int, int)));
 
   connect(this->Internal->UI.sessionView,
           SIGNAL(AddEventsToGraphModel(QList<int>, int)),
@@ -2879,6 +2881,12 @@ void vpView::splitTrack(int id, int sessionId)
     this->Internal->UI.sessionView->AddAndSelectItem(
       vgObjectTypeDefinitions::Track, newId);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vpView::improveTrack(int id, int sessionId)
+{
+  this->Core->improveTrack(id, sessionId);
 }
 
 //-----------------------------------------------------------------------------

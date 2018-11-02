@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -17,6 +17,7 @@
 
 #include <QThread>
 
+#include <map>
 #include <vector>
 
 // Forward declarations.
@@ -63,6 +64,8 @@ public:
   bool first(vpFrame& frame);
   bool last(vpFrame& frame);
   bool getFrame(unsigned int frameIndex, vpFrame& frameValue);
+
+  std::map<unsigned int, vgTimeStamp> getTimeMap();
 
   void setImageTime(const std::string& filename, double microseconds);
   void setImageHomography(const std::string& filename,
