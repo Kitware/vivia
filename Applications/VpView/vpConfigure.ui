@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>448</height>
+    <width>857</width>
+    <height>1266</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
       <enum>QFrame::NoFrame</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pageDataProviders">
       <layout class="QGridLayout" name="gridLayout_2">
@@ -489,6 +489,32 @@
      </widget>
      <widget class="QWidget" name="pageDisplay">
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="2" column="0" colspan="2">
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Image Filtering</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QRadioButton" name="displayNoImageFiltering">
+            <property name="text">
+             <string>None</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="displayLinearImageFiltering">
+            <property name="text">
+             <string>Linear</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
        <item row="0" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
@@ -573,33 +599,36 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Image Filtering</string>
+       <item row="5" column="0">
+        <widget class="QPushButton" name="trackAttributeConfig">
+         <property name="enabled">
+          <bool>false</bool>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QRadioButton" name="displayNoImageFiltering">
-            <property name="text">
-             <string>None</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="displayLinearImageFiltering">
-            <property name="text">
-             <string>Linear</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Track Attribute Config...</string>
+         </property>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="6" column="1">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="4" column="0" colspan="2">
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
           <string>Image Corner Point Usage</string>
@@ -622,34 +651,72 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QPushButton" name="trackAttributeConfig">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox_7">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+          <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
-          <string>Track Attribute Config...</string>
+         <property name="title">
+          <string>Color Window Width / Center</string>
          </property>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="colorWindowWidth">
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>1.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>16777216.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>255.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QDoubleSpinBox" name="colorWindowCenter">
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="minimum">
+             <double>0.500000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>16777216.000000000000000</double>
+            </property>
+            <property name="value">
+             <double>127.500000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" rowspan="2">
+           <widget class="QLabel" name="label_2">
+            <property name="toolTip">
+             <string>Size of the color window. Typically the maximum value of the data (thus mapping 0 to that value).</string>
+            </property>
+            <property name="text">
+             <string>Width</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" rowspan="2">
+           <widget class="QLabel" name="label_3">
+            <property name="toolTip">
+             <string>Center of the color window. Typically the half the window width.</string>
+            </property>
+            <property name="text">
+             <string>Center</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </item>
-       <item row="5" column="1">
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
        </item>
       </layout>
      </widget>

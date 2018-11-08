@@ -62,6 +62,11 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
   connect(this->UI.displayNoImageFiltering, SIGNAL(toggled(bool)),
           this, SLOT(displayNoImageFilteringToggled(bool)));
 
+  connect(this->UI.colorWindowWidth, SIGNAL(valueChanged(double)),
+          parent, SLOT(colorWindowWidthChanged(double)));
+  connect(this->UI.colorWindowCenter, SIGNAL(valueChanged(double)),
+          parent, SLOT(colorWindowCenterChanged(double)));
+
   connect(this->UI.displayEnableWorldIfAvailable, SIGNAL(toggled(bool)),
           this, SLOT(displayEnableWorldIfAvailableToggled(bool)));
   connect(this->UI.displayTranslateImage, SIGNAL(toggled(bool)),
@@ -103,6 +108,18 @@ void vpConfigureDialog::setTrackAttributes(vgAttributeSet* attribs)
 {
   this->TrackAttributes = attribs;
   this->UI.trackAttributeConfig->setEnabled(attribs != 0);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::setColorWindowWidth(double width)
+{
+  this->UI.colorWindowWidth->setValue(width);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::setColorWindowCenter(double center)
+{
+  this->UI.colorWindowCenter->setValue(center);
 }
 
 //-----------------------------------------------------------------------------

@@ -7625,6 +7625,32 @@ void vpViewCore::setEnableTranslateImage(bool state)
 }
 
 //-----------------------------------------------------------------------------
+double vpViewCore::getColorWindowWidth()
+{
+  return this->ImageActor[1]->GetProperty()->GetColorWindow();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setColorWindowWidth(double width)
+{
+  this->ImageActor[1]->GetProperty()->SetColorWindow(width);
+  this->forceRender();
+}
+
+//-----------------------------------------------------------------------------
+double vpViewCore::getColorWindowCenter()
+{
+  return this->ImageActor[1]->GetProperty()->GetColorLevel();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setColorWindowCenter(double center)
+{
+  this->ImageActor[1]->GetProperty()->SetColorLevel(center);
+  this->forceRender();
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::deleteTrackPoint()
 {
   if (this->isEditingTrack())

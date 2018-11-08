@@ -1554,6 +1554,8 @@ void vpView::onShowConfigureDialog()
 {
   vpConfigureDialog dialog(this);
   dialog.setTrackAttributes(this->Core->getTrackAttributes());
+  dialog.setColorWindowWidth(this->Core->getColorWindowWidth());
+  dialog.setColorWindowCenter(this->Core->getColorWindowCenter());
 
   if (dialog.exec() == QDialog::Accepted)
     {
@@ -1855,6 +1857,18 @@ void vpView::updateTrackFilters()
         }
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void vpView::colorWindowWidthChanged(double width)
+{
+  this->Core->setColorWindowWidth(width);
+}
+
+//-----------------------------------------------------------------------------
+void vpView::colorWindowCenterChanged(double center)
+{
+  this->Core->setColorWindowCenter(center);
 }
 
 //-----------------------------------------------------------------------------

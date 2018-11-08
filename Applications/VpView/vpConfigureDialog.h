@@ -37,6 +37,8 @@ public:
   virtual ~vpConfigureDialog();
 
   void setTrackAttributes(vgAttributeSet* attribs);
+  void setColorWindowWidth(double width);
+  void setColorWindowCenter(double center);
 
   Ui::vpConfigureDialog UI;
 
