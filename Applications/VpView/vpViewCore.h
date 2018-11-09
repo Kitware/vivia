@@ -399,6 +399,12 @@ public:
     {
     return this->SceneElementLineWidth;
     }
+  
+  double getColorWindowWidth();
+  void setColorWindowWidth(double width);
+
+  double getColorWindowCenter();
+  void setColorWindowCenter(double center);
 
   bool isPlaying()
     {

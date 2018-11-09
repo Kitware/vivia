@@ -204,6 +204,9 @@ public slots:
 
   void updateTrackFilters();
 
+  void colorWindowWidthChanged(double width);
+  void colorWindowCenterChanged(double center);
+
 protected:
   virtual void closeEvent(QCloseEvent*);  // reimplemented from QWidget
 
