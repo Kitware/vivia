@@ -27,9 +27,9 @@ endif()
 
 # VTK OpenGL components
 set(VTK_OPENGL_RENDERING_COMPONENTS
-  vtkRenderingOpenGL
-  vtkRenderingContextOpenGL
-  vtkRenderingVolumeOpenGL
+  vtkRenderingOpenGL2
+  vtkRenderingContextOpenGL2
+  vtkRenderingVolumeOpenGL2
 )
 
 # VTK is required
@@ -87,7 +87,7 @@ if(VISGUI_ENABLE_WEB)
   endif()
 endif()
 
-find_package(VTK 8.0 NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
+find_package(VTK 8.1 NO_MODULE REQUIRED COMPONENTS ${VTK_REQUIRED_COMPONENTS})
 include(${VTK_USE_FILE})
 
 # We need this definition to be set regardless
