@@ -51,10 +51,10 @@ QList<vqEventInfo> vqEventInfo::types(vqEventInfo::Groups groups)
 
   QList<vqEventInfo> events;
 
-  if (groups.testFlag(vqEventInfo::Person))
-    events += eventsFromGroup(settings, "Person");
-  if (groups.testFlag(vqEventInfo::Vehicle))
-    events += eventsFromGroup(settings, "Vehicle");
+  if (groups.testFlag(vqEventInfo::Fish))
+    events += eventsFromGroup(settings, "Fish");
+  if (groups.testFlag(vqEventInfo::Scallop))
+    events += eventsFromGroup(settings, "Scallop");
 
   return events;
 }

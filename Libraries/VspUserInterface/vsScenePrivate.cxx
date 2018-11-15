@@ -33,7 +33,7 @@
 #include <vtkVgEventRegionRepresentation.h>
 #include <vtkVgEventRepresentation.h>
 #include <vtkVgSpaceConversion.h>
-#include <vtkVgTrackPVOFilter.h>
+#include <vtkVgTrackFSOFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
 #include <vtkVgTrackLabelRepresentation.h>
 #include <vtkVgTrackModel.h>
@@ -145,8 +145,8 @@ double blend2d(double u, double v, double tl, double tr, double bl, double br)
 //-----------------------------------------------------------------------------
 void setTrackTypeColors(vsScenePrivate::Graph& graph, vsTrackInfo ti)
 {
-  vtkVgTrack::enumTrackPVOType type =
-    static_cast<vtkVgTrack::enumTrackPVOType>(ti.type);
+  vtkVgTrack::enumTrackFSOType type =
+    static_cast<vtkVgTrack::enumTrackFSOType>(ti.type);
   graph.TrackRepresentation->SetColor(type, ti.pcolor);
   graph.TrackHeadRepresentation->SetColor(type, ti.pcolor);
   graph.TrackLabelRepresentation->SetTrackTypeColors(
@@ -234,12 +234,12 @@ vsScenePrivate::vsScenePrivate(vsScene* q, vsCore* core) :
   core->addModel(this->GroundTruthGraph.EventModel, vsCore::GroundTruthModel);
 
   // Initialize filters
-  this->TrackFilter->SetShowType(vtkVgTrack::Person, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
-  this->TrackFilter->SetShowType(vtkVgTrack::Vehicle, true);
-  this->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
-  this->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+  this->TrackFilter->SetShowType(vtkVgTrack::Fish, true);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Fish, 0.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Fish, 1.0);
+  this->TrackFilter->SetShowType(vtkVgTrack::Scallop, true);
+  this->TrackFilter->SetMinProbability(vtkVgTrack::Scallop, 0.0);
+  this->TrackFilter->SetMaxProbability(vtkVgTrack::Scallop, 1.0);
   this->TrackFilter->SetShowType(vtkVgTrack::Other, true);
   this->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
   this->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
@@ -547,13 +547,13 @@ void vsScenePrivate::initializeGraph(Graph& graph, const char* labelPrefix)
   // Track representations
   graph.TrackRepresentation->UseAutoUpdateOff();
   graph.TrackRepresentation->SetTrackModel(graph.TrackModel);
-  graph.TrackRepresentation->SetColorModeToPVO();
+  graph.TrackRepresentation->SetColorModeToFSO();
   graph.TrackRepresentation->SetTrackFilter(this->TrackFilter);
   graph.TrackRepresentation->SetContourOperatorManager(
     this->ContourOperatorManager);
 
   graph.TrackHeadRepresentation->SetTrackModel(graph.TrackModel);
-  graph.TrackHeadRepresentation->SetColorModeToPVO();
+  graph.TrackHeadRepresentation->SetColorModeToFSO();
   graph.TrackHeadRepresentation->SetTrackFilter(this->TrackFilter);
   graph.TrackHeadRepresentation->SetContourOperatorManager(
     this->ContourOperatorManager);

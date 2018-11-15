@@ -19,7 +19,7 @@
 struct VV_VTKWIDGETS_EXPORT vvTrackInfo
 {
   vvTrackInfo();
-  explicit vvTrackInfo(vtkVgTrack::enumTrackPVOType);
+  explicit vvTrackInfo(vtkVgTrack::enumTrackFSOType);
 
   /// Save track information to settings.
   ///
@@ -28,14 +28,14 @@ struct VV_VTKWIDGETS_EXPORT vvTrackInfo
   bool write() const;
 
   int Source;
-  vtkVgTrack::enumTrackPVOType Type;
+  vtkVgTrack::enumTrackFSOType Type;
   QString Name;
   vgColor PenColor;
   vgColor ForegroundColor;
   vgColor BackgroundColor;
 
 public:
-  static bool getTrackType(vvTrackInfo& ti, vtkVgTrack::enumTrackPVOType type);
+  static bool getTrackType(vvTrackInfo& ti, vtkVgTrack::enumTrackFSOType type);
   static bool getTrackSource(vvTrackInfo& ti, int source);
 
   /// Read per-type track information from settings.

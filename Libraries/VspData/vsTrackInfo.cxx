@@ -37,8 +37,8 @@ vsTrackInfo adapt(const vvTrackInfo& in)
 //-----------------------------------------------------------------------------
 void adapt(
   QList<vsTrackInfo>& out,
-  QHash<vtkVgTrack::enumTrackPVOType, vvTrackInfo> const& src,
-  vtkVgTrack::enumTrackPVOType vtkType,
+  QHash<vtkVgTrack::enumTrackFSOType, vvTrackInfo> const& src,
+  vtkVgTrack::enumTrackFSOType vtkType,
   vsTrackInfo::Type vsType)
 {
   if (!src.contains(vtkType))
@@ -55,13 +55,13 @@ void adapt(
 //-----------------------------------------------------------------------------
 QList<vsTrackInfo> vsTrackInfo::trackTypes()
 {
-  QHash<vtkVgTrack::enumTrackPVOType, vvTrackInfo> types;
+  QHash<vtkVgTrack::enumTrackFSOType, vvTrackInfo> types;
   foreach (vvTrackInfo ti, vvTrackInfo::trackTypes())
     types.insert(ti.Type, ti);
 
   QList<vsTrackInfo> result;
-  adapt(result, types, vtkVgTrack::Person,       vsTrackInfo::Person);
-  adapt(result, types, vtkVgTrack::Vehicle,      vsTrackInfo::Vehicle);
+  adapt(result, types, vtkVgTrack::Fish,         vsTrackInfo::Fish);
+  adapt(result, types, vtkVgTrack::Scallop,      vsTrackInfo::Scallop);
   adapt(result, types, vtkVgTrack::Other,        vsTrackInfo::Other);
   adapt(result, types, vtkVgTrack::Unclassified, vsTrackInfo::Unclassified);
 

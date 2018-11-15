@@ -12,8 +12,8 @@
   <pqevent object="MainWindow/QFileDialog" command="filesSelected" arguments="$VISGUI_DATA_ROOT/APHill/09172008flight1tape1_5_KWSOTI.xml"/>
   <pqevent object="MainWindow" command="pause" arguments="2000" />
   <pqevent object="MainWindow/menubar" command="activate" arguments="menuEvents" />
-  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsPersonEnableAll" />
-  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsVehicleEnableAll" />
+  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsFishEnableAll" />
+  <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventsScallopEnableAll" />
   <pqevent object="MainWindow/menubar/menuEvents" command="activate" arguments="actionEventProbabilityThresholdSet" />
   <pqevent object="MainWindow/1qtDoubleInputDialog0/1QDialogButtonBox0" command="activate" arguments="0x400" />
   <pqevent object="MainWindow/actionTracksShow" command="set_boolean" arguments="false" />

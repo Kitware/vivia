@@ -1,8 +1,8 @@
 <!DOCTYPE VVXML>
 <xml>
   <track source="0" serial_number="1">
-    <classification type="Person" value="0.8"/>
-    <classification type="Vehicle" value="0.2"/>
+    <classification type="Fish" value="0.8"/>
+    <classification type="Scallop" value="0.2"/>
     <trajectory_state x="434.5" y="241" bbox_bottom="241" bbox_top="231" frame_number="26" time="1222116851008654" bbox_right="441" bbox_left="428">
       <world_location gcs="4269" easting="-81.48100000000001" northing="38.2117"/>
       <image_object_point x="428" y="231"/>
@@ -13,8 +13,8 @@
   </track>
   <track source="0" serial_number="2">
     <classification type="Other" value="0.1"/>
-    <classification type="Person" value="0.6000000000000001"/>
-    <classification type="Vehicle" value="0.3"/>
+    <classification type="Fish" value="0.6000000000000001"/>
+    <classification type="Scallop" value="0.3"/>
     <trajectory_state x="434.5" y="241" bbox_bottom="241" bbox_top="231" frame_number="30" time="1222116851409054" bbox_right="441" bbox_left="428">
       <world_location gcs="4269" easting="-81.48100000000001" northing="38.2117"/>
       <image_object_point x="428" y="231"/>

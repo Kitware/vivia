@@ -24,8 +24,8 @@ struct VSP_DATA_EXPORT vsTrackInfo
 
   enum Type
     {
-    Person       = -5001,
-    Vehicle      = -5002,
+    Fish         = -5001,
+    Scallop      = -5002,
     Other        = -5003,
     Unclassified = -5000
     };

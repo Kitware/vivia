@@ -46,7 +46,7 @@ class vtkVgContourOperatorManager;
 class vtkVgRepresentationBase;
 class vtkVgTrack;
 class vtkVgTrackInfo;
-class vtkVgTrackPVOFilter;
+class vtkVgTrackFSOFilter;
 class vtkVgTrackModel;
 class vtkVgTrackRepresentation;
 class vtkVgTrackHeadRepresentation;
@@ -224,7 +224,7 @@ public:
 
   vtkVgInstance<vtkVgContourOperatorManager> ContourOperatorManager;
 
-  vtkVgInstance<vtkVgTrackPVOFilter> TrackFilter;
+  vtkVgInstance<vtkVgTrackFSOFilter> TrackFilter;
   vtkVgInstance<vtkVgEventFilter> EventFilter;
 
   Graph NormalGraph;

@@ -4,32 +4,32 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vtkVgTrackPVOFilter.h"
+#include "vtkVgTrackFSOFilter.h"
 
 #include "vtkVgTrack.h"
 
 #include <vtkObjectFactory.h>
 
-vtkStandardNewMacro(vtkVgTrackPVOFilter);
+vtkStandardNewMacro(vtkVgTrackFSOFilter);
 
 //-----------------------------------------------------------------------------
-vtkVgTrackPVOFilter::vtkVgTrackPVOFilter()
+vtkVgTrackFSOFilter::vtkVgTrackFSOFilter()
 {
 }
 
 //-----------------------------------------------------------------------------
-vtkVgTrackPVOFilter::~vtkVgTrackPVOFilter()
+vtkVgTrackFSOFilter::~vtkVgTrackFSOFilter()
 {
 }
 
 //-----------------------------------------------------------------------------
-int vtkVgTrackPVOFilter::GetBestClassifier(vtkVgTrack* track)
+int vtkVgTrackFSOFilter::GetBestClassifier(vtkVgTrack* track)
 {
   int bestType = -1;
   double bestScore = -1.0;
 
   double pvo[3];
-  track->GetPVO(pvo);
+  track->GetFSO(pvo);
 
   // if unclassified, doesn't matter what he filter setting are
   if (pvo[0] == 0 && pvo[1] == 0 && pvo[2] == 0)
@@ -38,7 +38,7 @@ int vtkVgTrackPVOFilter::GetBestClassifier(vtkVgTrack* track)
     }
 
   int filterType;
-  for (filterType = vtkVgTrack::Person; filterType <= vtkVgTrack::Other; filterType++)
+  for (filterType = vtkVgTrack::Fish; filterType <= vtkVgTrack::Other; filterType++)
     {
     if (!this->GetShowType(filterType))
       {
@@ -64,7 +64,7 @@ int vtkVgTrackPVOFilter::GetBestClassifier(vtkVgTrack* track)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrackPVOFilter::PrintSelf(ostream& os, vtkIndent indent)
+void vtkVgTrackFSOFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 }

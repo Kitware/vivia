@@ -67,10 +67,10 @@ QList<vvEventInfo> vvEventInfo::eventTypes(vvEventInfo::Groups groups)
 
   QList<vvEventInfo> events;
 
-  if (groups.testFlag(vvEventInfo::Person))
-    events += eventsFromGroup(settings, "Person");
-  if (groups.testFlag(vvEventInfo::Vehicle))
-    events += eventsFromGroup(settings, "Vehicle");
+  if (groups.testFlag(vvEventInfo::Fish))
+    events += eventsFromGroup(settings, "Fish");
+  if (groups.testFlag(vvEventInfo::Scallop))
+    events += eventsFromGroup(settings, "Scallop");
 
   return events;
 }

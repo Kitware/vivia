@@ -16,7 +16,7 @@ set(TESTS_WITH_BASELINES
   ShowEventHeads.xml
   ShowTrackBoxes.xml
   ShowTrackIDs.xml
-  ShowTrackPVOs.xml
+  ShowTrackFSOs.xml
   ShowTracks.xml
   UseVideoControls-SkipBackward.xml
   UseVideoControls-SkipForward.xml

@@ -27,8 +27,8 @@ struct VSP_DATA_EXPORT vsEventInfo
   enum Group
     {
     Unknown     = 0x0,
-    Person      = 0x1,
-    Vehicle     = 0x2,
+    Fish        = 0x1,
+    Scallop     = 0x2,
     Classifier  = 0xf,
     Alert       = 0x10,
     General     = 0x20,

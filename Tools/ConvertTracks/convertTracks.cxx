@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     }
   qDebug() << "Read" << tracks.count() << "track(s)";
 
-  // Open P/V/O input file (if given) and read TOC's
+  // Open F/S/O input file (if given) and read TOC's
   // TODO: Use a framework source to do this, once we have one...
   if (args.isSet("class"))
     {
@@ -118,10 +118,10 @@ int main(int argc, char** argv)
     while (!tocReader.isEndOfFile())
       {
       long long trackSerialNumber;
-      double pPerson, pVehicle, pOther;
+      double pFish, pScallop, pOther;
       if (tocReader.readLong(trackSerialNumber, 0) &&
-          tocReader.readReal(pPerson, 1) &&
-          tocReader.readReal(pVehicle, 2) &&
+          tocReader.readReal(pFish, 1) &&
+          tocReader.readReal(pScallop, 2) &&
           tocReader.readReal(pOther, 3))
         {
         QList<vdfTrackId> matchingIds = trackIds.values(trackSerialNumber);
@@ -143,9 +143,9 @@ int main(int argc, char** argv)
           {
           vdfTrackReader::Track& track = tracks[tid];
           track.Classification.insert(
-            std::make_pair(std::string("Person"), pPerson));
+            std::make_pair(std::string("Fish"), pFish));
           track.Classification.insert(
-            std::make_pair(std::string("Vehicle"), pVehicle));
+            std::make_pair(std::string("Scallop"), pScallop));
           track.Classification.insert(
             std::make_pair(std::string("Other"), pOther));
           }

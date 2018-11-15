@@ -178,10 +178,10 @@ void vsVvqsDatabaseSourcePrivate::processResult(vvQueryResult result)
     // Extract and emit track classification
     vsTrackObjectClassifier toc;
     QMap<std::string, double> classifier(track.Classification);
-    toc.probabilityPerson = classifier.value("TTPerson", 0.0);
-    toc.probabilityVehicle = classifier.value("TTVehicle", 0.0);
+    toc.probabilityFish = classifier.value("TTFish", 0.0);
+    toc.probabilityScallop = classifier.value("TTScallop", 0.0);
     toc.probabilityOther =
-      1.0 - (toc.probabilityPerson + toc.probabilityVehicle);
+      1.0 - (toc.probabilityFish + toc.probabilityScallop);
     emit this->tocAvailable(track.Id, toc);
     }
 

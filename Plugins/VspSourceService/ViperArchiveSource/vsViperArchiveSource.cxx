@@ -143,14 +143,14 @@ vsTrackId vsViperArchiveSourcePrivate::mapTrackId(
     {
     ViperTrack newTrack;
 
-    // Extract track P/V/O classification
+    // Extract track F/S/O classification
     vsTrackObjectClassifier& toc = newTrack.Type;
-    toc.probabilityPerson =
-      (type.compare("Person", Qt::CaseInsensitive) ? 0.0 : 1.0);
-    toc.probabilityVehicle =
-      (type.compare("Vehicle", Qt::CaseInsensitive) ? 0.0 : 1.0);
+    toc.probabilityFish =
+      (type.compare("Fish", Qt::CaseInsensitive) ? 0.0 : 1.0);
+    toc.probabilityScallop =
+      (type.compare("Scallop", Qt::CaseInsensitive) ? 0.0 : 1.0);
     toc.probabilityOther =
-      (1.0 - (toc.probabilityPerson + toc.probabilityVehicle));
+      (1.0 - (toc.probabilityFish + toc.probabilityScallop));
 
     // Add new track to internal set
     ++newId.SerialNumber;

@@ -254,7 +254,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
         }
       else
         {
-        info = &this->Internal->TrackInfo[track->GetBestPVOClassifier()];
+        info = &this->Internal->TrackInfo[track->GetBestFSOClassifier()];
         }
 
       if (!backgroundColor)
@@ -303,11 +303,11 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
 
     if (this->ShowProbability)
       {
-      double PVO[3];
-      track->GetPVO(PVO);
+      double FSO[3];
+      track->GetFSO(FSO);
 
-      // show PVO from top to bottom if the track isn't unclassified
-      if (PVO[0] != 0.0 || PVO[1] != 0.0 || PVO[2] != 0.0)
+      // show FSO from top to bottom if the track isn't unclassified
+      if (FSO[0] != 0.0 || FSO[1] != 0.0 || FSO[2] != 0.0)
         {
         if (hasLabel)
           {
@@ -316,7 +316,7 @@ void vtkVgTrackLabelRepresentation::ShowTrackAnnotation(vtkVgTrack* track,
 
         ostr.setf(ios::fixed, ios::floatfield);
         ostr.precision(2);
-        ostr << "(P:" << PVO[0] << ", V:" << PVO[1] << ", O:" << PVO[2] << ')';
+        ostr << "(F:" << FSO[0] << ", S:" << FSO[1] << ", O:" << FSO[2] << ')';
         hasLabel = true;
         }
       }
@@ -459,7 +459,7 @@ void vtkVgTrackLabelRepresentation::Update()
     else if (this->TrackModel->GetTrackDisplayData(track).NumIds == 0)
       {
       // Only do the work of getting the HeadIdentifier (which is preferred
-      // display vehicle) if we know we don't have the trail as backup
+      // display scallop) if we know we don't have the trail as backup
       vtkIdType npts, *pts, trackPointId;
       track->GetHeadIdentifier(this->TrackModel->GetCurrentTimeStamp(), npts,
                                pts, trackPointId);

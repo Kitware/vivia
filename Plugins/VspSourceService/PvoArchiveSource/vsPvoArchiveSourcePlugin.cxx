@@ -44,8 +44,8 @@ vsArchivePluginInfo vsPvoArchiveSourcePlugin::archivePluginInfo(
   if (type == vs::ArchiveDescriptorSource)
     {
     vsArchiveFileType fileType;
-    fileType.Description = "Kitware collected P/V/O's";
-    fileType.Patterns.append("*.pvo.txt");
+    fileType.Description = "Kitware collected F/S/O's";
+    fileType.Patterns.append("*.fso.txt");
     info.SupportedFileTypes.append(fileType);
     }
   return info;
@@ -60,7 +60,7 @@ vsSimpleSourceFactory* vsPvoArchiveSourcePlugin::createArchiveSource(
     {
     CHECK_ARG(type == vs::ArchiveDescriptorSource, 0);
     CHECK_ARG(uri.scheme() == "file", 0);
-    CHECK_ARG(uri.toLocalFile().endsWith(".pvo.txt"), 0);
+    CHECK_ARG(uri.toLocalFile().endsWith(".fso.txt"), 0);
     }
 
   // Verify that file exists and is readable

@@ -167,10 +167,10 @@ vsEventInfo vsEventInfo::fromEventSetInfo(
 QList<vsEventInfo> vsEventInfo::events(vsEventInfo::Groups groups)
 {
   vvEventInfo::Groups vvGroups = 0;
-  if (groups.testFlag(vsEventInfo::Person))
-    vvGroups |= vvEventInfo::Person;
-  if (groups.testFlag(vsEventInfo::Vehicle))
-    vvGroups |= vvEventInfo::Vehicle;
+  if (groups.testFlag(vsEventInfo::Fish))
+    vvGroups |= vvEventInfo::Fish;
+  if (groups.testFlag(vsEventInfo::Scallop))
+    vvGroups |= vvEventInfo::Scallop;
 
   QList<vsEventInfo> vsEvents;
 

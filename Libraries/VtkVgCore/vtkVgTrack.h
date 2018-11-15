@@ -265,9 +265,9 @@ public:
   vtkGetMacro(Type, int);
 
   // DEPRECATED (TODO: remove this)
-  void SetPVO(double person, double vehicle, double other);
-  void SetPVO(double pvo[3]);
-  vtkGetVector3Macro(PVO, double);
+  void SetFSO(double fish, double scallop, double other);
+  void SetFSO(double pvo[3]);
+  vtkGetVector3Macro(FSO, double);
 
   // Description:
   // Set/Get the object classification for this track.  These must sum to 1;
@@ -279,16 +279,16 @@ public:
   // constexpr static int Unclassified = 0;
 
   // DEPRECATED (TODO: remove this)
-  enum enumTrackPVOType
+  enum enumTrackFSOType
     {
-    Person = 0,
-    Vehicle,
+    Fish = 0,
+    Scallop,
     Other,
     Unclassified
     };
 
   // DEPRECATED (TODO: remove this)
-  int GetBestPVOClassifier();
+  int GetBestFSOClassifier();
 
   std::pair<int, double> GetBestTOCClassifier();
   double GetTOCScore(int type);
@@ -414,7 +414,7 @@ private:
   char* Note;
 
   double Normalcy;
-  double PVO[3];
+  double FSO[3];
   std::map<int, double> TOC;
 
   double Color[3];

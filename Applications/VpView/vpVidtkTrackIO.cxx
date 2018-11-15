@@ -702,7 +702,7 @@ void vpVidtkTrackIO::ReadTrack(
   vidtk::pvo_probability pvo;
   if (vidtkTrack->get_pvo(pvo))
     {
-    const auto personTypeIndex  = this->GetTrackTypeIndex("Person");
+    const auto personTypeIndex    = this->GetTrackTypeIndex("Person");
     const auto vehicleTypeIndex = this->GetTrackTypeIndex("Vehicle");
     const auto otherTypeIndex   = this->GetTrackTypeIndex("Other");
 

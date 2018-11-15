@@ -180,8 +180,8 @@ bool vqPredefinedQueryDialogPrivate::setupClassifierGroup()
 {
   QSettings settings;
   settings.beginGroup("PredefinedClassifiers");
-  int count = this->populateGroup(settings, "Person");
-  count += this->populateGroup(settings, "Vehicle");
+  int count = this->populateGroup(settings, "Fish");
+  count += this->populateGroup(settings, "Scallop");
   settings.endGroup();
 
   if (count == 0)

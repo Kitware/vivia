@@ -97,7 +97,7 @@ public:
   void SetColorModeToTOC()    { this->SetColorMode(TCM_TOC); }
   void SetColorModeToRandom() { this->SetColorMode(TCM_Random); }
 
-  [[deprecated]] void SetColorModeToPVO() { this->SetColorMode(TCM_TOC); }
+  [[deprecated]] void SetColorModeToFSO() { this->SetColorMode(TCM_TOC); }
 
   bool UsingPerFrameColors()
     {
@@ -119,16 +119,16 @@ public:
   void ClearStateAttributeMasks();
 
   // Description:
-  // Set/Get the rgb components of the "Person" color (if ColorByTOC).
+  // Set/Get the rgb components of the "Fish" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
-  [[deprecated]] vtkSetVector3Macro(PersonColor, double);
-  [[deprecated]] vtkGetVector3Macro(PersonColor, double);
+  [[deprecated]] vtkSetVector3Macro(FishColor, double);
+  [[deprecated]] vtkGetVector3Macro(FishColor, double);
 
   // Description:
-  // Set/Get the rgb components of the "Vehicle" color (if ColorByTOC).
+  // Set/Get the rgb components of the "Scallop" color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
-  [[deprecated]] vtkSetVector3Macro(VehicleColor, double);
-  [[deprecated]] vtkGetVector3Macro(VehicleColor, double);
+  [[deprecated]] vtkSetVector3Macro(ScallopColor, double);
+  [[deprecated]] vtkGetVector3Macro(ScallopColor, double);
 
   // Description:
   // Set/Get the rgb components of the "Other" color (if ColorByTOC).
@@ -146,7 +146,7 @@ public:
   // Set the rgb components of the specified track type color (if ColorByTOC).
   // Note: expecting color values between 0 and 1.
   [[deprecated]]
-  void SetColor(vtkVgTrack::enumTrackPVOType type, double color[3]);
+  void SetColor(vtkVgTrack::enumTrackFSOType type, double color[3]);
 
   // Description:
   // Set the rgb components of the default track color.
@@ -180,8 +180,8 @@ protected:
   vtkVgTrackTypeRegistry* TrackTypeRegistry;
 
   TrackColorMode   ColorMode;
-  double           PersonColor[3];
-  double           VehicleColor[3];
+  double           FishColor[3];
+  double           ScallopColor[3];
   double           OtherColor[3];
   double           UnclassifiedColor[3];
   double           ScalarColor[3];

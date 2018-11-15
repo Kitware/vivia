@@ -113,10 +113,10 @@ protected slots:
   void setTrackColoring();
   void setTrackTrailLength();
   void setEventDisplayThreshold();
-  void showEventsAllPerson();
-  void showEventsAllVehicle();
-  void hideEventsAllPerson();
-  void hideEventsAllVehicle();
+  void showEventsAllFish();
+  void showEventsAllScallop();
+  void hideEventsAllFish();
+  void hideEventsAllScallop();
 
   void createAlert();
   void loadAlert();

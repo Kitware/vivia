@@ -679,10 +679,10 @@ QString vsContextViewerPrivate::getClassificationText(int type, vtkIdType id)
     const vsDisplayInfo& info = this->Scene->trackDisplayInfo(id);
     switch (info.BestClassification)
       {
-      case vtkVgTrack::Person:
-        return QString("Person (%1)").arg(info.Confidence, 0, 'f', 4);
-      case vtkVgTrack::Vehicle:
-        return QString("Vehicle (%1)").arg(info.Confidence, 0, 'f', 4);
+      case vtkVgTrack::Fish:
+        return QString("Fish (%1)").arg(info.Confidence, 0, 'f', 4);
+      case vtkVgTrack::Scallop:
+        return QString("Scallop (%1)").arg(info.Confidence, 0, 'f', 4);
       case vtkVgTrack::Other:
         return QString("Other (%1)").arg(info.Confidence, 0, 'f', 4);
       case vtkVgTrack::Unclassified:

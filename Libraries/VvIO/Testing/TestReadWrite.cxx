@@ -86,9 +86,9 @@ void testTrack1(qtTest& testObject, const vvTrack& track)
     typedef vvTrackObjectClassification::const_iterator TocIterator;
     TocIterator iter, notFound = track.Classification.end();
 
-    TEST((iter = track.Classification.find("Person")) != notFound);
+    TEST((iter = track.Classification.find("Fish")) != notFound);
     (iter != notFound) && TEST_EQUAL(iter->second, 0.8);
-    TEST((iter = track.Classification.find("Vehicle")) != notFound);
+    TEST((iter = track.Classification.find("Scallop")) != notFound);
     (iter != notFound) && TEST_EQUAL(iter->second, 0.2);
     }
   if (TEST_EQUAL(track.Trajectory.size(), size_t(1)) == 0)
@@ -108,9 +108,9 @@ void testTrack2(qtTest& testObject, const vvTrack& track)
     typedef vvTrackObjectClassification::const_iterator TocIterator;
     TocIterator iter, notFound = track.Classification.end();
 
-    TEST((iter = track.Classification.find("Person")) != notFound);
+    TEST((iter = track.Classification.find("Fish")) != notFound);
     (iter != notFound) && TEST_EQUAL(iter->second, 0.6);
-    TEST((iter = track.Classification.find("Vehicle")) != notFound);
+    TEST((iter = track.Classification.find("Scallop")) != notFound);
     (iter != notFound) && TEST_EQUAL(iter->second, 0.3);
     TEST((iter = track.Classification.find("Other")) != notFound);
     (iter != notFound) && TEST_EQUAL(iter->second, 0.1);

@@ -10,10 +10,10 @@
 struct vsTrackObjectClassifier
 {
   vsTrackObjectClassifier()
-    : probabilityPerson(0.0), probabilityVehicle(0.0), probabilityOther(0.0) {}
+    : probabilityFish(0.0), probabilityScallop(0.0), probabilityOther(0.0) {}
 
-  double probabilityPerson;
-  double probabilityVehicle;
+  double probabilityFish;
+  double probabilityScallop;
   double probabilityOther;
 };
 

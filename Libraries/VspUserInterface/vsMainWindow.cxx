@@ -382,14 +382,14 @@ vsMainWindow::vsMainWindow(vsCore* core, vsMainWindow* invokingView)
           this, SLOT(saveFilterSettings()));
   connect(d->UI.actionEventProbabilityThresholdSet, SIGNAL(triggered()),
           this, SLOT(setEventDisplayThreshold()));
-  connect(d->UI.actionEventsPersonEnableAll, SIGNAL(triggered()),
-          this, SLOT(showEventsAllPerson()));
-  connect(d->UI.actionEventsVehicleEnableAll, SIGNAL(triggered()),
-          this, SLOT(showEventsAllVehicle()));
-  connect(d->UI.actionEventsPersonDisableAll, SIGNAL(triggered()),
-          this, SLOT(hideEventsAllPerson()));
-  connect(d->UI.actionEventsVehicleDisableAll, SIGNAL(triggered()),
-          this, SLOT(hideEventsAllVehicle()));
+  connect(d->UI.actionEventsFishEnableAll, SIGNAL(triggered()),
+          this, SLOT(showEventsAllFish()));
+  connect(d->UI.actionEventsScallopEnableAll, SIGNAL(triggered()),
+          this, SLOT(showEventsAllScallop()));
+  connect(d->UI.actionEventsFishDisableAll, SIGNAL(triggered()),
+          this, SLOT(hideEventsAllFish()));
+  connect(d->UI.actionEventsScallopDisableAll, SIGNAL(triggered()),
+          this, SLOT(hideEventsAllScallop()));
   connect(d->UI.actionRegionDraw, SIGNAL(toggled(bool)),
           this, SLOT(toggleDrawing(bool)));
   connect(d->UI.actionAlertCreate, SIGNAL(triggered()),
@@ -1494,31 +1494,31 @@ void vsMainWindow::setEventDisplayThreshold()
 }
 
 //-----------------------------------------------------------------------------
-void vsMainWindow::showEventsAllPerson()
+void vsMainWindow::showEventsAllFish()
 {
   QTE_D(vsMainWindow);
-  d->Scene->setEventGroupVisibility(vsEventInfo::Person, true);
+  d->Scene->setEventGroupVisibility(vsEventInfo::Fish, true);
 }
 
 //-----------------------------------------------------------------------------
-void vsMainWindow::showEventsAllVehicle()
+void vsMainWindow::showEventsAllScallop()
 {
   QTE_D(vsMainWindow);
-  d->Scene->setEventGroupVisibility(vsEventInfo::Vehicle, true);
+  d->Scene->setEventGroupVisibility(vsEventInfo::Scallop, true);
 }
 
 //-----------------------------------------------------------------------------
-void vsMainWindow::hideEventsAllPerson()
+void vsMainWindow::hideEventsAllFish()
 {
   QTE_D(vsMainWindow);
-  d->Scene->setEventGroupVisibility(vsEventInfo::Person, false);
+  d->Scene->setEventGroupVisibility(vsEventInfo::Fish, false);
 }
 
 //-----------------------------------------------------------------------------
-void vsMainWindow::hideEventsAllVehicle()
+void vsMainWindow::hideEventsAllScallop()
 {
   QTE_D(vsMainWindow);
-  d->Scene->setEventGroupVisibility(vsEventInfo::Vehicle, false);
+  d->Scene->setEventGroupVisibility(vsEventInfo::Scallop, false);
 }
 
 //-----------------------------------------------------------------------------

@@ -81,8 +81,8 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
           int type = this->trackFilter->GetBestClassifier(track);
           switch (type)
             {
-            case vtkVgTrack::Person:       return "Person";
-            case vtkVgTrack::Vehicle:      return "Vehicle";
+            case vtkVgTrack::Fish:         return "Fish";
+            case vtkVgTrack::Scallop:      return "Scallop";
             case vtkVgTrack::Other:        return "Other";
             case vtkVgTrack::Unclassified: return "Unclassified";
             }
@@ -100,7 +100,7 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
             }
           else
             {
-            probability = track->GetPVO()[type];
+            probability = track->GetFSO()[type];
             }
 
           return QString::number(probability, 'f', 4);
@@ -162,14 +162,14 @@ QVariant vsTrackTreeModel::data(const QModelIndex& index, int role) const
         case TrackTypeColumn:
         case ProbabilityColumn:
           {
-          double PVO[3];
-          track->GetPVO(PVO);
+          double FSO[3];
+          track->GetFSO(FSO);
 
           QString tooltip = "P:%1, V:%2, O:%3";
 
-          return tooltip.arg(PVO[0], 0, 'f', 2)
-                        .arg(PVO[1], 0, 'f', 2)
-                        .arg(PVO[2], 0, 'f', 2);
+          return tooltip.arg(FSO[0], 0, 'f', 2)
+                        .arg(FSO[1], 0, 'f', 2)
+                        .arg(FSO[2], 0, 'f', 2);
           }
 
         case NoteColumn:

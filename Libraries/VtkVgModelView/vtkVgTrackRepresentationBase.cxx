@@ -52,13 +52,13 @@ vtkVgTrackRepresentationBase::vtkVgTrackRepresentationBase()
     TrackFilter(0), TrackTypeRegistry(0), ColorMode(TCM_Model), ColorHelper(0),
     StateAttributeGroupMask(0), ExcludedTrack(0)
 {
-  // for now, PVO colors default to P=b, V=g, O=r
-  this->PersonColor[0] = 0.0;
-  this->PersonColor[1] = 0.0;
-  this->PersonColor[2] = 1.0;
-  this->VehicleColor[0] = 0.0;
-  this->VehicleColor[1] = 1.0;
-  this->VehicleColor[2] = 0.0;
+  // for now, FSO colors default to F=b, S=g, O=r
+  this->FishColor[0] = 0.0;
+  this->FishColor[1] = 0.0;
+  this->FishColor[2] = 1.0;
+  this->ScallopColor[0] = 0.0;
+  this->ScallopColor[1] = 1.0;
+  this->ScallopColor[2] = 0.0;
   this->OtherColor[0] = 1.0;
   this->OtherColor[1] = 0.0;
   this->OtherColor[2] = 0.0;
@@ -146,16 +146,16 @@ void vtkVgTrackRepresentationBase::ClearStateAttributeMasks()
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrackRepresentationBase::SetColor(vtkVgTrack::enumTrackPVOType type,
+void vtkVgTrackRepresentationBase::SetColor(vtkVgTrack::enumTrackFSOType type,
                                             double color[3])
 {
   switch (type)
     {
-    case vtkVgTrack::Person:
-      this->SetPersonColor(color);
+    case vtkVgTrack::Fish:
+      this->SetFishColor(color);
       break;
-    case vtkVgTrack::Vehicle:
-      this->SetVehicleColor(color);
+    case vtkVgTrack::Scallop:
+      this->SetScallopColor(color);
       break;
     case vtkVgTrack::Other:
       this->SetOtherColor(color);
@@ -237,8 +237,8 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
         {
         switch (tt)
           {
-          case vtkVgTrack::Person:  return this->PersonColor;
-          case vtkVgTrack::Vehicle: return this->VehicleColor;
+          case vtkVgTrack::Fish:  return this->FishColor;
+          case vtkVgTrack::Scallop: return this->ScallopColor;
           case vtkVgTrack::Other:   return this->OtherColor;
           default:                  break;
           }

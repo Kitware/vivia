@@ -57,7 +57,7 @@ public:
     vtkSmartPointer<vtkVgEventRepresentationBase>);
 
   void setDefaultEventColor(const QColor&);
-  void setTrackTypeColor(vtkVgTrack::enumTrackPVOType type, const QColor&);
+  void setTrackTypeColor(vtkVgTrack::enumTrackFSOType type, const QColor&);
 
   QList<vtkIdType> trackIds();
   vvTrackId trackId(vtkIdType vtkId);

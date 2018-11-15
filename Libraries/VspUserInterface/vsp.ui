@@ -173,11 +173,11 @@
     <property name="title">
      <string>&amp;Events</string>
     </property>
-    <addaction name="actionEventsPersonEnableAll"/>
-    <addaction name="actionEventsPersonDisableAll"/>
+    <addaction name="actionEventsFishEnableAll"/>
+    <addaction name="actionEventsFishDisableAll"/>
     <addaction name="separator"/>
-    <addaction name="actionEventsVehicleEnableAll"/>
-    <addaction name="actionEventsVehicleDisableAll"/>
+    <addaction name="actionEventsScallopEnableAll"/>
+    <addaction name="actionEventsScallopDisableAll"/>
     <addaction name="separator"/>
     <addaction name="actionEventFiltersLoad"/>
     <addaction name="actionEventFiltersSave"/>
@@ -785,45 +785,45 @@
     <string>Ctrl+D, F</string>
    </property>
   </action>
-  <action name="actionEventsPersonEnableAll">
+  <action name="actionEventsFishEnableAll">
    <property name="text">
-    <string>Show All Person Events</string>
+    <string>Show All Fish Events</string>
    </property>
    <property name="toolTip">
-    <string>Enable display of all person events</string>
+    <string>Enable display of all fish events</string>
    </property>
    <property name="shortcut">
     <string>S, P</string>
    </property>
   </action>
-  <action name="actionEventsVehicleEnableAll">
+  <action name="actionEventsScallopEnableAll">
    <property name="text">
-    <string>Show All Vehicle Events</string>
+    <string>Show All Scallop Events</string>
    </property>
    <property name="toolTip">
-    <string>Enable display of all vehicle events</string>
+    <string>Enable display of all scallop events</string>
    </property>
    <property name="shortcut">
     <string>S, V</string>
    </property>
   </action>
-  <action name="actionEventsPersonDisableAll">
+  <action name="actionEventsFishDisableAll">
    <property name="text">
-    <string>Hide All Person Events</string>
+    <string>Hide All Fish Events</string>
    </property>
    <property name="toolTip">
-    <string>Disable display of all person events</string>
+    <string>Disable display of all fish events</string>
    </property>
    <property name="shortcut">
     <string>H, P</string>
    </property>
   </action>
-  <action name="actionEventsVehicleDisableAll">
+  <action name="actionEventsScallopDisableAll">
    <property name="text">
-    <string>Hide All Vehicle Events</string>
+    <string>Hide All Scallop Events</string>
    </property>
    <property name="toolTip">
-    <string>Disable display of all vehicle events</string>
+    <string>Disable display of all scallop events</string>
    </property>
    <property name="shortcut">
     <string>H, V</string>
@@ -1026,10 +1026,10 @@
      <normaloff>:/icons/16x16/track-show-pvo</normaloff>:/icons/16x16/track-show-pvo</iconset>
    </property>
    <property name="text">
-    <string>Show &amp;PVO's</string>
+    <string>Show &amp;FSO's</string>
    </property>
    <property name="toolTip">
-    <string>Toggle display of track P/V/O scores</string>
+    <string>Toggle display of track F/S/O scores</string>
    </property>
   </action>
   <action name="actionTracksTrailLengthSet">

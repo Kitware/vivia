@@ -26,7 +26,7 @@ namespace // anonymous
 //-----------------------------------------------------------------------------
 void setColorFromTocType(
   qtColorButton* penButton, qtColorButton* fgButton, qtColorButton* bgButton,
-  QLabel* label, vtkVgTrack::enumTrackPVOType type)
+  QLabel* label, vtkVgTrack::enumTrackFSOType type)
 {
   vvTrackInfo ti(type);
   penButton->setColor(ti.PenColor.toQColor());
@@ -40,7 +40,7 @@ void setColorFromTocType(
 
 //-----------------------------------------------------------------------------
 void saveTocTypeColor(
-  vtkVgTrack::enumTrackPVOType type, const QColor& penColor,
+  vtkVgTrack::enumTrackFSOType type, const QColor& penColor,
   const QColor& foreColor, const QColor& backColor)
 {
   vvTrackInfo ti(type);
@@ -91,10 +91,10 @@ vsTrackColorDialog::vsTrackColorDialog(QWidget* parent)
   setColorFromTocType(button, button##Fore, button##Back, label, type)
 
   SET_COLOR_FROM_TOC_TYPE(d->UI.defaultColor, 0, vtkVgTrack::Unclassified);
-  SET_COLOR_FROM_TOC_TYPE(d->UI.personColor,
-                          d->UI.personLabel, vtkVgTrack::Person);
-  SET_COLOR_FROM_TOC_TYPE(d->UI.vehicleColor,
-                          d->UI.vehicleLabel, vtkVgTrack::Vehicle);
+  SET_COLOR_FROM_TOC_TYPE(d->UI.fishColor,
+                          d->UI.fishLabel, vtkVgTrack::Fish);
+  SET_COLOR_FROM_TOC_TYPE(d->UI.scallopColor,
+                          d->UI.scallopLabel, vtkVgTrack::Scallop);
   SET_COLOR_FROM_TOC_TYPE(d->UI.otherColor,
                           d->UI.otherLabel, vtkVgTrack::Other);
 
@@ -211,8 +211,8 @@ void vsTrackColorDialog::accept()
 
   if (d->UI.colorByToc->isChecked())
     {
-    SAVE_TOC_TYPE_COLOR(vtkVgTrack::Person,  d->UI.personColor);
-    SAVE_TOC_TYPE_COLOR(vtkVgTrack::Vehicle, d->UI.vehicleColor);
+    SAVE_TOC_TYPE_COLOR(vtkVgTrack::Fish,    d->UI.fishColor);
+    SAVE_TOC_TYPE_COLOR(vtkVgTrack::Scallop, d->UI.scallopColor);
     SAVE_TOC_TYPE_COLOR(vtkVgTrack::Other,   d->UI.otherColor);
     }
   else if (d->UI.colorByData->isChecked())

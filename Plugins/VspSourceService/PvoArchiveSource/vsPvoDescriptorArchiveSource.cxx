@@ -41,21 +41,21 @@ bool vsPvoDescriptorArchiveSourcePrivate::processArchive(const QUrl& uri)
 {
   QTE_Q(vsPvoDescriptorArchiveSource);
 
-  // Read P/V/O's
+  // Read F/S/O's
   qtKstReader reader(uri, QRegExp("\\s+"), QRegExp("\n"));
   if (!reader.isValid())
     {
     return false;
     }
 
-  // Process the P/V/O's
+  // Process the F/S/O's
   while (!reader.isEndOfFile())
     {
     int trackId;
     vsTrackObjectClassifier toc;
     if (reader.readInt(trackId, 0) &&
-        reader.readReal(toc.probabilityPerson, 1) &&
-        reader.readReal(toc.probabilityVehicle, 2) &&
+        reader.readReal(toc.probabilityFish, 1) &&
+        reader.readReal(toc.probabilityScallop, 2) &&
         reader.readReal(toc.probabilityOther, 3))
       {
       emit q->tocAvailable(vsAdaptTrackId(trackId), toc);

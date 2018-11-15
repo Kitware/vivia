@@ -102,19 +102,19 @@
       </widget>
      </item>
      <item row="3" column="0">
-      <widget class="QLabel" name="personLabel">
+      <widget class="QLabel" name="fishLabel">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Person:</string>
+        <string>Fish:</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="qtColorButton" name="personColor">
+        <widget class="qtColorButton" name="fishColor">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -125,7 +125,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Person. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Fish. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
@@ -133,7 +133,7 @@
         </widget>
        </item>
        <item>
-        <widget class="qtColorButton" name="personColorFore">
+        <widget class="qtColorButton" name="fishColorFore">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -144,7 +144,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Track label text color for tracks classified as Person.</string>
+          <string>Track label text color for tracks classified as Fish.</string>
          </property>
          <property name="text">
           <string/>
@@ -152,7 +152,7 @@
         </widget>
        </item>
        <item>
-        <widget class="qtColorButton" name="personColorBack">
+        <widget class="qtColorButton" name="fishColorBack">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -163,7 +163,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Track label background color for tracks classified as Person.</string>
+          <string>Track label background color for tracks classified as Fish.</string>
          </property>
          <property name="text">
           <string/>
@@ -173,19 +173,19 @@
       </layout>
      </item>
      <item row="4" column="0">
-      <widget class="QLabel" name="vehicleLabel">
+      <widget class="QLabel" name="scallopLabel">
        <property name="enabled">
         <bool>false</bool>
        </property>
        <property name="text">
-        <string>Vehicle:</string>
+        <string>Scallop:</string>
        </property>
       </widget>
      </item>
      <item row="4" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="qtColorButton" name="vehicleColor">
+        <widget class="qtColorButton" name="scallopColor">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -196,7 +196,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Vehicle. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;body&gt;&lt;p&gt;Track pen color for tracks classified as Scallop. This color will be used to draw thinner lines and shapes related to the track (e.g. paths, head outlines).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="text">
           <string/>
@@ -204,7 +204,7 @@
         </widget>
        </item>
        <item>
-        <widget class="qtColorButton" name="vehicleColorFore">
+        <widget class="qtColorButton" name="scallopColorFore">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -215,7 +215,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Track label text color for tracks classified as Vehicle.</string>
+          <string>Track label text color for tracks classified as Scallop.</string>
          </property>
          <property name="text">
           <string/>
@@ -223,7 +223,7 @@
         </widget>
        </item>
        <item>
-        <widget class="qtColorButton" name="vehicleColorBack">
+        <widget class="qtColorButton" name="scallopColorBack">
          <property name="enabled">
           <bool>false</bool>
          </property>
@@ -234,7 +234,7 @@
           </sizepolicy>
          </property>
          <property name="toolTip">
-          <string>Track label background color for tracks classified as Vehicle.</string>
+          <string>Track label background color for tracks classified as Scallop.</string>
          </property>
          <property name="text">
           <string/>
@@ -578,7 +578,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>personLabel</receiver>
+   <receiver>fishLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -594,7 +594,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>personColor</receiver>
+   <receiver>fishColor</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -610,7 +610,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>personColorFore</receiver>
+   <receiver>fishColorFore</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -626,7 +626,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>personColorBack</receiver>
+   <receiver>fishColorBack</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -642,7 +642,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>vehicleLabel</receiver>
+   <receiver>scallopLabel</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -674,7 +674,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>vehicleColor</receiver>
+   <receiver>scallopColor</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -690,7 +690,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>vehicleColorFore</receiver>
+   <receiver>scallopColorFore</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -706,7 +706,7 @@
   <connection>
    <sender>colorByToc</sender>
    <signal>toggled(bool)</signal>
-   <receiver>vehicleColorBack</receiver>
+   <receiver>scallopColorBack</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

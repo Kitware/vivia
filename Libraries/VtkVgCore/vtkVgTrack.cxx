@@ -256,7 +256,7 @@ vtkVgTrack::vtkVgTrack()
   this->PointIds = vtkIdList::New();
 
   // default to unclassified...
-  this->PVO[0] = this->PVO[1] = this->PVO[2] = 0.0;
+  this->FSO[0] = this->FSO[1] = this->FSO[2] = 0.0;
 
   this->Color[0] = 1.0;
   this->Color[1] = 1.0;
@@ -308,9 +308,9 @@ void vtkVgTrack::CopyData(vtkVgTrack* other)
 
   this->Normalcy = other->Normalcy;
 
-  this->PVO[0] = other->PVO[0];
-  this->PVO[1] = other->PVO[1];
-  this->PVO[2] = other->PVO[2];
+  this->FSO[0] = other->FSO[0];
+  this->FSO[1] = other->FSO[1];
+  this->FSO[2] = other->FSO[2];
 
   this->TOC = other->TOC;
 }
@@ -1250,48 +1250,48 @@ vtkIdType vtkVgTrack::GetNextPathPt(vtkVgTimeStamp& timeStamp)
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrack::SetPVO(double person, double vehicle, double other)
+void vtkVgTrack::SetFSO(double fish, double scallop, double other)
 {
-  double sum = person + vehicle + other;
+  double sum = fish + scallop + other;
   if (sum != 1.0 && sum != 0.0)
     {
-    person /= sum;
-    vehicle /= sum;
+    fish /= sum;
+    scallop /= sum;
     other /= sum;
     }
-  if (this->PVO[0] == person && this->PVO[1] == vehicle && this->PVO[2] == other)
+  if (this->FSO[0] == fish && this->FSO[1] == scallop && this->FSO[2] == other)
     {
     return;
     }
 
-  this->PVO[0] = person;
-  this->PVO[1] = vehicle;
-  this->PVO[2] = other;
+  this->FSO[0] = fish;
+  this->FSO[1] = scallop;
+  this->FSO[2] = other;
 
   this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void vtkVgTrack::SetPVO(double pvo[3])
+void vtkVgTrack::SetFSO(double pvo[3])
 {
-  this->SetPVO(pvo[0], pvo[1], pvo[2]);
+  this->SetFSO(pvo[0], pvo[1], pvo[2]);
 }
 
 //-----------------------------------------------------------------------------
-int vtkVgTrack::GetBestPVOClassifier()
+int vtkVgTrack::GetBestFSOClassifier()
 {
-  if (this->PVO[0] == 0 && this->PVO[1] == 0 && this->PVO[2] == 0)
+  if (this->FSO[0] == 0 && this->FSO[1] == 0 && this->FSO[2] == 0)
     {
     return vtkVgTrack::Unclassified;
     }
 
-  if (this->PVO[0] >= this->PVO[1] && this->PVO[0] >= this->PVO[2])
+  if (this->FSO[0] >= this->FSO[1] && this->FSO[0] >= this->FSO[2])
     {
-    return vtkVgTrack::Person;
+    return vtkVgTrack::Fish;
     }
-  else if (this->PVO[1] > this->PVO[0] && this->PVO[1] >= PVO[2])
+  else if (this->FSO[1] > this->FSO[0] && this->FSO[1] >= FSO[2])
     {
-    return vtkVgTrack::Vehicle;
+    return vtkVgTrack::Scallop;
     }
 
   return vtkVgTrack::Other;

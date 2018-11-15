@@ -102,7 +102,7 @@ vvQueryVideoPlayer::vvQueryVideoPlayer(QWidget* parent)
     static_cast<vvQueryVideoPlayerPrivate*>(this->d_ptr.data());
 
   this->Internal->UpdatePending = false;
-  this->Internal->ColorTracksByPVO = false;
+  this->Internal->ColorTracksByFSO = false;
   this->Internal->JumpToTrackId = -1;
   connect(this, SIGNAL(pickedEvent(vtkIdType)),
           this, SLOT(eventSelected(vtkIdType)));
@@ -287,10 +287,10 @@ void vvQueryVideoPlayer::setTracks(QList<vvTrack> tracks)
   this->Internal->VideoMetaData =
     this->Internal->VideoModel->GetVideoSource()->GetMetadata();
 
-  this->Internal->ColorTracksByPVO = true;
+  this->Internal->ColorTracksByFSO = true;
   if (this->Internal->TrackRepresentation)
     {
-    this->Internal->TrackRepresentation->SetColorModeToPVO();
+    this->Internal->TrackRepresentation->SetColorModeToFSO();
     }
 
   // Create the track id map and then fill track model
@@ -325,20 +325,20 @@ void vvQueryVideoPlayer::setTracks(QList<vvTrack> tracks)
     // \TODO first, vtkVgTrack should be taking the full map; second, we need
     //       a better way to mangle the ill-defined names from back-ends into
     //       something that vtkVgTrack understands
-    const char* keyPerson = "TTPerson", *keyVehicle = "TTVehicle";
+    const char* keyFish = "TTFish", *keyScallop = "TTScallop";
     QMap<std::string, double> toc(trackIter->Classification);
     // Alternate accepted form of the triples
-    if (toc.count() == 3 && toc.contains("Person")
-        && toc.contains("Vehicle") && toc.contains("Other"))
+    if (toc.count() == 3 && toc.contains("Fish")
+        && toc.contains("Scallop") && toc.contains("Other"))
       {
-      keyPerson = "Person";
-      keyVehicle = "Vehicle";
+      keyFish = "Fish";
+      keyScallop = "Scallop";
       }
 
     // Set track classifications
-    const double pp = toc.value(keyPerson,  0.0);
-    const double pv = toc.value(keyVehicle, 0.0);
-    track->SetPVO(pp, pv, 1.0 - (pp + pv));
+    const double pp = toc.value(keyFish,  0.0);
+    const double pv = toc.value(keyScallop, 0.0);
+    track->SetFSO(pp, pv, 1.0 - (pp + pv));
 
     // Add the points to the track; for now don't need (use) the head, so
     // not adding it to the track
@@ -453,21 +453,21 @@ void vvQueryVideoPlayer::buildScene()
   this->Internal->TrackRepresentation =
     vtkSmartPointer<vtkVgTrackRepresentation>::New();
 
-  if (this->Internal->ColorTracksByPVO)
+  if (this->Internal->ColorTracksByFSO)
     {
-    this->Internal->TrackRepresentation->SetColorModeToPVO();
+    this->Internal->TrackRepresentation->SetColorModeToFSO();
 
     double pcolor[] =
       {
-      this->Internal->PersonTrackColor.redF(),
-      this->Internal->PersonTrackColor.greenF(),
-      this->Internal->PersonTrackColor.blueF()
+      this->Internal->FishTrackColor.redF(),
+      this->Internal->FishTrackColor.greenF(),
+      this->Internal->FishTrackColor.blueF()
       };
     double vcolor[] =
       {
-      this->Internal->VehicleTrackColor.redF(),
-      this->Internal->VehicleTrackColor.greenF(),
-      this->Internal->VehicleTrackColor.blueF()
+      this->Internal->ScallopTrackColor.redF(),
+      this->Internal->ScallopTrackColor.greenF(),
+      this->Internal->ScallopTrackColor.blueF()
       };
     double ocolor[] =
       {
@@ -482,9 +482,9 @@ void vvQueryVideoPlayer::buildScene()
       this->Internal->UnclassifiedTrackColor.blueF()
       };
 
-    this->Internal->TrackRepresentation->SetColor(vtkVgTrack::Person,
+    this->Internal->TrackRepresentation->SetColor(vtkVgTrack::Fish,
                                                   pcolor);
-    this->Internal->TrackRepresentation->SetColor(vtkVgTrack::Vehicle,
+    this->Internal->TrackRepresentation->SetColor(vtkVgTrack::Scallop,
                                                   vcolor);
     this->Internal->TrackRepresentation->SetColor(vtkVgTrack::Other,
                                                   ocolor);
@@ -836,15 +836,15 @@ void vvQueryVideoPlayer::setDefaultEventColor(const QColor& color)
 
 //-----------------------------------------------------------------------------
 void vvQueryVideoPlayer::setTrackTypeColor(
-  vtkVgTrack::enumTrackPVOType type, const QColor& color)
+  vtkVgTrack::enumTrackFSOType type, const QColor& color)
 {
   switch (type)
     {
-    case vtkVgTrack::Person:
-      this->Internal->PersonTrackColor = color;
+    case vtkVgTrack::Fish:
+      this->Internal->FishTrackColor = color;
       break;
-    case vtkVgTrack::Vehicle:
-      this->Internal->VehicleTrackColor = color;
+    case vtkVgTrack::Scallop:
+      this->Internal->ScallopTrackColor = color;
       break;
     case vtkVgTrack::Other:
       this->Internal->OtherTrackColor = color;

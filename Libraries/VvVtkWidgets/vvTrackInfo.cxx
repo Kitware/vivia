@@ -41,9 +41,9 @@ static const TrackInfoTemplate nullTrackTemplate =
 //-----------------------------------------------------------------------------
 static const TrackInfoTemplate trackTemplates[] =
 {
-  { vtkVgTrack::Person,         "Person",
+  { vtkVgTrack::Fish,           "Fish",
     {  64,  64, 224,  48,  48, 192 } },
-  { vtkVgTrack::Vehicle,        "Vehicle",
+  { vtkVgTrack::Scallop,        "Scallop",
     { 208, 208,  48, 160, 160,  32 } },
   { vtkVgTrack::Other,          "Other",
     { 112, 112, 112,  64,  64,  64 } },
@@ -63,7 +63,7 @@ vvTrackInfo trackFromSettings(
 {
   vvTrackInfo ti;
 
-  ti.Type = static_cast<vtkVgTrack::enumTrackPVOType>(tpl.type);
+  ti.Type = static_cast<vtkVgTrack::enumTrackFSOType>(tpl.type);
 
   settings.beginGroup(group);
 
@@ -101,7 +101,7 @@ QList<vvTrackInfo> tracksFromTemplate(QSettings& settings,
 }
 
 //-----------------------------------------------------------------------------
-const char* settingsGroup(vtkVgTrack::enumTrackPVOType type)
+const char* settingsGroup(vtkVgTrack::enumTrackFSOType type)
 {
   TrackInfoTemplate const* t = trackTemplates;
   while (t->group)
@@ -123,7 +123,7 @@ vvTrackInfo::vvTrackInfo() : Source(-1), Type(vtkVgTrack::Unclassified)
 }
 
 //-----------------------------------------------------------------------------
-vvTrackInfo::vvTrackInfo(vtkVgTrack::enumTrackPVOType type) :
+vvTrackInfo::vvTrackInfo(vtkVgTrack::enumTrackFSOType type) :
   Source(-1), Type(type)
 {
   vvTrackInfo::getTrackType(*this, type);
@@ -155,7 +155,7 @@ bool vvTrackInfo::write() const
 
 //-----------------------------------------------------------------------------
 bool vvTrackInfo::getTrackType(
-  vvTrackInfo& ti, vtkVgTrack::enumTrackPVOType type)
+  vvTrackInfo& ti, vtkVgTrack::enumTrackFSOType type)
 {
   QSettings settings;
   settings.beginGroup(settingsTypeRoot);
