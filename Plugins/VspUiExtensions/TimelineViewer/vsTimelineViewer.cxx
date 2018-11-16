@@ -221,7 +221,7 @@ vsTimelineViewerPrivate::vsTimelineViewerPrivate(
   this->UpdatingSelection = false;
 
   this->MinimumSize = 1e6;
-  this->MinimumXPadding = 1e6;
+  this->MinimumXPadding = 0;
   this->MaximumYScale = 15.0;
 
   this->LastStartTime = -std::numeric_limits<double>::max();
@@ -430,7 +430,7 @@ void vsTimelineViewerPrivate::addEntityToRow(TimelineEntityInfo& info)
   while (candidate < k)
     {
     const double available = this->Rows[candidate].last().upper + padding;
-    if (available < info.StartTime)
+    if (available <= info.StartTime)
       {
       // This one will do
       break;
