@@ -29,6 +29,7 @@ set(vtkVgModelViewSrcs
   vtkVgTrackLabelRepresentation.cxx
   vtkVgTrackModel.cxx
   vtkVgTrackModelCollection.cxx
+  vtkVgTrackPVOFilter.cxx
   vtkVgTrackRepresentation.cxx
   vtkVgTrackRepresentationBase.cxx
   vtkVgTripWireManager.cxx
@@ -67,6 +68,7 @@ set(vtkVgModelViewInstallHeaders
   vtkVgTrackLabelRepresentation.h
   vtkVgTrackModelCollection.h
   vtkVgTrackModel.h
+  vtkVgTrackPVOFilter.h
   vtkVgTrackRepresentationBase.h
   vtkVgTrackRepresentation.h
   vtkVgTripWireManager.h

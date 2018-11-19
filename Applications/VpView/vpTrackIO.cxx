@@ -134,3 +134,20 @@ void vpTrackIO::AddTrack(vtkVgTrack* track)
   this->TrackModel->AddTrack(track);
   track->FastDelete();
 }
+
+//-----------------------------------------------------------------------------
+int vpTrackIO::GetTrackTypeIndex(const char* typeName)
+{
+  const auto index = this->TrackTypes->GetTypeIndex(typeName);
+
+  if (index >= 0)
+    {
+    return index;
+    }
+
+  vgTrackType type;
+  type.SetId(typeName);
+
+  this->TrackTypes->AddType(type);
+  return this->TrackTypes->GetTypeIndex(typeName);
+}

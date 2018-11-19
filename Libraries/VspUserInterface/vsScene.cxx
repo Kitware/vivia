@@ -42,7 +42,7 @@
 #include <vtkVgEventModel.h>
 #include <vtkVgEventRegionRepresentation.h>
 #include <vtkVgEventRepresentation.h>
-#include <vtkVgTrackFilter.h>
+#include <vtkVgTrackPVOFilter.h>
 #include <vtkVgTrackHeadRepresentation.h>
 #include <vtkVgTrackLabelRepresentation.h>
 #include <vtkVgTrackModel.h>

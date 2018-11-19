@@ -141,6 +141,9 @@ public:
 
   void setOverviewDisplay(vpProject* project);
 
+  void addTrackFilter(vgMixerWidget* filterWidget, int typeId,
+                      const QString& typeName);
+
   // Set/Get functions.
   inline int    getNumberOfFrames();
   inline int    getMinimumFrameNumber();
@@ -299,6 +302,16 @@ public:
   inline vtkVgEventTypeRegistry* getEventTypeRegistry()
     {
     return this->EventTypeRegistry;
+    }
+
+  inline const vtkVgTrackTypeRegistry* getTrackTypeRegistry() const
+    {
+    return this->TrackTypeRegistry;
+    }
+
+  inline vtkVgTrackTypeRegistry* getTrackTypeRegistry()
+    {
+    return this->TrackTypeRegistry;
     }
 
   void setTrackTrailLength(const vtkVgTimeStamp& duration);
@@ -601,6 +614,8 @@ signals:
   void iconsLoaded();
   void overviewLoaded();
   void followTrackChange(int trackId);
+
+  void trackTypesModified();
 
   void displayZoom();
   void frameChanged();

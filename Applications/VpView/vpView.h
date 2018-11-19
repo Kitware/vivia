@@ -195,6 +195,8 @@ public slots:
 
   void executeExternalProcess();
 
+  void updateTrackFilters();
+
 protected:
   virtual void closeEvent(QCloseEvent*);  // reimplemented from QWidget
 
