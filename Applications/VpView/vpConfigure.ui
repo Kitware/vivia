@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>857</width>
-    <height>1266</height>
+    <height>1281</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -663,6 +663,16 @@
           <string>Color Window Width / Center</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
+          <item row="2" column="0" rowspan="2">
+           <widget class="QLabel" name="label_3">
+            <property name="toolTip">
+             <string>Center of the color window. Typically the half the window width.</string>
+            </property>
+            <property name="text">
+             <string>Center</string>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QDoubleSpinBox" name="colorWindowWidth">
             <property name="decimals">
@@ -705,13 +715,10 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0" rowspan="2">
-           <widget class="QLabel" name="label_3">
-            <property name="toolTip">
-             <string>Center of the color window. Typically the half the window width.</string>
-            </property>
+          <item row="4" column="1">
+           <widget class="QPushButton" name="colorWindowCompute">
             <property name="text">
-             <string>Center</string>
+             <string>Compute</string>
             </property>
            </widget>
           </item>

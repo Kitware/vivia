@@ -102,6 +102,7 @@ set(vpViewSources
   vpAttributeConfig.cxx
   vpBox.cxx
   vpConfigUtils.cxx
+  vpComputeColorRangeDialog.cxx
   vpConfigureDialog.cxx
   vpContour.cxx
   vpCreateEventDialog.cxx
@@ -162,6 +163,7 @@ set(vpViewUI
   qtInformaticsDialog.ui
   qtNormalcyDialog.ui
   qtRenderWindowDialog.ui
+  vpComputeColorRangeDialog.ui
   vpConfigure.ui
   vpCreateEventDialog.ui
   vpEditTrackTypesDialog.ui
@@ -183,6 +185,7 @@ set(vpViewUI
 
 set(vpViewHeaders
   vpApplication.h
+  vpComputeColorRangeDialog.h
   vpConfigureDialog.h
   vpCreateEventDialog.h
   vpEditTrackTypesDialog.h

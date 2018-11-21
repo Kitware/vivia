@@ -1552,7 +1552,7 @@ void vpView::onWarningError(const QString& warningMsg)
 //-----------------------------------------------------------------------------
 void vpView::onShowConfigureDialog()
 {
-  vpConfigureDialog dialog(this);
+  vpConfigureDialog dialog(this, this->Core, this->Internal->DataLoaded);
   dialog.setTrackAttributes(this->Core->getTrackAttributes());
   dialog.setColorWindowWidth(this->Core->getColorWindowWidth());
   dialog.setColorWindowCenter(this->Core->getColorWindowCenter());
@@ -1862,13 +1862,13 @@ void vpView::updateTrackFilters()
 //-----------------------------------------------------------------------------
 void vpView::colorWindowWidthChanged(double width)
 {
-  this->Core->setColorWindowWidth(width);
+  this->Core->setColorWindowWidth(width, true);
 }
 
 //-----------------------------------------------------------------------------
 void vpView::colorWindowCenterChanged(double center)
 {
-  this->Core->setColorWindowCenter(center);
+  this->Core->setColorWindowCenter(center, true);
 }
 
 //-----------------------------------------------------------------------------

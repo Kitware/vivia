@@ -1679,7 +1679,7 @@ void vpViewCore::initializeData()
 
   this->MainImageData = this->ImageData[1];
 
-  // Image souce intialized to NULL.
+  // Image source intialized to NULL.
   this->ImageSource = NULL;
 
   this->ImageSourceLODFactor = 1.0;
@@ -6136,6 +6136,8 @@ void vpViewCore::initializeImageSource()
   const auto& fileName = this->ImageDataSource->frameName(0);
   this->ImageSource.TakeReference(
     vpImageSourceFactory::GetInstance()->Create(stdString(fileName)));
+  this->ImageSource2.TakeReference(
+    vpImageSourceFactory::GetInstance()->Create(stdString(fileName)));
 
   if (!this->ImageSource)
     {
@@ -7631,10 +7633,13 @@ double vpViewCore::getColorWindowWidth()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::setColorWindowWidth(double width)
+void vpViewCore::setColorWindowWidth(double width, bool renderNow)
 {
   this->ImageActor[1]->GetProperty()->SetColorWindow(width);
-  this->forceRender();
+  if (renderNow)
+    {
+    this->forceRender();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -7644,10 +7649,13 @@ double vpViewCore::getColorWindowCenter()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::setColorWindowCenter(double center)
+void vpViewCore::setColorWindowCenter(double center, bool renderNow)
 {
   this->ImageActor[1]->GetProperty()->SetColorLevel(center);
-  this->forceRender();
+  if (renderNow)
+    {
+    this->forceRender();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -8294,6 +8302,22 @@ void vpViewCore::setObjectExpirationTime(const vtkVgTimeStamp& time)
       project->ActivityManager->SetShowFullVolume(false);
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+double* vpViewCore::getCurrentFrameColorScalarRange()
+{
+  return this->ImageSource->GetOutput()->GetScalarRange();
+}
+
+//-----------------------------------------------------------------------------
+double* vpViewCore::getFrameColorScalarRange(int frameNumber)
+{
+  this->ImageSource2->SetFileName(
+    qPrintable(this->ImageDataSource->frameName(frameNumber)));
+  this->ImageSource2->Update();
+
+  return this->ImageSource2->GetOutput()->GetScalarRange();
 }
 
 //-----------------------------------------------------------------------------
