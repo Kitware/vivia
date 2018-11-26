@@ -14,6 +14,7 @@
 
 #include "ui_vpConfigure.h"
 
+class vpViewCore;
 class vgAttributeSet;
 
 class vpConfigureDialog : public QDialog
@@ -33,7 +34,7 @@ public:
     DATABASE_SETTINGS_KEY
     };
 
-  vpConfigureDialog(QWidget* parent);
+  vpConfigureDialog(QWidget* parent, vpViewCore* core, bool enableDataRequiredControls);
   virtual ~vpConfigureDialog();
 
   void setTrackAttributes(vgAttributeSet* attribs);
@@ -66,6 +67,8 @@ protected slots:
   void displayEnableWorldIfAvailableToggled(bool);
   void displayTranslateImageToggled(bool);
 
+  void computeColorRange();
+
   void configureTrackAttributes();
 
   void uiUseZeroBasedFrameNumbersToggled(bool);
@@ -82,6 +85,7 @@ protected:
   void addRequiredSettings(QWidget* widget, QWidget*& focusWidget);
   void setModified(QObject* object = 0, bool isValid = false);
 
+  vpViewCore* Core;
   vpSettings* Settings;
 
   QSet<QObject*> RequiredSettings;

@@ -172,6 +172,9 @@ public:
   // externally. Use the frame number or time-based functions instead.
   inline unsigned int getCurrentFrameIndex();
 
+  double* getCurrentFrameColorScalarRange();
+  double* getFrameColorScalarRange(int frameNumber);
+
   double getMinimumTime();
   double getMaximumTime();
   double getCurrentTime();
@@ -401,10 +404,10 @@ public:
     }
   
   double getColorWindowWidth();
-  void setColorWindowWidth(double width);
+  void setColorWindowWidth(double width, bool renderNow);
 
   double getColorWindowCenter();
-  void setColorWindowCenter(double center);
+  void setColorWindowCenter(double center, bool renderNow);
 
   bool isPlaying()
     {
@@ -854,6 +857,7 @@ private:
   // keep track of the vtkImageData being displayed in the MainRenderer
   vtkSmartPointer<vtkImageData>         MainImageData;
   vtkSmartPointer<vtkVgBaseImageSource> ImageSource;
+  vtkSmartPointer<vtkVgBaseImageSource> ImageSource2;
   double                                ImageSourceLODFactor;
   vtkSmartPointer<vtkActor>             AOIOutlineActor;
   vtkSmartPointer<vtkPolyData>          AOIOutlinePolyData;

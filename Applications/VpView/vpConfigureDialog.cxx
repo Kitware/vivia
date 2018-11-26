@@ -16,18 +16,24 @@
 
 // VpView includes.
 #include "vpApplication.h"
+#include "vpComputeColorRangeDialog.h"
 
 #include "vpConfigureDialog.h"
 #include "vpSettings.h"
+#include "vpViewCore.h"
 
 //-----------------------------------------------------------------------------
-vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
+vpConfigureDialog::vpConfigureDialog(QWidget* parent, vpViewCore* core,
+                                     bool enableDataRequiredControls) :
   QDialog(parent), TrackAttributes(0)
 {
+  this->Core = core;
   this->Settings = new vpSettings;
   this->UI.setupUi(this);
   this->UI.settingsPager->setCurrentIndex(0);
   this->UI.pageChooser->item(0)->setSelected(true);
+
+  this->UI.colorWindowCompute->setEnabled(enableDataRequiredControls);
 
   qtUtil::setStandardIcons(this->UI.buttons);
 
@@ -66,6 +72,8 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
           parent, SLOT(colorWindowWidthChanged(double)));
   connect(this->UI.colorWindowCenter, SIGNAL(valueChanged(double)),
           parent, SLOT(colorWindowCenterChanged(double)));
+  connect(this->UI.colorWindowCompute, SIGNAL(clicked()),
+          this, SLOT(computeColorRange()));
 
   connect(this->UI.displayEnableWorldIfAvailable, SIGNAL(toggled(bool)),
           this, SLOT(displayEnableWorldIfAvailableToggled(bool)));
@@ -120,6 +128,28 @@ void vpConfigureDialog::setColorWindowWidth(double width)
 void vpConfigureDialog::setColorWindowCenter(double center)
 {
   this->UI.colorWindowCenter->setValue(center);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::computeColorRange()
+{
+  auto dialog = new vpComputeColorRangeDialog(this, this->Core);
+  if (dialog->exec() == QDialog::Accepted &&
+      (dialog->getComputedWidth() != this->UI.colorWindowWidth->value() ||
+       dialog->getComputedCenter() != this->UI.colorWindowCenter->value()))
+    {
+    // block signals checking for changed values, and thus two potential
+    // renders, and force render only after updating both width and center
+    this->UI.colorWindowWidth->blockSignals(true);
+    this->setColorWindowWidth(dialog->getComputedWidth());
+    this->Core->setColorWindowWidth(dialog->getComputedWidth(), false);
+    this->UI.colorWindowWidth->blockSignals(false);
+
+    this->UI.colorWindowCenter->blockSignals(true);
+    this->setColorWindowCenter(dialog->getComputedCenter());
+    this->Core->setColorWindowCenter(dialog->getComputedCenter(), true);
+    this->UI.colorWindowCenter->blockSignals(false);
+    }
 }
 
 //-----------------------------------------------------------------------------
