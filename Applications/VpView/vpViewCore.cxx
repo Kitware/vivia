@@ -175,9 +175,11 @@
 #include <QToolBar>
 
 // C++ includes.
+#include <array>
+#include <limits>
+
 #include <cmath>
 #include <cstdlib>
-#include <limits>
 
 // QtExtensions includes.
 #include <qtStlUtil.h>
