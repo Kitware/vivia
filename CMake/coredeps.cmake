@@ -1,5 +1,11 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
+find_package(fletch NO_MODULE)
+if (fletch_FOUND)
+  # Search for libraries in the fletch install root
+  list(APPEND CMAKE_PREFIX_PATH "${fletch_ROOT}")
+endif()
+
 # Boost is required.
 find_package(Boost REQUIRED
   COMPONENTS thread signals system filesystem date_time
