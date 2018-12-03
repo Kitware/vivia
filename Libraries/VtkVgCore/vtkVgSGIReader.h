@@ -37,11 +37,11 @@ public:
   // Return dimensions of the image.
   virtual void GetDimensions(int dim[2]) override;
 
-  virtual bool CanRead(const std::string& source) override;
+  virtual bool CanRead(const std::string& source) const override;
 
-  virtual std::string GetShortDescription() override;
+  virtual std::string GetShortDescription() const override;
 
-  virtual std::string GetLongDescription() override;
+  virtual std::string GetLongDescription() const override;
 
   static vtkVgBaseImageSource* Create();
 
