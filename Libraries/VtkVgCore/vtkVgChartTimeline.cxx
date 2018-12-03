@@ -846,7 +846,7 @@ void vtkVgChartTimeline::SetXExtents(double min, double max)
   // Show the date that the chart is centered on.
   double center = 0.5 * (this->MinX + this->MaxX);
   boost::posix_time::ptime pt = GetPosixTime(center);
-  this->SetTitle(boost::gregorian::to_simple_string(pt.date()));
+  //this->SetTitle(boost::gregorian::to_simple_string(pt.date()));
 
   this->Modified();
 }
