@@ -12,6 +12,8 @@
 #include <QProgressDialog>
 #include <QPushButton>
 
+#include <cmath>
+
 QTE_IMPLEMENT_D_FUNC(vpComputeColorRangeDialog)
 
 //-----------------------------------------------------------------------------
