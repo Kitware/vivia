@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -38,11 +38,11 @@ public:
   // Return dimensions of the image.
   virtual void GetDimensions(int dim[2]);
 
-  virtual bool CanRead(const std::string& source);
+  virtual bool CanRead(const std::string& source) const;
 
-  virtual std::string GetShortDescription();
+  virtual std::string GetShortDescription() const;
 
-  virtual std::string GetLongDescription();
+  virtual std::string GetLongDescription() const;
 
   static vtkVgBaseImageSource* Create();
 

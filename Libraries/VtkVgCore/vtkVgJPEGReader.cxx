@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -66,7 +66,7 @@ void vtkVgJPEGReader::GetDimensions(int dim[2])
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgJPEGReader::CanRead(const std::string& source)
+bool vtkVgJPEGReader::CanRead(const std::string& source) const
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
@@ -85,13 +85,13 @@ bool vtkVgJPEGReader::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgJPEGReader::GetShortDescription()
+std::string vtkVgJPEGReader::GetShortDescription() const
 {
   return "Reader for JPEG file format";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgJPEGReader::GetLongDescription()
+std::string vtkVgJPEGReader::GetLongDescription() const
 {
   return this->GetShortDescription();
 }

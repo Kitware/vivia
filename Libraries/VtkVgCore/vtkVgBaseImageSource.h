@@ -106,15 +106,15 @@ public:
   // Description:
   // Check if a given source (file, extension) can be read by
   // this source.
-  virtual bool CanRead(const std::string& source) = 0;
+  virtual bool CanRead(const std::string& source) const = 0;
 
   // Description:
   // Return a short description of the source (for display purposes).
-  virtual std::string GetShortDescription() = 0;
+  virtual std::string GetShortDescription() const = 0;
 
   // Description:
   // Return a long description of the source.
-  virtual std::string GetLongDescription() = 0;
+  virtual std::string GetLongDescription() const = 0;
 
   // Description:
   // FIXME

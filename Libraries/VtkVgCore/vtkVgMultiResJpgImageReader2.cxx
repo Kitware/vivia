@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -94,7 +94,7 @@ int vtkVgMultiResJpgImageReader2::GetNumberOfLevels() const
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgMultiResJpgImageReader2::CanRead(const std::string& source)
+bool vtkVgMultiResJpgImageReader2::CanRead(const std::string& source) const
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
@@ -110,13 +110,13 @@ bool vtkVgMultiResJpgImageReader2::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgMultiResJpgImageReader2::GetShortDescription()
+std::string vtkVgMultiResJpgImageReader2::GetShortDescription() const
 {
   return "Reader for MRJ file format";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgMultiResJpgImageReader2::GetLongDescription()
+std::string vtkVgMultiResJpgImageReader2::GetLongDescription() const
 {
   return this->GetShortDescription();
 }
