@@ -77,7 +77,7 @@ vtkVgTimeStamp vtkVgKWAReader::GetImageTimeStamp()
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgKWAReader::CanRead(const std::string& source)
+bool vtkVgKWAReader::CanRead(const std::string& source) const
 {
   const auto& ciSource = qtString(source).toLower();
 
@@ -95,13 +95,13 @@ bool vtkVgKWAReader::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgKWAReader::GetShortDescription()
+std::string vtkVgKWAReader::GetShortDescription() const
 {
   return "Reader for Kitware Video Archive (KWA) frames";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgKWAReader::GetLongDescription()
+std::string vtkVgKWAReader::GetLongDescription() const
 {
   return this->GetShortDescription();
 }
