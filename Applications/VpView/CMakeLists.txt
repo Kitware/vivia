@@ -254,6 +254,7 @@ endif()
 if(VISGUI_ENABLE_KWIVER)
   list(APPEND vpViewSources
     vpKwiverEmbeddedPipelineWorker.cxx
+    vpKwiverImageLoader.cxx
     vpKwiverImproveTrackWorker.cxx
     vpKwiverVideoSource.cxx
   )

@@ -7,7 +7,7 @@
 #ifndef __vpKwiverVideoSource_h
 #define __vpKwiverVideoSource_h
 
-#include <arrows/vxl/image_io.h>
+#include "vpKwiverImageLoader.h"
 
 #include <vital/algo/video_input.h>
 
@@ -46,7 +46,7 @@ public:
 protected:
   using frame_id_t = std::make_signed<size_t>::type;
 
-  kwiver::arrows::vxl::image_io Loader;
+  vpKwiverImageLoader Loader;
   std::vector<std::string> FramePaths;
   frame_id_t CurrentFrame;
 
