@@ -7,6 +7,7 @@
 #include "vpKwiverEmbeddedPipelineWorker.h"
 
 #include "vpFileDataSource.h"
+#include "vpKwiverImageLoader.h"
 #include "vtkVpTrackModel.h"
 
 #include <vtkVgTrack.h>
@@ -25,8 +26,6 @@
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
 #include <vital/types/object_track_set.h>
-
-#include <arrows/vxl/image_io.h>
 
 #include <atomic>
 #include <functional>
@@ -132,7 +131,7 @@ public:
 
   QStringList framePaths;
 
-  kwiver::arrows::vxl::image_io loader;
+  vpKwiverImageLoader loader;
   kwiver::embedded_pipeline pipeline;
 
   vpKwiverEmbeddedPipelineEndcap endcap;
@@ -187,7 +186,6 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
 
     if (image_port)
     {
-      // FIXME must use VTK loader
       auto frameImage = this->loader.load(
         stdString(this->framePaths[currentFrame]));
 
