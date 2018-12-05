@@ -66,7 +66,7 @@ void vtkVgBMPReader::GetDimensions(int dim[2])
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgBMPReader::CanRead(const std::string& source)
+bool vtkVgBMPReader::CanRead(const std::string& source) const
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
@@ -82,13 +82,13 @@ bool vtkVgBMPReader::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgBMPReader::GetShortDescription()
+std::string vtkVgBMPReader::GetShortDescription() const
 {
   return "Reader for BMP file format";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgBMPReader::GetLongDescription()
+std::string vtkVgBMPReader::GetLongDescription() const
 {
   return this->GetShortDescription();
 }
