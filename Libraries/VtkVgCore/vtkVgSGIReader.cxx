@@ -128,7 +128,7 @@ void vtkVgSGIReader::GetDimensions(int dim[2])
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgSGIReader::CanRead(const std::string& source)
+bool vtkVgSGIReader::CanRead(const std::string& source) const
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
@@ -143,13 +143,13 @@ bool vtkVgSGIReader::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgSGIReader::GetShortDescription()
+std::string vtkVgSGIReader::GetShortDescription() const
 {
   return "Reader for SGI file format";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgSGIReader::GetLongDescription()
+std::string vtkVgSGIReader::GetLongDescription() const
 {
   return this->GetShortDescription();
 }

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -54,10 +54,10 @@ public:
   // Get image timestamp
   virtual vtkVgTimeStamp GetImageTimeStamp();
 
-  virtual bool CanRead(const std::string& source);
+  virtual bool CanRead(const std::string& source) const;
 
-  virtual std::string GetShortDescription();
-  virtual std::string GetLongDescription();
+  virtual std::string GetShortDescription() const;
+  virtual std::string GetLongDescription() const;
 
   virtual vtkSmartPointer<vtkMatrix4x4> GetImageToWorldMatrix();
 
@@ -81,6 +81,8 @@ protected:
   vtkImageData* ImageCache;
 
   vtkGDALReader* Reader;
+
+  vtkVgTimeStamp ImageTimeStamp;
 
 private:
 

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -103,7 +103,7 @@ vtkVgTimeStamp vtkVgGDALReader::GetImageTimeStamp()
 }
 
 //----------------------------------------------------------------------------
-bool vtkVgGDALReader::CanRead(const std::string& source)
+bool vtkVgGDALReader::CanRead(const std::string& source) const
 {
   std::string ciSource = vtksys::SystemTools::LowerCase(source);
 
@@ -127,13 +127,13 @@ bool vtkVgGDALReader::CanRead(const std::string& source)
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgGDALReader::GetShortDescription()
+std::string vtkVgGDALReader::GetShortDescription() const
 {
   return "Generic image reader implemented using GDAL library";
 }
 
 //----------------------------------------------------------------------------
-std::string vtkVgGDALReader::GetLongDescription()
+std::string vtkVgGDALReader::GetLongDescription() const
 {
   return this->GetShortDescription();
 }

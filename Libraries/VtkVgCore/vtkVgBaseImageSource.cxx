@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,8 +19,6 @@ vtkVgBaseImageSource::vtkVgBaseImageSource() : vtkImageAlgorithm(),
 
   for (int i = 0; i < 4; ++i) {this->ReadExtents[i] = -1;}
   for (int i = 0; i < 3; ++i) {this->Origin[i] = 0; this->Spacing[i] = 1;}
-
-  this->ImageTimeStamp.Reset();
 
   this->SetNumberOfInputPorts(0);
 }

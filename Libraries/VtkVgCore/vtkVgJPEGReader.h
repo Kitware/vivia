@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -40,15 +40,15 @@ public:
 
   // Description:
   // Check if the reader can read a given source.
-  virtual bool CanRead(const std::string& source);
+  virtual bool CanRead(const std::string& source) const;
 
   // Description:
   // Return short description of reader
-  virtual std::string GetShortDescription();
+  virtual std::string GetShortDescription() const;
 
   // Description:
   // Return long description of reader
-  virtual std::string GetLongDescription();
+  virtual std::string GetLongDescription() const;
 
   // Description:
   // Create instance of reader
