@@ -42,6 +42,7 @@
 #include <vgUnixTime.h>
 
 #include <qtCliArgs.h>
+#include <qtScopedSettingsGroup.h>
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
@@ -386,6 +387,10 @@ vpView::vpView()
           SIGNAL(triggered()), SLOT(exportSceneElements()));
   connect(this->Internal->UI.actionExportFilters,
           SIGNAL(triggered()), SLOT(exportFilters()));
+  connect(this->Internal->UI.actionExportTypeFilters,
+          SIGNAL(triggered()), SLOT(exportTypeFilters()));
+  connect(this->Internal->UI.actionImportTypeFilters,
+          SIGNAL(triggered()), SLOT(importTypeFilters()));
 
   connect(this->Internal->UI.actionImportFilters,
           SIGNAL(triggered()), this->Core, SLOT(loadFilters()));
@@ -896,6 +901,8 @@ void vpView::onDataLoaded()
   this->Internal->UI.actionExportSceneElements->setEnabled(true);
   this->Internal->UI.actionExportFilters->setEnabled(true);
   this->Internal->UI.actionImportFilters->setEnabled(true);
+  this->Internal->UI.actionExportTypeFilters->setEnabled(true);
+  this->Internal->UI.actionImportTypeFilters->setEnabled(true);
 
   this->Internal->UI.actionImportProject->setEnabled(true);
   this->Internal->UI.actionWebExport->setEnabled(true);
@@ -3201,7 +3208,7 @@ void vpView::exportFilters()
 }
 
 //-----------------------------------------------------------------------------
-void vpView::exportFilters(QString path, bool startExternalProcess)
+void vpView::exportFilters(const QString& path, bool startExternalProcess)
 {
   std::ofstream file(qPrintable(path), ios::out | ios::trunc);
   if (!file)
@@ -3251,6 +3258,66 @@ void vpView::exportFilters(QString path, bool startExternalProcess)
   if (startExternalProcess)
     {
     this->Core->startExternalProcess();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpView::exportTypeFilters()
+{
+  QString path = vgFileDialog::getSaveFileName(
+    this, "Save Filters", QString(), "Saved Filter Settings (*.ini);;");
+
+  if (path.isEmpty())
+    {
+    return;
+    }
+  this->exportTypeFilters(path);
+}
+
+//-----------------------------------------------------------------------------
+void vpView::exportTypeFilters(const QString& path)
+{
+  QSettings out{path, QSettings::IniFormat};
+
+  auto* const ttr = this->Core->getTrackTypeRegistry();
+  with (qtScopedSettingsGroup{out, "Tracks"})
+    {
+    for (const auto tti : qtIndexRange(ttr->GetNumberOfTypes()))
+      {
+      const auto v = this->Internal->UI.tocFilter->value(tti);
+      if (std::isfinite(v))
+        {
+        const auto tt = ttr->GetType(tti);
+        const auto ttn = QString::fromLocal8Bit(tt.GetName());
+        out.setValue(ttn, v);
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpView::importTypeFilters()
+{
+  QString path = vgFileDialog::getOpenFileName(
+    this, "Load Filters", QString(), "Saved Filter Settings (*.ini);;");
+
+  if (!path.isEmpty())
+    {
+    this->importTypeFilters(path);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpView::importTypeFilters(const QString& path)
+{
+  QSettings in{path, QSettings::IniFormat};
+  with (qtScopedSettingsGroup{in, "Tracks"})
+    {
+    for (const auto& ttn : in.childKeys())
+      {
+      const auto tti = this->Core->getTrackTypeIndex(qPrintable(ttn));
+      this->Internal->UI.tocFilter->setValue(tti, in.value(ttn).toReal());
+      }
     }
 }
 

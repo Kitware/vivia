@@ -175,7 +175,11 @@ public slots:
   void exportEvents();
   void exportSceneElements();
   void exportFilters();
-  void exportFilters(QString path, bool startExternalProcess);
+  void exportFilters(const QString& path, bool startExternalProcess);
+  void exportTypeFilters();
+  void exportTypeFilters(const QString& path);
+  void importTypeFilters();
+  void importTypeFilters(const QString& path);
 
   void setTrackTrailLength();
 

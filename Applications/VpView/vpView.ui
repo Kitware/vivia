@@ -136,9 +136,11 @@
     <addaction name="actionExportEvents"/>
     <addaction name="actionExportSceneElements"/>
     <addaction name="separator"/>
+    <addaction name="actionExportTypeFilters"/>
     <addaction name="actionExportFilters"/>
     <addaction name="actionExportGraphModel"/>
     <addaction name="separator"/>
+    <addaction name="actionImportTypeFilters"/>
     <addaction name="actionImportFilters"/>
     <addaction name="actionImportGraphModel"/>
     <addaction name="separator"/>
@@ -1481,7 +1483,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Export Filters</string>
+    <string>Export Spatial/Temporal Filters</string>
    </property>
   </action>
   <action name="actionImportFilters">
@@ -1489,7 +1491,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Import Filters</string>
+    <string>Import Spatial/Temporal Filters</string>
    </property>
   </action>
   <action name="actionViewSceneElements">
@@ -1626,6 +1628,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+F</string>
+   </property>
+  </action>
+  <action name="actionExportTypeFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export Classification Filters</string>
+   </property>
+  </action>
+  <action name="actionImportTypeFilters">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Import Classification Filters</string>
    </property>
   </action>
  </widget>
