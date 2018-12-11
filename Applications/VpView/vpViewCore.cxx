@@ -1093,6 +1093,48 @@ int vpViewCore::getTrackTypeIndex(const char* typeName)
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::removeUnusedTrackTypes(const QSet<QString>& typesToKeep)
+{
+  QSet<int> typesToRemove;
+
+  // Collect set of types which are candidates for removal (i.e. which aren't
+  // already "deleted", and aren't in the set of types to keep)
+  const auto numTypes = this->TrackTypeRegistry->GetNumberOfTypes();
+  for (const auto tti : qtIndexRange(numTypes))
+    {
+    auto* const ttn = this->TrackTypeRegistry->GetType(tti).GetName();
+    if (ttn && *ttn && !typesToKeep.contains(QString::fromLocal8Bit(ttn)))
+      {
+      typesToRemove.insert(tti);
+      }
+    }
+
+  // Check what types are in use and drop from the set of removal candidates
+  for (auto& project : this->Projects)
+    {
+    vtkVgTrackInfo trackInfo;
+    project->TrackModel->InitTrackTraversal();
+    while ((trackInfo = project->TrackModel->GetNextTrack()).GetTrack())
+      {
+      auto* const track = trackInfo.GetTrack();
+      typesToRemove.remove(track->GetType());
+      for (const auto& i : track->GetTOC())
+        {
+        typesToRemove.remove(i.first);
+        }
+      }
+    }
+
+  // Remove whatever types (if any) are left
+  for (const auto tti : typesToRemove)
+    {
+    auto tt = this->TrackTypeRegistry->GetType(tti);
+    tt.SetId("");
+    this->TrackTypeRegistry->SetType(tti, tt);
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::updateTrack(
   vtkVgTrack* track, const std::shared_ptr<kv::track>& kwiverTrack,
   const QMap<int, vgTimeStamp>& timeMap,

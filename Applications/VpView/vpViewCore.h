@@ -17,9 +17,8 @@
 #include <vtkSmartPointer.h>   // Required for smart pointer internal ivars.
 
 #include <QObject>
-#include <QScopedPointer>
+#include <QSet>
 #include <QSharedPointer>
-#include <QString>
 #include <QStringList>
 
 #include <map>
@@ -248,6 +247,7 @@ public:
   int  createEvent(int type, vtkIdList* ids, int session);
 
   int getTrackTypeIndex(const char* typeName);
+  void removeUnusedTrackTypes(const QSet<QString>& typesToKeep = {});
 
   void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
                    const QMap<int, vgTimeStamp>& timeMap,

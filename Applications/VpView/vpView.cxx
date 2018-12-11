@@ -3313,11 +3313,13 @@ void vpView::importTypeFilters(const QString& path)
   QSettings in{path, QSettings::IniFormat};
   with (qtScopedSettingsGroup{in, "Tracks"})
     {
-    for (const auto& ttn : in.childKeys())
+    const auto& importedTypes = in.childKeys();
+    for (const auto& ttn : importedTypes)
       {
       const auto tti = this->Core->getTrackTypeIndex(qPrintable(ttn));
       this->Internal->UI.tocFilter->setValue(tti, in.value(ttn).toReal());
       }
+    this->Core->removeUnusedTrackTypes(importedTypes.toSet());
     }
 }
 
