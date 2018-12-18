@@ -4,8 +4,8 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#ifndef __vpFileTrackIOImpl_h
-#define __vpFileTrackIOImpl_h
+#ifndef __vpFileTrackReader_h
+#define __vpFileTrackReader_h
 
 #include <string>
 #include <unordered_map>
@@ -13,7 +13,7 @@
 
 class vpTrackIO;
 
-class vpFileTrackIOImpl
+class vpFileTrackReader
 {
 public:
   struct FrameRegionInfo
@@ -26,15 +26,18 @@ public:
   using TrackRegions = std::unordered_map<unsigned int, FrameRegionInfo>;
   using TrackRegionMap = std::unordered_map<unsigned int, TrackRegions>;
 
-  static bool ReadTrackTraits(vpTrackIO* io,
-                              const std::string& trackTraitsFileName);
+  vpFileTrackReader(vpTrackIO* io);
 
-  static bool ReadRegionsFile(vpTrackIO* io,
-                              const std::string& tracksFileName,
-                              float offsetX, float offsetY,
-                              TrackRegionMap& trackRegionMap);
+  bool ReadTrackTraits(const std::string& trackTraitsFileName) const;
 
-  static void ReadTypesFile(vpTrackIO* io, const std::string& tracksFileName);
+  bool ReadRegionsFile(const std::string& tracksFileName,
+                       float offsetX, float offsetY,
+                       TrackRegionMap& trackRegionMap) const;
+
+  void ReadTypesFile(const std::string& tracksFileName) const;
+
+protected:
+  vpTrackIO* const IO;
 };
 
-#endif // __vpFileTrackIOImpl_h
+#endif

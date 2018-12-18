@@ -4,7 +4,7 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vpFileTrackIOImpl.h"
+#include "vpFileTrackReader.h"
 
 #include "vpTrackIO.h"
 #include "vtkVpTrackModel.h"
@@ -19,8 +19,13 @@
 #include <limits>
 
 //-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
-                                        const std::string& trackTraitsFileName)
+vpFileTrackReader::vpFileTrackReader(vpTrackIO* io) : IO{io}
+{
+}
+
+//-----------------------------------------------------------------------------
+bool vpFileTrackReader::ReadTrackTraits(
+  const std::string& trackTraitsFileName) const
 {
   std::ifstream file(trackTraitsFileName.c_str());
   if (!file)
@@ -33,7 +38,7 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
 
   while (file >> id >> normalcy)
     {
-    vtkVgTrack* track = io->TrackModel->GetTrack(id);
+    vtkVgTrack* track = this->IO->TrackModel->GetTrack(id);
 
     if (!track)
       {
@@ -48,8 +53,7 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
 }
 
 //-----------------------------------------------------------------------------
-void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
-                                      const std::string& tracksFileName)
+void vpFileTrackReader::ReadTypesFile(const std::string& tracksFileName) const
 {
   // Look for files containing supplemental track info
   std::string trackTypes(tracksFileName);
@@ -64,24 +68,25 @@ void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
     double color[3];
     while (file >> id >> type)
       {
-      vtkVgTrack* track = io->TrackModel->GetTrack(io->GetModelTrackId(id));
+      vtkVgTrack* track =
+        this->IO->TrackModel->GetTrack(this->IO->GetModelTrackId(id));
       if (!track)
         {
         std::cerr << trackTypes << ": track " << id << " does not exist!\n";
         continue;
         }
 
-      int typeIndex = io->TrackTypes->GetTypeIndex(type.c_str());
+      int typeIndex = this->IO->TrackTypes->GetTypeIndex(type.c_str());
       if (typeIndex == -1)
         {
         // Add a new type to the registry if it's not already defined
         vgTrackType tt;
         tt.SetId(type.c_str());
-        typeIndex = io->TrackTypes->GetNumberOfTypes();
-        io->TrackTypes->AddType(tt);
+        typeIndex = this->IO->TrackTypes->GetNumberOfTypes();
+        this->IO->TrackTypes->AddType(tt);
         }
       track->SetType(typeIndex);
-      const vgTrackType& type = io->TrackTypes->GetType(typeIndex);
+      const vgTrackType& type = this->IO->TrackTypes->GetType(typeIndex);
       type.GetColor(color[0], color[1], color[2]);
       track->SetColor(color[0], color[1], color[2]);
       }
@@ -89,10 +94,9 @@ void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
 }
 
 //-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
-                                        const std::string& tracksFileName,
-                                        float offsetX, float offsetY,
-                                        TrackRegionMap& trackRegionMap)
+bool vpFileTrackReader::ReadRegionsFile(
+  const std::string& tracksFileName, float offsetX, float offsetY,
+  TrackRegionMap& trackRegionMap) const
 {
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";
@@ -100,7 +104,7 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
   // Load polygonal bounding regions
   if (vtksys::SystemTools::FileExists(trackRegions.c_str(), true))
     {
-    if (io->TimeStampMode != vpTrackIO::TTM_FrameNumberOnly)
+    if (this->IO->TimeStampMode != vpTrackIO::TTM_FrameNumberOnly)
       {
       std::cerr << "Cannot load polygonal track regions "
                    "in current timestamp mode\n";
@@ -133,9 +137,9 @@ bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
         {
         float x, y;
         file >> x >> y;
-        if (io->StorageMode == vpTrackIO::TSM_InvertedImageCoords)
+        if (this->IO->StorageMode == vpTrackIO::TSM_InvertedImageCoords)
           {
-          y = io->GetImageHeight() - y - 1;
+          y = this->IO->GetImageHeight() - y - 1;
           }
         frameRegion.Points.push_back(x + offsetX);
         frameRegion.Points.push_back(y + offsetY);

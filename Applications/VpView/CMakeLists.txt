@@ -110,9 +110,8 @@ set(vpViewSources
   vpEventTypeRegistry.cxx
   vpExternalProcessDialog.cxx
   vpFileDataSource.cxx
-  vpFileEventIO.cxx
-  vpFileEventIOImpl.cxx
-  vpFileTrackIOImpl.cxx
+  vpFileEventReader.cxx
+  vpFileTrackReader.cxx
   vpFilterTypeDelegate.cxx
   vpGraphModelHelper.cxx
   vpGraphModelView.cxx
