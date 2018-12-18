@@ -232,8 +232,9 @@ protected slots:
   void setSourceStreaming(bool);
   void setSourceFrameRange(vtkVgTimeStamp, vtkVgTimeStamp);
 
-  void setEventVisibility(int, bool);
-  void setEventThreshold(int, double);
+  void setEventVisibility(int type, bool visibility);
+  void setEventThreshold(int type, double threshold);
+  void setEventThresholdInverted(int type, bool inverted);
 
   void updateTrackSelection(QSet<vtkIdType> trackIds);
   void updateEventSelection(QSet<vtkIdType> eventIds);

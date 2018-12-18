@@ -17,12 +17,14 @@ public:
   vpFileTrackIO(vpFileReader& reader,
                 vtkVpTrackModel* trackModel,
                 TrackStorageMode storageMode,
+                bool interpolateToGround,
                 TrackTimeStampMode timeStampMode,
                 vtkVgTrackTypeRegistry* trackTypes = 0,
                 vtkMatrix4x4* geoTransform = 0,
                 vpFrameMap* frameMap = 0);
 
   bool ReadTrackTraits();
+  bool ReadTrackClassifiers();
 
 protected:
   vpFileReader& Reader;

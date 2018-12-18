@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -136,6 +136,19 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
           obj->set_world_loc(444.0, 444.0, 444.0);
           }
 
+        const auto ai = in.Attributes.constFind(si.TimeStamp);
+        if (ai != in.Attributes.constEnd())
+          {
+          vidtk::track_state_attributes attributes;
+          foreach (const QString& attr, ai.value())
+            {
+            const auto a =
+              vidtk::track_state_attributes::from_string(stdString(attr));
+            attributes.set_attr(a); // no-op if a == _ATTR_NONE
+            }
+          so->set_attrs(attributes);
+          }
+
         // Set location attributes on state and add to track
         so->set_image_object(obj);
         out->add_state(so);
@@ -162,7 +175,7 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
       {
       return false;
       }
-    if (!trackReaderProcess.step())
+    if (!trackReaderProcess.step2())
       {
       return false;
       }

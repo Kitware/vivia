@@ -47,10 +47,11 @@ public:
 //-----------------------------------------------------------------------------
 vpVdfTrackIO::vpVdfTrackIO(
   vpVdfIO* base, vtkVpTrackModel* trackModel,
-  TrackStorageMode storageMode, TrackTimeStampMode timeStampMode,
-  vtkVgTrackTypeRegistry* trackTypes, vtkMatrix4x4* geoTransform,
+  TrackStorageMode storageMode, bool interpolateToGround,
+  TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
+  vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
   vpFrameMap* frameMap)
-  : vpTrackIO{trackModel, storageMode, timeStampMode,
+  : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
               trackTypes, geoTransform, frameMap},
     d_ptr{new vpVdfTrackIOPrivate}
 {
@@ -78,7 +79,7 @@ void vpVdfTrackIO::SetTracksUri(const QUrl& uri)
 }
 
 //-----------------------------------------------------------------------------
-bool vpVdfTrackIO::ReadTracks()
+bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 {
   QTE_D();
 

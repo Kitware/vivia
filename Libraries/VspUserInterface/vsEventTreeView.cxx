@@ -199,7 +199,8 @@ void vsEventTreeView::setSelectionModel(QItemSelectionModel* m)
 void vsEventTreeView::itemActivated(const QModelIndex& index)
 {
   bool toEnd = (index.column() == vsEventTreeModel::EndTimeColumn);
-  emit this->jumpToEvent(this->eventIdFromIndex(index), toEnd);
+  const auto& proxyIndex = this->proxyModel->mapToSource(index);
+  emit this->jumpToEvent(this->eventIdFromIndex(proxyIndex), toEnd);
 }
 
 //-----------------------------------------------------------------------------

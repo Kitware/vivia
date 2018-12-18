@@ -19,6 +19,7 @@
 #include <vtkVgJPEGReader.h>
 #include <vtkVgMultiResJpgImageReader2.h>
 #include <vtkVgPNGReader.h>
+#include <vtkVgTIFReader.h>
 #include <vtkVgRendererUtils.h>
 
 #include <vgAbstractFactory.h>
@@ -194,6 +195,7 @@ int main(int argc, char** argv)
   imageSourceFactory.Register(&vtkVgMultiResJpgImageReader2::Create);
   imageSourceFactory.Register(&vtkVgImageSource::Create);
   imageSourceFactory.Register(&vtkVgJPEGReader::Create);
+  imageSourceFactory.Register(&vtkVgTIFReader::Create);
 #if defined(VISGUI_USE_GDAL)
   imageSourceFactory.Register(&vtkVgGDALReader::Create);
 #endif

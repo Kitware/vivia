@@ -322,7 +322,7 @@ function(install_library_targets)
                 ARCHIVE COMPONENT Development DESTINATION lib${LIB_SUFFIX}
         )
         if(${_type} STREQUAL SHARED_LIBRARY)
-          export(TARGETS ${_target} APPEND FILE "${VisGUI_EXPORT_FILE}")
+          set_property(GLOBAL APPEND PROPERTY VisGUI_EXPORT_TARGETS ${_target})
         endif()
       else()
         message(WARNING

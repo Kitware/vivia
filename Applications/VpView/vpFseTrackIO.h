@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -18,6 +18,7 @@ class vpFseTrackIO : public vpTrackIO
 public:
   vpFseTrackIO(vtkVpTrackModel* trackModel,
                vpTrackIO::TrackStorageMode storageMode,
+               bool interpolateToGround,
                vpTrackIO::TrackTimeStampMode timeStampMode,
                vtkVgTrackTypeRegistry* trackTypes = 0,
                vtkMatrix4x4* geoTransform = 0,
@@ -38,10 +39,12 @@ public:
     return this->ImageHeight;
     }
 
-  virtual bool ReadTracks();
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ReadTracks(int frameOffset);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename, bool writeSceneElements) const;
+  virtual bool WriteTracks(const char* filename, int frameOffset,
+                           QPointF aoiOffset, bool writeSceneElements) const;
 
 private:
   std::string TracksFileName;

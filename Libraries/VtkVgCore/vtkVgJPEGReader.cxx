@@ -112,13 +112,13 @@ int vtkVgJPEGReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   if (this->ImageCache)
@@ -132,11 +132,6 @@ int vtkVgJPEGReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   this->Reader->Update();
   this->ImageCache = vtkImageData::New();
   this->ImageCache->ShallowCopy(this->Reader->GetOutput());
-
-  if (!this->ImageCache)
-    {
-    vtkErrorMacro("Failed to provide pipeline information.");
-    }
 
   int     extents[6];
   this->ImageCache->GetExtent(extents);
@@ -158,40 +153,40 @@ int vtkVgJPEGReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (!outputVector)
     {
     vtkErrorMacro("Invalid output information vector.") ;
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   vtkDataObject* dataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!dataObj)
     {
     vtkErrorMacro("Invalid output data object.");
-    return 1;
+    return 0;
     }
 
   vtkImageData* outputImage = vtkImageData::SafeDownCast(dataObj);
   if (!outputImage)
     {
     vtkErrorMacro("Output data object is not an image data object.");
-    return 1;
+    return 0;
     }
 
   if (!this->ImageCache)
     {
     vtkErrorMacro("Failed to create valid output.");
-    return 1;
+    return 0;
     }
 
   outputImage->ShallowCopy(this->ImageCache);

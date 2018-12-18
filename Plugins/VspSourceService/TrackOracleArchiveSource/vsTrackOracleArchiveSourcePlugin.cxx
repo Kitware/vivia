@@ -192,6 +192,7 @@ vsSimpleSourceFactory* vsTrackOracleArchiveSourcePlugin::createArchiveSource(
   CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), 0);
 
   auto* const format_instance = d->inspect(stdString(fileName), type);
+  CHECK_ARG(format_instance, 0);
 
   if (type == vs::ArchiveTrackSource)
     {

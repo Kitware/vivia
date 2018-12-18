@@ -30,6 +30,10 @@ public:
   iterator find(vgTimeStamp pos, vg::SeekMode direction);
   const_iterator find(vgTimeStamp pos, vg::SeekMode direction) const;
   const_iterator constFind(vgTimeStamp pos, vg::SeekMode direction) const;
+
+  using QMap<vgTimeStamp, Value>::insert;
+
+  void insert(const vgTimeMap<Value>& other);
 };
 
 //-----------------------------------------------------------------------------
@@ -127,6 +131,17 @@ typename vgTimeMap<Value>::iterator vgTimeMap<Value>::find(
   vgTimeStamp pos, vg::SeekMode direction)
 {
   return iterator(this->constFind(pos, direction));
+}
+
+//-----------------------------------------------------------------------------
+template <typename Value>
+void vgTimeMap<Value>::insert(const vgTimeMap<Value>& other)
+{
+  const_iterator iter, end = other.constEnd();
+  for (iter = other.constBegin(); iter != end; ++iter)
+    {
+    this->insert(iter.key(), iter.value());
+    }
 }
 
 #endif

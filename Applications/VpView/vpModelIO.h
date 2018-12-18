@@ -15,6 +15,7 @@
 #include <memory>
 #include <vector>
 
+class vgAttributeSet;
 class vpFrameMap;
 
 class vpModelIO
@@ -25,8 +26,10 @@ public:
 
   virtual void SetTrackModel(vtkVpTrackModel* trackModel,
                              vpTrackIO::TrackStorageMode storageMode,
+                             bool interpolateToGround,
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
+                             vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
                              vpFrameMap* frameMap) = 0;
 
@@ -47,13 +50,15 @@ public:
   virtual int GetHomographyCount();
   virtual const std::vector<std::string>& GetImageFiles() const;
 
-  bool ReadTracks();
+  bool ReadTracks(int frameOffset);
   bool ReadTrackTraits();
+  bool ReadTrackClassifiers();
 
-  bool ImportTracks(vtkIdType idsOffset = 0,
+  bool ImportTracks(int frameOffset, vtkIdType idsOffset = 0,
                     float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteTracks(const char* filename);
+  bool WriteTracks(const char* filename, int frameOffset,
+                   QPointF aoiOffset);
 
   bool ReadEvents();
   bool ReadEventLinks();
@@ -69,7 +74,8 @@ public:
   bool ImportFseTracks(vtkIdType idsOffset = 0,
                        float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteFseTracks(const char* filename, bool writeSceneElements = true);
+  bool WriteFseTracks(const char* filename, QPointF aoiOffset,
+                      bool writeSceneElements = true);
 
   const vpTrackIO* GetTrackIO() const { return this->TrackIO.get(); }
   const vpEventIO* GetEventIO() const { return this->EventIO.get(); }

@@ -12,6 +12,7 @@
 #include <vgTrackType.h>
 #include <vgFileDialog.h>
 #include <vgMixerWidget.h>
+#include <vgUtil.h>
 
 #include "vpActivityConfig.h"
 #include "vpAnnotation.h"
@@ -34,6 +35,7 @@
 #include "vpRenderWindowDialog.h"
 #include "vpSessionView.h"
 #include "vpTimelineDialog.h"
+#include "vpTrackAttributesPanel.h"
 #include "vpTrackConfig.h"
 #include "vpVideoAnimation.h"
 #include "vtkVpTrackModel.h"
@@ -59,6 +61,7 @@
 #include <vtkBoundingBox.h>
 #include <vtkCamera.h>
 #include <vtkCellArray.h>
+#include <vtkCellData.h>
 #include <vtkCommand.h>
 #include <vtkContourWidget.h>
 #include <vtkCoordinate.h>
@@ -135,10 +138,12 @@
 #include <vtkVgJPEGReader.h>
 #include <vtkVgMultiResJpgImageReader2.h>
 #include <vtkVgPNGReader.h>
+#include <vtkVgTIFReader.h>
 #include <vtkVgPickData.h>
 #include <vtkVgPicker.h>
 #include <vtkVgQtUtil.h>
 #include <vtkVgRendererUtils.h>
+#include <vtkVgScalars.h>
 #include <vtkVgSGIReader.h>
 #include <vtkVgTemporalFilters.h>
 #include <vtkVgTrack.h>
@@ -150,12 +155,13 @@
 #include <vtkVpInteractionCallback.h>
 
 #if defined(VISGUI_USE_GDAL)
-  #include <vtkVgGDALReader.h>
+#include <vtkVgGDALReader.h>
 #endif
 
 #include <QVTKWidget.h>
 
 // Qt includes.
+#include <QAction>
 #include <QApplication>
 #include <QComboBox>
 #include <QCursor>
@@ -170,6 +176,7 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QProgressDialog>
+#include <QPushButton>
 #include <QRegExp>
 #include <QSettings>
 #include <QScopedPointer>
@@ -240,13 +247,18 @@ vpViewCore::vpViewCore() :
   TrackHeadBox(0),
   TrackHeadContour(0),
   TrackHeadRegion(0),
+  TrackHeadPointSize(3.0),
   HideTrackHeadIndicator(false),
   RegionEditMode(REM_Auto),
   ExternalExecuteMode(-1),
   TrackUpdateChunkSize(10),
   VideoAnimation(new vpVideoAnimation(this)),
   GraphRenderingEnabled(true),
-  RulerEnabled(false)
+  RulerEnabled(false),
+  ImagesAreGreyscale(false),
+  HomographyReferenceFrame(-1),
+  ProjectSpecifiedReferenceFrame(false),
+  TrackAttributesPanel(0)
 {
 #ifdef VISGUI_USE_KWIVER
   kwiver::vital::plugin_manager::instance().load_all_plugins();
@@ -480,6 +492,8 @@ void vpViewCore::importProject()
   // Point current project's IO manager to the files we are importing from.
   currentIO->SetTracksFileName(qPrintable(project->TracksFile));
   currentIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
+  currentIO->SetTrackClassifiersFileName(
+    qPrintable(project->TrackClassifiersFile));
   currentIO->SetEventsFileName(qPrintable(project->EventsFile));
   currentIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
   currentIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
@@ -528,7 +542,8 @@ void vpViewCore::importProject()
   switch (project->IsValid(project->TracksFile))
     {
     case vpProject::FILE_EXIST:
-      if (!currentIO->ImportTracks(idsOffset, offsetX, offsetY))
+      if (!currentIO->ImportTracks(this->FrameNumberOffset, idsOffset,
+                                   offsetX, offsetY))
         {
         emit this->warningError("Error occurred while importing tracks.");
         return;
@@ -608,6 +623,13 @@ bool vpViewCore::importTracksFromFile(vpProject* project)
     if (project->IsValid(project->TrackTraitsFile) == vpProject::FILE_EXIST)
       {
       this->loadTrackTraits(project);
+      }
+
+    // load track traits file if one was given
+    const auto classifiers = project->IsValid(project->TrackClassifiersFile);
+    if (classifiers == vpProject::FILE_EXIST)
+      {
+      this->loadTrackClassifiers(project);
       }
 
     return true;
@@ -804,6 +826,42 @@ bool vpViewCore::importNormalcyMapsFromFile(vpProject* project)
   return false;
 }
 
+
+//-----------------------------------------------------------------------------
+QPointF vpViewCore::computeAOIOffsetForExport()
+{
+  // Only ask about export mode if it has some effect on the output
+  if (this->TrackStorageMode == vpTrackIO::TSM_InvertedImageCoords)
+    {
+    vpProject* currentProject =
+      this->Projects[this->SessionView->GetCurrentSession()];
+    QPointF testOffset{
+      -currentProject->OverviewOrigin.x(),
+      this->FirstImageY -
+        (-currentProject->OverviewOrigin.y() +
+          currentProject->AnalysisDimensions.height())};
+    if (!testOffset.isNull())
+      {
+      QMessageBox msgBox;
+      msgBox.setWindowTitle("Coordinate Export Mode");
+      QAbstractButton* aoiButton =
+        msgBox.addButton(tr("AOI Origin"), QMessageBox::YesRole);
+      QAbstractButton* imageButton =
+        msgBox.addButton(tr("Image Origin"), QMessageBox::NoRole);
+      msgBox.setText("Export relative to the AOI origin or the Image origin?");
+      msgBox.exec();
+      // The coordinates are relative to the AOI by default, so we only need to
+      // set the offset (to non-zero value) if choose Image Origin relative
+      if (msgBox.clickedButton() == imageButton)
+        {
+        return testOffset;
+        }
+      }
+    }
+
+  return {0, 0};
+}
+
 //-----------------------------------------------------------------------------
 void vpViewCore::exportTracksToFile()
 {
@@ -813,6 +871,8 @@ void vpViewCore::exportTracksToFile()
       "Cannot export tracks while a track is being edited.");
     return;
     }
+
+  const auto& aoiOffset = this->computeAOIOffsetForExport();
 
   QString filter = "*.kw18;;*.json";
   vgFileDialog fileDialog(0, tr("Export Tracks"), QString(), filter);
@@ -836,17 +896,21 @@ void vpViewCore::exportTracksToFile()
   if (QFileInfo(files[0]).suffix() == "json")
     {
     success = this->Projects[session]->ModelIO->WriteFseTracks(
-                qPrintable(files[0]), false);
+                qPrintable(files[0]), aoiOffset, false);
     }
   else
     {
     success = this->Projects[session]->ModelIO->WriteTracks(
-                qPrintable(files[0]));
+                qPrintable(files[0]), this->FrameNumberOffset, aoiOffset);
     }
 
   if (!success)
     {
     QMessageBox::warning(0, "vpView", "Error writing tracks file.");
+    }
+  else
+    {
+    this->TrackExportTime.Modified();
     }
 }
 
@@ -880,6 +944,8 @@ void vpViewCore::exportEventsToFile()
 //-----------------------------------------------------------------------------
 void vpViewCore::exportSceneElementsToFile()
 {
+  const auto& aoiOffset = this->computeAOIOffsetForExport();
+
   QString filter = "*.json;;";
   vgFileDialog fileDialog(0, tr("Export Scene Elements"), QString(), filter);
   fileDialog.setObjectName("ExportSceneElements");
@@ -900,9 +966,13 @@ void vpViewCore::exportSceneElementsToFile()
   int session = this->SessionView->GetCurrentSession();
   vpProject* project = this->Projects[session];
 
-  if (!project->ModelIO->WriteFseTracks(qPrintable(files[0])))
+  if (!project->ModelIO->WriteFseTracks(qPrintable(files[0]), aoiOffset))
     {
     QMessageBox::warning(0, "vpView", "Error writing scene elements file.");
+    }
+  else
+    {
+    this->SceneElementExportTime.Modified();
     }
 }
 
@@ -984,6 +1054,7 @@ int vpViewCore::createEvent(int type, vtkIdList* ids, int session)
   if (vtkVgEvent* event =
         this->Projects[session]->EventModel->CreateAndAddEvent(type, ids))
     {
+    this->EventModifiedTime.Modified();
     return event->GetId();
     }
 
@@ -1238,11 +1309,21 @@ bool vpViewCore::splitTrack(int trackId, int newTrackId, int session)
 
   if (eventsCreated > 0)
     {
+    this->EventModifiedTime.Modified();
     project->EventModel->Modified();
     this->SessionView->Update(true);
     emit this->objectInfoUpdateNeeded();
     emit this->showStatusMessage(
       QString("%1 event(s) created").arg(eventsCreated));
+    }
+
+  if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+    {
+    this->SceneElementModifiedTime.Modified();
+    }
+  else
+    {
+    this->TrackModifiedTime.Modified();
     }
 
   this->update();
@@ -1258,6 +1339,15 @@ bool vpViewCore::mergeTracks(int trackA, int trackB, int session)
   if (a == 0 || b == 0)
     {
     return false;
+    }
+
+  if (a->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+    {
+    this->SceneElementModifiedTime.Modified();
+    }
+  else
+    {
+    this->TrackModifiedTime.Modified();
     }
 
   a->Merge(b);
@@ -1306,6 +1396,13 @@ bool vpViewCore::setAntialiasing(bool state)
 bool vpViewCore::getAntialiasing() const
 {
   return this->RenderWindow->GetMultiSamples() > 0;
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::toggleImageFiltering()
+{
+  this->setImageFiltering(!this->getImageFiltering());
+  this->forceRender();
 }
 
 //-----------------------------------------------------------------------------
@@ -1372,7 +1469,7 @@ int vpViewCore::loadTracks(vpProject* project)
   msgBox.setModal(false);
   msgBox.show();
 
-  if (!project->ModelIO->ReadTracks())
+  if (!project->ModelIO->ReadTracks(this->FrameNumberOffset))
     {
     return VTK_ERROR;
     }
@@ -1390,6 +1487,23 @@ int vpViewCore::loadTrackTraits(vpProject* project)
   msgBox.show();
 
   if (!project->ModelIO->ReadTrackTraits())
+    {
+    return VTK_ERROR;
+    }
+
+  return VTK_OK;
+}
+
+//-----------------------------------------------------------------------------
+int vpViewCore::loadTrackClassifiers(vpProject* project)
+{
+  QMessageBox msgBox;
+  msgBox.setWindowTitle("Loading track classifiers...");
+  msgBox.setText("Loading track classifiers (may take awhile)...");
+  msgBox.setModal(false);
+  msgBox.show();
+
+  if (!project->ModelIO->ReadTrackClassifiers())
     {
     return VTK_ERROR;
     }
@@ -1566,6 +1680,7 @@ void vpViewCore::initializeAllOthers()
   this->UseZeroBasedFrameNumbers    = false;
   this->RightClickToEditEnabled     = true;
   this->AutoAdvanceDuringCreation   = true;
+  this->InterpolateToGround         = false;
   this->SceneElementLineWidth       = 3.0;
 
   this->CoreTimeStamp.SetFrameNumber(0);
@@ -1676,36 +1791,49 @@ void vpViewCore::initializeData()
   // populate track state attributes
 #ifdef VISGUI_USE_VIDTK
   this->TrackAttributes.Clear();
-  this->TrackAttributes.SetMask("ForegroundTracking", "SSD",
+  this->TrackAttributes.SetMask(
+    "ForegroundTracking", "SSD",
     vidtk::track_state_attributes::ATTR_ASSOC_FG_SSD);
-  this->TrackAttributes.SetMask("ForegroundTracking", "CSURF",
+  this->TrackAttributes.SetMask(
+    "ForegroundTracking", "CSURF",
     vidtk::track_state_attributes::ATTR_ASSOC_FG_CSURF);
 
-  this->TrackAttributes.SetMask("DataAssociationTracking", "Kinematic",
+  this->TrackAttributes.SetMask(
+    "DataAssociationTracking", "Kinematic",
     vidtk::track_state_attributes::ATTR_ASSOC_DA_KINEMATIC);
-  this->TrackAttributes.SetMask("DataAssociationTracking", "MultiFeatures",
+  this->TrackAttributes.SetMask(
+    "DataAssociationTracking", "MultiFeatures",
     vidtk::track_state_attributes::ATTR_ASSOC_DA_MULTI_FEATURES);
-  this->TrackAttributes.SetMask("DataAssociationTracking", "Multiple",
+  this->TrackAttributes.SetMask(
+    "DataAssociationTracking", "Multiple",
     vidtk::track_state_attributes::ATTR_ASSOC_DA_KINEMATIC |
     vidtk::track_state_attributes::ATTR_ASSOC_DA_MULTI_FEATURES);
 
-  this->TrackAttributes.SetMask("KalmanFilter", "Extended",
+  this->TrackAttributes.SetMask(
+    "KalmanFilter", "Extended",
     vidtk::track_state_attributes::ATTR_KALMAN_ESH);
-  this->TrackAttributes.SetMask("KalmanFilter", "Linear",
+  this->TrackAttributes.SetMask(
+    "KalmanFilter", "Linear",
     vidtk::track_state_attributes::ATTR_KALMAN_LVEL);
 
-  this->TrackAttributes.SetMask("Interval", "Forward",
+  this->TrackAttributes.SetMask(
+    "Interval", "Forward",
     vidtk::track_state_attributes::ATTR_INTERVAL_FORWARD);
-  this->TrackAttributes.SetMask("Interval", "Back",
+  this->TrackAttributes.SetMask(
+    "Interval", "Back",
     vidtk::track_state_attributes::ATTR_INTERVAL_BACK);
-  this->TrackAttributes.SetMask("Interval", "Init",
+  this->TrackAttributes.SetMask(
+    "Interval", "Init",
     vidtk::track_state_attributes::ATTR_INTERVAL_INIT);
 
-  this->TrackAttributes.SetMask("Linking", "Start",
+  this->TrackAttributes.SetMask(
+    "Linking", "Start",
     vidtk::track_state_attributes::ATTR_LINKING_START);
-  this->TrackAttributes.SetMask("Linking", "End",
+  this->TrackAttributes.SetMask(
+    "Linking", "End",
     vidtk::track_state_attributes::ATTR_LINKING_END);
-  this->TrackAttributes.SetMask("Linking", "Multiple",
+  this->TrackAttributes.SetMask(
+    "Linking", "Multiple",
     vidtk::track_state_attributes::ATTR_LINKING_START |
     vidtk::track_state_attributes::ATTR_LINKING_END);
 #endif
@@ -1807,6 +1935,9 @@ void vpViewCore::initializeDisplay()
   this->SceneRenderer->AddViewProp(this->TrackHeadIndicatorActor);
   this->SceneRenderer->AddViewProp(this->RulerActor);
 
+  this->createCropRegionActor();
+  this->createBundleRegionActor();
+
   this->EventExpirationMode = ShowUntilEventEnd;
 
   this->SessionView = 0;
@@ -1818,6 +1949,7 @@ void vpViewCore::initializeDisplay()
   this->LatLonToImageMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
   this->LatLonToWorldMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
   this->LatLonToImageReferenceMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+  this->ImageToWorkingWorldMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -1863,7 +1995,7 @@ void vpViewCore::initializeScene()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::initializeViewInteractions()
+void vpViewCore::initializeViewInteractions(QVTKWidget* renderWidget)
 {
   this->VTKConnect->Connect(
     this->RenderWindow->GetInteractor()->GetInteractorStyle(),
@@ -1878,7 +2010,7 @@ void vpViewCore::initializeViewInteractions()
   this->VTKConnect->Connect(
     this->RenderWindow->GetInteractor()->GetInteractorStyle(),
     vtkVgInteractorStyleRubberBand2D::KeyPressEvent_Z,
-    this, SLOT(decreaseTrackHeadSize()));
+    this, SLOT(toggleImageFiltering()));
 
   this->VTKConnect->Connect(
     this->RenderWindow->GetInteractor()->GetInteractorStyle(),
@@ -1909,6 +2041,19 @@ void vpViewCore::initializeViewInteractions()
   this->VTKConnect->Connect(this->HoverWidget, vtkCommand::EndInteractionEvent,
                             this, SLOT(onHoverStop()));
 
+  // Add keyboard actions for zooming in (up arrow) and out (down arrow)
+  QAction* actionZoomIn = new QAction(this);
+  actionZoomIn->setShortcut(Qt::Key_Up);
+  actionZoomIn->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  renderWidget->addAction(actionZoomIn);
+  connect(actionZoomIn, SIGNAL(triggered()), this, SLOT(zoomIn()));
+
+  // Add keyboard actions for zooming in (up arrow) and out (down arrow)
+  QAction* actionZoomOut = new QAction(this);
+  actionZoomOut->setShortcut(Qt::Key_Down);
+  actionZoomOut->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+  renderWidget->addAction(actionZoomOut);
+  connect(actionZoomOut, SIGNAL(triggered()), this, SLOT(zoomOut()));
 }
 
 //-----------------------------------------------------------------------------
@@ -1925,6 +2070,8 @@ void vpViewCore::initializeSources()
 #if defined(VISGUI_USE_GDAL)
   factory->Register(&vtkVgGDALReader::Create);
 #endif
+
+  factory->Register(&vtkVgTIFReader::Create);
 }
 
 //-----------------------------------------------------------------------------
@@ -2005,7 +2152,7 @@ void vpViewCore::setupRenderWidget(QVTKWidget* renderWidget)
     vtkCommand::MouseMoveEvent,
     this, SLOT(onMouseMove()));
 
-  this->initializeViewInteractions();
+  this->initializeViewInteractions(renderWidget);
   this->RenderWidget = renderWidget;
 }
 
@@ -2068,7 +2215,7 @@ void vpViewCore::setupEventFilters(vgMixerWidget* filterWidget,
 
   connect(filterWidget, SIGNAL(stateChanged(int, bool)),
           this, SLOT(SetEventTypeDisplayState(int, bool)));
-  connect(filterWidget, SIGNAL(invertedChanged(int,bool)),
+  connect(filterWidget, SIGNAL(invertedChanged(int, bool)),
           this, SLOT(SetEventInverseDisplayState(int, bool)));
   connect(filterWidget, SIGNAL(valueChanged(int, double)),
           this, SLOT(SetEventTypeNormalcyThreshold(int, double)));
@@ -2081,7 +2228,7 @@ void vpViewCore::setupActivityFilters(vgMixerWidget* filterWidget)
   filterWidget->clear();
 
   int numTypes = this->ActivityConfig->GetNumberOfTypes();
-  std::vector< std::pair<double, double> > ranges(
+  std::vector<std::pair<double, double> > ranges(
     numTypes, std::make_pair(0.0, 1.0));
 
   // Compute min and max saliencies for each type based on the loaded activities.
@@ -2869,19 +3016,33 @@ void vpViewCore::updateCropExtents(double newExtents[4])
     return;
     }
 
-  if (this->UseGeoCoordinates)
+  if (this->UseGeoCoordinates || (this->HomographyReferenceFrame > -1 &&
+                                  this->ImageSource &&
+                                  this->ImageSource->GetGeoCornerPoints()))
     {
-    double* out;
-    double minPoint[4] = {newExtents[0], newExtents[2], 0, 1};
-    double maxPoint[4] = {newExtents[1], newExtents[3], 0, 1};
+    double result[2];
+    double transformedExtents[4] =
+      {
+      VTK_DOUBLE_MAX, VTK_DOUBLE_MIN,
+      VTK_DOUBLE_MAX, VTK_DOUBLE_MIN
+      };
 
-    out = this->WorldToImageMatrix->MultiplyDoublePoint(minPoint);
-    newExtents[0] = out[0] / out[3];
-    newExtents[2] = out[1] / out[3];
-
-    out = this->WorldToImageMatrix->MultiplyDoublePoint(maxPoint);
-    newExtents[1] = out[0] / out[3];
-    newExtents[3] = out[1] / out[3];
+    for (int i = 0; i < 2; ++i)
+      {
+      for (int j = 2; j < 4; ++j)
+        {
+        vtkVgApplyHomography(newExtents[i], newExtents[j],
+                             this->WorldToImageMatrix, result);
+        vgExpandBoundaries(transformedExtents[0], transformedExtents[1],
+                           result[0]);
+        vgExpandBoundaries(transformedExtents[2], transformedExtents[3],
+                           result[1]);
+        }
+      }
+    newExtents[0] = transformedExtents[0];
+    newExtents[1] = transformedExtents[1];
+    newExtents[2] = transformedExtents[2];
+    newExtents[3] = transformedExtents[3];
     }
   else if (this->UseRawImageCoordinates)
     {
@@ -2904,22 +3065,26 @@ void vpViewCore::updateCropExtents(double newExtents[4])
     }
 
   int usableExtents[4];
-  usableExtents[0] = floor(newExtents[0] >= this->WholeImageBounds[0]
-    ? (newExtents[0] - this->WholeImageBounds[0])
-    : 0);
+  usableExtents[0] =
+    floor(newExtents[0] >= this->WholeImageBounds[0]
+          ? (newExtents[0] - this->WholeImageBounds[0])
+          : 0);
 
-  usableExtents[1] = ceil(newExtents[1] >= this->WholeImageBounds[1]
-    ? (this->WholeImageBounds[1] - this->WholeImageBounds[0])
-    : (newExtents[1] - this->WholeImageBounds[0]));
+  usableExtents[1] =
+    ceil(newExtents[1] >= this->WholeImageBounds[1]
+         ? (this->WholeImageBounds[1] - this->WholeImageBounds[0])
+         : (newExtents[1] - this->WholeImageBounds[0]));
 
   // Y
-  usableExtents[2] = floor(newExtents[2] >= this->WholeImageBounds[2]
-    ? (newExtents[2] - this->WholeImageBounds[2])
-    : 0);
+  usableExtents[2] =
+    floor(newExtents[2] >= this->WholeImageBounds[2]
+          ? (newExtents[2] - this->WholeImageBounds[2])
+          : 0);
 
-  usableExtents[3] = ceil(newExtents[3] >= this->WholeImageBounds[3]
-    ? (this->WholeImageBounds[3] - this->WholeImageBounds[2])
-    : (newExtents[3] - this->WholeImageBounds[2]));
+  usableExtents[3] =
+    ceil(newExtents[3] >= this->WholeImageBounds[3]
+         ? (this->WholeImageBounds[3] - this->WholeImageBounds[2])
+         : (newExtents[3] - this->WholeImageBounds[2]));
 
   this->ImageSource->SetReadExtents(usableExtents);
 }
@@ -3022,6 +3187,8 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
   fileIO->SetTracksFileName(qPrintable(project->TracksFile));
   fileIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
+  fileIO->SetTrackClassifiersFileName(
+    qPrintable(project->TrackClassifiersFile));
   fileIO->SetEventsFileName(qPrintable(project->EventsFile));
   fileIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
   fileIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
@@ -3062,6 +3229,13 @@ static void emitHomographyCountWarning()
 {
   std::cerr << "One or more frames don't have homographies - track "
             << "states falling on those frames may be dropped.\n";
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setUseGeoCoordinates(bool useGeoCoordinatesIfAvailable)
+{
+  this->UseGeoCoordinates = useGeoCoordinatesIfAvailable &&
+    this->ImageSource && this->ImageSource->GetGeoCornerPoints();
 }
 
 //-----------------------------------------------------------------------------
@@ -3117,8 +3291,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
         }
       }
 
-    bool hasFrameMap = project->ModelIO->ReadFrameMetaData(this->FrameMap,
-                                                           substitutePath);
+    bool hasFrameMap =
+      project->ModelIO->ReadFrameMetaData(this->FrameMap, substitutePath);
     if (hasFrameMap)
       {
       // Use the image filenames retrieved as the dataset
@@ -3229,6 +3403,22 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                        matrixElement);
                 }
               }
+            double w = homography->GetElement(3, 3);
+            if (w != 1.0 && w != 0.0)
+              {
+              for (int i = 0; i < 3; ++i)
+                {
+                for (int j = 0; j < 3; ++j)
+                  {
+                  double normalizedElement =
+                    homography->GetElement(i < 2 ? i : 3,
+                                           j < 2 ? j : 3) / w;
+                  homography->SetElement(i < 2 ? i : 3,
+                                         j < 2 ? j : 3,
+                                         normalizedElement);
+                  }
+                }
+              }
             // trusting that a negative frameIndex won't occur?
             if (frameIndex >= this->ImageDataSource->getFileCount())
               {
@@ -3248,6 +3438,10 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
           }
         }
       }
+
+    this->DepthConfigFile = project->DepthConfigFile;
+    this->CameraDirectory = project->CameraDirectory;
+    this->BundleAdjustmentConfigFile = project->BundleAdjustmentConfigFile;
 
     // Now first initialize the image source.
     this->initializeImageSource();
@@ -3289,6 +3483,15 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     int dim[2];
     this->ImageSource->GetDimensions(dim);
 
+    this->ImagesAreGreyscale = false;
+    if (this->ImageData[1] &&
+        this->ImageData[1]->GetPointData()->
+          GetScalars()->GetNumberOfComponents() == 1)
+      {
+      this->ImagesAreGreyscale = true;
+      }
+
+    this->FirstImageY = dim[1];
     this->UsingTimeStampData = false;
     if (this->UseTimeStampDataIfAvailable)
       {
@@ -3320,8 +3523,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     // in UseGeoCoordinates or UseRawImageCoordinates being set differently.
     if (this->EnableWorldDisplayIfAvailable)
       {
-      this->UseGeoCoordinates = this->ImageSource->GetGeoCornerPoints()
-        ? true : false;
+      this->UseGeoCoordinates =
+        this->ImageSource->GetGeoCornerPoints() ? true : false;
       if (this->UseGeoCoordinates)
         {
         if (this->TrackStorageMode ==
@@ -3356,7 +3559,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
     if (this->UseGeoCoordinates || this->UseRawImageCoordinates)
       {
       if (vtkSmartPointer<vtkMatrix4x4> imageToLatLon =
-          this->ImageSource->GetImageToWorldMatrix())
+            this->ImageSource->GetImageToWorldMatrix())
         {
         vtkMatrix4x4::Invert(imageToLatLon, this->LatLonToImageMatrix);
         }
@@ -3385,8 +3588,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
           }
         else
           {
-          std::cerr <<
-            "Unable to compute reference offset for image translation\n";
+          std::cerr << "Unable to compute reference offset "
+                       "for image translation\n";
           }
         }
 
@@ -3452,6 +3655,62 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
           this->ViewExtents[1] - this->ViewExtents[0] + 1,
           this->ViewExtents[3] - this->ViewExtents[2] + 1};
         }
+
+      if (project->HomographyReferenceFrame >= 0 &&
+          this->TrackStorageMode == vpTrackIO::TSM_HomographyTransformedImageCoords &&
+          project->HomographyReferenceFrame < this->ImageDataSource->getFileCount())
+        {
+        int yDim = 0;
+
+        if (project->HomographyReferenceFrame != 0)
+          {
+          vtkSmartPointer<vtkVgBaseImageSource> imageSource;
+          std::string fileName =
+            this->ImageDataSource->getDataFile(
+              project->HomographyReferenceFrame);
+
+          if (fileName.empty())
+            {
+            qDebug() << "Unable to set Homography reference frame!";
+            }
+          else
+            {
+            imageSource.TakeReference(
+              vpImageSourceFactory::GetInstance()->Create(fileName));
+
+            imageSource->SetFileName(fileName.c_str());
+            imageSource->UpdateInformation();
+
+            int dim[2];
+            if (!imageSource->GetRasterDimensions(dim))
+              {
+              imageSource->GetDimensions(dim);
+              }
+            yDim = dim[1];
+            }
+          }
+        else
+          {
+          yDim = this->FirstImageY;
+          }
+
+        if (yDim)
+          {
+          this->ProjectSpecifiedReferenceFrame = true;
+          this->setHomographyReferenceFrame(project->HomographyReferenceFrame,
+                                            yDim);
+
+          vtkSmartPointer<vtkMatrix4x4> transformMatrix =
+            vtkSmartPointer<vtkMatrix4x4>::New();
+          this->computeHomographyTransformMatrix(
+            project->HomographyReferenceFrame, transformMatrix);
+          this->setProjectRepresentationMatrix(project.data(),
+                                               transformMatrix);
+          this->Annotation->SetRepresentationMatrix(transformMatrix);
+
+          this->updateImageMatrices();
+          }
+        }
       }
 
     if (!this->UsingTimeStampData)
@@ -3495,6 +3754,15 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
       emit warningError(str.arg(QFileInfo{
         this->ProjectParser->GetProjectFileName()}.fileName()));
       }
+    if (this->ProjectSpecifiedReferenceFrame)
+      {
+      vtkSmartPointer<vtkMatrix4x4> transformMatrix =
+        vtkSmartPointer<vtkMatrix4x4>::New();
+      this->computeHomographyTransformMatrix(this->CurrentFrame,
+        transformMatrix);
+      this->setProjectRepresentationMatrix(project.data(),
+        transformMatrix);
+      }
     }
 
   project->TrackModel->SetContourOperatorManager(this->ContourOperatorManager);
@@ -3536,8 +3804,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->SelectedTrackRepresentation->SetTrackModel(project->TrackModel);
   project->SelectedTrackRepresentation->SetTrackFilter(this->TrackFilter);
   project->SelectedTrackRepresentation->SetVisible(this->ShowTracks ? 1 : 0);
-  project->SelectedTrackRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal |
-                                                       vtkVgTrack::DF_Selected);
+  project->SelectedTrackRepresentation->SetDisplayMask(
+    vtkVgTrack::DF_Normal | vtkVgTrack::DF_Selected);
   project->SelectedTrackRepresentation->SetZOffset(0.4);
 
   project->TrackHeadRepresentation->UseAutoUpdateOff();
@@ -3555,8 +3823,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->SelectedTrackHeadRepresentation->SetTrackFilter(this->TrackFilter);
   project->SelectedTrackHeadRepresentation->SetDisplayAllHeads(false);
   project->SelectedTrackHeadRepresentation->SetVisible(this->ShowTrackHeads ? 1 : 0);
-  project->SelectedTrackHeadRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal |
-                                                           vtkVgTrack::DF_Selected);
+  project->SelectedTrackHeadRepresentation->SetDisplayMask(
+    vtkVgTrack::DF_Normal | vtkVgTrack::DF_Selected);
   project->SelectedTrackHeadRepresentation->SetZOffset(0.4);
 
   project->EventModel->SetContourOperatorManager(this->ContourOperatorManager);
@@ -3580,8 +3848,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->SelectedEventRepresentation->UseAutoUpdateOff();
   project->SelectedEventRepresentation->SetEventFilter(this->EventFilter);
   project->SelectedEventRepresentation->SetEventModel(project->EventModel);
-  project->SelectedEventRepresentation->SetDisplayMask(vtkVgEventBase::DF_TrackEvent |
-                                                       vtkVgEventBase::DF_Selected);
+  project->SelectedEventRepresentation->SetDisplayMask(
+    vtkVgEventBase::DF_TrackEvent | vtkVgEventBase::DF_Selected);
   project->SelectedEventRepresentation->SetVisible(this->ShowEvents ? 1 : 0);
   project->SelectedEventRepresentation->SetEventTypeRegistry(this->EventTypeRegistry);
   project->SelectedEventRepresentation->SetZOffset(0.5);
@@ -3629,8 +3897,8 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->SelectedSceneElementRepresentation->SetTrackModel(project->TrackModel);
   project->SelectedSceneElementRepresentation->SetDisplayAllHeads(false);
   project->SelectedSceneElementRepresentation->SetVisible(this->ShowSceneElements ? 1 : 0);
-  project->SelectedSceneElementRepresentation->SetDisplayMask(vtkVgTrack::DF_SceneElement |
-                                                              vtkVgTrack::DF_Selected);
+  project->SelectedSceneElementRepresentation->SetDisplayMask(
+    vtkVgTrack::DF_SceneElement | vtkVgTrack::DF_Selected);
   project->SelectedSceneElementRepresentation->SetZOffset(0.4);
 
   project->Picker->SetIconManager(project->IconManager);
@@ -3652,10 +3920,12 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->ModelIO->SetImageHeight(imageHeight);
 
   project->ModelIO->SetTrackModel(project->TrackModel, this->TrackStorageMode,
-                                  this->UsingTimeStampData ?
-                                    vpTrackIO::TTM_TimeAndFrameNumber :
-                                    vpTrackIO::TTM_FrameNumberOnly,
+                                  this->InterpolateToGround,
+                                  this->UsingTimeStampData
+                                  ? vpTrackIO::TTM_TimeAndFrameNumber
+                                  : vpTrackIO::TTM_FrameNumberOnly,
                                   this->TrackTypeRegistry,
+                                  &project->TrackDetectionAttributes,
                                   this->LatLonToWorldMatrix,
                                   this->FrameMap);
 
@@ -3740,8 +4010,15 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   // Make sure the next update computes new transforms for the representations
   this->ForceFullUpdate = true;
 
+  // Refresh the view if we now have a single project loaded
+  if (this->Projects.size() == 1)
+    {
+    this->refreshView();
+    }
+
   // Notify observers.
   this->dataChanged();
+  emit projectProcessed();
 
   return this->Projects.back();
 }
@@ -3859,8 +4136,8 @@ void vpViewCore::writeTemporalFilter(int type, double start, double end,
                                      const std::string& name,
                                      std::ostream& out)
 {
-  out << "TemporalFilter " << (this->getUsingTimeStampData() ? "seconds\n"
-                                                             : "frame#\n");
+  out << "TemporalFilter "
+      << (this->getUsingTimeStampData() ? "seconds\n" : "frame#\n");
   out << name << "\n";
   out << type << "\n";
   if (this->getUsingTimeStampData())
@@ -3905,7 +4182,7 @@ static void skipLines(istream& in, int n)
 void vpViewCore::loadFilters()
 {
   QString path = vgFileDialog::getOpenFileName(
-    0, "Load Filters", QString(), "vpView filters (*.txt);;");
+                   0, "Load Filters", QString(), "vpView filters (*.txt);;");
 
   if (!path.isEmpty())
     {
@@ -4484,8 +4761,8 @@ again:
 
       QString file = madeThumbnail ||
                      trackTimeStamp.GetFrameNumber() != timeStamp.GetFrameNumber()
-                       ? QString("%1.png").arg(frame, 6, 10, QChar('0'))
-                       : QString("event-%1.png").arg(event->GetId());
+                     ? QString("%1.png").arg(frame, 6, 10, QChar('0'))
+                     : QString("event-%1.png").arg(event->GetId());
       imageWriter->SetInputData(image);
       imageWriter->SetFileName(qPrintable(fullPath + file));
       imageWriter->Write();
@@ -4581,7 +4858,7 @@ void vpViewCore::forceRender()
     QChar zero('0');
     QString outputFileName =
       this->ImageOutputDirectory +
-        QString("/vpViewImage%1.png").arg(this->ImageCounter++, 6, 10, zero);
+      QString("/vpViewImage%1.png").arg(this->ImageCounter++, 6, 10, zero);
     this->PNGWriter->SetFileName(outputFileName.toAscii());
     this->PNGWriter->Write();
     }
@@ -4993,6 +5270,14 @@ void vpViewCore::onShowObjectInfo(int sessionId, vpObjectInfoPanel* objectInfo)
 }
 
 //-----------------------------------------------------------------------------
+void vpViewCore::onShowTrackAttributes(int sessionId,
+                                       vpTrackAttributesPanel* trackAttributes)
+{
+  this->TrackAttributesPanel = trackAttributes;
+  trackAttributes->Initialize(this, this->Projects[sessionId]);
+}
+
+//-----------------------------------------------------------------------------
 void vpViewCore::showHideEventLegend(bool show, bool render)
 {
   this->EventLegend->SetVisibility(show ? 1 : 0);
@@ -5032,15 +5317,13 @@ void vpViewCore::showHideObjectTags(bool show)
 //-----------------------------------------------------------------------------
 void vpViewCore::nextFrame()
 {
-  this->seekInternal(vtkVgTimeStamp(this->getCurrentTime()),
-                                    vg::SeekNext);
+  this->seekInternal(vtkVgTimeStamp(this->getCurrentTime()), vg::SeekNext);
 }
 
 //-----------------------------------------------------------------------------
 void vpViewCore::prevFrame()
 {
-  this->seekInternal(vtkVgTimeStamp(this->getCurrentTime()),
-                                    vg::SeekPrevious);
+  this->seekInternal(vtkVgTimeStamp(this->getCurrentTime()), vg::SeekPrevious);
 }
 
 //-----------------------------------------------------------------------------
@@ -5169,15 +5452,16 @@ double vpViewCore::getPlaybackRate()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::update()
+void vpViewCore::update(bool forceFullUpdate/*= false*/)
 {
   this->UpdateObjectViews = true;
-  this->updateScene();
+  this->updateScene(forceFullUpdate);
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::updateScene()
+void vpViewCore::updateScene(bool forceFullUpdate/*= false*/)
 {
+  this->ForceFullUpdate = forceFullUpdate;
   if (!this->UpdatePending)
     {
     this->UpdatePending = true;
@@ -5247,11 +5531,18 @@ void vpViewCore::forceUpdate()
       return;
       }
 
+    if (this->CurrentFrame != this->LastFrame)
+      {
+      emit this->frameChanged(qtString(imageFile));
+      emit this->objectInfoUpdateNeeded(true);
+      }
+
     this->ForceFullUpdate = false;
     this->LastFrame = this->CurrentFrame;
     this->ImageSource->SetFileName(imageFile.c_str());
 
-    if (this->UseGeoCoordinates || this->UseRawImageCoordinates)
+    if (this->HomographyReferenceFrame > -1 ||
+        this->UseGeoCoordinates || this->UseRawImageCoordinates)
       {
       this->ImageSource->UpdateInformation();
       int dim[2];
@@ -5294,11 +5585,11 @@ void vpViewCore::forceUpdate()
             {
             vtkSmartPointer<vtkMatrix4x4> matrix =
               vtkSmartPointer<vtkMatrix4x4>::New();
-            matrix->SetElement(0, 3,
-              out[0]/out[3] - this->ImageTranslationOffset[0]);
+            matrix->SetElement(0, 3, out[0] / out[3] -
+                                     this->ImageTranslationOffset[0]);
             matrix->SetElement(1, 1, -1.0);
-            matrix->SetElement(1, 3,
-              out[1]/out[3] - this->ImageTranslationOffset[1]);
+            matrix->SetElement(1, 3, out[1] / out[3] -
+                                     this->ImageTranslationOffset[1]);
             project->TrackRepresentation->SetRepresentationMatrix(matrix);
             project->TrackHeadRepresentation->SetRepresentationMatrix(matrix);
             project->SelectedTrackRepresentation->SetRepresentationMatrix(matrix);
@@ -5316,7 +5607,7 @@ void vpViewCore::forceUpdate()
             }
           }
         }
-      else // this->UseGeoCoordinates
+      else if (this->UseGeoCoordinates)
         {
         // track heads and fse are in image coordinates and need to be
         // transformed, including y-flip
@@ -5345,59 +5636,14 @@ void vpViewCore::forceUpdate()
       if (this->TrackStorageMode ==
           vpTrackIO::TSM_HomographyTransformedImageCoords)
         {
-        vtkSmartPointer<vtkMatrix4x4> inverseMatrix =
-          vtkSmartPointer<vtkMatrix4x4>::New();
-        vpFrame frameMetaData;
-        if (this->FrameMap->getFrame(this->CurrentFrame, frameMetaData) &&
-          frameMetaData.Homography)
-          {
-          vtkMatrix4x4::Invert(frameMetaData.Homography, inverseMatrix);
-          }
-        vtkSmartPointer<vtkMatrix4x4> flipMatrix =
-          vtkSmartPointer<vtkMatrix4x4>::New();
-        flipMatrix->SetElement(1, 1, -1.0);
-        flipMatrix->SetElement(1, 3,
-                               this->Projects[0]->ModelIO->GetImageHeight());
         vtkSmartPointer<vtkMatrix4x4> transformMatrix =
           vtkSmartPointer<vtkMatrix4x4>::New();
-        vtkMatrix4x4::Multiply4x4(flipMatrix, inverseMatrix, transformMatrix);
-        // If [3][3] component is negative, we're likely to (will?) run into
-        // issues with OpenGL decided to clip away the data.  Therefore scale
-        // to make sure the [3][3] element is positive.
-        if (transformMatrix->Element[3][3] < 0)
-          {
-          for (int i = 0; i < 4; ++i)
-            {
-            for (int j = 0; j < 4; ++j)
-              {
-              transformMatrix->Element[i][j] *= -1;
-              }
-            }
-          // we "Position" the non image actors "above" (+z) the image; the
-          // [2][2] component must be 1 (versus -1, which it would be because
-          // of the previously scaling by -1) to insure the z position isn't
-          // altered to be behind the image.
-          transformMatrix->Element[2][2] = 1.0;
-          }
+        this->computeHomographyTransformMatrix(this->CurrentFrame,
+                                               transformMatrix);
         for (size_t i = 0, end = this->Projects.size(); i < end; ++i)
           {
-          vpProject* project = this->Projects[i];
-          project->TrackRepresentation->SetRepresentationMatrix(
-            transformMatrix);
-          project->SelectedTrackRepresentation->SetRepresentationMatrix(
-            transformMatrix);
-          project->EventRepresentation->SetRepresentationMatrix(
-            transformMatrix);
-          project->SelectedEventRepresentation->SetRepresentationMatrix(
-            transformMatrix);
-          project->TrackHeadRepresentation->SetRepresentationMatrix(
-            flipMatrix);
-          project->SelectedTrackHeadRepresentation->SetRepresentationMatrix(
-            flipMatrix);
-          project->SceneElementRepresentation->SetRepresentationMatrix(
-            flipMatrix);
-          project->SelectedSceneElementRepresentation->SetRepresentationMatrix(
-            flipMatrix);
+          this->setProjectRepresentationMatrix(this->Projects[i],
+                                               transformMatrix);
           }
         this->Annotation->SetRepresentationMatrix(transformMatrix);
         }
@@ -5521,6 +5767,66 @@ void vpViewCore::forceUpdate()
 
   this->LoadRenderTimeLogger->StopTimer();
   this->RenderingTime = this->LoadRenderTimeLogger->GetElapsedTime() * 1000;
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::computeHomographyTransformMatrix(
+  int referenceFrameNumber, vtkMatrix4x4* transformMatrix)
+{
+  vtkSmartPointer<vtkMatrix4x4> inverseMatrix =
+    vtkSmartPointer<vtkMatrix4x4>::New();
+  vpFrame frameMetaData;
+  if (this->FrameMap->getFrame(referenceFrameNumber, frameMetaData) &&
+      frameMetaData.Homography)
+    {
+    vtkMatrix4x4::Invert(frameMetaData.Homography, inverseMatrix);
+    }
+  vtkSmartPointer<vtkMatrix4x4> flipMatrix =
+    vtkSmartPointer<vtkMatrix4x4>::New();
+  flipMatrix->SetElement(1, 1, -1.0);
+  flipMatrix->SetElement(1, 3, this->FirstImageY);
+
+  vtkMatrix4x4::Multiply4x4(flipMatrix, inverseMatrix, transformMatrix);
+  // If [3][3] component is negative, we're likely to (will?) run into issues
+  // with OpenGL decided to clip away the data.  Therefore scale to make sure
+  // the [3][3] element is positive.
+  if (transformMatrix->Element[3][3] < 0)
+    {
+    for (int i = 0; i < 4; ++i)
+      {
+      for (int j = 0; j < 4; ++j)
+        {
+        transformMatrix->Element[i][j] *= -1;
+        }
+      }
+    // We "position" the non image actors "above" (+z) the image; the [2][2]
+    // component must be 1 (versus -1, which it would be because of the
+    // previously scaling by -1) to ensure the z position isn't altered to be
+    // behind the image.
+    transformMatrix->Element[2][2] = 1.0;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setProjectRepresentationMatrix(vpProject* project,
+                                                vtkMatrix4x4* transformMatrix)
+{
+  project->TrackRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->SelectedTrackRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->EventRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->SelectedEventRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->TrackHeadRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->SelectedTrackHeadRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->SceneElementRepresentation->SetRepresentationMatrix(
+    transformMatrix);
+  project->SelectedSceneElementRepresentation->SetRepresentationMatrix(
+    transformMatrix);
 }
 
 //-----------------------------------------------------------------------------
@@ -5956,6 +6262,34 @@ void vpViewCore::onIncreaseSceneElementTransparency()
 void vpViewCore::onDecreaseSceneElementTransparency()
 {
   this->changeSceneElementOpacity(0.1);
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::onIncreasePolygonNodeSize()
+{
+  this->changePolygonNodeSize(0.5);
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::onDecreasePolygonNodeSize()
+{
+  this->changePolygonNodeSize(-0.5);
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::changePolygonNodeSize(float delta)
+{
+  this->TrackHeadPointSize += delta;
+  if (this->TrackHeadPointSize < 0.5)
+    {
+    this->TrackHeadPointSize = 0.5;
+    }
+  if (this->TrackHeadContour)
+    {
+    this->TrackHeadContour->SetPointSize(this->TrackHeadPointSize);
+    this->TrackHeadContour->SetActivePointSize(this->TrackHeadPointSize);
+    }
+  this->render();
 }
 
 //-----------------------------------------------------------------------------
@@ -6400,11 +6734,11 @@ void vpViewCore::addFilterRegion(const std::string& name,
 
       vtkSmartPointer<vtkMatrix4x4> worldToTrack =
         vtkSmartPointer<vtkMatrix4x4>::New();
-      worldToTrack->SetElement(0, 3,
-                               out[0]/out[3] - this->ImageTranslationOffset[0]);
+      worldToTrack->SetElement(0, 3, out[0] / out[3] -
+                                     this->ImageTranslationOffset[0]);
       worldToTrack->SetElement(1, 1, -1.0);
-      worldToTrack->SetElement(1, 3,
-                               out[1]/out[3] - this->ImageTranslationOffset[1]);
+      worldToTrack->SetElement(1, 3, out[1] / out[3] -
+                                     this->ImageTranslationOffset[1]);
       worldToTrack->Invert();
 
       filterPoints = vtkSmartPointer<vtkPoints>::New();
@@ -6535,7 +6869,7 @@ void vpViewCore::completeFilterRegion()
     }
   else
     {
-    const vtkVgTimeStamp *timeStamp = this->Contour->GetTimeStampPtr();
+    const vtkVgTimeStamp* timeStamp = this->Contour->GetTimeStampPtr();
     vtkMatrix4x4* matrix = this->Contour->GetWorldToImageMatrix();
     this->Contours.push_back(this->Contour);
     this->Contour = 0;
@@ -6772,6 +7106,7 @@ void vpViewCore::beginEditingTrack(int trackId)
 
   int session = this->SessionView->GetCurrentSession();
   this->TrackEditProjectId = this->Projects[session]->ProjectId;
+  this->TrackAttributesPanel->SetEditing(true);
 
   this->EditingTrackId = trackId;
   this->RubberbandInteractorStyle->SetRubberBandSelectionWithCtrlKey(1);
@@ -6804,6 +7139,9 @@ void vpViewCore::stopEditingTrack(bool autoremove)
     {
     return;
     }
+
+  this->TrackAttributesPanel->SetEditing(false);
+  this->setIdOfTrackToFollow(-1);
 
   int projectId = this->TrackEditProjectId;
 
@@ -6886,9 +7224,34 @@ void vpViewCore::deleteTrack(int trackId, int session)
       {
       project->EventModel->RemoveEvent(events[i]->GetId());
       }
+    this->EventModifiedTime.Modified();
     }
 
+  QMessageBox::StandardButton btn = QMessageBox::question(0, "Delete Track?",
+    QString(
+    "Are you sure you want to delete the track with id %1.").arg(trackId),
+    QMessageBox::Yes | QMessageBox::No);
+  if (btn != QMessageBox::Yes)
+    {
+    return;
+    }
+  bool sceneElement =
+    project->TrackModel->GetTrack(trackId)->GetDisplayFlags() &
+    vtkVgTrack::DF_SceneElement;
   project->TrackModel->RemoveTrack(trackId);
+
+  // Only update track modified time if not deleting an empty edited track
+  if (this->EditingTrackId != this->NewTrackId)
+    {
+    if (sceneElement)
+      {
+      this->SceneElementModifiedTime.Modified();
+      }
+    else
+      {
+      this->TrackModifiedTime.Modified();
+      }
+    }
 
   this->SessionView->Update(true);
   emit this->objectInfoUpdateNeeded();
@@ -6910,6 +7273,7 @@ void vpViewCore::deleteEvent(int eventId, int session)
     }
 
   this->Projects[session]->EventModel->RemoveEvent(eventId);
+  this->EventModifiedTime.Modified();
 
   this->SessionView->Update(true);
   emit this->objectInfoUpdateNeeded();
@@ -6931,7 +7295,7 @@ void vpViewCore::setEventSelection(const QList<vtkIdType>& ids, int session)
   this->SelectedEvents.clear();
 
   // Set new selection
-  vpProject* project= this->Projects[session];
+  vpProject* project = this->Projects[session];
   foreach (vtkIdType id, ids)
     {
     vtkVgEvent* event = project->EventModel->GetEvent(id);
@@ -6956,7 +7320,7 @@ void vpViewCore::setTrackSelection(const QList<vtkIdType>& ids, int session)
   this->SelectedTracks.clear();
 
   // Set new selection
-  vpProject* project= this->Projects[session];
+  vpProject* project = this->Projects[session];
   foreach (vtkIdType id, ids)
     {
     vtkVgTrack* track = project->TrackModel->GetTrack(id);
@@ -7129,6 +7493,8 @@ void vpViewCore::updateTrackHeadRegion()
       {
       this->TrackHeadContour =
         new vpContour(this->RenderWindow->GetInteractor());
+      this->TrackHeadContour->SetPointSize(this->TrackHeadPointSize);
+      this->TrackHeadContour->SetActivePointSize(this->TrackHeadPointSize);
 
       this->VTKConnect->Connect(this->TrackHeadContour->GetWidget(),
                                 vtkCommand::EndInteractionEvent,
@@ -7275,7 +7641,8 @@ void vpViewCore::setTrackHead(vtkPoints* points)
   // Incoming points are in world coordinates. In raw image mode and geo mode,
   // world space and track space are different coordinate systems, so transform
   // back now.
-  if (this->UseRawImageCoordinates || this->UseGeoCoordinates)
+  if (this->UseRawImageCoordinates || this->UseGeoCoordinates ||
+    this->TrackStorageMode == vpTrackIO::TSM_HomographyTransformedImageCoords)
     {
     const vtkMatrix4x4* trackToWorld =
       project->TrackHeadRepresentation->GetRepresentationMatrix();
@@ -7322,8 +7689,26 @@ void vpViewCore::setTrackHead(vtkPoints* points)
     geoCoord = this->worldToGeo(worldCenter);
     }
 
+  // only set track states on the point if adding (not editing) the point
+  double dummyPt[2];
+  if (!track->GetPoint(this->CoreTimeStamp, dummyPt, false) &&
+      this->TrackAttributesPanel)
+    {
+    vtkSmartPointer<vtkVgScalars> attrScalars =
+      track->GetScalars("DetectionAttributes");
+    if (!attrScalars)
+      {
+      attrScalars = vtkSmartPointer<vtkVgScalars>::New();
+      attrScalars->SetNotFoundValue(0.0);
+      track->SetScalars("DetectionAttributes", attrScalars);
+      }
+
+    double attrValue = this->TrackAttributesPanel->GetTrackAttributesValue();
+    attrScalars->InsertValue(this->CoreTimeStamp, attrValue);
+    }
+
   track->SetPoint(this->CoreTimeStamp, center, geoCoord,
-    points->GetNumberOfPoints(), 0, points, 0);
+                  points->GetNumberOfPoints(), 0, points, 0);
 
   project->TrackModel->Modified();
 
@@ -7342,6 +7727,14 @@ void vpViewCore::setTrackHead(vtkPoints* points)
     project->SceneElementRepresentation->SetExcludedTrack(0);
     }
 
+  if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+    {
+    this->SceneElementModifiedTime.Modified();
+    }
+  else
+    {
+    this->TrackModifiedTime.Modified();
+    }
   emit this->objectInfoUpdateNeeded();
 }
 
@@ -7505,7 +7898,22 @@ void vpViewCore::deleteTrackPoint()
     project->TrackModel->RemoveKeyframe(this->EditingTrackId,
                                         this->CoreTimeStamp);
     vtkVgTrack* track = project->TrackModel->GetTrack(this->EditingTrackId);
+    if (track->GetNumberOfPathPoints() < 2)
+      {
+      emit this->showStatusMessage("Can't delete the only point in an object!",
+                                   3000);
+      return;
+      }
     track->DeletePoint(this->CoreTimeStamp);
+    if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+      {
+      this->SceneElementModifiedTime.Modified();
+      }
+    else
+      {
+      this->TrackModifiedTime.Modified();
+      }
+
     project->TrackModel->Modified();
     emit this->objectInfoUpdateNeeded();
     this->updateScene();
@@ -7971,8 +8379,44 @@ void vpViewCore::setRulerEnabled(bool enable)
 //-----------------------------------------------------------------------------
 bool vpViewCore::updateImageMatrices()
 {
-  vtkSmartPointer<vtkMatrix4x4> imageToLatLon =
-    this->ImageSource->GetImageToWorldMatrix();
+  vtkSmartPointer<vtkMatrix4x4> imageToLatLon;
+  if (this->HomographyReferenceFrame > -1)
+    {
+    vtkSmartPointer<vtkMatrix4x4> refToWorld =
+      vtkSmartPointer<vtkMatrix4x4>::New();
+
+    // Initially world (the image reference frame) to homography ref, but
+    // invert to get ref to world
+    this->getHomography(this->HomographyReferenceFrame, refToWorld);
+    vtkMatrix4x4::Invert(refToWorld, refToWorld);
+
+    vtkSmartPointer<vtkMatrix4x4> imageToRef =
+      vtkSmartPointer<vtkMatrix4x4>::New();
+    this->getHomography(this->CurrentFrame, imageToRef);
+    vtkMatrix4x4::Multiply4x4(refToWorld, imageToRef, this->ImageToWorldMatrix);
+
+    this->ImageSource->UpdateInformation();
+    int dim[2];
+    if (!this->ImageSource->GetRasterDimensions(dim))
+      {
+      this->ImageSource->GetDimensions(dim);
+      }
+
+    // Pre and post apply yflip due to inverted y in homographies
+    this->YFlipMatrix->SetElement(1, 3, dim[1]);
+    vtkMatrix4x4::Multiply4x4(this->ImageToWorldMatrix, this->YFlipMatrix,
+                              this->ImageToWorldMatrix);
+    this->YFlipMatrix->SetElement(1, 3, this->HomographyReferenceImageHeight);
+    vtkMatrix4x4::Multiply4x4(this->YFlipMatrix, this->ImageToWorldMatrix,
+                              this->ImageToWorldMatrix);
+
+    vtkMatrix4x4::Invert(this->ImageToWorldMatrix, this->WorldToImageMatrix);
+    return true;
+    }
+  else
+    {
+    imageToLatLon = this->ImageSource->GetImageToWorldMatrix();
+    }
 
   if (!imageToLatLon)
     {
@@ -8340,6 +8784,8 @@ vtkVgTrack* vpViewCore::makeTrack(int id, int session)
   track->SetId(id);
   track->SetPoints(trackModel->GetPoints());
   track->SetUserCreated(true);
+  track->SetInterpolateToGround(this->InterpolateToGround &&
+    this->TrackStorageMode == vpTrackIO::TSM_HomographyTransformedImageCoords);
 
   double color[3];
   vpTrackIO::GetDefaultTrackColor(id, color);
@@ -8406,7 +8852,7 @@ void vpViewCore::setGraphRenderingEnabled(bool enable)
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::updateColorofTracksOfType(int typeIndex, double *rgb)
+void vpViewCore::updateColorofTracksOfType(int typeIndex, double* rgb)
 {
   for (size_t i = 0, size = this->Projects.size(); i < size; ++i)
     {
@@ -8436,7 +8882,7 @@ int findToken(const QStringList& fields, const QString& token,
 void vpViewCore::startExternalProcess(QString program, QStringList fields,
                                       QString ioPath)
 {
-  fields.replaceInStrings(QRegExp("^\\s*|\\s*$"),"");
+  fields.replaceInStrings(QRegExp("^\\s*|\\s*$"), "");
 
   static int uniqueFilenameCounter = 0;
   bool startExternalProcessAfterFilterExport = false;
@@ -8457,7 +8903,8 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
         {
         if (!ioDir.mkpath(ioDir.absolutePath()))
           {
-          QMessageBox::warning(0, "External Process Error!",
+          QMessageBox::warning(
+            0, "External Process Error!",
             "Unable to create ioDirectory; process aborted!");
           return;
           }
@@ -8465,10 +8912,13 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
 
       if (findToken(fields, "${PI}", Qt::CaseInsensitive) != -1)
         {
-        QFileInfo inputFI(ioDir,
-          QString("fseQuery_%1.json").arg(uniqueFilenameCounter));
+        QFileInfo inputFI(ioDir, QString("fseQuery_%1.json")
+                                   .arg(uniqueFilenameCounter));
         processInput = inputFI.absoluteFilePath();
-        if (!currentProject->ModelIO->WriteFseTracks(qPrintable(processInput)))
+        // Offset parameter always 0 when running external process. If desired
+        // in another coordinate system, can export manually.
+        if (!currentProject->ModelIO->WriteFseTracks(
+               qPrintable(processInput), {0, 0}))
           {
           QMessageBox::warning(0, "vpView", "Error writing scene elements file.");
           return;
@@ -8476,8 +8926,8 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
         }
       if (findToken(fields, "${PO}", Qt::CaseInsensitive) != -1)
         {
-        QFileInfo outputFI(ioDir,
-          QString("processOutput_%1.txt").arg(uniqueFilenameCounter++));
+        QFileInfo outputFI(ioDir, QString("processOutput_%1.txt")
+                                    .arg(uniqueFilenameCounter++));
         processOutput = outputFI.absoluteFilePath();
         if (this->ExternalExecuteMode == 0 || this->ExternalExecuteMode == 2)
           {
@@ -8493,8 +8943,8 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
         } // Process output file (PO)
       if (findToken(fields, "${GF}", Qt::CaseInsensitive) != -1)
         {
-        QFileInfo outputFI(ioDir,
-          QString("graphModel_%1.json").arg(uniqueFilenameCounter++));
+        QFileInfo outputFI(ioDir, QString("graphModel_%1.json")
+                                    .arg(uniqueFilenameCounter++));
         graphOutput = outputFI.absoluteFilePath();
         emit this->graphModelExportRequested(graphOutput);
         }
@@ -8505,7 +8955,8 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
       {
       if (currentProject->FiltersFile.isEmpty())
         {
-        QMessageBox::warning(0, QString(),
+        QMessageBox::warning(
+          0, QString(),
           "Aborting process execution; "
           "Input project FiltersFile is empty, but must be set.");
         return;
@@ -8556,6 +9007,80 @@ void vpViewCore::startExternalProcess(QString program, QStringList fields,
   else
     {
     this->startExternalProcess();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::createCropRegionActor()
+{
+  if (!this->CropRegionActor)
+    {
+    this->CropRegionActor = vtkSmartPointer<vtkActor>::New();
+    this->CropRegionPoints = vtkSmartPointer<vtkPoints>::New();
+
+    vtkSmartPointer<vtkPolyData> pD  = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkCellArray> lines =
+      vtkSmartPointer<vtkCellArray>::New();
+    vtkSmartPointer<vtkPolyDataMapper> pDMapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkUnsignedCharArray> colors =
+      vtkSmartPointer<vtkUnsignedCharArray>::New();
+
+    this->CropRegionPoints->SetNumberOfPoints(4);
+
+    vtkIdType ids[] = { 0, 1, 2, 3, 0 };
+    lines->InsertNextCell(5, ids);
+
+    colors->SetNumberOfComponents(4);
+    colors->SetName("Colors");
+    colors->InsertNextTuple4(50, 250, 60, 255);
+
+    pD->GetCellData()->SetScalars(colors);
+    pD->SetPoints(this->CropRegionPoints);
+    pD->SetLines(lines);
+    pDMapper->SetInputData(pD);
+    this->CropRegionActor->SetMapper(pDMapper);
+
+    this->SceneRenderer->AddActor(this->CropRegionActor);
+
+    this->CropRegionActor->VisibilityOff();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::createBundleRegionActor()
+{
+  if (!this->BundleRegionActor)
+    {
+    this->BundleRegionActor = vtkSmartPointer<vtkActor>::New();
+    this->BundleRegionPoints = vtkSmartPointer<vtkPoints>::New();
+
+    vtkSmartPointer<vtkPolyData> pD  = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkCellArray> lines =
+      vtkSmartPointer<vtkCellArray>::New();
+    vtkSmartPointer<vtkPolyDataMapper> pDMapper =
+      vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkUnsignedCharArray> colors =
+      vtkSmartPointer<vtkUnsignedCharArray>::New();
+
+    this->BundleRegionPoints->SetNumberOfPoints(4);
+
+    vtkIdType ids[] = { 0, 1, 2, 3, 0 };
+    lines->InsertNextCell(5, ids);
+
+    colors->SetNumberOfComponents(4);
+    colors->SetName("Colors");
+    colors->InsertNextTuple4(220, 250, 20, 255);
+
+    pD->GetCellData()->SetScalars(colors);
+    pD->SetPoints(this->BundleRegionPoints);
+    pD->SetLines(lines);
+    pDMapper->SetInputData(pD);
+    this->BundleRegionActor->SetMapper(pDMapper);
+
+    this->SceneRenderer->AddActor(this->BundleRegionActor);
+
+    this->BundleRegionActor->VisibilityOff();
     }
 }
 
@@ -8659,7 +9184,7 @@ void vpViewCore::executeEmbeddedPipeline(
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::toWindowCoordinates(double &x, double &y)
+void vpViewCore::toWindowCoordinates(double& x, double& y)
 {
   if (!this->Projects.empty())
     {
@@ -8675,7 +9200,7 @@ void vpViewCore::toWindowCoordinates(double (&xy)[2])
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::toGraphicsCoordinates(double &x, double &y)
+void vpViewCore::toGraphicsCoordinates(double& x, double& y)
 {
   if (!this->Projects.empty())
     {
@@ -8700,13 +9225,15 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
     }
 
   disconnect(this->FileSystemWatcher, SIGNAL(fileChanged(QString)), this,
-          SLOT(reactToExternalProcessFileChanged(QString)));
+             SLOT(reactToExternalProcessFileChanged(QString)));
   this->FileSystemWatcher->removePath(changedFile);
 
-# if 0
+  const int session = this->SessionView->GetCurrentSession();
+  vpProject* const currentProject = this->Projects[session];
+
+#if 0
   // if filters file is set, wipe out all existing filters before loading
-  if (!this->Projects[this->SessionView->GetCurrentSession()]->
-                                                      FiltersFile.empty())
+  if (!currentProject->FiltersFile.empty())
     {
     emit removeAllFilters();
     }
@@ -8718,9 +9245,9 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
     {
     oldFileSize = fileSize;
     QTime waitUntil = QTime::currentTime().addSecs(2);
-    while(QTime::currentTime() < waitUntil) {}
+    while (QTime::currentTime() < waitUntil) {}
     fileSize = fileInfo.size();
-    } while(fileSize != oldFileSize);
+    } while (fileSize != oldFileSize);
 
   if (this->ExecutedExternalProcessMode == 1)  // Learning mode
     {
@@ -8731,9 +9258,8 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
   // Copy the current project and update the scene element file
   static int memoryProjectCounter = 0;
   QScopedPointer<vpProject> project(new vpProject(this->CurrentProjectId++));
-  project->CopyConfig(*this->Projects[this->SessionView->GetCurrentSession()]);
-  QString projectName =
-    this->Projects[this->SessionView->GetCurrentSession()]->Name;
+  project->CopyConfig(*currentProject);
+  QString projectName = currentProject->Name;
   projectName += QString(".%1").arg(memoryProjectCounter++);
   project->Name = projectName;
 
@@ -8767,4 +9293,144 @@ void vpViewCore::reactToExternalProcessFileChanged(QString changedFile)
     }
 
   this->loadProject(project);
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setHomography(unsigned int frameIndex,
+                               vtkMatrix4x4* homography)
+{
+  this->FrameMap->setImageHomography(
+    this->ImageDataSource->getDataFile(frameIndex), homography);
+}
+
+//-----------------------------------------------------------------------------
+bool vpViewCore::getHomography(unsigned int frameIndex,
+                               vtkMatrix4x4* homography) const
+{
+  vpFrame frameValue;
+  if (this->FrameMap->getFrame(frameIndex, frameValue) &&
+      frameValue.Homography)
+    {
+    homography->DeepCopy(frameValue.Homography);
+    return true;
+    }
+  else if (this->UseGeoCoordinates)
+    {
+    vtkSmartPointer<vtkVgBaseImageSource> imageSource;
+    std::string imageFile = this->ImageDataSource->getDataFile(frameIndex);
+    if (imageFile.empty())
+      {
+      return false;
+      }
+    imageSource.TakeReference(
+      vpImageSourceFactory::GetInstance()->Create(imageFile));
+    imageSource->SetFileName(imageFile.c_str());
+    imageSource->UpdateInformation();
+    vtkSmartPointer<vtkMatrix4x4> imageToLatLon =
+      imageSource->GetImageToWorldMatrix();
+
+    vtkMatrix4x4::Multiply4x4(this->LatLonToWorldMatrix, imageToLatLon,
+                              this->ImageToWorkingWorldMatrix);
+
+    // Convert from and back to vidtk coordinates (Y down instead of up)
+    vtkSmartPointer<vtkMatrix4x4> fromVidtk =
+      vtkSmartPointer<vtkMatrix4x4>::New();
+    fromVidtk->SetElement(1, 1, -1);
+    fromVidtk->SetElement(1, 3, this->FirstImageY - 1);
+    vtkMatrix4x4::Multiply4x4(fromVidtk, this->ImageToWorkingWorldMatrix,
+                              this->ImageToWorkingWorldMatrix);
+
+    vtkSmartPointer<vtkMatrix4x4> backToVidtk =
+      vtkSmartPointer<vtkMatrix4x4>::New();
+    backToVidtk->SetElement(1, 1, -1);
+    int dim[2];
+    imageSource->GetRasterDimensions(dim);
+    backToVidtk->SetElement(1, 3, dim[1] - 1);
+    vtkMatrix4x4::Multiply4x4(this->ImageToWorkingWorldMatrix, backToVidtk,
+                              this->ImageToWorkingWorldMatrix);
+
+    homography->DeepCopy(this->ImageToWorkingWorldMatrix);
+    return true;
+    }
+
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setHomographyReferenceFrame(int refFrame, int refImageHeight)
+{
+  this->HomographyReferenceFrame = refFrame;
+  this->HomographyReferenceImageHeight = refImageHeight;
+  if (refFrame < 0 && !this->UseGeoCoordinates)
+    {
+    this->ImageToWorldMatrix->Identity();
+    this->WorldToImageMatrix->Identity();
+    this->forceRender();
+    }
+}
+
+//-----------------------------------------------------------------------------
+QString vpViewCore::cameraDirectory() const
+{
+  return this->CameraDirectory;
+}
+
+//-----------------------------------------------------------------------------
+QString vpViewCore::depthConfigFile() const
+{
+  return this->DepthConfigFile;
+}
+
+//-----------------------------------------------------------------------------
+double vpViewCore::colorWindow() const
+{
+  return this->ImageActor[1]->GetProperty()->GetColorWindow();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setColorWindow(double colorWindow)
+{
+  this->ImageActor[1]->GetProperty()->SetColorWindow(colorWindow);
+  this->forceRender();
+}
+
+//-----------------------------------------------------------------------------
+double vpViewCore::colorLevel() const
+{
+  return this->ImageActor[1]->GetProperty()->GetColorLevel();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::setColorLevel(double colorLevel)
+{
+  this->ImageActor[1]->GetProperty()->SetColorLevel(colorLevel);
+  this->forceRender();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::zoomIn()
+{
+  vtkVgInteractorStyleRubberBand2D::SafeDownCast(
+    this->RenderWindow->GetInteractor()->GetInteractorStyle())->
+      OnMouseWheelForward();
+}
+
+//-----------------------------------------------------------------------------
+void vpViewCore::zoomOut()
+{
+  vtkVgInteractorStyleRubberBand2D::SafeDownCast(
+    this->RenderWindow->GetInteractor()->GetInteractorStyle())->
+      OnMouseWheelBackward();
+}
+
+//-----------------------------------------------------------------------------
+QString vpViewCore::bundleAdjustmentConfigFile() const
+{
+  return this->BundleAdjustmentConfigFile;
+}
+
+//-----------------------------------------------------------------------------
+bool vpViewCore::getProjectSpecifiedReferenceFrame() const
+{
+  return this->ProjectSpecifiedReferenceFrame;
 }

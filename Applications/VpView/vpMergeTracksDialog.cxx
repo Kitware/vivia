@@ -702,6 +702,8 @@ bool vpMergeTracksDialog::extendEventTrack(vtkVgEvent* event,
                                            const vtkVgTimeStamp& extendedStart,
                                            const vtkVgTimeStamp& extendedEnd)
 {
+  QTE_D(vpMergeTracksDialog);
+
   // Extending one track of a multi-track event is probably not a valid change
   // without knowing the meaning of the individual tracks in the event.
   if (event->GetNumberOfTracks() != 1)
@@ -738,6 +740,10 @@ bool vpMergeTracksDialog::extendEventTrack(vtkVgEvent* event,
     changed = true;
     }
 
+  if (changed)
+    {
+    d->ViewCore->UpdateEventModifiedTime();
+    }
   return changed;
 }
 
@@ -808,5 +814,9 @@ bool vpMergeTracksDialog::mergeEvents(std::vector<vtkVgEvent*>& events,
       }
     }
 
+  if (changed)
+    {
+    d->ViewCore->UpdateEventModifiedTime();
+    }
   return changed;
 }

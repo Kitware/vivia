@@ -327,6 +327,7 @@ void vpObjectInfoPanel::StartFrameChanged(int val)
     this->ParentTrackChangesToApply = true;
     this->UpdateParentTrackEventTimes();
     this->EventModel->Modified();
+    this->ViewCoreInstance->UpdateEventModifiedTime();
     this->ViewCoreInstance->updateScene();
     }
 }
@@ -364,6 +365,7 @@ void vpObjectInfoPanel::EndFrameChanged(int val)
     this->ParentTrackChangesToApply = true;
     this->UpdateParentTrackEventTimes();
     this->EventModel->Modified();
+    this->ViewCoreInstance->UpdateEventModifiedTime();
     this->ViewCoreInstance->updateScene();
     }
 }
@@ -398,6 +400,7 @@ void vpObjectInfoPanel::EditTrackInfo()
   else
     {
     bool ok;
+    bool modified = false;
     int id = this->Ui->trackIdEdit->text().toInt(&ok);
 
     vgObjectTypeDefinitions::enumObjectTypes objectType =
@@ -420,6 +423,7 @@ void vpObjectInfoPanel::EditTrackInfo()
         // update the id
         this->TrackModel->SetTrackId(this->Track, id);
         emit this->ObjectIdChanged(objectType, this->Track->GetId());
+        modified = true;
         }
       }
     this->Ui->trackIdWidget->setCurrentIndex(0);
@@ -466,6 +470,19 @@ void vpObjectInfoPanel::EditTrackInfo()
 
       this->TrackModel->Modified();
       emit this->ObjectTypeChanged(objectType, this->Track->GetId());
+      modified = true;
+      }
+
+    if (modified)
+      {
+      if (objectType == vgObjectTypeDefinitions::SceneElement)
+        {
+        this->ViewCoreInstance->UpdateSceneElementModifiedTime();
+        }
+      else
+        {
+        this->ViewCoreInstance->UpdateTrackModifiedTime();
+        }
       }
     }
 }

@@ -16,17 +16,19 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
   std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
   vtkVpTrackModel* trackModel,
   TrackStorageMode storageMode,
+  bool interpolateToGround,
   TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes,
+  vgAttributeSet* trackAttributes,
   vtkMatrix4x4* geoTransform,
   vpFrameMap* frameMap) :
   vpVidtkTrackIO(reader, trackMap, sourceIdToModelIdMap, trackModel,
-                 storageMode, timeStampMode, trackTypes, geoTransform,
-                 frameMap)
+                 storageMode, interpolateToGround, timeStampMode, trackTypes,
+                 trackAttributes, geoTransform, frameMap)
 {}
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileTrackIO::ReadTracks()
+bool vpVidtkFileTrackIO::ReadTracks(int frameOffset)
 {
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
   const auto& tracksFileName = reader.GetTracksFileName();
@@ -35,18 +37,20 @@ bool vpVidtkFileTrackIO::ReadTracks()
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
                                      trackRegionMap);
 
-  if (!vpVidtkTrackIO::ReadTracks(&trackRegionMap))
+  if (!vpVidtkTrackIO::ReadTracks(frameOffset, &trackRegionMap))
     {
     return false;
     }
 
   vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  vpFileTrackIOImpl::ReadAttributesFile(this, tracksFileName,
+                                        this->TrackAttributes);
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
+bool vpVidtkFileTrackIO::ImportTracks(int frameOffset, vtkIdType idsOffset,
                                       float offsetX, float offsetY)
 {
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
@@ -56,13 +60,15 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
   vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
                                      trackRegionMap);
 
-  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, idsOffset,
-                                    offsetX, offsetY))
+  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, frameOffset,
+                                    idsOffset, offsetX, offsetY))
     {
     return false;
     }
 
   vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  vpFileTrackIOImpl::ReadAttributesFile(this, tracksFileName,
+                                        this->TrackAttributes);
 
   return true;
 }
@@ -73,4 +79,13 @@ bool vpVidtkFileTrackIO::ReadTrackTraits()
   return vpFileTrackIOImpl::ReadTrackTraits(
            this, static_cast<const vpVidtkFileReader&>(
                    this->GetReader()).GetTrackTraitsFileName());
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkFileTrackIO::ReadTrackClassifiers()
+{
+  auto& reader =
+    static_cast<const vpVidtkFileReader&>(this->GetReader());
+  return vpFileTrackIOImpl::ReadTrackClassifiers(
+           this, reader.GetTrackClassifiersFileName());
 }

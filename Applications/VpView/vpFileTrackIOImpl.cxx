@@ -6,14 +6,24 @@
 
 #include "vpFileTrackIOImpl.h"
 
+#include "vpFrameMap.h"
 #include "vpTrackIO.h"
 #include "vtkVpTrackModel.h"
 
+#include <qtKstReader.h>
+
+#include <vtkVgScalars.h>
 #include <vtkVgTrack.h>
 #include <vtkVgTrackTypeRegistry.h>
+#include <vtkVgUtil.h>
+
+#include <vgAttributeSet.h>
+
 
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
+
+#include <QUrl>
 
 #include <iterator>
 #include <limits>
@@ -42,6 +52,45 @@ bool vpFileTrackIOImpl::ReadTrackTraits(vpTrackIO* io,
       }
 
     track->SetNormalcy(normalcy);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpFileTrackIOImpl::ReadTrackClassifiers(
+  vpTrackIO* io, const std::string& trackClassifiersFileName)
+{
+  // Read P/V/O's
+  // TODO read TOC's instead
+  qtKstReader reader(QUrl::fromLocalFile(trackClassifiersFileName.c_str()),
+                     QRegExp("\\s+"), QRegExp("\n"));
+  if (!reader.isValid())
+    {
+    return false;
+    }
+
+  // Process the P/V/O's
+  while (!reader.isEndOfFile())
+    {
+    int id;
+    double pvo[3];
+    if (reader.readInt(id, 0) &&
+        reader.readReal(pvo[0], 1) &&
+        reader.readReal(pvo[1], 2) &&
+        reader.readReal(pvo[2], 3))
+      {
+      vtkVgTrack* track = io->TrackModel->GetTrack(id);
+      if (!track)
+        {
+        std::cerr << "Unknown track id: " << id << '\n';
+        }
+      else
+        {
+        track->SetPVO(pvo);
+        }
+      }
+    reader.nextRecord();
     }
 
   return true;
@@ -89,10 +138,76 @@ void vpFileTrackIOImpl::ReadTypesFile(vpTrackIO* io,
 }
 
 //-----------------------------------------------------------------------------
-bool vpFileTrackIOImpl::ReadRegionsFile(vpTrackIO* io,
-                                        const std::string& tracksFileName,
-                                        float offsetX, float offsetY,
-                                        TrackRegionMap& trackRegionMap)
+bool vpFileTrackIOImpl::ReadAttributesFile(
+  vpTrackIO* io, const std::string& tracksFileName,
+  vgAttributeSet* trackAttributes)
+{
+  auto trackAttributesFileName = tracksFileName + ".attributes";
+
+  // Load track attributes
+  if (vtksys::SystemTools::FileExists(trackAttributesFileName.c_str(), true))
+    {
+    std::ifstream file(trackAttributesFileName.c_str());
+
+    // Read and set the attributes (first clear any existing attributes)
+    trackAttributes->Clear();
+    io->TrackModel->InitTrackTraversal();
+    vtkSmartPointer<vtkVgScalars> attrScalars;
+    while (vtkVgTrack* track = io->TrackModel->GetNextTrack().GetTrack())
+      {
+      attrScalars = vtkSmartPointer<vtkVgScalars>::New();
+      attrScalars->SetNotFoundValue(0.0);
+      track->SetScalars("DetectionAttributes", attrScalars);
+      }
+
+    std::string label;
+    int numAttributes;
+    file >> label >> numAttributes;
+    std::string groupName, attributeName;
+    unsigned int bitShift;
+    vtkTypeUInt64 one = 1;
+    for (int i = 0; i < numAttributes; ++i)
+      {
+      file >> groupName >> attributeName >> bitShift;
+      trackAttributes->SetMask(groupName, attributeName, (one << bitShift));
+      }
+
+    int id;
+    int frameNumber;
+    while (file >> id >> frameNumber >> numAttributes)
+      {
+      vtkVgTrack* track = io->TrackModel->GetTrack(io->GetModelTrackId(id));
+      if (!track)
+        {
+        std::cerr << trackAttributesFileName << ": track " << id
+                  << " does not exist!\n";
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        continue;
+        }
+
+      vtkTypeUInt64 attributeValue = 0;
+      for (int i = 0; i < numAttributes; ++i)
+        {
+        file >> bitShift;
+        attributeValue |= (one << bitShift);
+        }
+
+      vtkVgTimeStamp ts;
+      ts.SetFrameNumber(frameNumber);
+
+      track->GetScalars("DetectionAttributes")->InsertValue(
+        ts, static_cast<double>(attributeValue));
+      }
+    }
+
+   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpFileTrackIOImpl::ReadRegionsFile(
+  vpTrackIO* io, const std::string& tracksFileName,
+  float offsetX, float offsetY,
+  TrackRegionMap& trackRegionMap)
 {
   std::string trackRegions(tracksFileName);
   trackRegions += ".regions";

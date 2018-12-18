@@ -196,6 +196,10 @@ public:
   vtkSetMacro(InterpolateMissingPointsOnInsert, bool);
   vtkGetMacro(InterpolateMissingPointsOnInsert, bool);
 
+  vtkSetMacro(InterpolateToGround, bool);
+  vtkGetMacro(InterpolateToGround, bool);
+  vtkBooleanMacro(InterpolateToGround, bool);
+
   // Description:
   // Set/Get the delta between "frames", or at least the delta we want to
   // interpolate at when inserting points.
@@ -397,6 +401,7 @@ private:
   unsigned char Flags;
   unsigned char DisplayFlags;
 
+  bool InterpolateToGround;
   bool InterpolateMissingPointsOnInsert;
   vtkVgTimeStamp InterpolationSpacing;
 

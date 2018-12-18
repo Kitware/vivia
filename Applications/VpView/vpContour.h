@@ -48,6 +48,12 @@ public:
 
   virtual bool CanInteract(int X, int Y);
 
+  void SetPointSize(float pointSize);
+  float GetPointSize();
+
+  void SetActivePointSize(float pointSize);
+  float GetActivePointSize();
+
   void SetTimeStamp(vtkVgTimeStamp& timeStamp)
     {
     this->TimeStamp = timeStamp;

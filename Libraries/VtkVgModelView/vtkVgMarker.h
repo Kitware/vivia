@@ -17,6 +17,7 @@
 #include <vtkSmartPointer.h>
 
 // Forward declarations
+class vtkPoints;
 class vtkRenderer;
 
 // Single entity that represents a video with optional child models.
@@ -71,6 +72,43 @@ public:
   vtkGetVector3Macro(SelectionColor, double);
   vtkSetVector3Macro(SelectionColor, double);
 
+  enum MarkerSizeModeType
+    {
+    MSM_FixedScreenSize,    // Fixed screen size, regardless of zoom level
+    MSM_SceneCoordinates    // Size specified in coordinates of the scene
+    };
+
+  // Description:
+  // Set/Get the mode for determining marker size
+  //
+  // Default is MSM_FixedScreenSize.
+  void SetMarkerSizeMode(MarkerSizeModeType sizeMode);
+  void SetMarkerSizeModeToFixedScreenSize()
+    {
+    this->SetMarkerSizeMode(MSM_FixedScreenSize);
+    }
+  void SetMarkerSizeModeToSceneCoordinates()
+    {
+    this->SetMarkerSizeMode(MSM_SceneCoordinates);
+    }
+  vtkGetMacro(MarkerSizeMode, MarkerSizeModeType);
+  const char *GetMarkerSizeModeAsString();
+
+  // Description:
+  // Get/Set the marker size - depending on the MarkerSizeMode, the value is
+  // either used as a screen size (MSM_FixedScreenSize) or as the circle radius
+  // specified in coordinates of the scene (MSM_SceneCoordinates).
+  //
+  // Default is 10.0.
+  void SetMarkerSize(double markerSize);
+  vtkGetMacro(MarkerSize, double);
+
+  // Description
+  // Get/Set the set of points defining a region (polygon) to represent the
+  // marker. If set to 0 (default), a glyph /circle shape is used.
+  virtual void SetRegionPoints(vtkPoints*);
+  vtkGetObjectMacro(RegionPoints, vtkPoints);
+
   // Description:
   // Set the renderer.
   //
@@ -97,9 +135,14 @@ protected:
 
   bool Selected;
 
+  MarkerSizeModeType MarkerSizeMode;
+  double MarkerSize;
+
   double MarkerPosition[3];
   double DefaultColor[3];
   double SelectionColor[3];
+
+  vtkPoints* RegionPoints;
 
   vtkVgMarker();
   virtual ~vtkVgMarker();
@@ -112,4 +155,18 @@ private:
   void operator=(const vtkVgMarker&);   // Not implemented.
 };
 
+//BTX
+inline const char* vtkVgMarker::GetMarkerSizeModeAsString()
+  {
+  switch (this->MarkerSizeMode)
+    {
+    case MSM_FixedScreenSize:
+      return "FixedScreenSize";
+    case MSM_SceneCoordinates:
+      return "SceneCoordinates";
+    default:
+      return "Unrecognized";
+    }
+  }
+//ETX
 #endif // __vtkVgMarker_h

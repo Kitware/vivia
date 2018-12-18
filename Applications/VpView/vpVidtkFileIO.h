@@ -19,8 +19,10 @@ public:
 
   virtual void SetTrackModel(vtkVpTrackModel* trackModel,
                              vpTrackIO::TrackStorageMode storageMode,
+                             bool interpolateToGround,
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
+                             vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
                              vpFrameMap* frameMap);
 
@@ -35,6 +37,9 @@ public:
 
   void SetTrackTraitsFileName(const char* trackTraitsFileName)
     { this->Reader.SetTrackTraitsFileName(trackTraitsFileName); }
+
+  void SetTrackClassifiersFileName(const char* trackClassifiersFileName)
+    { this->Reader.SetTrackClassifiersFileName(trackClassifiersFileName); }
 
   void SetEventsFileName(const char* eventsFileName)
     { this->Reader.SetEventsFileName(eventsFileName); }

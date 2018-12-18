@@ -61,6 +61,11 @@ public:
   // no part of the contour comes near the display point.
   int FindClosestPoint(int X, int Y, double pos[3]);
 
+  // Description:
+  // Set/Get the Z offset to be applied to the lines actor
+  void SetZOffset(double offset);
+  vtkGetMacro(ZOffset, double);
+
 protected:
   vtkVgContourRepresentation();
   ~vtkVgContourRepresentation();
@@ -76,6 +81,7 @@ private:
   vtkPoints* TransformedPoints;
   vtkPoints* Points;
   vtkTimeStamp PointsBuildTime;
+  double ZOffset;
 };
 
 #endif

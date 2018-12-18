@@ -15,6 +15,8 @@
 
 class QUrl;
 
+class vgAttributeSet;
+
 class vpVdfIO;
 
 class vpVdfTrackIOPrivate;
@@ -24,16 +26,17 @@ class vpVdfTrackIO : public vpTrackIO
 public:
   vpVdfTrackIO(
     vpVdfIO* base, vtkVpTrackModel* trackModel,
-    TrackStorageMode storageMode, TrackTimeStampMode timeStampMode,
-    vtkVgTrackTypeRegistry* trackTypes, vtkMatrix4x4* geoTransform,
+    TrackStorageMode storageMode, bool interpolateToGround,
+    TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
+    vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
     vpFrameMap* frameMap);
 
   virtual ~vpVdfTrackIO();
 
   void SetTracksUri(const QUrl&);
 
-  virtual bool ReadTracks() QTE_OVERRIDE;
-  virtual bool WriteTracks(const char*, bool) const QTE_OVERRIDE
+  virtual bool ReadTracks(int frameOffset) QTE_OVERRIDE;
+  virtual bool WriteTracks(const char*, int, QPointF, bool) const QTE_OVERRIDE
     { return false; }
 
 protected:

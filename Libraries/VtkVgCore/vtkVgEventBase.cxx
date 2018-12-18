@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -124,6 +124,8 @@ public:
   std::map<vtkVgTimeStamp, std::vector<vtkIdType> > RegionPtIds;
   std::map<vtkVgTimeStamp, std::vector<vtkIdType> >::iterator RegionIterator;
 
+  std::map<vtkVgTimeStamp, vgGeocodedPoly> GeodeticRegions;
+
   vtkInternal()
     {
     this->ActiveClassifierScore = -1;
@@ -141,6 +143,8 @@ public:
     this->ClassifierIterator = this->Classifiers.end();
     this->ActiveClassifierScore = source->ActiveClassifierScore;
     this->ActiveClassifierType = source->ActiveClassifierType;
+
+    this->GeodeticRegions = source->GeodeticRegions;
 
     if (copyRegionPtIds)
       {
@@ -200,10 +204,20 @@ void vtkVgEventBase::ClearTracks()
 //-----------------------------------------------------------------------------
 void vtkVgEventBase::ClearRegions()
 {
-  if (this->Internal->RegionPtIds.size() > 0)
+  if (!this->Internal->RegionPtIds.empty())
     {
     this->Internal->RegionPtIds.clear();
     this->Internal->RegionIterator = this->Internal->RegionPtIds.end();
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgEventBase::ClearGeodeticRegions()
+{
+  if (!this->Internal->GeodeticRegions.empty())
+    {
+    this->Internal->GeodeticRegions.clear();
     this->Modified();
     }
 }
@@ -389,7 +403,7 @@ bool vtkVgEventBase::GetRegionCenter(const vtkVgTimeStamp& timeStamp,
                                      double* center,
                                      bool interpolated)
 {
-  if (this->Internal->RegionPtIds.size() < 1)
+  if (this->Internal->RegionPtIds.empty())
     {
     return false;
     }
@@ -465,7 +479,7 @@ void vtkVgEventBase::AddRegion(const vtkVgTimeStamp& timeStamp,
   size_t numberOfRegionPts = region.size();
 
   // only add if at least 1 point AND region for this timeStamp not already set
-  if (region.size() > 0 &&
+  if (numberOfRegionPts > 0 &&
       this->Internal->RegionPtIds.find(timeStamp) ==
       this->Internal->RegionPtIds.end())
     {
@@ -545,9 +559,9 @@ std::map<vtkVgTimeStamp, vgPolygon2d> vtkVgEventBase::GetRegions() const
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vtkVgEventBase::GetNumberOfRegions() const
+std::size_t vtkVgEventBase::GetNumberOfRegions() const
 {
-  return static_cast<unsigned int>(this->Internal->RegionPtIds.size());
+  return this->Internal->RegionPtIds.size();
 }
 
 //-----------------------------------------------------------------------------
@@ -571,6 +585,30 @@ bool vtkVgEventBase::GetNextRegion(vtkVgTimeStamp& timeStamp, vtkIdType& npts,
 
   ++this->Internal->RegionIterator;
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgEventBase::AddGeodeticRegion(const vtkVgTimeStamp& timeStamp,
+                                       const vgGeocodedPoly& region)
+{
+  if (timeStamp.IsValid() && region.GCS != -1 && !region.Coordinate.empty())
+    {
+    this->Internal->GeodeticRegions.insert(std::make_pair(timeStamp, region));
+    this->Modified();
+    }
+}
+
+//-----------------------------------------------------------------------------
+std::map<vtkVgTimeStamp, vgGeocodedPoly>
+vtkVgEventBase::GetGeodeticRegions() const
+{
+  return this->Internal->GeodeticRegions;
+}
+
+//-----------------------------------------------------------------------------
+std::size_t vtkVgEventBase::GetNumberOfGeodeticRegions() const
+{
+  return this->Internal->GeodeticRegions.size();
 }
 
 //-----------------------------------------------------------------------------
@@ -1016,6 +1054,13 @@ void vtkVgEventBase::DeepCopy(vtkVgEventBase* src, bool appendRegionPoints)
 bool vtkVgEventBase::Merge(vtkVgEventBase* other)
 {
   if (this->GetNumberOfRegions() != 0 || other->GetNumberOfRegions() != 0)
+    {
+    vtkErrorMacro("Merging region-based events is not yet supported.");
+    return false;
+    }
+
+  if (this->GetNumberOfGeodeticRegions() != 0 ||
+      other->GetNumberOfGeodeticRegions() != 0)
     {
     vtkErrorMacro("Merging region-based events is not yet supported.");
     return false;

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -34,7 +34,7 @@ vsVideoHelper::~vsVideoHelper()
 
 //-----------------------------------------------------------------------------
 vgVideoFramePtr vsVideoHelper::updateFrame(
-  const vgVideo& video, const vgVideoSeekRequest& request)
+  const vgVideo& video, const vgVideoSeekRequest& request, vgImage& image)
 {
   QTE_D(vsVideoHelper);
 
@@ -52,7 +52,8 @@ vgVideoFramePtr vsVideoHelper::updateFrame(
   vgVideoFramePtr frame = video.frameAt(now, request.Direction);
 
   // Check if the frame is valid and has advanced
-  if (!frame.isValid() || frame.time() == lastTime || !frame.image().isValid())
+  if (!frame.isValid() || frame.time() == lastTime ||
+      !(image = frame.image()).isValid())
     {
     // Nope; return an invalid frame to indicate failure / nothing to do...
     if (request.RequestId >= 0)

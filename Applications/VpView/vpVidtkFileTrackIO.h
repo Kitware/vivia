@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,16 +19,20 @@ public:
                      std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                      vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
+                     bool interpolateToGround,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes = 0,
+                     vgAttributeSet* trackAttributes = 0,
                      vtkMatrix4x4* geoTransform = 0,
                      vpFrameMap* frameMap = 0);
 
-  virtual bool ReadTracks();
+  virtual bool ReadTracks(int frameOffset);
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
   bool ReadTrackTraits();
+  bool ReadTrackClassifiers();
 };
 
 #endif // __vpVidtkFileTrackIO_h
