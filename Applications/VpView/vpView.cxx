@@ -42,7 +42,7 @@
 #include <vgUnixTime.h>
 
 #include <qtCliArgs.h>
-#include <qtScopedSettingsGroup.h>
+#include <qtScopedSettingGroup.h>
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
@@ -3280,17 +3280,15 @@ void vpView::exportTypeFilters(const QString& path)
   QSettings out{path, QSettings::IniFormat};
 
   auto* const ttr = this->Core->getTrackTypeRegistry();
-  with (qtScopedSettingsGroup{out, "Tracks"})
+  qtScopedSettingGroup sg{out, "Tracks"};
+  for (const auto tti : qtIndexRange(ttr->GetNumberOfTypes()))
     {
-    for (const auto tti : qtIndexRange(ttr->GetNumberOfTypes()))
+    const auto v = this->Internal->UI.tocFilter->value(tti);
+    if (std::isfinite(v))
       {
-      const auto v = this->Internal->UI.tocFilter->value(tti);
-      if (std::isfinite(v))
-        {
-        const auto tt = ttr->GetType(tti);
-        const auto ttn = QString::fromLocal8Bit(tt.GetName());
-        out.setValue(ttn, v);
-        }
+      const auto tt = ttr->GetType(tti);
+      const auto ttn = QString::fromLocal8Bit(tt.GetName());
+      out.setValue(ttn, v);
       }
     }
 }
@@ -3311,16 +3309,14 @@ void vpView::importTypeFilters()
 void vpView::importTypeFilters(const QString& path)
 {
   QSettings in{path, QSettings::IniFormat};
-  with (qtScopedSettingsGroup{in, "Tracks"})
+  qtScopedSettingGroup sg{in, "Tracks"};
+  const auto& importedTypes = in.childKeys();
+  for (const auto& ttn : importedTypes)
     {
-    const auto& importedTypes = in.childKeys();
-    for (const auto& ttn : importedTypes)
-      {
-      const auto tti = this->Core->getTrackTypeIndex(qPrintable(ttn));
-      this->Internal->UI.tocFilter->setValue(tti, in.value(ttn).toReal());
-      }
-    this->Core->removeUnusedTrackTypes(importedTypes.toSet());
+    const auto tti = this->Core->getTrackTypeIndex(qPrintable(ttn));
+    this->Internal->UI.tocFilter->setValue(tti, in.value(ttn).toReal());
     }
+  this->Core->removeUnusedTrackTypes(importedTypes.toSet());
 }
 
 //-----------------------------------------------------------------------------
