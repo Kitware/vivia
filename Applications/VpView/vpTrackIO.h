@@ -90,7 +90,7 @@ protected:
   virtual unsigned int GetImageHeight() const = 0;
 
 protected:
-  friend class vpFileTrackIOImpl;
+  friend class vpFileTrackReader;
 
   void AddTrack(vtkVgTrack*);
 

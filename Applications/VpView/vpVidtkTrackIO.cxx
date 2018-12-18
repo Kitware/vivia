@@ -103,7 +103,7 @@ bool vpVidtkTrackIO::ReadTracks(int frameOffset)
 
 //-----------------------------------------------------------------------------
 vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
-  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
+  const vpFileTrackReader::TrackRegionMap* trackRegionMap)
 {
   vtkIdType numberOfRegionPoints = 0, numberOfTrackPoints = 0;
   for (const auto& track : this->Tracks)
@@ -146,7 +146,7 @@ vtkIdType vpVidtkTrackIO::ComputeNumberOfPoints(
 
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ReadTracks(
-  int frameOffset, const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap)
+  int frameOffset, const vpFileTrackReader::TrackRegionMap* trackRegionMap)
 {
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
          this->GeoTransform);
@@ -184,7 +184,7 @@ bool vpVidtkTrackIO::ImportTracks(int frameOffset, vtkIdType idsOffset,
 
 //-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::ImportTracks(
-  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+  const vpFileTrackReader::TrackRegionMap* trackRegionMap,
   int frameOffset, vtkIdType idsOffset, float offsetX, float offsetY)
 {
   assert(this->StorageMode != TSM_TransformedGeoCoords ||
@@ -829,7 +829,7 @@ unsigned int vpVidtkTrackIO::GetImageHeight() const
 //-----------------------------------------------------------------------------
 void vpVidtkTrackIO::ReadTrack(
   const vidtk::track_sptr vidtkTrack, int frameOffset,
-  const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+  const vpFileTrackReader::TrackRegionMap* trackRegionMap,
   float offsetX, float offsetY,
   bool update, unsigned int updateStartFrame, unsigned int updateEndFrame,
   vtkIdType desiredId)

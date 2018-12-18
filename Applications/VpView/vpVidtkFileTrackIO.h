@@ -9,6 +9,8 @@
 
 #include "vpVidtkTrackIO.h"
 
+#include "vpFileTrackReader.h"
+
 class vpVidtkFileReader;
 
 class vpVidtkFileTrackIO : public vpVidtkTrackIO
@@ -33,6 +35,9 @@ public:
 
   bool ReadTrackTraits();
   bool ReadTrackClassifiers();
+
+protected:
+  vpFileTrackReader FileReader;
 };
 
 #endif // __vpVidtkFileTrackIO_h
