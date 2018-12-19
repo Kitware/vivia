@@ -45,6 +45,8 @@ class vpVdfIOPrivate
 public:
   unsigned int ImageHeight;
   QUrl TracksUri;
+  QString TrackTraitsFilePath;
+  QString TrackClassifiersFilePath;
 };
 
 //-----------------------------------------------------------------------------
@@ -77,6 +79,8 @@ void vpVdfIO::SetTrackModel(
   this->TrackIO.reset(trackIO);
 
   trackIO->SetTracksUri(d->TracksUri);
+  trackIO->SetTrackTraitsFilePath(d->TrackTraitsFilePath);
+  trackIO->SetTrackClassifiersFilePath(d->TrackClassifiersFilePath);
 }
 
 //-----------------------------------------------------------------------------
@@ -115,5 +119,27 @@ void vpVdfIO::SetTracksUri(const QUrl& uri)
   if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.get()))
     {
     trackIO->SetTracksUri(uri);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetTrackTraitsFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackTraitsFilePath = filePath;
+  if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.get()))
+    {
+    trackIO->SetTrackTraitsFilePath(filePath);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetTrackClassifiersFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackClassifiersFilePath = filePath;
+  if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.get()))
+    {
+    trackIO->SetTrackClassifiersFilePath(filePath);
     }
 }

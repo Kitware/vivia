@@ -34,10 +34,15 @@ public:
   virtual ~vpVdfTrackIO();
 
   void SetTracksUri(const QUrl&);
+  void SetTrackTraitsFilePath(const QString& filePath);
+  void SetTrackClassifiersFilePath(const QString& filePath);
 
   virtual bool ReadTracks(int frameOffset) QTE_OVERRIDE;
   virtual bool WriteTracks(const char*, int, QPointF, bool) const QTE_OVERRIDE
     { return false; }
+
+  virtual bool ReadTrackTraits() override;
+  virtual bool ReadTrackClassifiers() override;
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);

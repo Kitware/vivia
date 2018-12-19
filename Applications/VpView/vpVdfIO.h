@@ -11,7 +11,9 @@
 
 #include <qtGlobal.h>
 
-#include <QUrl>
+#include <QScopedPointer>
+
+class QUrl;
 
 class vpVdfIOPrivate;
 
@@ -40,6 +42,8 @@ public:
   virtual unsigned int GetImageHeight() const QTE_OVERRIDE;
 
   void SetTracksUri(const QUrl& uri);
+  void SetTrackTraitsFilePath(const QString& filePath);
+  void SetTrackClassifiersFilePath(const QString& filePath);
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfIO);

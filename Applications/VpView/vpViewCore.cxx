@@ -3197,6 +3197,8 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
 
   QSharedPointer<vpVdfIO> io{new vpVdfIO};
   io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
+  io->SetTrackTraitsFilePath(project->TrackTraitsFile);
+  io->SetTrackClassifiersFilePath(project->TrackClassifiersFile);
   project->ModelIO = io;
 
 #endif

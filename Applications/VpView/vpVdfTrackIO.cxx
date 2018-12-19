@@ -7,6 +7,7 @@
 #include "vpVdfTrackIO.h"
 
 #include "vpFrameMap.h"
+#include "vpFileTrackReader.h"
 #include "vpFileUtil.h"
 #include "vpVdfIO.h"
 #include "vtkVpTrackModel.h"
@@ -41,8 +42,11 @@ QTE_IMPLEMENT_D_FUNC(vpVdfTrackIO)
 class vpVdfTrackIOPrivate
 {
 public:
+  vpFileTrackReader FileReader;
   vpVdfIO* Base;
   QUrl TracksUri;
+  QString TrackTraitsFilePath;
+  QString TrackClassifiersFilePath;
 };
 
 //-----------------------------------------------------------------------------
@@ -54,10 +58,8 @@ vpVdfTrackIO::vpVdfTrackIO(
   vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
               trackTypes, geoTransform, frameMap},
-    d_ptr{new vpVdfTrackIOPrivate}
+    d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}}}
 {
-  QTE_D();
-  d->Base = base;
 }
 
 //-----------------------------------------------------------------------------
@@ -77,6 +79,20 @@ void vpVdfTrackIO::SetTracksUri(const QUrl& uri)
 {
   QTE_D();
   d->TracksUri = uri;
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfTrackIO::SetTrackTraitsFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackTraitsFilePath = filePath;
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfTrackIO::SetTrackClassifiersFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackClassifiersFilePath = filePath;
 }
 
 //-----------------------------------------------------------------------------
@@ -269,4 +285,18 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   }
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpVdfTrackIO::ReadTrackTraits()
+{
+  QTE_D();
+  return d->FileReader.ReadTrackTraits(d->TrackTraitsFilePath);
+}
+
+//-----------------------------------------------------------------------------
+bool vpVdfTrackIO::ReadTrackClassifiers()
+{
+  QTE_D();
+  return d->FileReader.ReadTrackClassifiers(d->TrackClassifiersFilePath);
 }
