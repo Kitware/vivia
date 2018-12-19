@@ -101,6 +101,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   QTE_D();
 
   vdfTrackReader reader;
+  QStringList supplementalFileBases;
 
   if (d->TracksUri.isLocalFile())
   {
@@ -121,6 +122,8 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     // Read through each track file
     for (const auto& filePath : files)
     {
+      // TODO read regions
+
       // Construct the track source and track reader
       const auto& trackUri = QUrl::fromLocalFile(filePath);
       QScopedPointer<vdfDataSource> source{
@@ -138,9 +141,17 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
         }
       }
     }
+
+    supplementalFileBases = files;
   }
   else
   {
+    if (d->TracksUri.isLocalFile())
+    {
+      // TODO read regions
+      supplementalFileBases.append(d->TracksUri.toLocalFile());
+    }
+
     // Construct the track source and track reader
     QScopedPointer<vdfDataSource> source{
       vdfSourceService::createArchiveSource(d->TracksUri)};
@@ -157,7 +168,6 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
       }
     }
   }
-
 
   if (!reader.hasData())
   {
@@ -247,6 +257,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
       std::vector<float> shell;
       if (s.ImageObject.empty())
       {
+        // TODO check regions map
         shell.reserve(12);
         const auto& tl = s.ImageBox.TopLeft;
         const auto& br = s.ImageBox.BottomRight;
@@ -282,6 +293,12 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
     track->Close();
     this->AddTrack(track);
+  }
+
+  for (const auto& n : supplementalFileBases)
+  {
+    d->FileReader.ReadTypesFile(n);
+    // TODO attributes?
   }
 
   return true;
