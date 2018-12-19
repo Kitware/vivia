@@ -23,19 +23,19 @@
 
 #include <vtksys/Glob.hxx>
 
+#include <QFileInfo>
 #include <QUrl>
 
 //-----------------------------------------------------------------------------
 bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
 {
-  if (this->TracksFileName.empty())
+  if (this->TracksFileName.isEmpty())
     {
     return false;
     }
 
-  const std::string& ext = this->TracksFileName.substr(
-                             this->TracksFileName.rfind('.') + 1);
-  const QString& extpat = QString("*.%1").arg(qtString(ext));
+  const auto& ext = QFileInfo{this->TracksFileName}.suffix();
+  const QString& extpat = QString("*.%1").arg(ext);
 
   bool supportedFormat = false;
   foreach (const vdfArchivePluginInfo pluginInfo,
@@ -57,7 +57,7 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
 
     // Interpret the specifier as a glob
     vtksys::Glob glob;
-    glob.FindFiles(this->TracksFileName);
+    glob.FindFiles(stdString(this->TracksFileName));
     glob.SetRecurse(true);
     std::vector<std::string>& files = glob.GetFiles();
     if (files.empty())
@@ -164,8 +164,8 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
     trackReaderProcess.set_batch_mode(true);
     vidtk::config_block processConfiguration = trackReaderProcess.params();
     processConfiguration.set("disabled", "false");
-    processConfiguration.set("format", ext);
-    processConfiguration.set("filename", this->TracksFileName);
+    processConfiguration.set("format", stdString(ext));
+    processConfiguration.set("filename", stdString(this->TracksFileName));
 
     if (!trackReaderProcess.set_params(processConfiguration))
       {
@@ -193,13 +193,13 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
 //-----------------------------------------------------------------------------
 bool vpVidtkFileReader::ReadEvents(std::vector<vidtk::event_sptr>& events)
 {
-  if (this->EventsFileName.empty())
+  if (this->EventsFileName.isEmpty())
     {
     return false;
     }
 
   vidtk::event_reader_kwe reader;
-  if (!reader.open(this->EventsFileName))
+  if (!reader.open(stdString(this->EventsFileName)))
     {
     return false;
     }
@@ -224,13 +224,13 @@ bool vpVidtkFileReader::ReadEvents(std::vector<vidtk::event_sptr>& events)
 bool vpVidtkFileReader::ReadActivities(
   std::vector<vidtk::activity_sptr>& activities)
 {
-  if (this->ActivitiesFileName.empty())
+  if (this->ActivitiesFileName.isEmpty())
     {
     return false;
     }
 
   vidtk::activity_reader reader;
-  if (!reader.open(this->ActivitiesFileName))
+  if (!reader.open(stdString(this->ActivitiesFileName)))
     {
     return false;
     }

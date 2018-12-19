@@ -7,7 +7,7 @@
 #ifndef __vpFileEventReader_h
 #define __vpFileEventReader_h
 
-#include <string>
+class QString;
 
 class vpEventIO;
 
@@ -16,7 +16,7 @@ class vpFileEventReader
 public:
   vpFileEventReader(vpEventIO* io);
 
-  bool ReadEventLinks(const std::string& eventLinksFileName) const;
+  bool ReadEventLinks(const QString& eventLinksFileName) const;
 
 protected:
   vpEventIO* const IO;

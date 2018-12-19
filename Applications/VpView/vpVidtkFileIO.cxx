@@ -42,7 +42,7 @@ void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
   this->FseTrackIO.reset(
     new vpFseTrackIO(trackModel, storageMode, interpolateToGround,
                      timeStampMode, trackTypes, geoTransform, frameMap));
-  this->FseTrackIO->SetTracksFileName(this->FseTracksFileName.c_str());
+  this->FseTrackIO->SetTracksFileName(this->FseTracksFileName);
   this->FseTrackIO->SetImageHeight(this->ImageHeight);
 }
 
@@ -76,7 +76,7 @@ unsigned int vpVidtkFileIO::GetImageHeight() const
 }
 
 //-----------------------------------------------------------------------------
-void vpVidtkFileIO::SetFseTracksFileName(const char* fseTracksFileName)
+void vpVidtkFileIO::SetFseTracksFileName(const QString& fseTracksFileName)
 {
   this->FseTracksFileName = fseTracksFileName;
   if (this->FseTrackIO)

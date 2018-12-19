@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2017 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -32,25 +32,25 @@ public:
   virtual void SetImageHeight(unsigned int imageHeight);
   virtual unsigned int GetImageHeight() const;
 
-  void SetTracksFileName(const char* tracksFileName)
+  void SetTracksFileName(const QString& tracksFileName)
     { this->Reader.SetTracksFileName(tracksFileName); }
 
-  void SetTrackTraitsFileName(const char* trackTraitsFileName)
+  void SetTrackTraitsFileName(const QString& trackTraitsFileName)
     { this->Reader.SetTrackTraitsFileName(trackTraitsFileName); }
 
-  void SetTrackClassifiersFileName(const char* trackClassifiersFileName)
+  void SetTrackClassifiersFileName(const QString& trackClassifiersFileName)
     { this->Reader.SetTrackClassifiersFileName(trackClassifiersFileName); }
 
-  void SetEventsFileName(const char* eventsFileName)
+  void SetEventsFileName(const QString& eventsFileName)
     { this->Reader.SetEventsFileName(eventsFileName); }
 
-  void SetEventLinksFileName(const char* eventLinksFileName)
+  void SetEventLinksFileName(const QString& eventLinksFileName)
     { this->Reader.SetEventLinksFileName(eventLinksFileName); }
 
-  void SetActivitiesFileName(const char* activitiesFileName)
+  void SetActivitiesFileName(const QString& activitiesFileName)
     { this->Reader.SetActivitiesFileName(activitiesFileName); }
 
-  void SetFseTracksFileName(const char* fseTracksFileName);
+  void SetFseTracksFileName(const QString& fseTracksFileName);
 
 private:
   virtual vpVidtkReader& GetReader();
@@ -58,7 +58,7 @@ private:
 
 private:
   vpVidtkFileReader Reader;
-  std::string FseTracksFileName;
+  QString FseTracksFileName;
   unsigned int ImageHeight;
 };
 

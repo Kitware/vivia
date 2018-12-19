@@ -10,6 +10,8 @@
 
 #include <vtkVgEventModel.h>
 
+#include <qtStlUtil.h>
+
 //-----------------------------------------------------------------------------
 vpFileEventReader::vpFileEventReader(vpEventIO* io) : IO{io}
 {
@@ -17,9 +19,9 @@ vpFileEventReader::vpFileEventReader(vpEventIO* io) : IO{io}
 
 //-----------------------------------------------------------------------------
 bool vpFileEventReader::ReadEventLinks(
-  const std::string& eventLinksFileName) const
+  const QString& eventLinksFileName) const
 {
-  std::ifstream file(eventLinksFileName.c_str());
+  std::ifstream file(stdString(eventLinksFileName));
   if (!file)
     {
     return false;

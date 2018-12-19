@@ -23,6 +23,9 @@
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <qtStlUtil.h>
+
+#include <QFileInfo>
 #include <QUrl>
 
 #include <iterator>
@@ -35,9 +38,9 @@ vpFileTrackReader::vpFileTrackReader(vpTrackIO* io) : IO{io}
 
 //-----------------------------------------------------------------------------
 bool vpFileTrackReader::ReadTrackTraits(
-  const std::string& trackTraitsFileName) const
+  const QString& trackTraitsFileName) const
 {
-  std::ifstream file(trackTraitsFileName.c_str());
+  std::ifstream file(stdString(trackTraitsFileName));
   if (!file)
     {
     return false;
@@ -64,11 +67,11 @@ bool vpFileTrackReader::ReadTrackTraits(
 
 //-----------------------------------------------------------------------------
 bool vpFileTrackReader::ReadTrackClassifiers(
-  const std::string& trackClassifiersFileName) const
+  const QString& trackClassifiersFileName) const
 {
   // Read P/V/O's
   // TODO read TOC's instead
-  qtKstReader reader(QUrl::fromLocalFile(trackClassifiersFileName.c_str()),
+  qtKstReader reader(QUrl::fromLocalFile(trackClassifiersFileName),
                      QRegExp("\\s+"), QRegExp("\n"));
   if (!reader.isValid())
     {
@@ -102,16 +105,15 @@ bool vpFileTrackReader::ReadTrackClassifiers(
 }
 
 //-----------------------------------------------------------------------------
-void vpFileTrackReader::ReadTypesFile(const std::string& tracksFileName) const
+void vpFileTrackReader::ReadTypesFile(const QString& tracksFileName) const
 {
   // Look for files containing supplemental track info
-  std::string trackTypes(tracksFileName);
-  trackTypes += ".types";
+  auto trackTypes = tracksFileName + ".types";
 
   // Load track types
-  if (vtksys::SystemTools::FileExists(trackTypes.c_str(), true))
+  std::ifstream file(stdString(trackTypes));
+  if (file)
     {
-    std::ifstream file(trackTypes.c_str());
     int id;
     std::string type;
     double color[3];
@@ -121,7 +123,8 @@ void vpFileTrackReader::ReadTypesFile(const std::string& tracksFileName) const
         this->IO->TrackModel->GetTrack(this->IO->GetModelTrackId(id));
       if (!track)
         {
-        std::cerr << trackTypes << ": track " << id << " does not exist!\n";
+        std::cerr << qPrintable(trackTypes)
+                  << ": track " << id << " does not exist!\n";
         continue;
         }
 
@@ -144,14 +147,14 @@ void vpFileTrackReader::ReadTypesFile(const std::string& tracksFileName) const
 
 //-----------------------------------------------------------------------------
 bool vpFileTrackReader::ReadAttributesFile(
-  const std::string& tracksFileName, vgAttributeSet* trackAttributes) const
+  const QString& tracksFileName, vgAttributeSet* trackAttributes) const
 {
   auto trackAttributesFileName = tracksFileName + ".attributes";
 
   // Load track attributes
-  if (vtksys::SystemTools::FileExists(trackAttributesFileName.c_str(), true))
+  std::ifstream file(stdString(trackAttributesFileName));
+  if (file)
     {
-    std::ifstream file(trackAttributesFileName.c_str());
 
     // Read and set the attributes (first clear any existing attributes)
     trackAttributes->Clear();
@@ -184,8 +187,8 @@ bool vpFileTrackReader::ReadAttributesFile(
         this->IO->TrackModel->GetTrack(this->IO->GetModelTrackId(id));
       if (!track)
         {
-        std::cerr << trackAttributesFileName << ": track " << id
-                  << " does not exist!\n";
+        std::cerr << qPrintable(trackAttributesFileName)
+                  << ": track " << id << " does not exist!\n";
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         continue;
         }
@@ -210,14 +213,13 @@ bool vpFileTrackReader::ReadAttributesFile(
 
 //-----------------------------------------------------------------------------
 bool vpFileTrackReader::ReadRegionsFile(
-  const std::string& tracksFileName, float offsetX, float offsetY,
+  const QString& tracksFileName, float offsetX, float offsetY,
   TrackRegionMap& trackRegionMap) const
 {
-  std::string trackRegions(tracksFileName);
-  trackRegions += ".regions";
+  auto trackRegions = tracksFileName + ".regions";
 
   // Load polygonal bounding regions
-  if (vtksys::SystemTools::FileExists(trackRegions.c_str(), true))
+  if (QFileInfo{trackRegions}.exists())
     {
     if (this->IO->TimeStampMode != vpTrackIO::TTM_FrameNumberOnly)
       {
@@ -226,7 +228,12 @@ bool vpFileTrackReader::ReadRegionsFile(
       return false;
       }
 
-    std::ifstream file(trackRegions.c_str());
+    std::ifstream file(stdString(trackRegions));
+    if (!file)
+      {
+      std::cerr << "Error reading file " << qPrintable(trackRegions) << '\n';
+      }
+
     unsigned int id;
     int frame;
     int numPoints;

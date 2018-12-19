@@ -84,6 +84,6 @@ bool vpVidtkFileTrackIO::ReadTrackClassifiers()
 {
   auto& reader =
     static_cast<const vpVidtkFileReader&>(this->GetReader());
-  return vpFileTrackIOImpl::ReadTrackClassifiers(
-           this, reader.GetTrackClassifiersFileName());
+  return this->FileReader.ReadTrackClassifiers(
+    reader.GetTrackClassifiersFileName());
 }

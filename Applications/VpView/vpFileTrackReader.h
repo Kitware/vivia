@@ -7,9 +7,10 @@
 #ifndef __vpFileTrackReader_h
 #define __vpFileTrackReader_h
 
-#include <string>
 #include <unordered_map>
 #include <vector>
+
+class QString;
 
 class vgAttributeSet;
 
@@ -30,18 +31,18 @@ public:
 
   vpFileTrackReader(vpTrackIO* io);
 
-  bool ReadTrackTraits(const std::string& trackTraitsFileName) const;
+  bool ReadTrackTraits(const QString& trackTraitsFileName) const;
 
-  bool ReadTrackClassifiers(const std::string& trackClassifiersFileName) const;
+  bool ReadTrackClassifiers(const QString& trackClassifiersFileName) const;
 
-  bool ReadRegionsFile(const std::string& tracksFileName,
+  bool ReadRegionsFile(const QString& tracksFileName,
                        float offsetX, float offsetY,
                        TrackRegionMap& trackRegionMap) const;
 
-  bool ReadAttributesFile(const std::string& tracksFileName,
+  bool ReadAttributesFile(const QString& tracksFileName,
                           vgAttributeSet* trackAttributes) const;
 
-  void ReadTypesFile(const std::string& tracksFileName) const;
+  void ReadTypesFile(const QString& tracksFileName) const;
 
 protected:
   vpTrackIO* const IO;

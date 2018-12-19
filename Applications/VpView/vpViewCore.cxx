@@ -490,14 +490,13 @@ void vpViewCore::importProject()
     }
 
   // Point current project's IO manager to the files we are importing from.
-  currentIO->SetTracksFileName(qPrintable(project->TracksFile));
-  currentIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
-  currentIO->SetTrackClassifiersFileName(
-    qPrintable(project->TrackClassifiersFile));
-  currentIO->SetEventsFileName(qPrintable(project->EventsFile));
-  currentIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
-  currentIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
-  currentIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
+  currentIO->SetTracksFileName(project->TracksFile);
+  currentIO->SetTrackTraitsFileName(project->TrackTraitsFile);
+  currentIO->SetTrackClassifiersFileName(project->TrackClassifiersFile);
+  currentIO->SetEventsFileName(project->EventsFile);
+  currentIO->SetEventLinksFileName(project->EventLinksFile);
+  currentIO->SetActivitiesFileName(project->ActivitiesFile);
+  currentIO->SetFseTracksFileName(project->SceneElementsFile);
 
   // Temporarily change the AOI height to that of the input project, so that
   // imported object points get y-flipped correctly.
@@ -3185,14 +3184,13 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
 #ifdef VISGUI_USE_VIDTK
 
   QSharedPointer<vpVidtkFileIO> fileIO(new vpVidtkFileIO);
-  fileIO->SetTracksFileName(qPrintable(project->TracksFile));
-  fileIO->SetTrackTraitsFileName(qPrintable(project->TrackTraitsFile));
-  fileIO->SetTrackClassifiersFileName(
-    qPrintable(project->TrackClassifiersFile));
-  fileIO->SetEventsFileName(qPrintable(project->EventsFile));
-  fileIO->SetEventLinksFileName(qPrintable(project->EventLinksFile));
-  fileIO->SetActivitiesFileName(qPrintable(project->ActivitiesFile));
-  fileIO->SetFseTracksFileName(qPrintable(project->SceneElementsFile));
+  fileIO->SetTracksFileName(project->TracksFile);
+  fileIO->SetTrackTraitsFileName(project->TrackTraitsFile);
+  fileIO->SetTrackClassifiersFileName(project->TrackClassifiersFile);
+  fileIO->SetEventsFileName(project->EventsFile);
+  fileIO->SetEventLinksFileName(project->EventLinksFile);
+  fileIO->SetActivitiesFileName(project->ActivitiesFile);
+  fileIO->SetFseTracksFileName(project->SceneElementsFile);
   project->ModelIO = fileIO;
 
 #else

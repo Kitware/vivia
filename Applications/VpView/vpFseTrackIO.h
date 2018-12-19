@@ -9,7 +9,7 @@
 
 #include "vpTrackIO.h"
 
-#include <string>
+#include <QString>
 
 class vtkVgTrack;
 
@@ -26,7 +26,7 @@ public:
 
   virtual ~vpFseTrackIO();
 
-  void SetTracksFileName(const char* tracksFileName)
+  void SetTracksFileName(const QString& tracksFileName)
     { this->TracksFileName = tracksFileName; }
 
   void SetImageHeight(unsigned int imageHeight)
@@ -47,7 +47,7 @@ public:
                            QPointF aoiOffset, bool writeSceneElements) const;
 
 private:
-  std::string TracksFileName;
+  QString TracksFileName;
   unsigned int ImageHeight;
 };
 

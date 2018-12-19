@@ -17,10 +17,16 @@
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
 
-#include <assert.h>
-#include <limits>
+#include <qtStlUtil.h>
+
+#include <QDebug>
+#include <QFileInfo>
 
 #include <json.h>
+
+#include <limits>
+
+#include <cassert>
 
 //-----------------------------------------------------------------------------
 vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
@@ -60,11 +66,11 @@ bool vpFseTrackIO::ImportTracks(int vtkNotUsed(frameOffset),
                                 float offsetX, float offsetY)
 {
   assert(this->ImageHeight != 0);
-  assert(!this->TracksFileName.empty());
+  assert(!this->TracksFileName.isEmpty());
 
-  if (!vtksys::SystemTools::FileExists(this->TracksFileName.c_str(), true))
+  if (!QFileInfo{this->TracksFileName}.exists())
     {
-    std::cerr << "Track file does not exist: " << this->TracksFileName << '\n';
+    qCritical() << "Track file" << this->TracksFileName << "does not exist!";
     return false;
     }
 
@@ -78,7 +84,7 @@ bool vpFseTrackIO::ImportTracks(int vtkNotUsed(frameOffset),
   JSONNode root;
   try
     {
-    std::ifstream file(this->TracksFileName.c_str());
+    std::ifstream file(stdString(this->TracksFileName));
     std::string str((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
 
