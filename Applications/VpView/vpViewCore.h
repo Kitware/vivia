@@ -248,7 +248,7 @@ public:
   int getTrackTypeIndex(const char* typeName);
 
   void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
-                   const std::map<unsigned int, vgTimeStamp>& timeMap,
+                   const QMap<int, vgTimeStamp>& timeMap,
                    double videoHeight, bool updateToc = false);
 
   void improveTrack(int trackId, int session);
@@ -451,8 +451,8 @@ public:
   void toGraphicsCoordinates(double& x, double& y);
   void toGraphicsCoordinates(double (&xy)[2]);
 
-  void setHomography(unsigned int frameIndex, vtkMatrix4x4* homography);
-  bool getHomography(unsigned int frameIndex, vtkMatrix4x4* homography) const;
+  void setHomography(int frameIndex, vtkMatrix4x4* homography);
+  bool getHomography(int frameIndex, vtkMatrix4x4* homography) const;
 
   vpTrackIO::TrackStorageMode getTrackStorageMode()
     {
