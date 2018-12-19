@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,6 +16,9 @@
 template <typename Value>
 class vgTimeMap : public QMap<vgTimeStamp, Value>
 {
+  template <typename Iterator, typename MapPtr>
+  static Iterator find(MapPtr map, vgTimeStamp pos, vg::SeekMode direction);
+
 public:
   typedef typename QMap<vgTimeStamp, Value>::iterator iterator;
   typedef typename QMap<vgTimeStamp, Value>::const_iterator const_iterator;
@@ -34,72 +37,73 @@ public:
 
 //-----------------------------------------------------------------------------
 template <typename Value>
-typename vgTimeMap<Value>::const_iterator vgTimeMap<Value>::constFind(
-  vgTimeStamp pos, vg::SeekMode direction) const
+template <typename Iterator, typename MapPtr>
+Iterator vgTimeMap<Value>::find(
+  MapPtr map, vgTimeStamp pos, vg::SeekMode direction)
 {
   // Check for empty map or invalid request
-  if (this->count() < 1 || !pos.IsValid())
+  if (map->count() < 1 || !pos.IsValid())
     {
-    return this->constEnd();
+    return map->end();
     }
 
-  const_iterator iter;
+  Iterator iter;
 
   switch (direction)
     {
     case vg::SeekExact:
       // Exact is easy, find() does what we need
-      return this->find(pos);
+      return map->find(pos);
 
     case vg::SeekLowerBound:
       // Lower is easy, lowerBound() does what we need
-      return this->lowerBound(pos);
+      return map->lowerBound(pos);
 
     case vg::SeekNext:
       // Next is easy, upperBound() does what we need
-      return this->upperBound(pos);
+      return map->upperBound(pos);
 
     case vg::SeekUpperBound:
       // Check first for exact match
-      iter = this->find(pos);
-      if (iter != this->end())
+      iter = map->find(pos);
+      if (iter != map->end())
         {
         return iter;
         }
 
       // Check for an answer
-      if (pos < this->begin().key())
+      if (pos < map->begin().key())
         {
-        return this->end();
+        return map->end();
         }
 
       // upperBound() gets us the position *after* the one we want, so return
       // the preceding position (we know this exists because count() > 0)
-      return --this->upperBound(pos);
+      return --map->upperBound(pos);
 
     case vg::SeekPrevious:
       // Check for an answer
-      if (pos <= this->begin().key())
+      if (pos <= map->begin().key())
         {
-        return this->end();
+        return map->end();
         }
 
       // lowerBound() gets us the position *after* the one we want, so return
       // the preceding position (we know this exists because of the previous
       // test)
-      return --this->lowerBound(pos);
+      return --map->lowerBound(pos);
 
 
     default: // Nearest
       // Find the first item >= pos; it will be this or the one preceding
-      iter = this->upperBound(pos);
+      iter = map->upperBound(pos);
       // If upperBound() falls off the end, we want the last valid position
-      if (iter == this->end())
+      if (iter == map->end())
         {
         return --iter;
         }
       // If item == pos, return that
-      else if (iter == this->begin())
+      else if (iter == map->begin())
         {
         return iter;
         }
@@ -115,18 +119,26 @@ typename vgTimeMap<Value>::const_iterator vgTimeMap<Value>::constFind(
 
 //-----------------------------------------------------------------------------
 template <typename Value>
-typename vgTimeMap<Value>::const_iterator vgTimeMap<Value>::find(
-  vgTimeStamp pos, vg::SeekMode direction) const
+typename vgTimeMap<Value>::iterator vgTimeMap<Value>::find(
+  vgTimeStamp pos, vg::SeekMode direction)
 {
-  return this->constFind(pos, direction);
+  return find<iterator>(this, pos, direction);
 }
 
 //-----------------------------------------------------------------------------
 template <typename Value>
-typename vgTimeMap<Value>::iterator vgTimeMap<Value>::find(
-  vgTimeStamp pos, vg::SeekMode direction)
+typename vgTimeMap<Value>::const_iterator vgTimeMap<Value>::find(
+  vgTimeStamp pos, vg::SeekMode direction) const
 {
-  return iterator(this->constFind(pos, direction));
+  return find<const_iterator>(this, pos, direction);
+}
+
+//-----------------------------------------------------------------------------
+template <typename Value>
+typename vgTimeMap<Value>::const_iterator vgTimeMap<Value>::constFind(
+  vgTimeStamp pos, vg::SeekMode direction) const
+{
+  return find<const_iterator>(this, pos, direction);
 }
 
 #endif
