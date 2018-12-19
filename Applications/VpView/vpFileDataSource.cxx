@@ -6,6 +6,8 @@
 
 #include "vpFileDataSource.h"
 
+#include "vpFileUtil.h"
+
 #include <qtNaturalSort.h>
 
 #include <QDebug>
@@ -16,28 +18,6 @@
 #include <QStringList>
 
 #include <algorithm>
-
-namespace // anonymous
-{
-
-//-----------------------------------------------------------------------------
-QStringList glob(const QDir& base, const QString& pattern)
-{
-  QStringList matches;
-
-  // TODO handle multi-level globs
-  foreach (const auto& p, base.entryList(QDir::Files))
-  {
-    if (QDir::match(pattern, p))
-    {
-      matches.append(base.filePath(p));
-    }
-  }
-
-  return matches;
-}
-
-} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 class vpFileDataSourcePrivate
@@ -185,7 +165,7 @@ void vpFileDataSource::update()
     const auto& pattern = fi.fileName();
 
     // auto files = glob(QDir::current(), d->DataSetSpecifier); TODO
-    auto files = glob(dir, pattern);
+    auto files = vpGlobFiles(dir, pattern);
     std::sort(files.begin(), files.end(), qtNaturalSort::compare{});
 
     d->DataFiles = files;

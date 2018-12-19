@@ -119,6 +119,7 @@ set(vpViewSources
   vpFileDataSource.cxx
   vpFileEventReader.cxx
   vpFileTrackReader.cxx
+  vpFileUtil.cxx
   vpFilterTypeDelegate.cxx
   vpGraphModelHelper.cxx
   vpGraphModelView.cxx

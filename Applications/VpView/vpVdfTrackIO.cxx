@@ -7,6 +7,7 @@
 #include "vpVdfTrackIO.h"
 
 #include "vpFrameMap.h"
+#include "vpFileUtil.h"
 #include "vpVdfIO.h"
 #include "vtkVpTrackModel.h"
 
@@ -17,8 +18,8 @@
 #include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
-#include <vtksys/Glob.hxx>
-
+#include <QDir>
+#include <QFileInfo>
 #include <QUrl>
 
 namespace
@@ -87,21 +88,25 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
   if (d->TracksUri.isLocalFile())
   {
-    // Interpret the specifier as a glob
-    vtksys::Glob glob;
-    glob.FindFiles(stdString(d->TracksUri.toLocalFile()));
-    glob.SetRecurse(true);
-    const auto& files = glob.GetFiles();
-    if (files.empty())
+    // TODO resolve relative globs
+    // const auto& globPath = d->TracksUri.toLocalFile();
+    // const auto& files = vpGlobFiles(QDir::current(), pattern);
+
+    QFileInfo fi{d->TracksUri.toLocalFile()};
+    const auto& dir = fi.absoluteDir();
+    const auto& pattern = fi.fileName();
+
+    const auto& files = vpGlobFiles(dir, pattern);
+    if (files.isEmpty())
     {
       return false;
     }
 
     // Read through each track file
-    for (size_t i = 0, k = files.size(); i < k; ++i)
+    for (const auto& filePath : files)
     {
       // Construct the track source and track reader
-      const auto& trackUri = QUrl::fromLocalFile(qtString(files[i]));
+      const auto& trackUri = QUrl::fromLocalFile(filePath);
       QScopedPointer<vdfDataSource> source{
         vdfSourceService::createArchiveSource(trackUri)};
 
