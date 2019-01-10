@@ -150,7 +150,7 @@ vpObjectSelectionPanel::vpObjectSelectionPanel(QWidget* p)
   this->Trees[2] = this->Ui->trackTree;
   this->Trees[3] = this->Ui->fseTree;
 
-  this->Ui->tabWidget->setCurrentIndex(0);
+  this->Ui->tabWidget->setCurrentIndex(2);
   this->PrevTab = 0;
 
   this->SetupTab();
