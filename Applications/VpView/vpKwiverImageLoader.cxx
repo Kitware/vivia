@@ -56,9 +56,9 @@ void ImageConverter<T>::copyImageData(vtkImageData* in, kv::image& out) const
   const auto lp = w * d;
   const auto lb = lp * sizeof(T);
 
-  Q_ASSERT(out.h_step == lb);
-  Q_ASSERT(out.d_step == sizeof(T));
-  Q_ASSERT(out.w_step == sizeof(T) * d);
+  Q_ASSERT(out.h_step() == lb);
+  Q_ASSERT(out.d_step() == sizeof(T));
+  Q_ASSERT(out.w_step() == sizeof(T) * d);
 
   // Copy image data by scanlines, working from bottom up to account for VTK's
   // Y-inverted coordinate system
