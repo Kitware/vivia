@@ -1749,7 +1749,7 @@ void vpView::setupDock()
   this->Internal->UI.displayOptionsDock->hide();
   this->Internal->UI.normalcyMapsDock->hide();
   this->Internal->UI.spatialFiltersDock->hide();
-  this->Internal->UI.graphModelDock->show();
+  this->Internal->UI.graphModelDock->hide();
 }
 
 //-----------------------------------------------------------------------------
