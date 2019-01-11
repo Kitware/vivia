@@ -202,7 +202,7 @@ public:
 
   void moveCameraTo(double pos[2], bool forceRender = true);
 
-  void refreshSelectionPanel();
+  void refreshSelectionPanel(bool rebuild = false);
 
   // Update and render the scene. Use this method if there have not been
   // any changes that would be visible through the ui views, such as a

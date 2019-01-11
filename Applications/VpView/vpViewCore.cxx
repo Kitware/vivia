@@ -4756,11 +4756,11 @@ void vpViewCore::reactToDataChanged()
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::refreshSelectionPanel()
+void vpViewCore::refreshSelectionPanel(bool rebuild)
 {
   if (this->SessionView)
     {
-    this->SessionView->Update();
+    this->SessionView->Update(rebuild);
     }
   emit this->objectInfoUpdateNeeded();
 }
@@ -8877,6 +8877,7 @@ void vpViewCore::executeEmbeddedPipeline(
         newTrack->FastDelete();
         }
       }
+    this->refreshSelectionPanel(true);
     }
 #endif
 }
