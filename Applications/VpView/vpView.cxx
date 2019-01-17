@@ -805,6 +805,10 @@ vpView::vpView()
   connect(contextLODSlider, SIGNAL(valueChanged(int)),
           this, SLOT(onContextLODChanged(int)));
 
+  // Show tracks by default
+  this->Internal->UI.actionViewTracks->setChecked(true);
+  this->Internal->UI.actionViewTrackHeads->setChecked(true);
+
   // Restore window state and geometry.
   QSettings settings(QSettings::NativeFormat, QSettings::UserScope,
                      qApp->organizationName(), qApp->applicationName());
