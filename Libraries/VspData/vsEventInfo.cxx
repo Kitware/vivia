@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,7 +9,7 @@
 #include <QColor>
 #include <QSettings>
 
-#include <qtScopedSettingGroup.h>
+#include <qtScopedSettingsGroup.h>
 
 #include <vgEventType.h>
 
@@ -71,18 +71,20 @@ void loadColor(QSettings& settings, double (&color)[3], QString key,
 vsEventInfo eventFromSettings(QSettings& settings, int type,
                               EventInfoTemplate tpl)
 {
-  qtScopedSettingGroup sg(settings, QString::number(type));
-
   vsEventInfo ei;
 
-  ei.type = type;
-  const QString defaultName =
-    (tpl.name ? tpl.name : QString("Unknown type %1").arg(type));
-  ei.name = settings.value("Name", defaultName).toString();
+  with_expr (qtScopedSettingsGroup{settings, QString::number(type)})
+    {
 
-  loadColor(settings, ei.pcolor, "PenColor", tpl.color + 0);
-  loadColor(settings, ei.bcolor, "BackgroundColor", tpl.color + 3);
-  loadColor(settings, ei.fcolor, "ForegroundColor", Qt::white);
+    ei.type = type;
+    const QString defaultName =
+      (tpl.name ? tpl.name : QString("Unknown type %1").arg(type));
+    ei.name = settings.value("Name", defaultName).toString();
+
+    loadColor(settings, ei.pcolor, "PenColor", tpl.color + 0);
+    loadColor(settings, ei.bcolor, "BackgroundColor", tpl.color + 3);
+    loadColor(settings, ei.fcolor, "ForegroundColor", Qt::white);
+    }
 
   return ei;
 }

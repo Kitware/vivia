@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,7 +11,7 @@
 #include <QStringList>
 
 #include <qtMath.h>
-#include <qtScopedSettingGroup.h>
+#include <qtScopedSettingsGroup.h>
 
 #include <vgColor.h>
 
@@ -106,16 +106,17 @@ void vvScoreGradientSetting::commit(QSettings& store)
 
   // Erase old value
   store.remove(this->key());
-  qtScopedSettingGroup g(store, this->key());
-
-  // Write new stops
-  int counter = 0;
-  foreach (const vvScoreGradient::Stop& stop, gradient.stops())
+  with_expr (qtScopedSettingsGroup{store, this->key()})
     {
-    qtScopedSettingGroup sg(store, QString::number(++counter));
-    store.setValue("Name", stop.text);
-    store.setValue("Threshold", stop.threshold);
-    vgColor(stop.color).write(store, "Color");
+    // Write new stops
+    int counter = 0;
+    foreach (const vvScoreGradient::Stop& stop, gradient.stops())
+      {
+      qtScopedSettingsGroup sg(store, QString::number(++counter));
+      store.setValue("Name", stop.text);
+      store.setValue("Threshold", stop.threshold);
+      vgColor(stop.color).write(store, "Color");
+      }
     }
 
   // Mark as committed
