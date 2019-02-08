@@ -8832,7 +8832,8 @@ void vpViewCore::executeEmbeddedPipeline(
   // Set up worker
   vpKwiverEmbeddedPipelineWorker worker;
   if (!worker.initialize(pipelinePath, this->ImageDataSource,
-                         project->TrackModel, videoHeight))
+                         project->TrackModel, this->TrackTypeRegistry,
+                         videoHeight))
     {
     return;
     }
