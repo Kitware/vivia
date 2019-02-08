@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,6 +10,7 @@
 #include "vtkVpTrackModel.h"
 
 #include <vtkVgTrack.h>
+#include <vtkVgTrackTypeRegistry.h>
 
 #include <qtIndexRange.h>
 #include <qtStlUtil.h>
@@ -44,7 +45,20 @@ const T* get(const std::vector<T>& c, K const& key)
 }
 
 //-----------------------------------------------------------------------------
-kv::track_sptr convertTrack(vtkVgTrack* in, double videoHeight)
+std::map<int, double> getTrackToc(vtkVgTrack* in)
+{
+  auto const type = in->GetType();
+  if (type >= 0)
+  {
+    return {{type, 1.0}};
+  }
+
+  return in->GetTOC();
+}
+
+//-----------------------------------------------------------------------------
+kv::track_sptr convertTrack(
+  vtkVgTrack* in, vtkVgTrackTypeRegistry const* trackTypes, double videoHeight)
 {
   auto out = kv::track::create();
   out->set_id(in->GetId());
@@ -52,6 +66,16 @@ kv::track_sptr convertTrack(vtkVgTrack* in, double videoHeight)
   vtkIdType id;
   vtkVgTimeStamp timeStamp;
   in->InitPathTraversal();
+
+  // Generate object type classifier
+  auto const& toc = getTrackToc(in);
+  auto dotp =
+    (!toc.empty() ? std::make_shared<kv::detected_object_type>() : nullptr);
+  for (auto const& c : toc)
+  {
+    auto const& n = std::string{trackTypes->GetEntityType(c.first).GetName()};
+    dotp->set_score(n, c.second);
+  }
 
   // Iterate over track states
   while ((id = in->GetNextPathPt(timeStamp)) != -1)
@@ -64,7 +88,7 @@ kv::track_sptr convertTrack(vtkVgTrack* in, double videoHeight)
       const auto ymin = videoHeight - head.GetBound(3);
       const auto ymax = videoHeight - head.GetBound(2);
       const auto bbox = kv::bounding_box_d{xmin, ymin, xmax, ymax};
-      auto obj = std::make_shared<kv::detected_object>(bbox);
+      auto obj = std::make_shared<kv::detected_object>(bbox, 1.0, dotp);
 
       const auto frame = timeStamp.GetFrameNumber();
       const auto time = [](const vtkVgTimeStamp& ts){
@@ -246,7 +270,8 @@ vpKwiverEmbeddedPipelineWorker::~vpKwiverEmbeddedPipelineWorker()
 //-----------------------------------------------------------------------------
 bool vpKwiverEmbeddedPipelineWorker::initialize(
   const QString& pipelineFile, vpFileDataSource* dataSource,
-  vtkVpTrackModel* trackModel, double videoHeight)
+  vtkVpTrackModel* trackModel, vtkVgTrackTypeRegistry const* trackTypes,
+  double videoHeight)
 {
   QTE_D();
 
@@ -259,7 +284,8 @@ bool vpKwiverEmbeddedPipelineWorker::initialize(
   trackModel->InitTrackTraversal();
   while (const auto& track = trackModel->GetNextTrack())
   {
-    d->tracksIn.push_back(convertTrack(track.GetTrack(), videoHeight));
+    d->tracksIn.push_back(
+      convertTrack(track.GetTrack(), trackTypes, videoHeight));
   }
 
   // Set up pipeline
