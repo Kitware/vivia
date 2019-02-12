@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -71,7 +71,7 @@ vsSimpleSourceFactory* vsPvoArchiveSourcePlugin::createArchiveSource(
 
   // Try to verify file contents
   CHECK_ARG(!file.atEnd(), 0);
-  const QString line = QString::fromAscii(file.readLine());
+  const QString line = QString::fromUtf8(file.readLine());
   const QStringList fields = line.split(" ", QString::SkipEmptyParts);
   CHECK_ARG(fields.count() >= 4, 0); // Do we have enough fields?
   bool isIdOkay;

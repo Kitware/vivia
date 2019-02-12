@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -2388,14 +2388,14 @@ void vsScene::writeRenderedImages()
     const QString outputFileName =
       d->ImageOutputDirectory +
       QString("/vsPlayImage%1.png").arg(d->ImageCounter++, 6, 10, zero);
-    d->PngWriter->SetFileName(outputFileName.toAscii());
+    d->PngWriter->SetFileName(qPrintable(outputFileName));
     d->PngWriter->Write();
     }
   if (d->SaveScreenShot)
     {
     d->SaveScreenShot = false; // this is one shot
     d->WindowToImageFilter->Modified();
-    d->PngWriter->SetFileName(d->ScreenShotFileName.toAscii());
+    d->PngWriter->SetFileName(qPrintable(d->ScreenShotFileName));
     d->PngWriter->Write();
     }
 }

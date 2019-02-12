@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -406,7 +406,7 @@ bool readNode(
     {
     QString encodedModel;
     read_attr(encodedModel, iqrElem, "data", "query IQR model");
-    QByteArray model = QByteArray::fromBase64(encodedModel.toAscii());
+    QByteArray model = QByteArray::fromBase64(encodedModel.toLatin1());
 
     // Convert to std::vector<uchar>... oh, the pain...
     const uchar* rawModel =
@@ -1037,7 +1037,7 @@ QDomNode vvXmlUtil::makeNode(
     const QByteArray encodedModel =
       QByteArray::fromRawData(rawModel, iqrModelSize).toBase64();
 
-    iqrElem.setAttribute("data", QString::fromAscii(encodedModel));
+    iqrElem.setAttribute("data", QString::fromLatin1(encodedModel));
     qpElem.appendChild(iqrElem);
     }
 

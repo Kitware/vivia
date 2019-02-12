@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -80,7 +80,7 @@ void vpEventConfig::ReadEventTypes(QSettings& settings)
     QString idStr = settings.value("Id").toString();
 
     // Look up the numeric id based on the type id string.
-    int id = this->GetIdFromString(idStr.toAscii());
+    int id = this->GetIdFromString(qPrintable(idStr));
     if (id == -1)
       {
       qDebug() << "Event type id not found:" << idStr;
@@ -89,7 +89,7 @@ void vpEventConfig::ReadEventTypes(QSettings& settings)
 
     vgEventType type;
     type.SetId(id);
-    type.SetName(settings.value("Name").toString().toAscii());
+    type.SetName(qPrintable(settings.value("Name").toString()));
 
     type.SetMinTracks(settings.value("MinTracks", -1).toInt());
     type.SetMaxTracks(settings.value("MaxTracks", -1).toInt());
@@ -119,10 +119,10 @@ void vpEventConfig::ReadEventTypes(QSettings& settings)
     type.SetIconIndex(settings.value("IconIndex", -1).toInt());
     type.SetSecondaryIconIndex(settings.value("SecondaryIconIndex", -1).toInt());
 
+    const auto& displayMode =
+      settings.value("DisplayMode", vgEventType::GetDisplayModeString(0));
     type.SetDisplayMode(
-      this->GetDisplayModeFromString(
-        settings.value("DisplayMode", vgEventType::GetDisplayModeString(0))
-        .toString().toAscii()));
+      this->GetDisplayModeFromString(qPrintable(displayMode.toString())));
 
     // Add or assign to event type vector.
     if (id < 0 || id >= MaxEventTypes)
