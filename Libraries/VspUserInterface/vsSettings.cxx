@@ -32,11 +32,11 @@ FOREACH_GRAPH_REP_WIDTHS(
 //-----------------------------------------------------------------------------
 vsSettings::vsSettings()
 {
-  this->declareSetting(keyColorTracksBySource, QVariant(false));
-  this->declareSetting(keySelectionPenColor, QColor(255, 20, 144));
-  this->declareSetting(keyFilteringMaskColor, QColor(0, 0, 0, 96));
-  this->declareSetting(keyDataMinColor, Qt::red);
-  this->declareSetting(keyDataMaxColor, Qt::cyan);
+  this->declareSetting(keyColorTracksBySource, QVariant{false});
+  this->declareSetting(keySelectionPenColor, QColor{255, 20, 144});
+  this->declareSetting(keyFilteringMaskColor, QColor{0, 0, 0, 96});
+  this->declareSetting(keyDataMinColor, QColor{Qt::red});
+  this->declareSetting(keyDataMaxColor, QColor{Qt::cyan});
 
   this->declareSetting(keyNormalTrackHeadWidth, 1.0f);
   this->declareSetting(keyNormalTrackTrailWidth, 1.7f);
