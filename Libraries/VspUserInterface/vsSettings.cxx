@@ -1,23 +1,28 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vsSettings.h"
 
+#include <vgStringLiteral.h>
+
 #define QTSETTINGS_SUBCLASS_NAME vsSettings
 #include <qtSettingsImpl.h>
 
-static const char* const keyColorTracksBySource    = "ColorTracksBySource";
-static const char* const keySelectionPenColor      = "SelectionPenColor";
-static const char* const keyFilteringMaskColor     = "FilteringMaskColor";
-static const char* const keyDataMinColor           = "DataMinColor";
-static const char* const keyDataMaxColor           = "DataMaxColor";
+#define DECLARE_KEY(keyName) \
+  static const auto key ## keyName = QStringLiteral(#keyName);
+
+DECLARE_KEY(ColorTracksBySource);
+DECLARE_KEY(SelectionPenColor);
+DECLARE_KEY(FilteringMaskColor);
+DECLARE_KEY(DataMinColor);
+DECLARE_KEY(DataMaxColor);
 
 #define DECLARE_GRAPH_REP_WIDTHS_KEYS(suffix, prefix, keyPrefix) \
-  static const char* const key ## prefix ## suffix = \
-  keyPrefix #suffix;
+  static const auto key ## prefix ## suffix = \
+    QStringLiteral( keyPrefix #suffix );
 
 FOREACH_GRAPH_REP_WIDTHS(
   DECLARE_GRAPH_REP_WIDTHS_KEYS, Normal, "Display/")

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,14 +7,15 @@
 #include "vvTrackInfoWidget.h"
 #include "ui_vvTrackInfoWidget.h"
 
-#include <QDateTime>
+#include <vgStringLiteral.h>
+#include <vgUnixTime.h>
 
 #include <qtNumericTreeWidgetItem.h>
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
 
-#include <vgUnixTime.h>
+#include <QDateTime>
 
 QTE_IMPLEMENT_D_FUNC(vvTrackInfoWidget)
 
@@ -108,9 +109,9 @@ void vvTrackInfoWidget::setTrack(vvTrack newTrack)
   // Trajectory states
   qtDelayTreeSorting tds(d->UI.trajectoryStates);
   d->UI.trajectoryStates->clear();
-  const QString rf = QString::fromUtf8("%1,%2 %3\xc3\x97%4");
-  const QString pf = "%1, %2";
-  const QString wf = "%1:%2E,%3N";
+  static const auto rf = QStringLiteral("%1,%2 %3\u00d7%4");
+  static const auto pf = QStringLiteral("%1, %2");
+  static const auto wf = QStringLiteral("%1:%2E,%3N");
   foreach_iter (vvTrackTrajectory::const_iterator, iter, newTrack.Trajectory)
     {
     QTreeWidgetItem* item = new QTreeWidgetItem;

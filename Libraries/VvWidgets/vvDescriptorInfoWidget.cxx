@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,16 +7,17 @@
 #include "vvDescriptorInfoWidget.h"
 #include "ui_vvDescriptorInfoWidget.h"
 
-#include <QDateTime>
+#include "vvDescriptorStyle.h"
+
+#include <vgStringLiteral.h>
+#include <vgUnixTime.h>
 
 #include <qtNumericTreeWidgetItem.h>
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
 
-#include <vgUnixTime.h>
-
-#include "vvDescriptorStyle.h"
+#include <QDateTime>
 
 QTE_IMPLEMENT_D_FUNC(vvDescriptorInfoWidget)
 
@@ -134,7 +135,7 @@ void vvDescriptorInfoWidget::setDescriptor(vvDescriptor newDescriptor)
   // Regions
   qtDelayTreeSorting rds(d->UI.regions);
   d->UI.regions->clear();
-  const QString rf = QString::fromUtf8("%1,%2 %3\xc3\x97%4");
+  static const auto rf = QStringLiteral("%1,%2 %3\u00d7%4");
   foreach_iter (vvDescriptorRegionMap::const_iterator, iter,
                 newDescriptor.Region)
     {

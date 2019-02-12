@@ -21,6 +21,7 @@ set(qtVgCommonInstallHeaders
   vgGeoUtil.h
   vgPluginLoader.h
   vgRegionKeyframe.h
+  vgStringLiteral.h
   vgSwatchCache.h
   vgTimeBase.h
   vgTime.h

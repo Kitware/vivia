@@ -1,24 +1,26 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vsVvqsDatabaseSourcePrivate.h"
 
-#include <QDebug>
-#include <QRegExp>
-#include <QSettings>
+#include <vsAdapt.h>
 
-#include <qtScopedValueChange.h>
-#include <qtStlUtil.h>
+#include <vsTrackSource.h>
 
 #include <vvMakeId.h>
 #include <vvQuerySession.h>
 
-#include <vsTrackSource.h>
+#include <vgStringLiteral.h>
 
-#include <vsAdapt.h>
+#include <qtScopedValueChange.h>
+#include <qtStlUtil.h>
+
+#include <QDebug>
+#include <QRegExp>
+#include <QSettings>
 
 #include <limits>
 
@@ -309,8 +311,8 @@ QString vsVvqsDatabaseSourcePrivate::displayableRequestUri() const
 {
   // Separate query items with zero-width space for better line breaking
   QString uri = this->RequestUri.toString();
-  const QString replacement = QString::fromUtf8("\xe2\x80\x8b\\1");
-  return uri.replace(QRegExp("([?&])"), replacement);
+  static const auto replacement = QStringLiteral("\u200b\\1");
+  return uri.replace(QRegExp(QStringLiteral("([?&])")), replacement);
 }
 
 //-----------------------------------------------------------------------------
