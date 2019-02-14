@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,7 +9,8 @@
 #include <QSettings>
 #include <QStringList>
 
-#include <qtScopedSettingGroup.h>
+#include <qtEnumerate.h>
+#include <qtScopedSettingsGroup.h>
 
 #include "vvDescriptorStyle.h"
 
@@ -70,10 +71,12 @@ void Setting::commit(QSettings& store)
 {
   QVariantHash map = this->currentValue.toHash();
 
-  qtScopedSettingGroup g(store, this->key());
-  foreach_iter (QVariantHash::iterator, iter, map)
+  with_expr (qtScopedSettingsGroup{store, this->key()})
     {
-    store.setValue(iter.key(), iter.value());
+    for (auto iter : qtEnumerate(map))
+      {
+      store.setValue(iter.key(), iter.value());
+      }
     }
 
   this->originalValue = this->currentValue;
