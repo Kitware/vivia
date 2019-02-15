@@ -520,8 +520,36 @@ vqApplication::vqApplication(UIMode uiMode) :
           SIGNAL(queryFormulationRequested(vvProcessingRequest, long long)),
           this, SLOT(formulateQuery(vvProcessingRequest, long long)));
 
+  // Load application settings
   this->reloadConfiguration();
-  this->loadWindowState();
+
+  // Set UI dock widget corner bindings
+#define SET_DOCK_CORNER(_c, _d) do { \
+  const int v = settings.value(#_c, _d).toInt(); \
+  this->setCorner(Qt::_c##Corner, static_cast<Qt::DockWidgetArea>(v)); \
+  } while (0)
+
+  QSettings settings;
+  settings.beginGroup("DockCorners");
+  SET_DOCK_CORNER(TopLeft, Qt::TopDockWidgetArea);
+  SET_DOCK_CORNER(TopRight, Qt::TopDockWidgetArea);
+  SET_DOCK_CORNER(BottomLeft, Qt::BottomDockWidgetArea);
+  SET_DOCK_CORNER(BottomRight, Qt::BottomDockWidgetArea);
+
+  // Set up UI state persistence and restore previous state
+  this->UiState.mapGeometry("Window/geometry", this);
+  this->UiState.mapState("Window/state", this);
+
+  this->UiState.mapChecked("ContextView/ShowVideoFrames",
+                           this->UI.actionShowVideoClipsOnContext);
+  this->UiState.mapChecked("ContextView/ShowVideoOutlines",
+                           this->UI.actionShowOutlinesOnContext);
+  this->UiState.mapChecked("ContextView/ShowTracks",
+                           this->UI.actionShowTracksOnContext);
+
+  this->UiState.restore();
+
+  // Start application core
   this->Core->start();
 }
 
@@ -538,36 +566,8 @@ vqApplication::~vqApplication()
 //-----------------------------------------------------------------------------
 void vqApplication::closeEvent(QCloseEvent* event)
 {
-  this->saveWindowState();
+  this->UiState.save();
   QMainWindow::closeEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-#define SET_DOCK_CORNER(_c, _d) do { \
-  const int v = settings.value(#_c, _d).toInt(); \
-  this->setCorner(Qt::_c##Corner, static_cast<Qt::DockWidgetArea>(v)); \
-  } while (0)
-void vqApplication::loadWindowState()
-{
-  QSettings settings;
-  settings.beginGroup("Window");
-  this->restoreGeometry(settings.value("geometry").toByteArray());
-  this->restoreState(settings.value("state").toByteArray());
-
-  settings.beginGroup("DockCorners");
-  SET_DOCK_CORNER(TopLeft, Qt::TopDockWidgetArea);
-  SET_DOCK_CORNER(TopRight, Qt::TopDockWidgetArea);
-  SET_DOCK_CORNER(BottomLeft, Qt::BottomDockWidgetArea);
-  SET_DOCK_CORNER(BottomRight, Qt::BottomDockWidgetArea);
-}
-
-//-----------------------------------------------------------------------------
-void vqApplication::saveWindowState()
-{
-  QSettings settings;
-  settings.beginGroup("Window");
-  settings.setValue("geometry", this->saveGeometry());
-  settings.setValue("state",    this->saveState());
 }
 
 //-----------------------------------------------------------------------------

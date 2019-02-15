@@ -27,7 +27,14 @@ projPJ adaptEPSG(int gcs)
 {
   std::stringstream proj4Arg;
   proj4Arg << "+init=epsg:" << gcs;
-  return pj_init_plus(proj4Arg.str().c_str());
+  projPJ result = pj_init_plus(proj4Arg.str().c_str());
+  if (!result)
+    {
+    std::cerr << "Failed to construct GCS conversion. This may indicate a "
+              << "problem with your PROJ installation, and/or you may need to "
+              << "set the PROJ_LIB environment variable.";
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------

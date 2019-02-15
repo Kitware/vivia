@@ -30,20 +30,20 @@ public:
 
   void UpdatePosition(double* pos);
 
-  // Data memebers
+  // Data members
   vtkVgMarker* Parent;
 
   vtkIdType MarkerPointId;
 
   vtkSmartPointer<vtkPolyDataMapper> MarkerMapper;
-  vtkSmartPointer<vtkPolyData> MarkerPolyData;
-  vtkSmartPointer<vtkPoints> MarkerPoints;
 
   vtkSmartPointer<vtkPointSource> PointSource;
   vtkSmartPointer<vtkGlyph3D> Glyph;
 
   vtkSmartPointer<vtkRegularPolygonSource> MarkerSource;
   vtkSmartPointer<vtkDistanceToCamera> ScaleFilter;
+
+  vtkSmartPointer<vtkPolyData> RegionPolyData;
 
   double MarkerLocation[3];
 };
@@ -52,8 +52,7 @@ public:
 vtkVgMarker::vtkInternal::vtkInternal(vtkVgMarker* parent) :
   Parent(parent)
 {
-  this->MarkerMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-  this->MarkerPolyData = vtkSmartPointer<vtkPolyData>::New();
+  // Initial setup is for MSM_FixedScreenSize
 
   this->MarkerSource = vtkSmartPointer<vtkRegularPolygonSource>::New();
   this->MarkerSource->SetNumberOfSides(32);
@@ -67,7 +66,7 @@ vtkVgMarker::vtkInternal::vtkInternal(vtkVgMarker* parent) :
   // Calculate the distance to the camera of each point.
   this->ScaleFilter = vtkSmartPointer<vtkDistanceToCamera>::New();
   this->ScaleFilter->SetInputConnection(this->PointSource->GetOutputPort());
-  this->ScaleFilter->SetScreenSize(10.0);
+  this->ScaleFilter->SetScreenSize(this->Parent->GetMarkerSize());
 
   this->Glyph = vtkSmartPointer<vtkGlyph3D>::New();
   this->Glyph->SetInputConnection(this->ScaleFilter->GetOutputPort());
@@ -78,8 +77,14 @@ vtkVgMarker::vtkInternal::vtkInternal(vtkVgMarker* parent) :
   this->Glyph->SetInputArrayToProcess(
     0, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "DistanceToCamera");
 
+  this->MarkerMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
   this->MarkerMapper->SetInputConnection(this->Glyph->GetOutputPort());
   this->MarkerMapper->SetScalarVisibility(false);
+
+  this->RegionPolyData = vtkSmartPointer<vtkPolyData>::New();
+  vtkCellArray* polys = vtkCellArray::New();
+  this->RegionPolyData->SetPolys(polys);
+  polys->FastDelete();
 
   parent->SetMapper(this->MarkerMapper);
   parent->Deselect();
@@ -93,18 +98,23 @@ vtkVgMarker::vtkInternal::~vtkInternal()
 //--------------------------------------------------------------------------
 void vtkVgMarker::vtkInternal::UpdatePosition(double* pos)
 {
-  if (pos[0] != Parent->MarkerPosition[0] ||
-      pos[1] != Parent->MarkerPosition[1] ||
-      pos[2] != Parent->MarkerPosition[2])
+  if (pos[0] != this->Parent->MarkerPosition[0] ||
+      pos[1] != this->Parent->MarkerPosition[1] ||
+      pos[2] != this->Parent->MarkerPosition[2])
     {
-    Parent->MarkerPosition[0] = pos[0];
-    Parent->MarkerPosition[1] = pos[1];
-    Parent->MarkerPosition[2] = pos[2];
+    this->Parent->MarkerPosition[0] = pos[0];
+    this->Parent->MarkerPosition[1] = pos[1];
+    this->Parent->MarkerPosition[2] = pos[2];
 
-    this->PointSource->SetCenter(Parent->MarkerPosition[0],
-                                 Parent->MarkerPosition[1],
-                                 Parent->MarkerPosition[2]);
-    Parent->Modified();
+    if (this->Parent->GetMarkerSizeMode() == MSM_FixedScreenSize)
+      {
+      this->PointSource->SetCenter(pos);
+      }
+    else
+      {
+      this->MarkerSource->SetCenter(pos);
+      }
+    this->Parent->Modified();
     }
 }
 
@@ -129,6 +139,14 @@ vtkVgMarker::vtkVgMarker() :
   this->MarkerPosition[1] = 0.0;
   this->MarkerPosition[2] = 0.0;
 
+  // If the default MarkerSizeMode is changed, the vtkInternal constructor must
+  // be updated appropriately
+  this->MarkerSizeMode = MSM_FixedScreenSize;
+
+  this->MarkerSize = 10.0;
+
+  this->RegionPoints = 0;
+
   this->Implementation = new vtkInternal(this);
 }
 
@@ -136,12 +154,42 @@ vtkVgMarker::vtkVgMarker() :
 vtkVgMarker::~vtkVgMarker()
 {
   delete this->Implementation;
+  if (this->RegionPoints)
+    {
+    this->RegionPoints->Delete();
+    }
   this->Implementation = NULL;
 }
 
 //----------------------------------------------------------------------------
 void vtkVgMarker::PrintSelf(ostream& os, vtkIndent indent)
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkVgMarker::SetRegionPoints(vtkPoints* points)
+{
+  vtkSetObjectBodyMacro(RegionPoints, vtkPoints, points);
+
+  vtkCellArray* polys = this->Implementation->RegionPolyData->GetPolys();
+  polys->Reset();
+  if (points)
+    {
+    this->Implementation->RegionPolyData->SetPoints(points);
+    polys->InsertNextCell(points->GetNumberOfPoints());
+    for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
+      {
+      polys->InsertCellPoint(i);
+      }
+    this->Implementation->MarkerMapper->SetInputData(
+      this->Implementation->RegionPolyData);
+    }
+  else
+    {
+    this->Implementation->MarkerMapper->SetInputConnection(
+      this->Implementation->Glyph->GetOutputPort());
+    }
+  this->Implementation->RegionPolyData->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -156,6 +204,56 @@ void vtkVgMarker::SetMarkerPosition(double* pos)
     }
 
   this->Implementation->UpdatePosition(pos);
+}
+
+//----------------------------------------------------------------------------
+void vtkVgMarker::SetMarkerSizeMode(MarkerSizeModeType markerSizeMode)
+{
+  vtkDebugMacro(<< this->GetClassName()
+                << " (" << this << "): setting marker size mode to "
+                << this->GetMarkerSizeModeAsString());
+
+  if (this->MarkerSizeMode != markerSizeMode)
+    {
+    this->MarkerSizeMode = markerSizeMode;
+    if (this->MarkerSizeMode == MSM_FixedScreenSize)
+      {
+      this->Implementation->MarkerMapper->SetInputConnection(
+        this->Implementation->Glyph->GetOutputPort());
+      this->Implementation->MarkerSource->SetCenter(0, 0, 0);
+      this->Implementation->MarkerSource->SetRadius(1);
+      this->Implementation->ScaleFilter->SetScreenSize(this->MarkerSize);
+      }
+    else
+      {
+      this->Implementation->MarkerMapper->SetInputConnection(
+        this->Implementation->MarkerSource->GetOutputPort());
+      this->Implementation->MarkerSource->SetCenter(this->MarkerPosition);
+      this->Implementation->MarkerSource->SetRadius(this->MarkerSize);
+      }
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkVgMarker::SetMarkerSize(double markerSize)
+{
+  vtkDebugMacro(<< this->GetClassName()
+    << " (" << this << "): setting marker size to " << markerSize);
+
+  if (markerSize != this->MarkerSize)
+    {
+    this->MarkerSize = markerSize;
+    if (this->MarkerSizeMode == MSM_FixedScreenSize)
+      {
+      this->Implementation->ScaleFilter->SetScreenSize(this->MarkerSize);
+      }
+    else
+      {
+      this->Implementation->MarkerSource->SetRadius(this->MarkerSize);
+      }
+    this->Modified();
+    }
 }
 
 //----------------------------------------------------------------------------

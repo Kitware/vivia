@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -16,12 +16,12 @@
 
 // VpView includes.
 #include "vpApplication.h"
-
 #include "vpConfigureDialog.h"
 #include "vpSettings.h"
+#include "vpViewCore.h"
 
 //-----------------------------------------------------------------------------
-vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
+vpConfigureDialog::vpConfigureDialog(vpViewCore* core, QWidget* parent) :
   QDialog(parent), TrackAttributes(0)
 {
   this->Settings = new vpSettings;
@@ -79,6 +79,9 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
   connect(this->UI.uiAutoAdvanceFrameDuringCreation, SIGNAL(toggled(bool)),
           this, SLOT(uiAutoAdvanceFrameDuringCreationToggled(bool)));
 
+  connect(this->UI.uiInterpolateToGround, SIGNAL(toggled(bool)),
+          this, SLOT(uiInterpolateToGroundToggled(bool)));
+
   connect(this->UI.streamingUpdateInterval, SIGNAL(valueChanged(int)),
           this, SLOT(streamingUpdateIntervalChanged(int)));
   connect(this->UI.streamingTrackUpdateChunkSize, SIGNAL(valueChanged(int)),
@@ -88,6 +91,11 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent) :
           this, SLOT(videoSequentialPlaybackToggled(bool)));
   connect(this->UI.videoSuggestedFps, SIGNAL(valueChanged(double)),
           this, SLOT(videoSuggestedFpsChanged(double)));
+
+  connect(this->UI.colorWindow, SIGNAL(valueChanged(double)),
+          core, SLOT(setColorWindow(double)));
+  connect(this->UI.colorLevel, SIGNAL(valueChanged(double)),
+          core, SLOT(setColorLevel(double)));
 
   this->reset();
 }
@@ -103,6 +111,18 @@ void vpConfigureDialog::setTrackAttributes(vgAttributeSet* attribs)
 {
   this->TrackAttributes = attribs;
   this->UI.trackAttributeConfig->setEnabled(attribs != 0);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::setColorWindow(int colorWindow)
+{
+  this->UI.colorWindow->setValue(colorWindow);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::setColorLevel(int colorLevel)
+{
+  this->UI.colorLevel->setValue(colorLevel);
 }
 
 //-----------------------------------------------------------------------------
@@ -198,6 +218,9 @@ void vpConfigureDialog::reset()
 
   this->UI.uiAutoAdvanceFrameDuringCreation->setChecked(
     this->Settings->autoAdvanceDuringCreation());
+
+  this->UI.uiInterpolateToGround->setChecked(
+    this->Settings->interpolateToGround());
 
   this->UI.streamingUpdateInterval->setValue(
     this->Settings->streamingUpdateInterval());
@@ -330,6 +353,13 @@ void vpConfigureDialog::uiRightClickToEditToggled(bool state)
 void vpConfigureDialog::uiAutoAdvanceFrameDuringCreationToggled(bool state)
 {
   this->Settings->setAutoAdvanceDuringCreation(state);
+  this->setModified(0, true);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::uiInterpolateToGroundToggled(bool state)
+{
+  this->Settings->setInterpolateToGround(state);
   this->setModified(0, true);
 }
 

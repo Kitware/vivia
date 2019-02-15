@@ -27,9 +27,13 @@ public slots:
   void setTrackClassification(const vdfTrackId& trackId,
                               const vvTrackObjectClassification& toc);
 
-  void setTrackState(const vdfTrackId& trackId, vvTrackState state);
+  void setTrackState(const vdfTrackId& trackId, const vvTrackState& state,
+                     const vdfTrackAttributes& attributes,
+                     const vdfTrackStateScalars& scalarData);
   void setTrackStates(const vdfTrackId& trackId,
-                      const QList<vvTrackState>& states);
+                      const QList<vvTrackState>& states,
+                      const vgTimeMap<vdfTrackAttributes>& attributes,
+                      const vdfTrackScalarDataCollection& scalarData);
 
 private:
   QTE_DISABLE_COPY(vdfTrackReaderPrivate)

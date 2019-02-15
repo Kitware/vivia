@@ -8,13 +8,18 @@
 #define __vdfTrackSource_h
 
 #include "vdfDataSourceInterface.h"
+#include "vdfTrackData.h"
 #include "vdfTrackId.h"
 
 #include <vvTrack.h>
 
+#include <vgTimeMap.h>
+
 #include <vgExport.h>
 
+#include <QHash>
 #include <QObject>
+#include <QSet>
 
 class vdfDataSource;
 
@@ -59,20 +64,27 @@ signals:
   ///
   /// This signal is emitted by a track source when it has a new or updated
   /// track state for the specified track. States may arrive in arbitrary
-  /// order, and states for multiple tracks may be interleaved.
-  void trackUpdated(vdfTrackId trackId, vvTrackState state);
+  /// order, and states for multiple tracks may be interleaved. The attributes
+  /// and scalar data are for the same time stamp as the track state.
+  void trackUpdated(vdfTrackId trackId, vvTrackState state,
+                    vdfTrackAttributes attributes,
+                    vdfTrackStateScalars scalarData);
 
   /// Emitted when a track has a new or updated states available.
   ///
   /// This signal is emitted by a track source when it has a new or updated
-  /// track states for the specified track. It is a convenience batching
-  /// mechanism for trackUpdated(vdfTrackId, vvTrackState), allowing a source
-  /// to provide a group of state updates with less overhead than emitting a
-  /// signal for each state. The states all belong to the same track, but may
-  /// be in any order. Additional updates may contain states that supersede
-  /// and/or are interleaved with states from this batch, and batches for
-  /// multiple tracks may be interleaved.
-  void trackUpdated(vdfTrackId trackId, QList<vvTrackState> states);
+  /// track states, attributes, and/or scalar data for the specified track. It
+  /// is a convenience batching mechanism that allows a source to provide a
+  /// group of state updates with less overhead than emitting a signal for each
+  /// state. The states all belong to the same track, but may be in any order.
+  /// Additional updates may contain states that supersede and/or are
+  /// interleaved with states from this batch, and batches for multiple tracks
+  /// may be interleaved. Similarly, the attributes and scalar data (which are
+  /// delivered as ordered maps) may or may not match the time stamps of the
+  /// track states.
+  void trackUpdated(vdfTrackId trackId, QList<vvTrackState> states,
+                    vgTimeMap<vdfTrackAttributes> attributes,
+                    vdfTrackScalarDataCollection scalarData);
 
   /// Emitted when a track is closed (terminated).
   ///

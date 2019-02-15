@@ -1,47 +1,22 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vgVideoBuffer.h"
 
-#include <QDir>
-#include <QImage>
+#include "vgVideoFramePtrPrivate.h"
+#include "vgVideoPrivate.h"
+
+#include <vgDebug.h>
 
 #include <qtTemporaryFile.h>
 #include <qtUtil.h>
 
-#include <vgDebug.h>
-
-#include "vgVideoFramePtrPrivate.h"
-#include "vgVideoPrivate.h"
-
-namespace // anonymous
-{
-
-//-----------------------------------------------------------------------------
-void qiCleanup(void* data)
-{
-  QImage* qi = reinterpret_cast<QImage*>(data);
-  delete qi;
-}
-
-} // namespace <anonymous>
-
-//-----------------------------------------------------------------------------
-class vgVideoBufferPrivate : public vgVideoPrivate
-{
-public:
-  vgVideoBufferPrivate(const char* cf) : CompressionFormat(cf) {}
-
-  QSharedPointer<QFile> Store;
-  QString CompressionFormat;
-};
-
-QTE_IMPLEMENT_D_FUNC(vgVideoBuffer)
-
-///////////////////////////////////////////////////////////////////////////////
+#include <QBuffer>
+#include <QDir>
+#include <QImage>
 
 //BEGIN vgVideoDataStreamFramePtr
 
@@ -51,20 +26,20 @@ class vgVideoDataStreamFramePtr : public vgVideoFramePtrPrivate
 public:
   explicit vgVideoDataStreamFramePtr(
     vgTimeStamp ts, QSharedPointer<QIODevice> store,
-    quint64 offset, const QString& compressionFormat);
+    quint64 offset, const QByteArray& compressionFormat);
 
   vgImage data() const;
 
 protected:
   const QSharedPointer<QIODevice> DataStore;
   const quint64 DataOffset;
-  const QString CompressionFormat;
+  const QByteArray CompressionFormat;
 };
 
 //-----------------------------------------------------------------------------
 vgVideoDataStreamFramePtr::vgVideoDataStreamFramePtr(
   vgTimeStamp ts, QSharedPointer<QIODevice> store,
-  quint64 offset, const QString& compressionFormat) :
+  quint64 offset, const QByteArray& compressionFormat) :
   DataStore(store),
   DataOffset(offset),
   CompressionFormat(compressionFormat)
@@ -86,40 +61,10 @@ vgImage vgVideoDataStreamFramePtr::data() const
       }
     else
       {
-      const char* const cf = qPrintable(this->CompressionFormat);
-      QScopedPointer<QImage> qi(new QImage);
-      if (qi->load(this->DataStore.data(), cf))
+      QImage qi;
+      if (qi.load(this->DataStore.data(), this->CompressionFormat.constData()))
         {
-        int planes = 0;
-        int iStep = 0;
-        int planeStep = 0;
-        ptrdiff_t offset = 0;
-        switch (qi->format())
-          {
-          case QImage::Format_RGB888:
-            planes = 3;
-            iStep = 3;
-            planeStep = 1;
-            offset = 0;
-            break;
-          case QImage::Format_RGB32:
-            planes = 3;
-            iStep = 4;
-            planeStep = -1;
-            offset = 2;
-            break;
-          default:
-            qDebug() << "vgVideoDataStreamFramePtr(" << this << ')'
-                     << "failed to read compressed image:"
-                     << "unsupported QImage format" << qi->format();
-            return vgImage();
-          }
-
-        QImage* qip = qi.take();
-        unsigned char* topLeft = qip->bits() + offset;
-        vgImage::Closure cleanup(&qiCleanup, qip);
-        return vgImage(topLeft, qip->width(), qip->height(), planes,
-                       iStep, qip->bytesPerLine(), planeStep, cleanup);
+        return vgImage(qi);
         }
       }
     }
@@ -131,6 +76,85 @@ vgImage vgVideoDataStreamFramePtr::data() const
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//BEGIN vgVideoBufferPrivate
+
+//-----------------------------------------------------------------------------
+class vgVideoBufferPrivate : public vgVideoPrivate
+{
+public:
+  vgVideoBufferPrivate(const char* cf) : CompressionFormat(cf) {}
+
+  void insertFrame(const vgTimeStamp& pos, qint64 offset,
+                   const QByteArray& compressionFormat);
+
+  void insert(const vgTimeStamp& pos, const vgImage& image);
+  void insert(const vgTimeStamp& pos, const QByteArray& data,
+              const QByteArray& compressionFormat);
+  void insert(const vgTimeStamp& pos, const QImage& image,
+              const QByteArray& compressionFormat);
+
+  QSharedPointer<QIODevice> Store;
+  QByteArray CompressionFormat;
+};
+
+QTE_IMPLEMENT_D_FUNC(vgVideoBuffer)
+
+//-----------------------------------------------------------------------------
+void vgVideoBufferPrivate::insertFrame(
+  const vgTimeStamp& pos, qint64 offset, const QByteArray& compressionFormat)
+{
+  vgVideoFramePtr frame(
+    new vgVideoDataStreamFramePtr(pos, this->Store, offset, compressionFormat));
+  this->pos = this->frames.insert(pos, frame);
+}
+
+//-----------------------------------------------------------------------------
+void vgVideoBufferPrivate::insert(const vgTimeStamp& pos, const vgImage& image)
+{
+  // Write image to backing store
+  qint64 offset = this->Store->size();
+  this->Store->seek(offset);
+
+  QDataStream stream(this->Store.data());
+  stream << image;
+
+  // Create frame pointer and insert into map
+  this->insertFrame(pos, offset, QByteArray());
+}
+
+//-----------------------------------------------------------------------------
+void vgVideoBufferPrivate::insert(
+  const vgTimeStamp& pos, const QByteArray& data,
+  const QByteArray& compressionFormat)
+{
+  // Write image to backing store
+  qint64 offset = this->Store->size();
+  this->Store->seek(offset);
+
+  this->Store->write(data);
+
+  // Create frame pointer and insert into map
+  this->insertFrame(pos, offset, compressionFormat);
+}
+
+//-----------------------------------------------------------------------------
+void vgVideoBufferPrivate::insert(const vgTimeStamp& pos, const QImage& image,
+                                  const QByteArray& compressionFormat)
+{
+  // Write image to backing store
+  qint64 offset = this->Store->size();
+  this->Store->seek(offset);
+
+  image.save(this->Store.data(), compressionFormat.constData());
+
+  // Create frame pointer and insert into map
+  this->insertFrame(pos, offset, compressionFormat);
+}
+
+//END vgVideoBufferPrivate
+
+///////////////////////////////////////////////////////////////////////////////
+
 //BEGIN vgVideoBuffer
 
 //-----------------------------------------------------------------------------
@@ -139,30 +163,43 @@ vgVideoBuffer::vgVideoBuffer(const char* compressionFormat) :
 {
   QTE_D(vgVideoBuffer);
 
-  // Generate path for temporary file for backing store
-  QString ft = ".vg_video_buffer_XXXXXX";
-  const QByteArray tdv = qgetenv("VG_VIDEO_TMPDIR");
-  if (!tdv.isEmpty())
+  // Determine if we are using a file or memory for the buffer
+  const auto& tdv = qgetenv("VG_VIDEO_TMPDIR");
+  if (tdv == "RAMDEV")
     {
-    const QDir td(QString::fromLocal8Bit(tdv));
-    const QString ctd = (td.exists() ? td.canonicalPath() : td.absolutePath());
-    ft = QString("%2/%1").arg(ft).arg(ctd);
+    // Create a new memory buffer
+    QSharedPointer<QBuffer> b(new QBuffer);
+    b->open(QIODevice::ReadWrite);
+
+    // Assign buffer to ourselves
+    d->Store = b;
     }
-
-  // Create temporary file for backing store
-  QSharedPointer<qtTemporaryFile> f(new qtTemporaryFile(ft));
-
-  // Open file
-  if (!f->open())
+  else
     {
-    qDebug() << "vgVideoBuffer(" << this << ')'
-             << "failed to open backing store:"
-             << qPrintable(f->errorString());
-    return;
-    }
+    // Generate path for temporary file for backing store
+    QString ft = ".vg_video_buffer_XXXXXX";
+    if (!tdv.isEmpty())
+      {
+      const QDir td(QString::fromLocal8Bit(tdv));
+      const auto& ctd = (td.exists() ? td.canonicalPath() : td.absolutePath());
+      ft = QString("%2/%1").arg(ft).arg(ctd);
+      }
 
-  // Assign file handle to ourselves
-  d->Store = f;
+    // Create temporary file for backing store
+    QSharedPointer<qtTemporaryFile> f(new qtTemporaryFile(ft));
+
+    // Open file
+    if (!f->open())
+      {
+      qDebug() << "vgVideoBuffer(" << this << ')'
+               << "failed to open backing store:"
+               << qPrintable(f->errorString());
+      return;
+      }
+
+    // Assign file handle to ourselves
+    d->Store = f;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -171,7 +208,7 @@ vgVideoBuffer::~vgVideoBuffer()
 }
 
 //-----------------------------------------------------------------------------
-bool vgVideoBuffer::insert(vgTimeStamp pos, vgImage image)
+bool vgVideoBuffer::insert(const vgTimeStamp& pos, const vgImage& image)
 {
   QTE_D(vgVideoBuffer);
 
@@ -191,23 +228,69 @@ bool vgVideoBuffer::insert(vgTimeStamp pos, vgImage image)
     }
 
   // Write image to backing store
-  qint64 offset = d->Store->size();
-  d->Store->seek(offset);
   if (d->CompressionFormat.isEmpty())
     {
-    QDataStream stream(d->Store.data());
-    stream << image;
+    d->insert(pos, image);
     }
   else
     {
-    image.toQImage().save(d->Store.data(), qPrintable(d->CompressionFormat));
+    d->insert(pos, image.toQImage(), d->CompressionFormat);
     }
 
-  // Create frame pointer and insert into map
-  vgVideoFramePtrPrivate* p =
-    new vgVideoDataStreamFramePtr(pos, d->Store, offset, d->CompressionFormat);
-  vgVideoFramePtr frame(p);
-  d->pos = d->frames.insert(pos, frame);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vgVideoBuffer::insert(const vgTimeStamp& pos, const QByteArray& imageData,
+                           const QByteArray& imageFormat)
+{
+  QTE_D(vgVideoBuffer);
+
+  // Disallow duplicates
+  if (d->frames.contains(pos))
+    {
+    qDebug() << "vgVideoBuffer(" << this << ')'
+             << "tried to insert frame at timestamp" << pos
+             << "which already exists";
+    return false;
+    }
+
+  // Fail if backing store does not exist
+  if (!d->Store)
+    {
+    return false;
+    }
+
+  // Check if compression format matches
+  if (imageFormat.toLower() == d->CompressionFormat.toLower())
+    {
+    // Yes; insert the raw data directly
+    d->insert(pos, imageData, imageFormat);
+    }
+  else
+    {
+    // No match; try to decode the image data
+    QImage qi = QImage::fromData(imageData, "JPG");
+    if (qi.isNull())
+      {
+      qWarning() << "vgVideoBuffer(" << this << ')'
+                 << "failed to decode" << imageFormat << "image";
+      return false;
+      }
+
+    // Are we using compression?
+    if (d->CompressionFormat.isEmpty())
+      {
+      // No; insert the raw image
+      d->insert(pos, vgImage(qi));
+      }
+    else
+      {
+      // Yes; insert the image, with compression
+      d->insert(pos, qi, d->CompressionFormat);
+      }
+    }
+
   return true;
 }
 

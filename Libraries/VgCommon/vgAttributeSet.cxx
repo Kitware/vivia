@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------
 void vgAttributeSet::SetMask(const std::string& group,
                              const std::string& name,
-                             unsigned int mask)
+                             unsigned long long mask)
 {
   std::vector<vgAttribute>& attrs = this->AttributeGroups[group].Attributes;
   for (size_t i = 0, size = attrs.size(); i < size; ++i)
@@ -29,8 +29,8 @@ void vgAttributeSet::SetMask(const std::string& group,
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vgAttributeSet::GetMask(const std::string& group,
-                                     const std::string& name) const
+unsigned long long vgAttributeSet::GetMask(const std::string& group,
+                                           const std::string& name) const
 {
   AttributeGroupMap::const_iterator iter = this->AttributeGroups.find(group);
   if (iter == this->AttributeGroups.end())
@@ -51,7 +51,7 @@ unsigned int vgAttributeSet::GetMask(const std::string& group,
 }
 
 //-----------------------------------------------------------------------------
-unsigned int vgAttributeSet::GetGroupMask(const std::string& group) const
+unsigned long long vgAttributeSet::GetGroupMask(const std::string& group) const
 {
   AttributeGroupMap::const_iterator iter = this->AttributeGroups.find(group);
   if (iter == this->AttributeGroups.end())
@@ -59,7 +59,7 @@ unsigned int vgAttributeSet::GetGroupMask(const std::string& group) const
     return 0;
     }
 
-  unsigned int groupMask = 0;
+  unsigned long long groupMask = 0;
   for (size_t i = 0, size = iter->second.Attributes.size(); i < size; ++i)
     {
     groupMask |= iter->second.Attributes[i].Mask;

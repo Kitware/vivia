@@ -30,6 +30,7 @@ const char keyTranslateImageEnabled[]    = "TranslateImageEnabled";
 const char keyUseZeroBasedFrameNumbers[] = "UseZeroBasedFrameNumbers";
 const char keyRightClickToEdit[]         = "RightClickToEdit";
 const char keyAutoAdvanceDuringCreation[] = "AutoAdvanceDuringCreation";
+const char keyInterpolateToGround[]      = "InterpolateToGround";
 
 const char keySceneElementLineWidth[]    = "SceneElementLineWidth";
 
@@ -73,6 +74,7 @@ vpSettings::vpSettings()
   this->declareSetting(keyUseZeroBasedFrameNumbers, QVariant(false));
   this->declareSetting(keyRightClickToEdit, QVariant(true));
   this->declareSetting(keyAutoAdvanceDuringCreation, QVariant(true));
+  this->declareSetting(keyInterpolateToGround, QVariant(false));
 
   this->declareSetting(keySceneElementLineWidth, QVariant(4));
 
@@ -216,6 +218,7 @@ qtSettings_implement(int,     streamingUpdateInterval,   StreamingUpdateInterval
 qtSettings_implement(int,     streamingTrackUpdateChunkSize, StreamingTrackUpdateChunkSize)
 qtSettings_implement(bool,    rightClickToEdit,          RightClickToEdit)
 qtSettings_implement(bool,    autoAdvanceDuringCreation, AutoAdvanceDuringCreation)
+qtSettings_implement(bool,    interpolateToGround,       InterpolateToGround)
 qtSettings_implement(double,  sceneElementLineWidth,     SceneElementLineWidth)
 qtSettings_implement(QString, videoPlaybackMode_,        VideoPlaybackMode_)
 qtSettings_implement(double,  videoSuggestedFps,         VideoSuggestedFps)

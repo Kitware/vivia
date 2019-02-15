@@ -41,10 +41,10 @@ const std::vector<std::string>& vpModelIO::GetImageFiles() const
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::ReadTracks()
+bool vpModelIO::ReadTracks(int frameOffset)
 {
   assert(this->TrackIO);
-  return this->TrackIO->ReadTracks();
+  return this->TrackIO->ReadTracks(frameOffset);
 }
 
 //-----------------------------------------------------------------------------
@@ -55,18 +55,26 @@ bool vpModelIO::ReadTrackTraits()
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::ImportTracks(vtkIdType idsOffset,
-                             float offsetX, float offsetY)
+bool vpModelIO::ReadTrackClassifiers()
 {
   assert(this->TrackIO);
-  return this->TrackIO->ImportTracks(idsOffset, offsetX, offsetY);
+  return this->TrackIO->ReadTrackClassifiers();
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::WriteTracks(const char* filename)
+bool vpModelIO::ImportTracks(int frameOffset, vtkIdType idsOffset,
+                             float offsetX, float offsetY)
 {
   assert(this->TrackIO);
-  return this->TrackIO->WriteTracks(filename, false);
+  return this->TrackIO->ImportTracks(frameOffset, idsOffset, offsetX, offsetY);
+}
+
+//-----------------------------------------------------------------------------
+bool vpModelIO::WriteTracks(const char* filename, int frameOffset,
+                            QPointF aoiOffset)
+{
+  assert(this->TrackIO);
+  return this->TrackIO->WriteTracks(filename, frameOffset, aoiOffset, false);
 }
 
 //-----------------------------------------------------------------------------
@@ -109,7 +117,7 @@ bool vpModelIO::ReadActivities()
 bool vpModelIO::ReadFseTracks()
 {
   assert(this->FseTrackIO);
-  return this->FseTrackIO->ReadTracks();
+  return this->FseTrackIO->ReadTracks(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -117,12 +125,14 @@ bool vpModelIO::ImportFseTracks(vtkIdType idsOffset,
                                 float offsetX, float offsetY)
 {
   assert(this->FseTrackIO);
-  return this->FseTrackIO->ImportTracks(idsOffset, offsetX, offsetY);
+  return this->FseTrackIO->ImportTracks(0, idsOffset, offsetX, offsetY);
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::WriteFseTracks(const char* filename, bool writeSceneElements)
+bool vpModelIO::WriteFseTracks(const char* filename, QPointF aoiOffset,
+                               bool writeSceneElements)
 {
   assert(this->FseTrackIO);
-  return this->FseTrackIO->WriteTracks(filename, writeSceneElements);
+  return this->FseTrackIO->WriteTracks(filename, 0, aoiOffset,
+                                       writeSceneElements);
 }

@@ -99,15 +99,15 @@ public:
 
   // Description:
   // Set/Get the group mask to apply when coloring by state attributes
-  vtkSetMacro(StateAttributeGroupMask, unsigned int);
-  vtkGetMacro(StateAttributeGroupMask, unsigned int);
+  vtkSetMacro(StateAttributeGroupMask, vtkTypeUInt64);
+  vtkGetMacro(StateAttributeGroupMask, vtkTypeUInt64);
 
   // Description:
   // Add an implicit mapping for an individual attribute mask. Masks should be
   // registered in the same order that their colors appear in the lookup table,
   // starting at the second entry. The color in the first table entry will be
   // used for any attribute combination that hasn't been registered.
-  void AddStateAttributeMask(unsigned int mask);
+  void AddStateAttributeMask(vtkTypeUInt64 mask);
   void ClearStateAttributeMasks();
 
   // Description:
@@ -179,9 +179,9 @@ protected:
 
   vtkVgTrackColorHelper* ColorHelper;
 
-  unsigned int StateAttributeGroupMask;
+  vtkTypeUInt64 StateAttributeGroupMask;
 
-  std::vector<unsigned int> RegisteredAttributeMasks;
+  std::vector<vtkTypeUInt64> RegisteredAttributeMasks;
 
   vtkVgTrack* ExcludedTrack;
 

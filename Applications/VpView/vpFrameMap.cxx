@@ -15,16 +15,18 @@
 #include <vgTimeMap.h>
 
 #include <qtDebug.h>
+#include <qtEnumerate.h>
+#include <qtGet.h>
+#include <qtStlUtil.h>
 
 #include <QAtomicInt>
 #include <QMutex>
 #include <QMutexLocker>
-
-#include <map>
-#include <string>
+#include <QStringList>
 
 QTE_IMPLEMENT_D_FUNC(vpFrameMap)
 
+//-----------------------------------------------------------------------------
 class vpFrameMetaData
 {
 public:
@@ -93,22 +95,20 @@ public:
 class vpFrameMapPrivate
 {
 public:
-  vpFrameMapPrivate() : Progress(0), Stop(false)
-    {}
-
   vpFileDataSource* DataSource;
-  vgTimeMap<unsigned int> TimeToImageMap;
-  std::map<std::string, vpFrameMetaData> ImageToMetaDataMap;
 
-  QAtomicInt Progress;
-  volatile bool Stop;
+  QStringList FrameNames;
+  vgTimeMap<int> TimeToImageMap;
+  QHash<QString, vpFrameMetaData> ImageToMetaDataMap;
 
-  QMutex TimeToImageMapMutex;
+  QAtomicInt Progress = 0;
+  volatile bool Stop = false;
+
+  QMutex Mutex;
 };
 
 //-----------------------------------------------------------------------------
-void vpFrame::set(unsigned int index, vgTimeStamp time,
-                  const vtkMatrix4x4* homography/* = 0*/)
+void vpFrame::set(int index, vgTimeStamp time, const vtkMatrix4x4* homography)
 {
   this->Index = index;
   this->Time = time;
@@ -116,10 +116,10 @@ void vpFrame::set(unsigned int index, vgTimeStamp time,
 }
 
 //-----------------------------------------------------------------------------
-vpFrameMap::vpFrameMap(vpFileDataSource* dataSource) :
-  d_ptr(new vpFrameMapPrivate)
+vpFrameMap::vpFrameMap(vpFileDataSource* dataSource)
+  : d_ptr{new vpFrameMapPrivate}
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   d->DataSource = dataSource;
   connect(this, SIGNAL(finished()), SIGNAL(updated()));
@@ -135,23 +135,23 @@ vpFrameMap::~vpFrameMap()
 bool vpFrameMap::find(const vtkVgTimeStamp& time, vpFrame& frame,
                       vg::SeekMode seekMode)
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
-  QMutexLocker ml(&d->TimeToImageMapMutex);
-
-  vgTimeMap<unsigned int>::iterator itr =
-    d->TimeToImageMap.find(time.GetRawTimeStamp(), seekMode);
-
-  if (itr == d->TimeToImageMap.end())
+  synchronized (&d->Mutex)
     {
-    return false;
-    }
+    const auto iter = d->TimeToImageMap.find(time.GetRawTimeStamp(), seekMode);
 
-  // we need to find the entry in the image to metadata map - has to be there
-  // because we build the TimeToImageMap from ImageToMetaDataMap
-  std::map<std::string, vpFrameMetaData>::iterator image2DataItr =
-    d->ImageToMetaDataMap.find(d->DataSource->getDataFile(itr.value()));
-  frame.set(itr.value(), itr.key(), image2DataItr->second.Homography);
+    if (iter == d->TimeToImageMap.end())
+      {
+      return false;
+      }
+
+    // We need to find the entry in the image to metadata map; has to be there
+    // because we build the TimeToImageMap from ImageToMetaDataMap
+    const auto& frameName = d->DataSource->frameName(iter.value());
+    const auto& metaData = *qtGet(d->ImageToMetaDataMap, frameName);
+    frame.set(iter.value(), iter.key(), metaData.Homography);
+    }
 
   return true;
 }
@@ -159,31 +159,32 @@ bool vpFrameMap::find(const vtkVgTimeStamp& time, vpFrame& frame,
 //-----------------------------------------------------------------------------
 bool vpFrameMap::isEmpty()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
-  QMutexLocker ml(&d->TimeToImageMapMutex);
+  QMutexLocker lock{&d->Mutex};
   return d->TimeToImageMap.isEmpty();
 }
 
 //-----------------------------------------------------------------------------
 bool vpFrameMap::first(vpFrame& frame)
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
-  QMutexLocker ml(&d->TimeToImageMapMutex);
-
-  if (d->TimeToImageMap.isEmpty())
+  synchronized (&d->Mutex)
     {
-    return false;
+    if (d->TimeToImageMap.isEmpty())
+      {
+      return false;
+      }
+
+    const auto iter = d->TimeToImageMap.begin();
+
+    // We need to find the entry in the image to metadata map; has to be there
+    // because we build the TimeToImageMap from ImageToMetaDataMap
+    const auto& frameName = d->DataSource->frameName(iter.value());
+    const auto& metaData = *qtGet(d->ImageToMetaDataMap, frameName);
+    frame.set(iter.value(), iter.key(), metaData.Homography);
     }
-
-  vgTimeMap<unsigned int>::iterator itr = d->TimeToImageMap.begin();
-
-  // we need to find the entry in the image to metadata map - has to be there
-  // because we build the TimeToImageMap from ImageToMetaDataMap
-  std::map<std::string, vpFrameMetaData>::iterator image2DataItr =
-    d->ImageToMetaDataMap.find(d->DataSource->getDataFile(itr.value()));
-  frame.set(itr.value(), itr.key(), image2DataItr->second.Homography);
 
   return true;
 }
@@ -191,115 +192,114 @@ bool vpFrameMap::first(vpFrame& frame)
 //-----------------------------------------------------------------------------
 bool vpFrameMap::last(vpFrame& frame)
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
-  QMutexLocker ml(&d->TimeToImageMapMutex);
-
-  if (d->TimeToImageMap.isEmpty())
+  synchronized (&d->Mutex)
     {
-    return false;
-    }
-
-  vgTimeMap<unsigned int>::iterator itr = --d->TimeToImageMap.end();
-
-  // we need to find the entry in the image to metadata map - has to be there
-  // because we build the TimeToImageMap from ImageToMetaDataMap
-  std::map<std::string, vpFrameMetaData>::iterator image2DataItr =
-    d->ImageToMetaDataMap.find(d->DataSource->getDataFile(itr.value()));
-  frame.set(itr.value(), itr.key(), image2DataItr->second.Homography);
-
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-bool vpFrameMap::getFrame(unsigned int frameIndex, vpFrame& frame)
-{
-  QTE_D(vpFrameMap);
-
-  QMutexLocker ml(&d->TimeToImageMapMutex);
-
-  if (frameIndex >= (unsigned int)d->DataSource->getFileCount())
-    {
-    return false;
-    }
-
-  std::map<std::string, vpFrameMetaData>::iterator image2DataItr =
-    d->ImageToMetaDataMap.find(d->DataSource->getDataFile(frameIndex));
-  if (image2DataItr == d->ImageToMetaDataMap.end())
-    {
-    return false;
-    }
-
-  frame.set(frameIndex, vgTimeStamp(image2DataItr->second.Time),
-            image2DataItr->second.Homography);
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-std::map<unsigned int, vgTimeStamp> vpFrameMap::getTimeMap()
-{
-  QTE_D(vpFrameMap);
-
-  QMutexLocker ml(&d->TimeToImageMapMutex);
-
-  std::map<unsigned int, vgTimeStamp> result;
-
-  for (const auto& ts : d->TimeToImageMap.keys())
-    {
-    if (ts.HasFrameNumber())
+    if (d->TimeToImageMap.isEmpty())
       {
-      result.emplace(ts.FrameNumber, ts);
+      return false;
+      }
+
+    const auto iter = --d->TimeToImageMap.end();
+
+    // We need to find the entry in the image to metadata map; has to be there
+    // because we build the TimeToImageMap from ImageToMetaDataMap
+    const auto& frameName = d->DataSource->frameName(iter.value());
+    const auto& metaData = *qtGet(d->ImageToMetaDataMap, frameName);
+    frame.set(iter.value(), iter.key(), metaData.Homography);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpFrameMap::getFrame(int frameIndex, vpFrame& frame)
+{
+  QTE_D();
+
+  if (frameIndex >= d->DataSource->frames())
+    {
+    return false;
+    }
+
+  const auto& frameName = d->DataSource->frameName(frameIndex);
+
+  synchronized (&d->Mutex)
+    {
+    const auto* const metaData = qtGet(d->ImageToMetaDataMap, frameName);
+    if (!metaData)
+      {
+      return false;
+      }
+
+    const auto frameNum = static_cast<unsigned int>(frameIndex);
+    frame.set(frameIndex, vgTimeStamp{metaData->Time, frameNum},
+              metaData->Homography);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+QMap<int, vgTimeStamp> vpFrameMap::timeMap()
+{
+  QTE_D();
+
+  QMap<int, vgTimeStamp> out;
+
+  synchronized (&d->Mutex)
+    {
+    for (const auto& iter : qtEnumerate(d->TimeToImageMap))
+      {
+      out.insert(iter.value(), iter.key());
       }
     }
 
-  return result;
+  return out;
 }
 
 //-----------------------------------------------------------------------------
-void vpFrameMap::setImageTime(const std::string& filename, double microseconds)
+void vpFrameMap::setImageTime(const QString& filename, double microseconds)
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   Q_ASSERT(!this->isRunning());
-  std::map<std::string, vpFrameMetaData>::iterator itr =
-    d->ImageToMetaDataMap.find(filename);
-  if (itr != d->ImageToMetaDataMap.end())
+  if (auto* const metaData = qtGet(d->ImageToMetaDataMap, filename))
     {
-    itr->second.Time = microseconds;
+    metaData->Time = microseconds;
     return;
     }
-  vpFrameMetaData metaData(microseconds);
-  d->ImageToMetaDataMap.insert(std::make_pair(filename, metaData));
+  d->ImageToMetaDataMap.insert(filename, {microseconds});
 }
 
 //-----------------------------------------------------------------------------
-void vpFrameMap::setImageHomography(const std::string& filename,
+void vpFrameMap::setImageHomography(const QString& filename,
                                     vtkMatrix4x4 *homography)
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   Q_ASSERT(!this->isRunning());
-  std::map<std::string, vpFrameMetaData>::iterator itr =
-    d->ImageToMetaDataMap.find(filename);
-  if (itr != d->ImageToMetaDataMap.end())
+  if (auto* const metaData = qtGet(d->ImageToMetaDataMap, filename))
     {
-    vpFrameMetaData::SetHomography(itr->second.Homography, homography);
+    vpFrameMetaData::SetHomography(metaData->Homography, homography);
     return;
     }
-  vpFrameMetaData metaData(homography);
-  d->ImageToMetaDataMap.insert(std::make_pair(filename, metaData));
+  d->ImageToMetaDataMap.insert(filename, {homography});
 }
 
 //-----------------------------------------------------------------------------
 void vpFrameMap::startUpdate()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   if (this->isRunning())
     {
     qDebug() << "Frame map update has already started.";
     return;
     }
+
+  d->FrameNames = d->DataSource->frameNames();
 
   d->Stop = false;
   d->Progress = 0;
@@ -309,7 +309,7 @@ void vpFrameMap::startUpdate()
 //-----------------------------------------------------------------------------
 void vpFrameMap::stop()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   d->Stop = true;
   this->wait();
@@ -318,105 +318,100 @@ void vpFrameMap::stop()
 //-----------------------------------------------------------------------------
 int vpFrameMap::progress()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
   return d->Progress;
 }
 
 //-----------------------------------------------------------------------------
-void vpFrameMap::exportImageTimes(
-  std::vector<std::pair<std::string, double> >& imageTimes)
+QList<QPair<QString, double>> vpFrameMap::imageTimes()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
-  // Stop updating momentarily to avoid any races on the image -> time map.
-  bool wasRunning = this->isRunning();
-  this->stop();
+  QList<QPair<QString, double>> out;
 
-  // iterate to extract time
-  std::map<std::string, vpFrameMetaData>::iterator itr =
-    d->ImageToMetaDataMap.begin();
-  for (; itr != d->ImageToMetaDataMap.end(); itr++)
+  synchronized (&d->Mutex)
     {
-    imageTimes.push_back(
-      std::pair<std::string, double>(itr->first, itr->second.Time));
+    foreach (const auto& iter, qtEnumerate(d->ImageToMetaDataMap))
+      {
+      out.append({iter.key(), iter.value().Time});
+      }
     }
 
-  // Restart decoding thread.
-  if (wasRunning)
-    {
-    this->startUpdate();
-    }
+  return out;
 }
 
 //-----------------------------------------------------------------------------
 void vpFrameMap::run()
 {
-  QTE_D(vpFrameMap);
+  QTE_D();
 
+  synchronized (&d->Mutex)
     {
-    QMutexLocker ml(&d->TimeToImageMapMutex);
     d->TimeToImageMap.clear();
     }
 
-  int numFiles = d->DataSource->getFileCount();
+  int numFiles = d->FrameNames.count();
   if (numFiles == 0)
     {
     return;
     }
 
+  const auto& firstFrameName = d->FrameNames.first();
   vtkSmartPointer<vtkVgBaseImageSource> imageSource;
   imageSource.TakeReference(
-    vpImageSourceFactory::GetInstance()->Create(
-      d->DataSource->getDataFile(0)));
+    vpImageSourceFactory::GetInstance()->Create(stdString(firstFrameName)));
 
   if (!imageSource)
     {
     return;
     }
 
-  std::map<std::string, vpFrameMetaData>::iterator lastInsertPos =
-    d->ImageToMetaDataMap.begin();
-  for (int i = 0; i < numFiles; ++i, d->Progress = i)
+  foreach (const auto i, qtIndexRange(numFiles))
     {
+    d->Progress = i;
+
     if (d->Stop)
       {
       return;
       }
 
-    // Look up the filename in our internal map to check if we've seen this
-    // image before. If so, we don't need to read the timestamp metadata again.
-    std::string filename = d->DataSource->getDataFile(i);
-    std::map<std::string, vpFrameMetaData>::iterator itr =
-      d->ImageToMetaDataMap.find(filename);
-
     vtkVgTimeStamp ts;
-    if (itr != d->ImageToMetaDataMap.end())
+    ts.SetFrameNumber(static_cast<unsigned int>(i));
+
+    // Look up the frame name in our internal map to check if we've seen this
+    // image before; If so, we don't need to read the timestamp metadata again
+    const auto& frameName = d->FrameNames[i];
+    synchronized (&d->Mutex)
       {
-      ts.SetTime(itr->second.Time);
-      ts.SetFrameNumber(i);
-      }
-    else
-      {
-      imageSource->SetFileName(filename.c_str());
-      imageSource->UpdateInformation();
-      vtkVgTimeStamp imageTimeStamp = imageSource->GetImageTimeStamp();
-      if (!imageTimeStamp.IsValid())
+      if (auto* const entry = qtGet(d->ImageToMetaDataMap, frameName))
         {
-        qDebug() << "No timestamp data found for" << filename.c_str()
-                 << ", frame will be ignored";
+        ts.SetTime(entry->Time);
         continue;
         }
-      ts.SetTime(imageTimeStamp.GetTime());
-      ts.SetFrameNumber(i);
-      vpFrameMetaData metaData(ts.GetTime());
-      lastInsertPos =
-        d->ImageToMetaDataMap.insert(lastInsertPos,
-                                     std::make_pair(filename, metaData));
       }
+
+    imageSource->SetFileName(qPrintable(frameName));
+    imageSource->UpdateInformation();
+
+    const auto& imageTimeStamp = imageSource->GetImageTimeStamp();
+    if (!imageTimeStamp.IsValid())
       {
-      QMutexLocker ml(&d->TimeToImageMapMutex);
-      d->TimeToImageMap.insert(ts.GetRawTimeStamp(), static_cast<unsigned>(i));
+      qDebug() << "vpFrameMap: Ignoring frame" << frameName
+               << "(no timestamp data could be obtained)";
+      continue;
+      }
+
+    ts.SetTime(imageTimeStamp.GetTime());
+    vpFrameMetaData metaData{ts.GetTime()};
+
+    synchronized (&d->Mutex)
+      {
+      d->ImageToMetaDataMap.insert(frameName, metaData);
+      d->TimeToImageMap.insert(ts.GetRawTimeStamp(), i);
       }
     }
+
+  // Set progress to number of frames to indicate completion
+  d->Progress = numFiles;
 }

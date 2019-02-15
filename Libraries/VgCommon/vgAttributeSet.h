@@ -20,7 +20,7 @@ struct vgAttribute
   vgAttribute() : Mask(0) {}
 
   std::string Name;
-  unsigned int Mask;
+  unsigned long long Mask;
 };
 
 // Disable warning about the STL member of vgAttributeGroup not being exported.
@@ -43,16 +43,16 @@ public:
   // Description:
   // Define or update an attribute mask
   void SetMask(const std::string& group, const std::string& name,
-               unsigned int mask);
+               unsigned long long mask);
 
   // Description:
   // Get the mask for a defined attribute
-  unsigned int GetMask(const std::string& group,
-                       const std::string& name) const;
+  unsigned long long GetMask(const std::string& group,
+                             const std::string& name) const;
 
   // Description:
   // Get the OR'ed mask of all attributes currently defined for a group
-  unsigned int GetGroupMask(const std::string& group) const;
+  unsigned long long GetGroupMask(const std::string& group) const;
 
   // Description:
   // Set the enabled flag for a group. The group will be added if it didn't

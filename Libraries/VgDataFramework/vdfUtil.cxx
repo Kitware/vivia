@@ -6,14 +6,19 @@
 
 #include "vdfDataSource.h"
 #include "vdfNamespace.h"
+#include "vdfTrackData.h"
 #include "vdfTrackId.h"
 
 #include <vvTrack.h>
 
+#include <vgTimeMap.h>
+
 #include <qtGlobal.h>
 #include <qtOnce.h>
 
+#include <QHash>
 #include <QMetaType>
+#include <QSet>
 
 namespace // anonymous
 {
@@ -29,6 +34,10 @@ void registerMetaTypes()
   // vdfTrackSourceInterface
   QTE_REGISTER_METATYPE(vdfTrackId);
   QTE_REGISTER_METATYPE(QList<vvTrackState>);
+  QTE_REGISTER_METATYPE(vdfTrackAttributes);
+  QTE_REGISTER_METATYPE(vgTimeMap<vdfTrackAttributes>);
+  QTE_REGISTER_METATYPE(vdfTrackStateScalars);
+  QTE_REGISTER_METATYPE(vdfTrackScalarDataCollection);
 }
 
 } // namespace <anonymous>

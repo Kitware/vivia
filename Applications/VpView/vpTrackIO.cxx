@@ -39,6 +39,7 @@ static const unsigned char DefaultTrackColors[NumDefaultTrackColors][3] =
 //-----------------------------------------------------------------------------
 vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
+                     bool interpolateToGround,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes,
                      vtkMatrix4x4* geoTransform,
@@ -48,7 +49,8 @@ vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
   StorageMode(storageMode),
   TimeStampMode(timeStampMode),
   GeoTransform(geoTransform),
-  FrameMap(frameMap)
+  FrameMap(frameMap),
+  InterpolateToGround(interpolateToGround)
 {
   assert(trackModel);
 }
@@ -70,7 +72,13 @@ bool vpTrackIO::ReadTrackTraits()
 }
 
 //-----------------------------------------------------------------------------
-bool vpTrackIO::ImportTracks(vtkIdType, float, float)
+bool vpTrackIO::ReadTrackClassifiers()
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vpTrackIO::ImportTracks(int, vtkIdType, float, float)
 {
   return false;
 }

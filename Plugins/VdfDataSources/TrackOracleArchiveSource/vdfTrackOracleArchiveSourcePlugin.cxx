@@ -104,6 +104,14 @@ vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
 {
   QTE_D(vdfTrackOracleArchiveSourcePlugin);
 
+  // kwiver and csv are open-ended and should always be tried
+  d->Formats.insert(
+    track_oracle::TF_CSV,
+    track_oracle::file_format_manager::get_format(track_oracle::TF_CSV));
+  d->Formats.insert(
+    track_oracle::TF_KWIVER,
+    track_oracle::file_format_manager::get_format(track_oracle::TF_KWIVER));
+
   d->addSchemas(d->Formats, visgui_minimal_track_type());
 }
 

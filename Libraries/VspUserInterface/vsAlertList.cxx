@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -69,8 +69,7 @@ void setItemAlert(QTreeWidgetItem* item, vsAlert newAlert,
 
   if (swatchCache)
     {
-    const double* dc = newAlert.eventInfo.pcolor;
-    const QColor color = QColor::fromRgbF(dc[0], dc[1], dc[2]);
+    const QColor color = newAlert.eventInfo.pcolor.toQColor();
     item->setIcon(0, swatchCache->swatch(color));
     }
 }

@@ -9,6 +9,10 @@
 #include <QCleanlooksStyle>
 #include <QSettings>
 
+// vxl includes
+#include <vil/vil_image_view.h>
+#include <vgl/algo/vgl_h_matrix_2d.h>
+
 // QT Extensions includes
 #include <qtCliArgs.h>
 
@@ -30,7 +34,7 @@ int main(int argc, char** argv)
   // Force ini-style configuration files on Windows for easy editing.
   QSettings::setDefaultFormat(QSettings::IniFormat);
 
-  QApplication::setApplicationName("VisGUI View");
+  QApplication::setApplicationName("WAMI Viewer");
   QApplication::setOrganizationName("Kitware");
   QApplication::setOrganizationDomain("kitware.com");
   QApplication::setApplicationVersion(VPVIEW_VERSION_STR);
@@ -56,6 +60,12 @@ int main(int argc, char** argv)
   // Create application instance and set copyright information
   vpApplication app(args.qtArgc(), args.qtArgv());
   app.setCopyright(VPVIEW_COPY_YEAR, "Kitware, Inc.");
+
+  // Register metatypes
+  QTE_REGISTER_METATYPE(vil_image_view<vxl_byte>);
+  QTE_REGISTER_METATYPE(vil_image_view<double>);
+  QTE_REGISTER_METATYPE(std::string);
+  QTE_REGISTER_METATYPE(std::vector<vgl_h_matrix_2d<double> >);
 
   vpView myView;
   myView.show();

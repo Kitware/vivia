@@ -172,13 +172,13 @@ int vtkVgGDALReader::RequestInformation(
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   int extents[6] =
@@ -192,13 +192,19 @@ int vtkVgGDALReader::RequestInformation(
     };
 
   this->Reader->SetFileName(this->FileName);
-  this->Reader->SetDataExtents(extents);
+  this->Reader->SetDataExtent(extents);
   this->Reader->SetTargetDimensions(this->OutputResolution[0],
                                     this->OutputResolution[1]);
   this->Reader->UpdateInformation();
 
-  this->Reader->GetDataSpacing(this->Spacing);
-  this->Reader->GetDataOrigin(this->Origin);
+
+  double origin[3], spacing[3];
+  this->Reader->GetDataSpacing(spacing);
+  this->Reader->GetDataOrigin(origin);
+
+  origin[0] += this->Origin[0];
+  origin[1] += this->Origin[1];
+  origin[2] += this->Origin[2];
 
   int* ext = this->Reader->GetDataExtent();
   extents[0] = ext[0];
@@ -213,9 +219,9 @@ int vtkVgGDALReader::RequestInformation(
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                extents, 6);
-  outInfo->Set(vtkDataObject::SPACING(), this->Spacing, 3);
+  outInfo->Set(vtkDataObject::SPACING(), spacing, 3);
 
-  outInfo->Set(vtkDataObject::ORIGIN(),  this->Origin, 3);
+  outInfo->Set(vtkDataObject::ORIGIN(),  origin, 3);
 
   return 1;
 }
@@ -228,34 +234,34 @@ int vtkVgGDALReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (!outputVector)
     {
     vtkErrorMacro("Invalid output information vector.") ;
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   vtkDataObject* dataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!dataObj)
     {
     vtkErrorMacro("Invalid output data object.");
-    return 1;
+    return 0;
     }
 
   vtkImageData* outputImage = vtkImageData::SafeDownCast(dataObj);
   if (!outputImage)
     {
     vtkErrorMacro("Output data object is not an image data object.");
-    return 1;
+    return 0;
     }
 
   if (this->ImageCache)
@@ -270,13 +276,19 @@ int vtkVgGDALReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (!this->ImageCache)
     {
     vtkErrorMacro("Failed to create valid output.");
-    return 1;
+    return 0;
     }
 
-  this->Reader->GetDataSpacing(this->Spacing);
-  this->Reader->GetDataOrigin(this->Origin);
-  this->ImageCache->SetSpacing(this->Spacing);
-  this->ImageCache->SetOrigin(this->Origin);
+  double origin[3], spacing[3];
+  this->Reader->GetDataSpacing(spacing);
+  this->Reader->GetDataOrigin(origin);
+
+  origin[0] += this->Origin[0];
+  origin[1] += this->Origin[1];
+  origin[2] += this->Origin[2];
+
+  this->ImageCache->SetSpacing(spacing);
+  this->ImageCache->SetOrigin(origin);
 
   outputImage->ShallowCopy(this->ImageCache);
 

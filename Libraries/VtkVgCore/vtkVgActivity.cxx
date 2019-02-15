@@ -32,7 +32,9 @@
 #include "vtkVgEvent.h"
 #include "vtkVgIconManager.h"
 
-#include <assert.h>
+#include <algorithm>
+
+#include <cassert>
 
 vtkStandardNewMacro(vtkVgActivity);
 

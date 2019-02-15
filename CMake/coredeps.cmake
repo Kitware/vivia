@@ -1,5 +1,12 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
+# Generally, Boost is built shared, but give an advanced option to find a static build.
+option(USE_STATIC_BOOST
+  "Find a static build of Boost"
+  OFF)
+mark_as_advanced(USE_STATIC_BOOST)
+set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
+
 # Boost is required.
 find_package(Boost REQUIRED
   COMPONENTS thread signals system filesystem date_time
@@ -114,10 +121,18 @@ if (VISGUI_ENABLE_VIDTK)
   find_package(vidtk REQUIRED)
   add_definitions(-DVISGUI_USE_VIDTK)
 
+  if (VISGUI_ENABLE_SUPER3D)
+    add_definitions(-DVISGUI_USE_SUPER3D)
+  endif()
+
   # This is a fix for a change in VIDTK. It is required or else
   # class definitions and other code would be different when seen
   # by VISGUI.
   add_definitions(-DUUIDABLE)
+else()
+  if (VISGUI_ENABLE_SUPER3D)
+    message(ERROR_FATAL "Enabling vivia_super3d requires enabling vidtk")
+  endif()
 endif()
 
 if (VISGUI_ENABLE_KWIVER)
@@ -152,3 +167,9 @@ if(VISGUI_ENABLE_GDAL)
 endif()
 
 find_package(GeographicLib REQUIRED)
+
+if(VISGUI_ENABLE_SUPER3D)
+  find_package(super3d REQUIRED)
+  find_package(maptk REQUIRED)
+  find_package(OpenCV REQUIRED)
+endif()

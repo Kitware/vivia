@@ -9,6 +9,8 @@
 
 #include "vpProjectBase.h"
 
+#include <vgAttributeSet.h>
+
 #include <qtGlobal.h>
 
 #include <vtkSmartPointer.h>
@@ -69,6 +71,7 @@ public:
   PROJECT_FIELD_TAG(DataSetSpecifier);
   PROJECT_FIELD_TAG(TracksFile);
   PROJECT_FIELD_TAG(TrackTraitsFile);
+  PROJECT_FIELD_TAG(TrackClassifiersFile);
   PROJECT_FIELD_TAG(EventsFile);
   PROJECT_FIELD_TAG(EventLinksFile);
   PROJECT_FIELD_TAG(IconsFile);
@@ -96,9 +99,13 @@ public:
   PROJECT_FIELD_TAG(FrameNumberOffset);
   PROJECT_FIELD_TAG(ImageTimeMapFile);
   PROJECT_FIELD_TAG(HomographyIndexFile);
+  PROJECT_FIELD_TAG(HomographyReferenceFrame);
 
   PROJECT_FIELD_TAG(FiltersFile);
   PROJECT_FIELD_TAG(SceneElementsFile);
+  PROJECT_FIELD_TAG(CameraDirectory);
+  PROJECT_FIELD_TAG(DepthConfigFile);
+  PROJECT_FIELD_TAG(BundleAdjustmentConfigFile);
 
   PROJECT_FIELD_TAG(ImageToGcsMatrix);
 #undef PROJECT_FIELD_TAG
@@ -136,6 +143,7 @@ public:
   // Others
   vtkSmartPointer<vtkVgPicker> Picker;
   QSharedPointer<vpModelIO> ModelIO;
+  vgAttributeSet TrackDetectionAttributes;
 
   int ProjectId;
   int NextCreateTrackId;

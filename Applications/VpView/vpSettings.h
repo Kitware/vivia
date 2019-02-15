@@ -71,6 +71,7 @@ public:
   qtSettings_declare(bool, useZeroBasedFrameNumbers, setUseZeroBasedFrameNumbers);
   qtSettings_declare(bool, rightClickToEdit, setRightClickToEdit);
   qtSettings_declare(bool, autoAdvanceDuringCreation, setAutoAdvanceDuringCreation);
+  qtSettings_declare(bool, interpolateToGround, setInterpolateToGround);
   qtSettings_declare(double, sceneElementLineWidth, setSceneElementLineWidth);
 
   qtSettings_declare(int, streamingUpdateInterval, setStreamingUpdateInterval);
