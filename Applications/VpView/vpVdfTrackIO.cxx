@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,6 +25,38 @@
 
 namespace
 {
+
+//-----------------------------------------------------------------------------
+template <typename T>
+T* getValue(T* item)
+{
+  return item;
+}
+
+//-----------------------------------------------------------------------------
+template <typename Key, typename Value>
+auto getValue(const std::pair<Key, Value>* pair)
+  -> decltype(getValue(std::declval<const Value*>()))
+{
+  return (pair ? getValue(std::addressof(pair->second)) : nullptr);
+}
+
+//-----------------------------------------------------------------------------
+template <typename Container, typename Key>
+auto getValue(Container const& c, Key const& key)
+  -> decltype(getValue(std::addressof(*c.find(key))))
+{
+  auto const iter = c.find(key);
+  return getValue(iter == c.end() ? nullptr : std::addressof(*iter));
+}
+
+//-----------------------------------------------------------------------------
+template <typename Container, typename Key>
+auto getValue(Container const* c, Key const& key)
+  -> decltype(getValue(std::addressof(*(c->find(key)))))
+{
+  return (c ? getValue(*c, key) : nullptr);
+}
 
 //-----------------------------------------------------------------------------
 void addPoint(std::vector<float>& points, float x, float y, float z = 0.0f)
@@ -102,6 +134,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
   vdfTrackReader reader;
   QStringList supplementalFileBases;
+  vpFileTrackReader::TrackRegionMap trackRegionMap;
 
   if (d->TracksUri.isLocalFile())
   {
@@ -122,7 +155,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     // Read through each track file
     for (const auto& filePath : files)
     {
-      // TODO read regions
+      d->FileReader.ReadRegionsFile(filePath, 0.0f, 0.0f, trackRegionMap);
 
       // Construct the track source and track reader
       const auto& trackUri = QUrl::fromLocalFile(filePath);
@@ -148,8 +181,9 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   {
     if (d->TracksUri.isLocalFile())
     {
-      // TODO read regions
-      supplementalFileBases.append(d->TracksUri.toLocalFile());
+      const auto& filePath = d->TracksUri.toLocalFile();
+      d->FileReader.ReadRegionsFile(filePath, 0.0f, 0.0f, trackRegionMap);
+      supplementalFileBases.append(filePath);
     }
 
     // Construct the track source and track reader
@@ -184,8 +218,12 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     track->InterpolateMissingPointsOnInsertOn();
     track->SetPoints(this->TrackModel->GetPoints());
 
-    // Set track model identifier
+    // Get (desired) track model identifier and matching region set
     const auto vtkId = static_cast<vtkIdType>(ti.key().SerialNumber);
+    const auto* trackRegions =
+      getValue(trackRegionMap, static_cast<unsigned int>(vtkId));
+
+    // Set (actual) track model identifier
     if (this->TrackModel->GetTrack(vtkId))
     {
       const auto fallbackId = this->TrackModel->GetNextAvailableId();
@@ -211,14 +249,27 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     }
 
     // Iterate over track states
+    bool skippedInterpolationPointSinceLastInsert = false;
     foreach (const auto& s, in.Trajectory)
     {
+      const auto frameNumber = s.TimeStamp.FrameNumber;
+      const auto* region = getValue(trackRegions, frameNumber);
+
+      if (region && !region->KeyFrame)
+      {
+        // Since this is an interpolated frame, don't set it; the track will
+        // object will handle recomputing interpolated frames
+        // TODO - add option to track class to insert interpolated frames
+        skippedInterpolationPointSinceLastInsert = true;
+        continue;
+      }
+
       // Get frame metadata
       QScopedPointer<vpFrame> frame;
       if (this->FrameMap)
       {
         frame.reset(new vpFrame);
-        if (!this->FrameMap->getFrame(s.TimeStamp.FrameNumber, *frame))
+        if (!this->FrameMap->getFrame(static_cast<int>(frameNumber), *frame))
         {
           frame.reset();
         }
@@ -255,40 +306,49 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
       // Extract shell points
       std::vector<float> shell;
-      if (s.ImageObject.empty())
+      if (region)
       {
-        // TODO check regions map
-        shell.reserve(12);
-        const auto& tl = s.ImageBox.TopLeft;
-        const auto& br = s.ImageBox.BottomRight;
-        addPoint(shell, tl.X, tl.Y);
-        addPoint(shell, tl.X, br.Y);
-        addPoint(shell, br.X, br.Y);
-        addPoint(shell, br.X, tl.Y);
+        shell = region->Points;
       }
       else
       {
-        shell.reserve(3 * s.ImageObject.size());
-        foreach (const auto& sp, s.ImageObject)
+        if (s.ImageObject.empty())
         {
-          const auto x = static_cast<float>(sp.X);
-          const auto y = static_cast<float>(sp.Y);
-          addPoint(shell, x, y);
+          shell.reserve(12);
+          const auto& tl = s.ImageBox.TopLeft;
+          const auto& br = s.ImageBox.BottomRight;
+          addPoint(shell, tl.X, tl.Y);
+          addPoint(shell, tl.X, br.Y);
+          addPoint(shell, br.X, br.Y);
+          addPoint(shell, br.X, tl.Y);
         }
-      }
-
-      // Adjust shell points for storage mode
-      if (this->StorageMode == TSM_InvertedImageCoords)
-      {
-        const auto imageHeight = static_cast<float>(this->GetImageHeight());
-        for (size_t i = 1; i < shell.size(); i += 3)
+        else
         {
-          shell[i] = imageHeight - shell[i];
+          shell.reserve(3 * s.ImageObject.size());
+          foreach (const auto& sp, s.ImageObject)
+          {
+            const auto x = static_cast<float>(sp.X);
+            const auto y = static_cast<float>(sp.Y);
+            addPoint(shell, x, y);
+          }
+        }
+
+        // Adjust shell points for storage mode
+        if (this->StorageMode == TSM_InvertedImageCoords)
+        {
+          const auto imageHeight = static_cast<float>(this->GetImageHeight());
+          for (size_t i = 1; i < shell.size(); i += 3)
+          {
+            shell[i] = imageHeight - shell[i];
+          }
         }
       }
 
       track->InsertNextPoint(ts, p, s.WorldLocation,
-                             shell.size() / 3, shell.data());
+                             shell.size() / 3, shell.data(),
+                             skippedInterpolationPointSinceLastInsert);
+      skippedInterpolationPointSinceLastInsert = false;
+      this->TrackModel->AddKeyframe(track->GetId(), ts);
     }
 
     track->Close();
