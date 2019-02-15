@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -23,6 +23,7 @@
 #include <vtkPoints.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <qtIndexRange.h>
 #include <qtStlUtil.h>
 
 #include <QFileInfo>
@@ -173,7 +174,7 @@ bool vpFileTrackReader::ReadAttributesFile(
     std::string groupName, attributeName;
     unsigned int bitShift;
     vtkTypeUInt64 one = 1;
-    for (int i = 0; i < numAttributes; ++i)
+    for (const auto i QTE_UNUSED : qtIndexRange(numAttributes))
       {
       file >> groupName >> attributeName >> bitShift;
       trackAttributes->SetMask(groupName, attributeName, (one << bitShift));
@@ -194,7 +195,7 @@ bool vpFileTrackReader::ReadAttributesFile(
         }
 
       vtkTypeUInt64 attributeValue = 0;
-      for (int i = 0; i < numAttributes; ++i)
+      for (const auto i QTE_UNUSED : qtIndexRange(numAttributes))
         {
         file >> bitShift;
         attributeValue |= (one << bitShift);
@@ -250,12 +251,12 @@ bool vpFileTrackReader::ReadRegionsFile(
         // because we do not insert the point; instead the interpolated points
         // are recalculated.
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        trackRegionMap[id].insert(std::make_pair(frame, frameRegion));
+        trackRegionMap[id].emplace(frame, frameRegion);
         continue;
         }
 
       frameRegion.Points.reserve(numPoints * 3);
-      for (int i = 0; i < numPoints; ++i)
+      for (const auto i QTE_UNUSED : qtIndexRange(numPoints))
         {
         float x, y;
         file >> x >> y;
