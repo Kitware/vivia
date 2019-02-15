@@ -70,8 +70,7 @@ bool vpFileTrackReader::ReadTrackTraits(
 bool vpFileTrackReader::ReadTrackClassifiers(
   const QString& trackClassifiersFileName) const
 {
-  // Read P/V/O's
-  // TODO read TOC's instead
+  // Read P/V/O's or TOC's
   qtKstReader reader(QUrl::fromLocalFile(trackClassifiersFileName),
                      QRegExp("\\s+"), QRegExp("\n"));
   if (!reader.isValid())
@@ -79,24 +78,54 @@ bool vpFileTrackReader::ReadTrackClassifiers(
     return false;
     }
 
-  // Process the P/V/O's
+  // Process the P/V/O's / TOC's
   while (!reader.isEndOfFile())
     {
     int id;
-    double pvo[3];
-    if (reader.readInt(id, 0) &&
-        reader.readReal(pvo[0], 1) &&
-        reader.readReal(pvo[1], 2) &&
-        reader.readReal(pvo[2], 3))
+    if (reader.readInt(id, 0))
       {
       vtkVgTrack* track = this->IO->TrackModel->GetTrack(id);
-      if (!track)
+      if (track)
         {
-        std::cerr << "Unknown track id: " << id << '\n';
+        double pvo[3];
+        if (reader.valueCount() == 4 &&
+            reader.readReal(pvo[0], 1) &&
+            reader.readReal(pvo[1], 2) &&
+            reader.readReal(pvo[2], 3))
+          {
+          track->SetPVO(pvo);
+          }
+        else
+          {
+          std::map<int, double> toc;
+
+          reader.seek(reader.currentRecord(), 1);
+          while (!reader.isEndOfRecord())
+            {
+            QString type;
+            double score;
+            if (reader.readString(type) && reader.readReal(score))
+              {
+              const auto tti = this->IO->GetTrackTypeIndex(qPrintable(type));
+              toc.emplace(tti, score);
+              }
+            else
+              {
+              std::cerr << "Track " << id << ": Corrupt TOC record at "
+                        << reader.currentRecord() << ", "
+                        << reader.currentValue() << '\n';
+              break;
+              }
+            }
+          if (!toc.empty())
+            {
+            track->SetTOC(toc);
+            }
+          }
         }
       else
         {
-        track->SetPVO(pvo);
+        std::cerr << "Unknown track id: " << id << '\n';
         }
       }
     reader.nextRecord();
@@ -129,18 +158,10 @@ void vpFileTrackReader::ReadTypesFile(const QString& tracksFileName) const
         continue;
         }
 
-      int typeIndex = this->IO->TrackTypes->GetTypeIndex(type.c_str());
-      if (typeIndex == -1)
-        {
-        // Add a new type to the registry if it's not already defined
-        vgTrackType tt;
-        tt.SetId(type.c_str());
-        typeIndex = this->IO->TrackTypes->GetNumberOfTypes();
-        this->IO->TrackTypes->AddType(tt);
-        }
-      track->SetType(typeIndex);
-      const vgTrackType& type = this->IO->TrackTypes->GetType(typeIndex);
+      const auto tti = this->IO->GetTrackTypeIndex(type.c_str());
+      const vgTrackType& type = this->IO->TrackTypes->GetType(tti);
       type.GetColor(color[0], color[1], color[2]);
+      track->SetType(tti);
       track->SetColor(color[0], color[1], color[2]);
       }
     }
