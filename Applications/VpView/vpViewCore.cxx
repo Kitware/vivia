@@ -4582,7 +4582,7 @@ void vpViewCore::forceRender()
     QString outputFileName =
       this->ImageOutputDirectory +
         QString("/vpViewImage%1.png").arg(this->ImageCounter++, 6, 10, zero);
-    this->PNGWriter->SetFileName(outputFileName.toAscii());
+    this->PNGWriter->SetFileName(qPrintable(outputFileName));
     this->PNGWriter->Write();
     }
 

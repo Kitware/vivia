@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -178,7 +178,7 @@ bool vqQueryParser::formulateQuery(
         << this->internal_->cacheLocation_
         << "video" << videoUri;
 
-    QFileInfo vfi(videoUri.encodedPath());
+    QFileInfo vfi(videoUri.path());
     QUrl cf;
     QByteArray query;
     if (videoUri.queryItems().count())
@@ -199,13 +199,13 @@ bool vqQueryParser::formulateQuery(
         }
       while (queryItems.count());
       }
-    cf.setEncodedPath('/' + vfi.fileName().toAscii() + query + ".vsd");
+    cf.setPath('/' + vfi.fileName() + query + ".vsd");
     this->internal_->DescriptorCacheFile.setEncodedPath(
       this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
     qtDebug(vqdQueryParserCache)
         << "descriptor cache file base name" << cf
         << "final URI" << this->internal_->DescriptorCacheFile;
-    cf.setEncodedPath('/' + vfi.fileName().toAscii() + query + ".vst");
+    cf.setPath('/' + vfi.fileName() + query + ".vst");
     this->internal_->TrackCacheFile.setEncodedPath(
       this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
     qtDebug(vqdQueryParserCache)

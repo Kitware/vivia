@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -76,10 +76,10 @@ bool vqQueryVideoPlayer::setVideoUri(QUrl uri)
     }
 
   // Find archive files associated with this video
-  QFileInfo vfi(uri.encodedPath());
+  QFileInfo vfi(uri.path());
   QUrl archiveUri = vqSettings().queryVideoUri();
-  archiveUri.setEncodedPath(archiveUri.encodedPath() + "/"
-                            + vfi.completeBaseName().toAscii() + ".index");
+  archiveUri.setPath(archiveUri.path() + "/" +
+                     vfi.completeBaseName() + ".index");
 
   this->MyInternal->VideoSource =
     vtkSmartPointer<vqArchiveVideoSource>::New();

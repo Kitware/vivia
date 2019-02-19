@@ -1,23 +1,28 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vsSettings.h"
 
+#include <vgStringLiteral.h>
+
 #define QTSETTINGS_SUBCLASS_NAME vsSettings
 #include <qtSettingsImpl.h>
 
-static const char* const keyColorTracksBySource    = "ColorTracksBySource";
-static const char* const keySelectionPenColor      = "SelectionPenColor";
-static const char* const keyFilteringMaskColor     = "FilteringMaskColor";
-static const char* const keyDataMinColor           = "DataMinColor";
-static const char* const keyDataMaxColor           = "DataMaxColor";
+#define DECLARE_KEY(keyName) \
+  static const auto key ## keyName = QStringLiteral(#keyName);
+
+DECLARE_KEY(ColorTracksBySource);
+DECLARE_KEY(SelectionPenColor);
+DECLARE_KEY(FilteringMaskColor);
+DECLARE_KEY(DataMinColor);
+DECLARE_KEY(DataMaxColor);
 
 #define DECLARE_GRAPH_REP_WIDTHS_KEYS(suffix, prefix, keyPrefix) \
-  static const char* const key ## prefix ## suffix = \
-  keyPrefix #suffix;
+  static const auto key ## prefix ## suffix = \
+    QStringLiteral( keyPrefix #suffix );
 
 FOREACH_GRAPH_REP_WIDTHS(
   DECLARE_GRAPH_REP_WIDTHS_KEYS, Normal, "Display/")
@@ -27,11 +32,11 @@ FOREACH_GRAPH_REP_WIDTHS(
 //-----------------------------------------------------------------------------
 vsSettings::vsSettings()
 {
-  this->declareSetting(keyColorTracksBySource, QVariant(false));
-  this->declareSetting(keySelectionPenColor, QColor(255, 20, 144));
-  this->declareSetting(keyFilteringMaskColor, QColor(0, 0, 0, 96));
-  this->declareSetting(keyDataMinColor, Qt::red);
-  this->declareSetting(keyDataMaxColor, Qt::cyan);
+  this->declareSetting(keyColorTracksBySource, QVariant{false});
+  this->declareSetting(keySelectionPenColor, QColor{255, 20, 144});
+  this->declareSetting(keyFilteringMaskColor, QColor{0, 0, 0, 96});
+  this->declareSetting(keyDataMinColor, QColor{Qt::red});
+  this->declareSetting(keyDataMaxColor, QColor{Qt::cyan});
 
   this->declareSetting(keyNormalTrackHeadWidth, 1.0f);
   this->declareSetting(keyNormalTrackTrailWidth, 1.7f);

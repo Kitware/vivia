@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -766,7 +766,7 @@ bool vvKstReader::readQueryPlan(
       QString encodedModel;
       test_or_die(reader.readString(encodedModel, 1),
                   "Error reading query IQR model");
-      QByteArray model = QByteArray::fromBase64(encodedModel.toAscii());
+      QByteArray model = QByteArray::fromBase64(encodedModel.toLatin1());
 
       // Convert to std::vector<uchar>... oh, the pain...
       const uchar* rawModel =
