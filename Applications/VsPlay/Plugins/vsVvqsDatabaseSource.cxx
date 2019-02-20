@@ -13,8 +13,6 @@
 #include <vvMakeId.h>
 #include <vvQuerySession.h>
 
-#include <vgStringLiteral.h>
-
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 

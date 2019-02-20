@@ -9,7 +9,6 @@
 
 #include "vvDescriptorStyle.h"
 
-#include <vgStringLiteral.h>
 #include <vgUnixTime.h>
 
 #include <qtNumericTreeWidgetItem.h>

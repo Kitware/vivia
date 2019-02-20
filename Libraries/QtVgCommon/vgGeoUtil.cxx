@@ -6,8 +6,6 @@
 
 #include "vgGeoUtil.h"
 
-#include "vgStringLiteral.h"
-
 #include <vgGeodesy.h>
 #include <vgGeoTypes.h>
 
