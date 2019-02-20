@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,17 +7,18 @@
 #include "vqResultInfo.h"
 #include "ui_resultInfo.h"
 
-#include <vgUnixTime.h>
+#include "vqUtil.h"
 
+#include <vgUnixTime.h>
 #include <vvQueryResult.h>
+
+#include <vgGeoUtil.h>
 
 #include <qtMath.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
 
-#include <vgGeoUtil.h>
-
-#include "vqUtil.h"
+#include <QStyle>
 
 namespace // anonymous
 {
