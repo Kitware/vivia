@@ -68,7 +68,7 @@ set(vspDataInstallHeaders
   vtkVsTrackInfo.h
 )
 
-qt4_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
+qt5_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vspData_Sources}

@@ -127,11 +127,11 @@ set(vspUserInterface_SdkHeaders
 
 # BEGIN build rules
 
-qt4_wrap_ui(vspUserInterface_UiSources ${vspUserInterface_UI})
+qt5_wrap_ui(vspUserInterface_UiSources ${vspUserInterface_UI})
 qte_amc_wrap_ui(vspUserInterface_AmSources ActionManagerDialog
   ${vspUserInterface_AMUI}
 )
-qt4_wrap_cpp(vspUserInterface_MocSources ${vspUserInterface_MocHeaders})
+qt5_wrap_cpp(vspUserInterface_MocSources ${vspUserInterface_MocHeaders})
 
 source_group("User Interface" FILES
   ${vspUserInterface_UI}

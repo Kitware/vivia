@@ -141,9 +141,9 @@ set(vqResources ../../Icons/stdbutton.qrc ../../Icons/viqui.qrc ../../Icons/vgvi
 
 # BEGIN build rules
 
-qt4_wrap_ui(uiSources ${vqUI})
-qt4_wrap_cpp(mocSources ${vqMocHeaders})
-qt4_add_resources(resSources ${vqResources})
+qt5_wrap_ui(uiSources ${vqUI})
+qt5_wrap_cpp(mocSources ${vqMocHeaders})
+qt5_add_resources(resSources ${vqResources})
 
 source_group("User Interface" FILES
   ${vqUI}

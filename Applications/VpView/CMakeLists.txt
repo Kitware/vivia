@@ -260,9 +260,9 @@ endif()
 
 # BEGIN build rules
 
-qt4_wrap_ui(uiSources ${vpViewUI})
-qt4_wrap_cpp(mocSources ${vpViewHeaders})
-qt4_add_resources(resSources ${vpViewResources})
+qt5_wrap_ui(uiSources ${vpViewUI})
+qt5_wrap_cpp(mocSources ${vpViewHeaders})
+qt5_add_resources(resSources ${vpViewResources})
 
 source_group("Resources" FILES
   ${vpViewUI}

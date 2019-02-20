@@ -25,10 +25,10 @@ set(vsEventCreationTools_Resources
   icons.qrc
 )
 
-qt4_wrap_cpp(vsEventCreationTools_MocSources
+qt5_wrap_cpp(vsEventCreationTools_MocSources
   ${vsEventCreationTools_MocHeaders}
 )
-qt4_add_resources(vsEventCreationTools_ResSources
+qt5_add_resources(vsEventCreationTools_ResSources
   ${vsEventCreationTools_Resources}
 )
 

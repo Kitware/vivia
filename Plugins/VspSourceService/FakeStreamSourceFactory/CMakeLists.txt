@@ -24,10 +24,10 @@ set(vsFakeStreamSourceFactory_UI
   fakeStreamControl.ui
 )
 
-qt4_wrap_cpp(vsFakeStreamSourceFactory_MocSources
+qt5_wrap_cpp(vsFakeStreamSourceFactory_MocSources
              ${vsFakeStreamSourceFactory_MocHeaders})
 
-qt4_wrap_ui(vsFakeStreamSourceFactory_UiSources
+qt5_wrap_ui(vsFakeStreamSourceFactory_UiSources
             ${vsFakeStreamSourceFactory_UI})
 
 vg_add_qt_plugin(${PROJECT_NAME}

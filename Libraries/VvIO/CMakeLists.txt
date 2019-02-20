@@ -71,7 +71,7 @@ set(vvIOWrapObjects
   vvTrackId
 )
 
-qt4_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
+qt5_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
 
 add_library(${PROJECT_NAME} ${vvIO_Sources} ${vvIO_MocSources})
 

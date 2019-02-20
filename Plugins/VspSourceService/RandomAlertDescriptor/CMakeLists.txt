@@ -17,7 +17,7 @@ set(vsRandomAlertDescriptor_MocHeaders
   vsRandomAlertDescriptorPlugin.h
 )
 
-qt4_wrap_cpp(vsRandomAlertDescriptor_MocSources
+qt5_wrap_cpp(vsRandomAlertDescriptor_MocSources
              ${vsRandomAlertDescriptor_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}

@@ -11,7 +11,7 @@ include_directories(
 link_directories( ${QtTesting_LIBRARY_DIR} )
 
 # Source files.
-qt4_wrap_cpp(qtTestingSupportMocSrcs
+qt5_wrap_cpp(qtTestingSupportMocSrcs
   pqCoreTestUtility.h
   pqFileDialogEventPlayer.h
   pqFileDialogEventTranslator.h

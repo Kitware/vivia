@@ -30,8 +30,8 @@ set(vvFakeQueryService_UiFiles
   vvFakeQueryServerChooser.ui
 )
 
-qt4_wrap_cpp(vvFakeQueryService_MocSources ${vvFakeQueryService_MocHeaders})
-qt4_wrap_ui(vvFakeQueryService_UiSources ${vvFakeQueryService_UiFiles})
+qt5_wrap_cpp(vvFakeQueryService_MocSources ${vvFakeQueryService_MocHeaders})
+qt5_wrap_ui(vvFakeQueryService_UiSources ${vvFakeQueryService_UiFiles})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vvFakeQueryService_Sources}

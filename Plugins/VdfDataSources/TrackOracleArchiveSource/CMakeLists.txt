@@ -23,7 +23,7 @@ set(vdfTrackOracleArchiveSource_MocHeaders
   vdfTrackOracleTrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vdfTrackOracleArchiveSource_MocSources
+qt5_wrap_cpp(vdfTrackOracleArchiveSource_MocSources
              ${vdfTrackOracleArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}

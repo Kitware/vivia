@@ -16,7 +16,7 @@ set(vsPvoArchiveSource_MocHeaders
   vsPvoDescriptorArchiveSource.h
 )
 
-qt4_wrap_cpp(vsPvoArchiveSource_MocSources ${vsPvoArchiveSource_MocHeaders})
+qt5_wrap_cpp(vsPvoArchiveSource_MocSources ${vsPvoArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vsPvoArchiveSource_Sources}

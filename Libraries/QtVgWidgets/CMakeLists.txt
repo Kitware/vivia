@@ -44,8 +44,8 @@ set(qtVgWidgetsInstallHeaders
   vgVideoScrubber.h
 )
 
-qt4_wrap_ui(qtVgWidgetsUiSources vgAboutDialog.ui vgTextEditDialog.ui)
-qt4_wrap_cpp(qtvgWidgetsMocSources ${qtvgWidgetsMocHeaders})
+qt5_wrap_ui(qtVgWidgetsUiSources vgAboutDialog.ui vgTextEditDialog.ui)
+qt5_wrap_cpp(qtvgWidgetsMocSources ${qtvgWidgetsMocHeaders})
 
 source_group("Generated" FILES
   ${qtVgWidgetsUiSources}

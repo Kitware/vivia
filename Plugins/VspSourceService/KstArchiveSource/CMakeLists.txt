@@ -16,7 +16,7 @@ set(vsKstArchiveSource_MocHeaders
   vsKstDescriptorArchiveSource.h
 )
 
-qt4_wrap_cpp(vsKstArchiveSource_MocSources ${vsKstArchiveSource_MocHeaders})
+qt5_wrap_cpp(vsKstArchiveSource_MocSources ${vsKstArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vsKstArchiveSource_Sources}

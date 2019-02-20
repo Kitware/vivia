@@ -28,7 +28,7 @@ set(vsRuler_MocHeaders
   vsRulerPlugin.h
 )
 
-qt4_wrap_cpp(vsRuler_MocSources
+qt5_wrap_cpp(vsRuler_MocSources
   ${vsRuler_MocHeaders}
 )
 

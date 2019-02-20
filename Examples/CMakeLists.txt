@@ -22,13 +22,13 @@ set(ExamplesHeaders
 
 #SET(ExamplesResources Icons/icons.qrc)
 
-qt4_wrap_ui(UISrcs
+qt5_wrap_ui(UISrcs
   ${ExamplesUI}
 )
-qt4_wrap_cpp(MOCSrcs
+qt5_wrap_cpp(MOCSrcs
   ${ExamplesHeaders}
 )
-qt4_add_resources(ResourceSrcs
+qt5_add_resources(ResourceSrcs
   ${ExamplesResources}
 )
 

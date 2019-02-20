@@ -39,11 +39,11 @@ set(vgGuiFrameworkWrapObjects
   vgfItemReference
 )
 
-qt4_wrap_ui(vgGuiFrameworkUiSources ${vgGuiFrameworkUI})
+qt5_wrap_ui(vgGuiFrameworkUiSources ${vgGuiFrameworkUI})
 qte_amc_wrap_ui(vgGuiFrameworkAmSources ActionManagerDialog
   ${vgGuiFrameworkAMUI}
 )
-qt4_wrap_cpp(vgGuiFrameworkMocSources ${vgGuiFrameworkMocHeaders})
+qt5_wrap_cpp(vgGuiFrameworkMocSources ${vgGuiFrameworkMocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vgGuiFrameworkSources}

@@ -114,9 +114,9 @@ set(vspResources
 
 # BEGIN build rules
 
-qt4_wrap_ui(uiSources ${vspUI})
-qt4_wrap_cpp(mocSources ${vspMocHeaders})
-qt4_add_resources(resSources ${vspResources})
+qt5_wrap_ui(uiSources ${vspUI})
+qt5_wrap_cpp(mocSources ${vspMocHeaders})
+qt5_add_resources(resSources ${vspResources})
 
 source_group("User Interface" FILES
   ${vspUI}

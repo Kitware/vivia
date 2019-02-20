@@ -36,7 +36,7 @@ set(vsReportGeneratorExtension_MocHeaders
   vsReportGeneratorPlugin.h
 )
 
-qt4_wrap_cpp(vsReportGeneratorExtension_MocSources
+qt5_wrap_cpp(vsReportGeneratorExtension_MocSources
              ${vsReportGeneratorExtension_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}

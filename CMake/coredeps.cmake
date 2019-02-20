@@ -2,6 +2,15 @@ list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
 find_package(Eigen3 REQUIRED)
 
+find_package(Qt5 5.8.0 REQUIRED COMPONENTS
+  Core
+  Gui
+  Widgets
+  Network
+  Concurrent
+  Xml
+)
+
 # Boost is required.
 find_package(Boost REQUIRED
   COMPONENTS thread signals system filesystem date_time
@@ -136,14 +145,7 @@ else()
    message("QtTesting was not found; GUI testing will not be enabled")
 endif()
 
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTXML TRUE)
-find_package(Qt4 4.7.0 REQUIRED)
-
 find_package(qtExtensions REQUIRED)
-
-# This adds ${QT_INCLUDE_DIR} to the build (via include_directories)
-include(${QT_USE_FILE})
 
 find_package(PROJ4 REQUIRED)
 find_package(KML REQUIRED)

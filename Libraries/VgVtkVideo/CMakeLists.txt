@@ -31,7 +31,7 @@ include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
 )
 
-qt4_wrap_cpp(mocSources ${vvvMocHeaders})
+qt5_wrap_cpp(mocSources ${vvvMocHeaders})
 
 source_group("Generated" FILES ${mocSources})
 

@@ -27,7 +27,7 @@ set(vsContextViewerPlugin_MocHeaders
   vsContextViewerPlugin.h
 )
 
-qt4_wrap_cpp(vsContextViewerPlugin_MocSources
+qt5_wrap_cpp(vsContextViewerPlugin_MocSources
   ${vsContextViewerPlugin_MocHeaders}
 )
 

@@ -25,7 +25,7 @@ set(vsTrackOracleArchiveSource_MocHeaders
   vsTrackOracleTrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vsTrackOracleArchiveSource_MocSources
+qt5_wrap_cpp(vsTrackOracleArchiveSource_MocSources
              ${vsTrackOracleArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}

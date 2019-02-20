@@ -36,7 +36,7 @@ set(vspSourceUtilInstallHeaders
   vsVideoHelper.h
 )
 
-qt4_wrap_cpp(vspSourceUtil_MocSources ${vspSourceUtil_MocHeaders})
+qt5_wrap_cpp(vspSourceUtil_MocSources ${vspSourceUtil_MocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vspSourceUtil_Sources}

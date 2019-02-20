@@ -23,7 +23,7 @@ set(vsPowerPointGeneratorExtension_MocHeaders
   vsPowerPointGeneratorPlugin.h
 )
 
-qt4_wrap_cpp(vsPowerPointGeneratorExtension_MocSources
+qt5_wrap_cpp(vsPowerPointGeneratorExtension_MocSources
              ${vsPowerPointGeneratorExtension_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
