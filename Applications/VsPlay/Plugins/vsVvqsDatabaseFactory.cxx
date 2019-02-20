@@ -1,19 +1,20 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vsVvqsDatabaseFactory.h"
 
-#include <QMessageBox>
-
-#include <vvQueryService.h>
+#include "vsVvqsDatabaseQueryDialog.h"
+#include "vsVvqsDatabaseSource.h"
 
 #include <vsTrackSource.h>
 
-#include "vsVvqsDatabaseQueryDialog.h"
-#include "vsVvqsDatabaseSource.h"
+#include <vvQueryService.h>
+
+#include <QMessageBox>
+#include <QUrlQuery>
 
 QTE_IMPLEMENT_D_FUNC(vsVvqsDatabaseFactory)
 
@@ -31,10 +32,12 @@ public:
 vvQuerySession* vsVvqsDatabaseFactoryPrivate::createSession(QUrl server)
 {
   // Remove request parameters from URI
-  server.removeAllQueryItems("Stream");
-  server.removeAllQueryItems("TemporalLower");
-  server.removeAllQueryItems("TemporalUpper");
-  server.removeAllQueryItems("ExtractClassifiers");
+  auto q = QUrlQuery{server};
+  q.removeAllQueryItems("Stream");
+  q.removeAllQueryItems("TemporalLower");
+  q.removeAllQueryItems("TemporalUpper");
+  q.removeAllQueryItems("ExtractClassifiers");
+  server.setQuery(q);
 
   // Create session
   return vvQueryService::createSession(server);
@@ -84,17 +87,16 @@ bool vsVvqsDatabaseFactory::initialize(const QUrl& uri, QWidget* dialogParent)
     return false;
     }
 
-  QUrl muri = uri;
-  if (uri.queryItemValue("ExtractClassifiers") == "ask")
+  auto muri = uri;
+  auto mquery = QUrlQuery{muri};
+  muri.setQuery(QUrlQuery{});
+  if (mquery.queryItemValue("ExtractClassifiers") == "ask")
     {
     // Build message
-    muri.setEncodedQuery(QByteArray());
     QString msg = "Do you wish to request classifier extraction in this query?"
                   "\n\nServer: " + muri.toString();
-    muri = uri;
-    muri.removeAllQueryItems("ExtractClassifiers");
-    typedef QPair<QString, QString> QueryItem;
-    foreach (const QueryItem& qi, muri.queryItems())
+    mquery.removeAllQueryItems("ExtractClassifiers");
+    foreach (const auto& qi, mquery.queryItems())
       {
       msg += QString("\n%1: %2").arg(qi.first, qi.second);
       }
@@ -104,9 +106,10 @@ bool vsVvqsDatabaseFactory::initialize(const QUrl& uri, QWidget* dialogParent)
                                        QMessageBox::Yes | QMessageBox::No);
     if (result == QMessageBox::Yes)
       {
-      muri.addQueryItem("ExtractClassifiers", "yes");
+      mquery.addQueryItem("ExtractClassifiers", "yes");
       }
     }
+  muri.setQuery(mquery);
 
   QTE_D(vsVvqsDatabaseFactory);
 

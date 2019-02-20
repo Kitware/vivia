@@ -8,6 +8,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QUrlQuery>
 
 #include <qtKstReader.h>
 #include <qtStlUtil.h>
@@ -180,18 +181,16 @@ bool vqQueryParser::formulateQuery(
 
     QFileInfo vfi(videoUri.path());
     QUrl cf;
-    QByteArray query;
-    if (videoUri.queryItems().count())
+    QString query;
+    const auto& vqi = QUrlQuery{videoUri}.queryItems();
+    if (vqi.count())
       {
-      typedef QPair<QString, QString> QueryItem;
-      QList<QByteArray> queryItems;
-      foreach (const QueryItem& qi, videoUri.queryItems())
+      QStringList queryItems;
+      foreach (const auto& qi, vqi)
         {
-        QByteArray key = QUrl::toPercentEncoding(qi.first);
-        QByteArray value = QUrl::toPercentEncoding(qi.second);
-        queryItems.append(key + '=' + value);
+        queryItems.append(qi.first + '=' + qi.second);
         }
-      char sep = '?';
+      QChar sep = '?';
       do
         {
         query += sep + queryItems.takeFirst();
@@ -200,14 +199,16 @@ bool vqQueryParser::formulateQuery(
       while (queryItems.count());
       }
     cf.setPath('/' + vfi.fileName() + query + ".vsd");
-    this->internal_->DescriptorCacheFile.setEncodedPath(
-      this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
+    this->internal_->DescriptorCacheFile.setPath(
+      this->internal_->cacheLocation_.path(QUrl::FullyEncoded) +
+      cf.path(QUrl::FullyEncoded), QUrl::StrictMode);
     qtDebug(vqdQueryParserCache)
         << "descriptor cache file base name" << cf
         << "final URI" << this->internal_->DescriptorCacheFile;
     cf.setPath('/' + vfi.fileName() + query + ".vst");
-    this->internal_->TrackCacheFile.setEncodedPath(
-      this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
+    this->internal_->TrackCacheFile.setPath(
+      this->internal_->cacheLocation_.path(QUrl::FullyEncoded) +
+      cf.path(QUrl::FullyEncoded), QUrl::StrictMode);
     qtDebug(vqdQueryParserCache)
         << "track cache file base name" << cf
         << "final URI" << this->internal_->TrackCacheFile;

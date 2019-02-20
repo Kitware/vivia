@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -20,6 +20,7 @@
 #include <QTemporaryFile>
 #include <QTimer>
 #include <QTimerEvent>
+#include <QUrlQuery>
 
 // QtExtensions includes
 #include <qtMap.h>
@@ -3151,9 +3152,11 @@ void vqCore::openExternal(QUrl clipUri, QString streamId, double time)
   const bool stripResults = settings.value("StripResults", true).toBool();
 
   // Get query server URI (for building database source)
-  QUrl dataUri = vqSettings().queryServerUri();
-  dataUri.addQueryItem("Stream", streamId);
-  dataUri.addQueryItem("ExtractClassifiers", extractClassifiers);
+  auto dataUri = vqSettings().queryServerUri();
+  auto dataQuery = QUrlQuery{dataUri};
+  dataQuery.addQueryItem("Stream", streamId);
+  dataQuery.addQueryItem("ExtractClassifiers", extractClassifiers);
+  dataUri.setQuery(dataQuery);
 
   // Generate argument list
   args << "--video-file" << clipUri.toLocalFile()

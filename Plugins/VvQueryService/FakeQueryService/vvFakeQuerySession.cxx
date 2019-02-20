@@ -1,16 +1,17 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include <QApplication>
 #include <QDataStream>
+#include <QDir>
+#include <QFileInfo>
 #include <QList>
 #include <QMap>
 #include <QSet>
-#include <QDir>
-#include <QFileInfo>
+#include <QUrlQuery>
 
 #include <qtKstReader.h>
 #include <qtMath.h>
@@ -123,7 +124,7 @@ bool vvFakeQuerySessionPrivate::stQueryFormulate()
 
   // Get the path where we will expect to find descriptors
   QUrl uri = qtUrl(this->qfRequest.VideoUri);
-  uri.setEncodedPath(uri.encodedPath() + ".vsd");
+  uri.setPath(uri.path(QUrl::FullyEncoded) + ".vsd", QUrl::StrictMode);
 
   vvReader reader;
   vvHeader header;
@@ -696,7 +697,7 @@ bool vvFakeQuerySession::processQuery(
   d->archiveFiles.clear();
 
   // Locate archive
-  QDir archiveDir(d->server.queryItemValue("Archive"));
+  QDir archiveDir(QUrlQuery{d->server}.queryItemValue("Archive"));
   if (archiveDir.exists())
     {
     QStringList filter;

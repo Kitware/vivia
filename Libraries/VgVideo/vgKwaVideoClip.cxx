@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QUrl>
+#include <QUrlQuery>
 
 #include <vgCheckArg.h>
 
@@ -290,34 +291,37 @@ vgKwaVideoClip::vgKwaVideoClip(const QUrl& uri) :
 {
   QTE_D(vgKwaVideoClip);
 
-  QUrl indexUri = uri;
+  auto indexQuery = QUrlQuery{uri};
   bool okay;
 
   // Get temporal limits (if any) from URI
   qint64 startTime = std::numeric_limits<qint64>::min();
   qint64 endTime = std::numeric_limits<qint64>::max();
-  if (indexUri.hasQueryItem("StartTime"))
+  if (indexQuery.hasQueryItem("StartTime"))
     {
-    startTime = indexUri.queryItemValue("StartTime").toLongLong(&okay);
+    startTime = indexQuery.queryItemValue("StartTime").toLongLong(&okay);
     if (!okay)
       {
       qWarning() << "vgKwaVideoClip: Ignoring invalid start time"
-                 << indexUri.queryItemValue("StartTime");
+                 << indexQuery.queryItemValue("StartTime");
       startTime = std::numeric_limits<qint64>::min();
       }
-    indexUri.removeAllQueryItems("StartTime");
+    indexQuery.removeAllQueryItems("StartTime");
     }
-  if (indexUri.hasQueryItem("EndTime"))
+  if (indexQuery.hasQueryItem("EndTime"))
     {
-    endTime = indexUri.queryItemValue("EndTime").toLongLong(&okay);
+    endTime = indexQuery.queryItemValue("EndTime").toLongLong(&okay);
     if (!okay)
       {
       qWarning() << "vgKwaVideoClip: Ignoring invalid end time"
-                 << indexUri.queryItemValue("EndTime");
+                 << indexQuery.queryItemValue("EndTime");
       startTime = std::numeric_limits<qint64>::min();
       }
-    indexUri.removeAllQueryItems("EndTime");
+    indexQuery.removeAllQueryItems("EndTime");
     }
+
+  auto indexUri = uri;
+  indexUri.setQuery(indexQuery);
 
   // Open index file
   QString indexName = indexUri.toLocalFile();

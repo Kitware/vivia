@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QRegExp>
 #include <QSettings>
+#include <QUrlQuery>
 
 #include <limits>
 
@@ -116,17 +117,19 @@ void vsVvqsDatabaseSourcePrivate::run()
   this->DescriptorBatchSize =
     settings.value("DescriptorBatchSize", 400).toInt();
 
+  auto requestQuery = QUrlQuery{this->RequestUri};
+
   // Create retrieval query
   this->Query.QueryId = vvMakeId("VSPLAY-DB-SOURCE");
   this->Query.StreamIdLimit =
-    stdString(this->RequestUri.queryItemValue("Stream"));
+    stdString(requestQuery.queryItemValue("Stream"));
 
   // Query initially for just tracks, as retrieving descriptors can be slow,
   // and we want the tracks available as soon as possible
   this->Query.RequestedEntities = vvRetrievalQuery::Tracks;
 
-  const QString tl = this->RequestUri.queryItemValue("TemporalLower");
-  const QString tu = this->RequestUri.queryItemValue("TemporalUpper");
+  const QString tl = requestQuery.queryItemValue("TemporalLower");
+  const QString tu = requestQuery.queryItemValue("TemporalUpper");
   if (!tl.isEmpty())
     {
     this->Query.TemporalLowerLimit = tl.toLongLong();
@@ -137,7 +140,7 @@ void vsVvqsDatabaseSourcePrivate::run()
     }
 
   const QString ec =
-    this->RequestUri.queryItemValue("ExtractClassifiers").toLower();
+    requestQuery.queryItemValue("ExtractClassifiers").toLower();
   this->ExtractClassifiers = (ec == "yes" || ec == "true");
 
   // Issue the query
