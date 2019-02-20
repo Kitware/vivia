@@ -78,9 +78,6 @@ set(vspPluginUI
     Plugins/vvqsDatabaseQuery.ui
 )
 
-# Built-in plugins should be considered static plugins
-add_source_files_definitions(${vspPluginSources} SYMBOLS QT_STATICPLUGIN)
-
 # END built-in plugins
 
 ###############################################################################
@@ -140,6 +137,9 @@ set_source_files_properties(${vspSources}
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
   ${vspSources} ${uiSources} ${mocSources} ${resSources}
 )
+
+# Built-in plugins should be considered static plugins
+target_compile_definitions(${PROJECT_NAME} PRIVATE QT_STATICPLUGIN)
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   ${vspSdkTargets}

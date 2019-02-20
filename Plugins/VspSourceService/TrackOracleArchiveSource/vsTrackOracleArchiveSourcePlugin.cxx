@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -31,8 +31,6 @@
 #include "visgui_track_type.h"
 #include "vsTrackOracleTrackArchiveSource.h"
 #include "vsTrackOracleDescriptorArchiveSource.h"
-
-Q_EXPORT_PLUGIN2(vsTrackOracleArchiveSource, vsTrackOracleArchiveSourcePlugin)
 
 QTE_IMPLEMENT_D_FUNC(vsTrackOracleArchiveSourcePlugin)
 

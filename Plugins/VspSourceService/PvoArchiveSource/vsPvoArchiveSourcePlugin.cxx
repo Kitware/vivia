@@ -18,8 +18,6 @@
 
 #include "vsPvoDescriptorArchiveSource.h"
 
-Q_EXPORT_PLUGIN2(vsPvoArchiveSource, vsPvoArchiveSourcePlugin)
-
 //-----------------------------------------------------------------------------
 vsPvoArchiveSourcePlugin::vsPvoArchiveSourcePlugin()
 {

@@ -54,10 +54,10 @@
 #include <QSettings>
 
 // Register built-in data source plugins
-Q_IMPORT_PLUGIN(vsDescriptorArchiveSource)
-Q_IMPORT_PLUGIN(vsTrackArchiveSource)
-Q_IMPORT_PLUGIN(vsVideoArchiveSource)
-Q_IMPORT_PLUGIN(vsVvqsDatabaseSource)
+Q_IMPORT_PLUGIN(vsDescriptorArchiveSourcePlugin)
+Q_IMPORT_PLUGIN(vsTrackArchiveSourcePlugin)
+Q_IMPORT_PLUGIN(vsVideoArchiveSourcePlugin)
+Q_IMPORT_PLUGIN(vsVvqsDatabaseSourcePlugin)
 
 //-----------------------------------------------------------------------------
 int main(int argc, char** argv)

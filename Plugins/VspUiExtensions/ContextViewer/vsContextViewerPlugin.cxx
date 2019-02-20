@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -19,8 +19,6 @@
 #include <QDockWidget>
 #include <QMenu>
 #include <QtPlugin>
-
-Q_EXPORT_PLUGIN2(vsAfrlUi, vsContextViewerPlugin)
 
 //-----------------------------------------------------------------------------
 vsContextViewerPlugin::vsContextViewerPlugin()

@@ -18,8 +18,6 @@
 
 #include "vsKw18TrackArchiveSource.h"
 
-Q_EXPORT_PLUGIN2(vsKw18ArchiveSource, vsKw18ArchiveSourcePlugin)
-
 //-----------------------------------------------------------------------------
 vsKw18ArchiveSourcePlugin::vsKw18ArchiveSourcePlugin()
 {
