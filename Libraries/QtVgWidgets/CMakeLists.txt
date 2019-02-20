@@ -58,7 +58,6 @@ add_library(${PROJECT_NAME}
 
 vg_add_dependencies(${PROJECT_NAME}
   PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
-  LINK_LIBRARIES LINK_PUBLIC ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

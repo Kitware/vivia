@@ -43,7 +43,6 @@ target_link_libraries(${PROJECT_NAME}
   vtkVgQtUtil
   qtVgCommon
   vtkGUISupportQt
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

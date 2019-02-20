@@ -1,4 +1,4 @@
-set(VGTEST_LINK_LIBRARIES vvIO qtExtensions ${QT_LIBRARIES})
+set(VGTEST_LINK_LIBRARIES vvIO qtExtensions)
 
 vg_add_test(vvIO-Checksum testVvChecksum SOURCES TestChecksum.cxx)
 

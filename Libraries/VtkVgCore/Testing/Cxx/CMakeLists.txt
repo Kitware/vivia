@@ -1,6 +1,6 @@
 vg_include_library_sdk_directories(qtExtensions)
 
-set(VGTEST_LINK_LIBRARIES qtExtensions ${QT_LIBRARIES})
+set(VGTEST_LINK_LIBRARIES qtExtensions)
 
 include_directories(${vtkVgCore_SOURCE_DIR})
 

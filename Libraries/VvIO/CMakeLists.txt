@@ -87,8 +87,6 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_PRIVATE
   ${Boost_LIBRARIES}
   ${KML_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 vg_add_test_subdirectory()

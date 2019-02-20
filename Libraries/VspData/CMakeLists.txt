@@ -84,9 +84,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   vgVtkVideo
   vvVtkWidgets
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

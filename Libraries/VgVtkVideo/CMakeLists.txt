@@ -45,7 +45,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkVgVideo
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
   vtkRenderingCore
   ${VTK_JPEG_LIBRARIES}
   LINK_PRIVATE

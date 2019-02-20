@@ -144,6 +144,7 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   ${vspSdkTargets}
   ${QT_TESTING_SUPPORT_LIBRARIES}
+  Qt5::Network
 )
 
 vg_add_test_subdirectory()

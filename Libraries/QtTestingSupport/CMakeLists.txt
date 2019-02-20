@@ -57,7 +57,6 @@ add_library(${PROJECT_NAME}
 vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
   ${QtTesting_LIBRARIES}
   LINK_PRIVATE
   vtkGUISupportQt

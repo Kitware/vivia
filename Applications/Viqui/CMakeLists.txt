@@ -183,7 +183,6 @@ target_link_libraries(${PROJECT_NAME}
   vil_io
   vnl_io
   vgl_algo
-  ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES}
 )
 
 install_executable_target(${PROJECT_NAME} ${PROJECT_NAME})

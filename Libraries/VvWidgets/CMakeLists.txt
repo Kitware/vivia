@@ -80,9 +80,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   qtVgCommon
   qtExtensions
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 vg_add_test_subdirectory()

@@ -40,7 +40,6 @@ target_link_libraries(${PROJECT_NAME}
   vtkGUISupportQt
   vtkChartsCore
   vtkViewsContext2D
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

@@ -40,7 +40,7 @@ vg_add_qt_plugin(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-  ${vvFakeQueryService_SdkTargets} ${QT_LIBRARIES}
+  ${vvFakeQueryService_SdkTargets}
 )
 
 install_plugin_targets(${PROJECT_NAME})

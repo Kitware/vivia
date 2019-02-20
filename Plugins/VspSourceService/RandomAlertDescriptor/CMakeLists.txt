@@ -27,7 +27,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   vspSourceUtil
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

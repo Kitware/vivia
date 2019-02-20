@@ -39,7 +39,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${vsRuler_SdkTargets}
-  ${QT_LIBRARIES}
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
 )

@@ -156,9 +156,6 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  LINK_PUBLIC
-  ${QT_QTMAIN_LIBRARY}
-  ${QT_LIBRARIES}
   LINK_PRIVATE
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkCommonSystem

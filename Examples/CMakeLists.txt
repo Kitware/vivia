@@ -62,7 +62,6 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 #)
 
 #target_link_libraries( Examples
-#  ${QT_LIBRARIES}
 #  QVTK
 #  vtkRendering
 #  vtkVgCore
@@ -75,7 +74,6 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 foreach(example ${ExampleSrcs})
   add_executable(${example} ${example}.cxx)
   target_link_libraries(${example} 
-    ${QT_LIBRARIES}
     vtkGUISupportQt
     vtkRendering
     vtkVgCore

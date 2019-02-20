@@ -130,8 +130,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkCommonSystem
   vtkGUISupportQt
   ${KWPPT_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

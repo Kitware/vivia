@@ -91,7 +91,7 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
+  Qt5::Core Qt5::Concurrent
 )
 
 install_library_targets(${PROJECT_NAME})

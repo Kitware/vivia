@@ -46,7 +46,6 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   vgDataFramework
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

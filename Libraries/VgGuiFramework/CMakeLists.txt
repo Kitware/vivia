@@ -59,7 +59,6 @@ vg_add_dependencies(${PROJECT_NAME}
   qtExtensions
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

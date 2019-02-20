@@ -48,9 +48,6 @@ vg_add_dependencies(${PROJECT_NAME}
   PRIVATE_INTERFACE_TARGETS
   vspData
   vspUserInterface
-  LINK_LIBRARIES
-  LINK_PRIVATE
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})
