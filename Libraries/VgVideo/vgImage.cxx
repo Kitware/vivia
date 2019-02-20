@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -9,6 +9,8 @@
 #include <QImage>
 
 #include <limits>
+
+#include <cstring>
 
 QTE_IMPLEMENT_D_FUNC_SHARED(vgImage)
 
@@ -160,7 +162,7 @@ void vgImageData::setData(
     if (!c)
       {
       this->data = new unsigned char[n];
-      qMemCopy(this->data, d, n);
+      std::memcpy(this->data, d, n);
       this->cleanup = vgImage::Closure(arrayDeleter, this->data);
       }
     else
