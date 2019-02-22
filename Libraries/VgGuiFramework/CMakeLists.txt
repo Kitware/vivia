@@ -52,13 +52,11 @@ add_library(${PROJECT_NAME}
   ${vgGuiFrameworkMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   qtVgCommon
   vgCommon
   qtExtensions
-  LINK_LIBRARIES
-  LINK_PUBLIC
 )
 
 install_library_targets(${PROJECT_NAME})

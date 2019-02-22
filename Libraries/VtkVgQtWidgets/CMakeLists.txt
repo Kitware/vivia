@@ -28,18 +28,16 @@ add_library(${PROJECT_NAME}
   ${vtkVgQtWidgetsMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  vtkInteractionWidgets
+  PRIVATE
   qtVgCommon
   qtExtensions
   vtkVgModelView
   vtkVgQtUtil
-  LINK_LIBRARIES
-  LINK_PRIVATE
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
-  LINK_PUBLIC
-  vtkInteractionWidgets
 )
 
 install_library_targets(${PROJECT_NAME})

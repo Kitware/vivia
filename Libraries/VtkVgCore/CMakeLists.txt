@@ -208,14 +208,14 @@ vg_vtk_module(${PROJECT_NAME}
 )
 
 # Build and link library.
+add_library(${PROJECT_NAME}Headers INTERFACE)
 vtk_module_library(${PROJECT_NAME} ${vtkVgCoreSrcs})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  ${PROJECT_NAME}Headers
   vgCommon
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  LINK_PRIVATE
+  PRIVATE
   vgl
   vgl_algo
   vnl

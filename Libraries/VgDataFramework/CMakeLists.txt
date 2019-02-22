@@ -76,22 +76,18 @@ set(vgDataFrameworkWrapObjects
 
 qt5_wrap_cpp(vgDataFrameworkMocSources ${vgDataFrameworkMocHeaders})
 
-vg_include_library_sdk_directories(TARGET ${PROJECT_NAME} INTERFACE
-  qtExtensions
-  vgCommon
-)
-
 add_library(${PROJECT_NAME}
   ${vgDataFrameworkSources}
   ${vgDataFrameworkMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvIO
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  Qt5::Core Qt5::Concurrent
+  vgCommonHeaders
+  qtExtensionsHeaders
+  Qt5::Core
+  Qt5::Concurrent
 )
 
 install_library_targets(${PROJECT_NAME})

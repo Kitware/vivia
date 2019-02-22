@@ -70,6 +70,7 @@ vg_generate_export_header(
   "${PROJECT_BINARY_DIR}/vgExport.h"
   "${PROJECT_SOURCE_DIR}/vgExport.cmake"
 )
+add_library(${PROJECT_NAME} INTERFACE)
 install_headers("${PROJECT_BINARY_DIR}/vgExport.h" TARGET ${PROJECT_NAME})
 
 # Create package config for build directory

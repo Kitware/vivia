@@ -4,7 +4,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
-vg_include_library_sdk_directories(vspSourceUtil)
+
 include_directories(SYSTEM
   ${VIDTK_INCLUDE_DIRS}
 )

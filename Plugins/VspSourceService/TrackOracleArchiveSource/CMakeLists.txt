@@ -4,7 +4,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
-vg_include_library_sdk_directories(vspSourceUtil)
 
 if(TARGET kwiver::track_oracle)
   include_directories(SYSTEM ${KWIVER_INCLUDE_DIRS})

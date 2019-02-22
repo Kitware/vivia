@@ -75,8 +75,8 @@ add_library(${PROJECT_NAME}
   ${vspData_MocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   qtExtensions
   qtVgCommon
   vgVideo

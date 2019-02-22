@@ -33,10 +33,17 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/vgPluginPaths.cxx"
 )
 
-add_library(${PROJECT_NAME} ${sources})
+vg_add_library(${PROJECT_NAME} ${sources})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
+target_link_libraries(${PROJECT_NAME}Headers
+  INTERFACE
+  vgCommonHeaders
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  qtExtensions
+  vgCommon
 )
 
 install_library_targets(${PROJECT_NAME})

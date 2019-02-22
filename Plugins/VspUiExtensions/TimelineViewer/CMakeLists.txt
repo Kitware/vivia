@@ -9,11 +9,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-vg_include_library_sdk_directories(vspUserInterface
-  vtkVgQtUtil
-  QtVgCommon
-)
-
 set(vsTimelineViewerPlugin_Sources
   vsTimelineSelectionCallback.cxx
   vsTimelineViewer.cxx

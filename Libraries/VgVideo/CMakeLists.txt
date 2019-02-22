@@ -1,11 +1,5 @@
 project(vgVideo)
 
-vg_include_library_sdk_directories(
-  TARGET ${PROJECT_NAME} INTERFACE
-  vgCommon
-  qtVgCommon
-)
-
 set(vgVideoSources
     vgImage.cxx
     vgIStream.cxx
@@ -46,6 +40,7 @@ add_library(${PROJECT_NAME} ${vgVideoSources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
+  qtVgCommonHeaders
   vgCommonHeaders
   qtExtensionsHeaders
   Qt5::Gui

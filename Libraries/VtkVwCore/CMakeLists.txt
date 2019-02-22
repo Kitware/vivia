@@ -30,13 +30,11 @@ vtk_module_library(${PROJECT_NAME}
   ${vtkVwCoreMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   vgVideo
   vtkVgCore
   vvIO
-  LINK_LIBRARIES
-  LINK_PRIVATE
   ${LIBJSON_LIBRARY}
   ${PYTHON_LIBRARIES}
 )

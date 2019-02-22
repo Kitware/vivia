@@ -112,20 +112,18 @@ add_library(${PROJECT_NAME}
   ${uiSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvWidgets
   qtVgWidgets
   qtVgCommon
   qtExtensions
   vgVtkVideo
   vtkVgQtWidgets
-  PRIVATE_INTERFACE_TARGETS
+  PRIVATE
   vtkVgModelView
   vtkVgSceneGraph
   vtkVgQtUtil
-  LINK_LIBRARIES
-  LINK_PRIVATE
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkCommonSystem
   vtkGUISupportQt

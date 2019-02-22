@@ -156,28 +156,24 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  LINK_PRIVATE
-  ${VTK_OPENGL_RENDERING_COMPONENTS}
-  vtkCommonSystem
-  vtkImagingStencil
-  vtkGUISupportQt
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+  PUBLIC
   qtExtensions
   vtkVgCore
   vtkVgModelView
   vgVtkVideo
   vgGuiFramework
   vspData
-  PRIVATE_INTERFACE_TARGETS
+  PRIVATE
   vgCommon
   qtVgCommon
   qtVgWidgets
   vvIO
   vvWidgets
   vtkVgQtUtil
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
+  vtkCommonSystem
+  vtkImagingStencil
+  vtkGUISupportQt
   ${TESTING_INTERFACES}
 # TODO: Only needed for code that should be moved out
   vtkVgSceneGraph

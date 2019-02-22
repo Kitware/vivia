@@ -51,8 +51,6 @@ set(vgSdkTargets
   vvWidgets
 )
 
-vg_include_library_sdk_directories(${vgSdkTargets})
-
 # Configure file here
 include(vqVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vqVersion.h.in

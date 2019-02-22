@@ -75,8 +75,8 @@ add_library(${PROJECT_NAME}
   ${vvWidgets_UiSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvIO
   qtVgCommon
   qtExtensions

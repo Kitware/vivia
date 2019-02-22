@@ -9,9 +9,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Need this as a directory include so that moc can find the plugin interface
-vg_include_library_sdk_directories(vspUserInterface)
-
 set(vsPowerPointGeneratorExtension_Sources
   vsPowerPointGenerator.cxx
   vsPowerPointGeneratorInterface.cxx
@@ -31,8 +28,7 @@ vg_add_qt_plugin(${PROJECT_NAME}
   ${vsPowerPointGeneratorExtension_MocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
   vgVtkVideo
   vspData
   vspUserInterface

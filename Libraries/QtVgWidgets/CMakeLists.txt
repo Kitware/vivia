@@ -56,8 +56,10 @@ add_library(${PROJECT_NAME}
   ${qtvgWidgetsSources} ${qtVgWidgetsUiSources} ${qtvgWidgetsMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  qtExtensions
+  vgCommon
 )
 
 install_library_targets(${PROJECT_NAME})

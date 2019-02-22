@@ -76,16 +76,12 @@ qt5_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
 
 add_library(${PROJECT_NAME} ${vvIO_Sources} ${vvIO_MocSources})
 
-vg_include_library_sdk_directories(
-  TARGET ${PROJECT_NAME} INTERFACE vvData
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
-  qtExtensions
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  vvData
   qtVgCommon
-  LINK_LIBRARIES
-  LINK_PRIVATE
+  qtExtensions
+  PRIVATE
   ${Boost_LIBRARIES}
   kml
 )

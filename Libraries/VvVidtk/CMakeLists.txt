@@ -5,10 +5,6 @@ include_directories(
   ${VIDTK_INCLUDE_DIRS}
 )
 
-vg_include_library_sdk_directories(
-  TARGET ${PROJECT_NAME} INTERFACE vvData
-)
-
 set(vvVidtkInstallHeaders
   vvAdaptVidtk.h
 )
@@ -16,8 +12,12 @@ set(vvVidtkInstallHeaders
 add_library(${PROJECT_NAME} vvAdaptVidtk.cxx)
 
 target_link_libraries(${PROJECT_NAME}
-  PUBLIC Qt5::Core
-  PRIVATE vidtk_tracking)
+  PUBLIC
+  Qt5::Core
+  PRIVATE
+  vvData
+  vidtk_tracking
+)
 
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVidtkInstallHeaders} TARGET ${PROJECT_NAME}

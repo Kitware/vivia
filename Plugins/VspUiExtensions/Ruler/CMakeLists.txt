@@ -9,13 +9,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(vsRuler_SdkTargets
-  vspUserInterface
-  vtkVgQtUtil
-)
-
-vg_include_library_sdk_directories(${vsRuler_SdkTargets})
-
 set(vsRuler_Sources
   vsLineWidget.cxx
   vsRulerInterface.cxx
@@ -38,7 +31,8 @@ vg_add_qt_plugin(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  ${vsRuler_SdkTargets}
+  vspUserInterface
+  vtkVgQtUtil
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
 )

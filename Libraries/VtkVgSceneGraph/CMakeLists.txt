@@ -61,8 +61,8 @@ vg_vtk_module(${PROJECT_NAME}
 # Build and link library.
 vtk_module_library(${PROJECT_NAME} ${vtkVgSceneGraphSrcs})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vtkVgModelView
 )
 

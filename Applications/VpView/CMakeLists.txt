@@ -86,8 +86,6 @@ if(VISGUI_ENABLE_SUPER3D)
   link_directories(${OpenCV_LIB_DIR})
 endif()
 
-vg_include_library_sdk_directories(${vgSdkTargets} vvData)
-
 # Configure version file
 include(vpVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vpVersion.h.in
@@ -330,7 +328,8 @@ add_executable(${PROJECT_NAME} ${ExecProperties}
   ${vpViewSources} ${vpViewHeaders} ${uiSources} ${mocSources} ${resSources}
 )
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   ${vgSdkTargets}
   vgl vnl vul vil_io
   GeographicLib::GeographicLib
@@ -343,7 +342,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 )
 
 if(VISGUI_ENABLE_KWIVER)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     kwiver::sprokit_pipeline
     kwiver::kwiver_adapter
     kwiver::kwiver_algo_vxl
@@ -352,7 +352,8 @@ if(VISGUI_ENABLE_KWIVER)
 endif()
 
 if(VISGUI_ENABLE_VIDTK)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     vidtk_activity_detectors_lib
     vidtk_events_lib
     vidtk_tracking
@@ -361,7 +362,8 @@ if(VISGUI_ENABLE_VIDTK)
 endif()
 
 if(VISGUI_ENABLE_SUPER3D)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     imesh
     imesh_algo
     maptk_ocv

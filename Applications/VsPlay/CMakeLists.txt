@@ -35,8 +35,6 @@ set(vspSdkTargets
   vspUserInterface # Inherit the rest of our dependencies from this
 )
 
-vg_include_library_sdk_directories(${vspSdkTargets})
-
 # Configure version header here
 include(vsVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vsVersion.h.in
@@ -141,7 +139,8 @@ add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
 # Built-in plugins should be considered static plugins
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_STATICPLUGIN)
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   ${vspSdkTargets}
   ${QT_TESTING_SUPPORT_LIBRARIES}
   Qt5::Network

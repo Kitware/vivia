@@ -9,9 +9,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# Need this as a directory include so that moc can find the plugin interface
-vg_include_library_sdk_directories(vspUserInterface)
-
 if(VSPUI_ENABLE_REPORT_GENERATOR)
   add_definitions(-DENABLE_REPORT_GENERATION)
 endif()
@@ -44,8 +41,7 @@ vg_add_qt_plugin(${PROJECT_NAME}
   ${vsReportGeneratorExtension_MocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
   vspData
   vspUserInterface
 )

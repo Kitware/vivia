@@ -37,17 +37,15 @@ source_group("Generated" FILES ${mocSources})
 
 add_library(${PROJECT_NAME} ${vvvSources} ${mocSources})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   qtExtensions
   vgVideo
   vtkVgCore
   vtkVgVideo
-  LINK_LIBRARIES
-  LINK_PUBLIC
   vtkRenderingCore
   ${VTK_JPEG_LIBRARIES}
-  LINK_PRIVATE
+  PRIVATE
   vgl
   vgl_algo
 )
