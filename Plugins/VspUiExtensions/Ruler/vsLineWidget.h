@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,10 +7,11 @@
 #ifndef __vsLineWidget_h
 #define __vsLineWidget_h
 
-#include <QMatrix4x4>
-#include <QObject>
+#include <vgMatrix.h>
 
 #include <qtGlobal.h>
+
+#include <QObject>
 
 class vtkMatrix4x4;
 class vtkPoints;
@@ -37,7 +38,7 @@ public slots:
   void end();
 
   void setVisible(bool);
-  void setMatrix(const QMatrix4x4& matrix);
+  void setMatrix(const vgMatrix4d& matrix);
 
 protected slots:
   void updateLineLength();

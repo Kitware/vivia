@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,16 +7,16 @@
 #ifndef __vgKwaFrameMetadata_h
 #define __vgKwaFrameMetadata_h
 
-#include <QMatrix3x3>
-#include <QSharedDataPointer>
-#include <QSize>
-
-#include <qtGlobal.h>
+#include <vgGeoTypes.h>
+#include <vgMatrix.h>
+#include <vgTimeStamp.h>
 
 #include <vgExport.h>
 
-#include <vgGeoTypes.h>
-#include <vgTimeStamp.h>
+#include <qtGlobal.h>
+
+#include <QSharedDataPointer>
+#include <QSize>
 
 class vsl_b_istream;
 
@@ -42,7 +42,7 @@ public:
   vgKwaFrameMetadata& operator=(const vgKwaFrameMetadata&);
 
   vgTimeStamp timestamp() const;
-  QMatrix3x3 homography() const;
+  vgMatrix3d homography() const;
   uint homographyReferenceFrameNumber() const;
 
   vgKwaWorldBox worldCornerPoints() const;

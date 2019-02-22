@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -13,11 +13,11 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 
+#include <vtkVgAdapt.h>
 #include <vtkVgInstance.h>
 #include <vtkVgLineRepresentation.h>
 #include <vtkVgRendererUtils.h>
 
-#include <vtkVgQtAdapt.h>
 #include <vtkVgQtUtil.h>
 
 QTE_IMPLEMENT_D_FUNC(vsLineWidget)
@@ -61,10 +61,10 @@ void vsLineWidget::setMatrix(vtkMatrix4x4* matrix)
 }
 
 //-----------------------------------------------------------------------------
-void vsLineWidget::setMatrix(const QMatrix4x4& matrix)
+void vsLineWidget::setMatrix(const vgMatrix4d& matrix)
 {
   vtkVgInstance<vtkMatrix4x4> vtkMatrix;
-  qtAdapt(matrix, vtkMatrix);
+  vtkVgAdapt(matrix, vtkMatrix);
   this->setMatrix(vtkMatrix);
 }
 

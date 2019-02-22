@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -36,4 +36,28 @@ vtkVgAdapt(const vnl_matrix_fixed<double, 3, 3>& vnlMatrix)
   vtkVgAdapt(vnlMatrix, vtkMatrix);
 
   return vtkMatrix;
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgAdapt(const vgMatrix4d& in, vtkMatrix4x4* out)
+{
+  std::memcpy(out->GetData(), in.data(), 16 * sizeof(double));
+}
+
+//-----------------------------------------------------------------------------
+vtkSmartPointer<vtkMatrix4x4> vtkVgAdapt(const vgMatrix4d& eigenMatrix)
+{
+  vtkSmartPointer<vtkMatrix4x4> vtkMatrix =
+    vtkSmartPointer<vtkMatrix4x4>::New();
+
+  vtkVgAdapt(eigenMatrix, vtkMatrix);
+
+  return vtkMatrix;
+}
+
+//-----------------------------------------------------------------------------
+vgMatrix4d vtkVgAdapt(const vtkMatrix4x4* in)
+{
+  // FIXME(VTK9)
+  return vgMatrix4d{const_cast<vtkMatrix4x4*>(in)->GetData()};
 }

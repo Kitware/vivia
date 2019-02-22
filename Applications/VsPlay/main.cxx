@@ -1,36 +1,14 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include <QtCore>
-#include <QAbstractAnimation>
-#include <QApplication>
-#include <QDir>
-#include <QHostAddress>
-#include <QMainWindow>
-#include <QSettings>
+#include "vsVersion.h"
 
-#include <qtCliArgs.h>
-#include <qtUtil.h>
-
-#ifdef ENABLE_QTTESTING
-#include <pqCoreTestUtility.h>
-#endif
-
-#include <vgPluginLoader.h>
-
-#include <vgImage.h>
-
-#include <vtkVgVideoFrameMetaData.h>
-
-#include <vgVideoSourceRequestor.h>
-
-#include <vvQueryResult.h>
-
-#include <vvQueryInstance.h>
-#include <vvQueryService.h>
+#include <vsApplication.h>
+#include <vsMainWindow.h>
+#include <vsUiExtensionInterface.h>
 
 #include <vsContour.h>
 #include <vsDataSource.h>
@@ -45,11 +23,35 @@
 #include <vsTrackId.h>
 #include <vsTrackState.h>
 
-#include "vsVersion.h"
+#include <vvQueryInstance.h>
+#include <vvQueryService.h>
 
-#include "vsApplication.h"
-#include "vsMainWindow.h"
-#include "vsUiExtensionInterface.h"
+#include <vvQueryResult.h>
+
+#include <vgVideoSourceRequestor.h>
+
+#include <vtkVgVideoFrameMetaData.h>
+
+#include <vgImage.h>
+
+#include <vgPluginLoader.h>
+
+#include <vgMatrix.h>
+
+#ifdef ENABLE_QTTESTING
+#include <pqCoreTestUtility.h>
+#endif
+
+#include <qtCliArgs.h>
+#include <qtUtil.h>
+
+#include <QtCore>
+#include <QAbstractAnimation>
+#include <QApplication>
+#include <QDir>
+#include <QHostAddress>
+#include <QMainWindow>
+#include <QSettings>
 
 // Register built-in data source plugins
 Q_IMPORT_PLUGIN(vsDescriptorArchiveSource)
@@ -108,6 +110,7 @@ int main(int argc, char** argv)
   // Register metatypes
   QTE_REGISTER_METATYPE(QHostAddress);
   QTE_REGISTER_METATYPE(vgImage);
+  QTE_REGISTER_METATYPE(vgMatrix4d);
   QTE_REGISTER_METATYPE(vgTimeStamp);
   QTE_REGISTER_METATYPE(vtkVgTimeStamp);
   QTE_REGISTER_METATYPE(vtkVgTimeStamp*);
