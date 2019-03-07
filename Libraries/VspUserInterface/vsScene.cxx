@@ -7,58 +7,6 @@
 #include "vsScene.h"
 #include "vsScenePrivate.h"
 
-#include <QApplication>
-#include <QClipboard>
-#include <QMenu>
-
-#include <qtGradient.h>
-#include <qtStlUtil.h>
-
-#include <vtkAssembly.h>
-#include <vtkCamera.h>
-#include <vtkImageActor.h>
-#include <vtkImageProperty.h>
-#include <vtkLookupTable.h>
-#include <vtkPoints.h>
-#include <vtkProp3DCollection.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkPNGReader.h>
-#include <vtkPNGWriter.h>
-#include <vtkTimerLog.h>
-#include <vtkWindowToImageFilter.h>
-#include <QVTKWidget.h>
-
-#include <vtkVgContourOperatorManager.h>
-#include <vtkVgEvent.h>
-#include <vtkVgEventFilter.h>
-#include <vtkVgEventTypeRegistry.h>
-#include <vtkVgInteractorStyleRubberBand2D.h>
-#include <vtkVgSpaceConversion.h>
-#include <vtkVgTrack.h>
-#include <vtkVgUtil.h>
-
-#include <vtkVgEventLabelRepresentation.h>
-#include <vtkVgEventModel.h>
-#include <vtkVgEventRegionRepresentation.h>
-#include <vtkVgEventRepresentation.h>
-#include <vtkVgTrackPVOFilter.h>
-#include <vtkVgTrackHeadRepresentation.h>
-#include <vtkVgTrackLabelRepresentation.h>
-#include <vtkVgTrackModel.h>
-#include <vtkVgTrackRepresentation.h>
-
-#include <vgCheckArg.h>
-#include <vgRange.h>
-
-#include <vtkVgQtAdapt.h>
-#include <vtkVgQtUtil.h>
-
-#include <vgMixerWidget.h>
-#include <vgTextEditDialog.h>
-
-#include <vsDisplayInfo.h>
-
 #include "vsAlertList.h"
 #include "vsContourWidget.h"
 #include "vsCore.h"
@@ -75,6 +23,60 @@
 #include "vsTrackTreeModel.h"
 #include "vsTrackTreeSelectionModel.h"
 #include "vsTrackTreeWidget.h"
+
+#include <vsDisplayInfo.h>
+
+#include <vtkVgQtUtil.h>
+
+#include <vtkVgEventLabelRepresentation.h>
+#include <vtkVgEventModel.h>
+#include <vtkVgEventRegionRepresentation.h>
+#include <vtkVgEventRepresentation.h>
+#include <vtkVgTrackPVOFilter.h>
+#include <vtkVgTrackHeadRepresentation.h>
+#include <vtkVgTrackLabelRepresentation.h>
+#include <vtkVgTrackModel.h>
+#include <vtkVgTrackRepresentation.h>
+
+#include <vtkVgAdapt.h>
+#include <vtkVgContourOperatorManager.h>
+#include <vtkVgEvent.h>
+#include <vtkVgEventFilter.h>
+#include <vtkVgEventTypeRegistry.h>
+#include <vtkVgInteractorStyleRubberBand2D.h>
+#include <vtkVgSpaceConversion.h>
+#include <vtkVgTrack.h>
+#include <vtkVgUtil.h>
+
+#include <vgMixerWidget.h>
+#include <vgTextEditDialog.h>
+
+#include <vgCheckArg.h>
+#include <vgRange.h>
+
+#include <vtkAssembly.h>
+#include <vtkCamera.h>
+#include <vtkImageActor.h>
+#include <vtkImageProperty.h>
+#include <vtkLookupTable.h>
+#include <vtkPoints.h>
+#include <vtkProp3DCollection.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkPNGReader.h>
+#include <vtkPNGWriter.h>
+#include <vtkTimerLog.h>
+#include <vtkWindowToImageFilter.h>
+#include <QVTKWidget.h>
+
+#include <qtGradient.h>
+#include <qtStlUtil.h>
+
+#include <QApplication>
+#include <QClipboard>
+#include <QMenu>
+
+#include <Eigen/LU>
 
 QTE_IMPLEMENT_D_FUNC(vsScene)
 
@@ -1614,10 +1616,10 @@ vgGeocodedCoordinate vsScene::viewToLatLon(const QPointF& in)
 }
 
 //-----------------------------------------------------------------------------
-QMatrix4x4 vsScene::currentTransform() const
+vgMatrix4d vsScene::currentTransform() const
 {
   QTE_D_CONST(vsScene);
-  return d->CurrentTransformQt;
+  return d->CurrentTransformEigen;
 }
 
 //-----------------------------------------------------------------------------
@@ -1797,25 +1799,25 @@ void vsScene::updateVideoFrame(vtkVgVideoFrame frame, qint64 requestId)
   this->postUpdate(metadata.Time);
 
   // Generate the transform matrix
-  QMatrix4x4 hi, fy;
   double ib[6];
   d->ImageActor->GetBounds(ib);
-  hi = qtAdapt(metadata.Homography).inverted();
+  const auto& hi = vtkVgAdapt(metadata.Homography).inverse();
+  auto fy = vgMatrix4d{vgMatrix4d::Identity()};
   fy(1, 1) = -1.0;
   fy(1, 3) = ib[3] - ib[2];
-  d->CurrentTransformQt = fy * hi;
+  d->CurrentTransformEigen = fy * hi;
 
-  if (d->CurrentTransformQt(3, 3) < 0)
+  if (d->CurrentTransformEigen(3, 3) < 0)
     {
     // If the 3,3 component is negative, we're like to run into an OpenGL issue
     // where points are not rendered when the homogeneous coordinate after
     // transformation is < 0.  This is a temporary fix.
-    d->CurrentTransformQt *= -1.0;
+    d->CurrentTransformEigen *= -1.0;
     }
 
-  // Copy Qt matrix to VTK matrix
+  // Copy Eigen matrix to VTK matrix
   vtkVgInstance<vtkMatrix4x4> xf;
-  qtAdapt(d->CurrentTransformQt, xf);
+  vtkVgAdapt(d->CurrentTransformEigen, xf);
 
   d->CurrentTransformVtk->DeepCopy(xf);
 
@@ -1839,7 +1841,7 @@ void vsScene::updateVideoFrame(vtkVgVideoFrame frame, qint64 requestId)
   emit this->locationTextUpdated(d->buildLocationTextFromDisplay(x, y));
 
   // Pass along metadata
-  emit this->transformChanged(d->CurrentTransformQt);
+  emit this->transformChanged(d->CurrentTransformEigen);
   emit this->videoMetadataUpdated(metadata, requestId);
   emit this->currentTimeChanged(metadata.Time.GetRawTimeStamp());
 }

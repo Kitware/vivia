@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -518,8 +518,8 @@ void vqArchiveVideoSource::CopyFrameData(vtkVgVideoFrameData* frameData)
 void vqArchiveVideoSource::CopyMetadata(vtkVgVideoMetadata* dst,
                                         const vgKwaFrameMetadata& src)
 {
-  const QMatrix3x3 hmSrc = src.homography();
-  vtkMatrix4x4* hmDst = dst->Homography;
+  const auto& hmSrc = src.homography();
+  vtkMatrix4x4* const hmDst = dst->Homography;
   hmDst->Identity();
   hmDst->SetElement(0, 0, hmSrc(0, 0));
   hmDst->SetElement(0, 1, hmSrc(0, 1));

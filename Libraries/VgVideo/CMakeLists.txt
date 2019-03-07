@@ -45,10 +45,11 @@ set(vgVideoWrapObjects
 add_library(${PROJECT_NAME} ${vgVideoSources})
 
 target_link_libraries(${PROJECT_NAME}
-  LINK_PUBLIC
+  PUBLIC
+  vgCommonHeaders
   qtExtensionsHeaders
   ${QT_LIBRARIES}
-  LINK_PRIVATE
+  PRIVATE
   qtExtensions
   vnl_io
   vil_io

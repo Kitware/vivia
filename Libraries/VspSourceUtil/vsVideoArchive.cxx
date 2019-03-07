@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -38,7 +38,7 @@ vtkVgVideoFrameMetaData adaptMetadata(const vgKwaFrameMetadata& vgvMetadata)
   vvvMetadata.HomographyReferenceFrame =
     vgvMetadata.homographyReferenceFrameNumber();
 
-  const QMatrix3x3 hm = vgvMetadata.homography();
+  const auto& hm = vgvMetadata.homography();
   vvvMetadata.Homography->Identity();
   vvvMetadata.Homography->SetElement(0, 0, hm(0, 0));
   vvvMetadata.Homography->SetElement(0, 1, hm(0, 1));

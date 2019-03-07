@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,26 +7,27 @@
 #ifndef __vsScene_h
 #define __vsScene_h
 
-#include <QColor>
-#include <QMatrix4x4>
-#include <QObject>
+#include "vsAlert.h"
 
-#include <qtGlobal.h>
+#include <vsContour.h>
+#include <vsEventInfo.h>
+#include <vsVideoSource.h>
 
-#include <vgExport.h>
+#include <vgfItemReference.h>
 
 #include <vgVideoPlayer.h>
 #include <vgVtkVideoFrame.h>
 
 #include <vtkVgTrackRepresentationBase.h>
 
-#include <vgfItemReference.h>
+#include <vgMatrix.h>
 
-#include <vsContour.h>
-#include <vsEventInfo.h>
-#include <vsVideoSource.h>
+#include <vgExport.h>
 
-#include "vsAlert.h"
+#include <qtGlobal.h>
+
+#include <QColor>
+#include <QObject>
 
 class QAbstractItemModel;
 
@@ -103,7 +104,7 @@ public:
   QPointF viewToFrame(const QPointF&);
   vgGeocodedCoordinate viewToLatLon(const QPointF& in);
 
-  QMatrix4x4 currentTransform() const;
+  vgMatrix4d currentTransform() const;
 
   const vtkVgVideoFrameMetaData& currentFrameMetaData() const;
 
@@ -116,7 +117,7 @@ signals:
   void videoSeekRequestDiscarded(qint64 id,
                                  vtkVgTimeStamp lastFrameAvailable);
 
-  void transformChanged(const QMatrix4x4& newTransform);
+  void transformChanged(const vgMatrix4d& newTransform);
 
   void currentTimeChanged(vgTimeStamp);
 

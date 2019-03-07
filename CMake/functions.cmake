@@ -292,7 +292,7 @@ endfunction()
 function(install_executable_target NAME COMPONENT)
   if(TARGET ${NAME})
     get_target_property(_type ${NAME} TYPE)
-    if(${_type} STREQUAL EXECUTABLE)
+    if(_type STREQUAL "EXECUTABLE")
       install(TARGETS ${NAME}
               RUNTIME COMPONENT ${COMPONENT} DESTINATION bin
               BUNDLE  COMPONENT ${COMPONENT} DESTINATION .
@@ -313,17 +313,23 @@ endfunction()
 function(install_library_targets)
   foreach(_target ${ARGN})
     if(TARGET ${_target})
+      if(TARGET ${_target}Headers)
+        install_library_targets(${_target}Headers)
+      endif()
       get_target_property(_type ${_target} TYPE)
-      if(${_type} MATCHES "(SHARED|STATIC|MODULE)_LIBRARY")
+      if(_type MATCHES "(SHARED|STATIC|MODULE)_LIBRARY")
         install(TARGETS ${_target}
                 EXPORT VisGUI
                 RUNTIME COMPONENT Runtime     DESTINATION bin
                 LIBRARY COMPONENT Runtime     DESTINATION lib${LIB_SUFFIX}
                 ARCHIVE COMPONENT Development DESTINATION lib${LIB_SUFFIX}
         )
-        if(${_type} STREQUAL SHARED_LIBRARY)
+        if(_type STREQUAL "SHARED_LIBRARY")
           export(TARGETS ${_target} APPEND FILE "${VisGUI_EXPORT_FILE}")
         endif()
+      elseif(_type STREQUAL "INTERFACE_LIBRARY")
+        install(TARGETS ${_target} EXPORT VisGUI)
+        set_property(GLOBAL APPEND PROPERTY VisGUI_EXPORT_TARGETS ${_target})
       else()
         message(WARNING
           "install_library_targets given non-library target '${_target}'"
@@ -475,12 +481,19 @@ function(install_headers)
   endif()
 endfunction()
 
+# Function to add a library with an include-only interface
+function(vg_add_library NAME)
+  add_library(${NAME}Headers INTERFACE)
+  add_library(${NAME} ${ARGN})
+  target_link_libraries(${NAME} PUBLIC ${NAME}Headers)
+endfunction()
+
 # Function to install plugin targets
 function(install_plugin_targets)
   foreach(_target ${ARGN})
     if(TARGET ${_target})
       get_target_property(_type ${_target} TYPE)
-      if(NOT ${_type} STREQUAL STATIC_LIBRARY)
+      if(NOT _type STREQUAL "STATIC_LIBRARY")
         install(TARGETS ${_target}
                 COMPONENT Plugins
                 RUNTIME DESTINATION plugins

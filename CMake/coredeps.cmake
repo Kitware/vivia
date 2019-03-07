@@ -1,5 +1,7 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
+find_package(Eigen3 REQUIRED)
+
 # Boost is required.
 find_package(Boost REQUIRED
   COMPONENTS thread signals system filesystem date_time

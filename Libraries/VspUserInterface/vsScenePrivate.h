@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,23 +7,23 @@
 #ifndef __vsScenePrivate_h
 #define __vsScenePrivate_h
 
-#include <QHash>
-#include <QMatrix4x4>
-#include <QPoint>
-#include <QSet>
-#include <QSharedPointer>
+#include <vsEventInfo.h>
 
-#include <vgColor.h>
-
-#include <vtkSmartPointer.h>
-#include <vtkTimeStamp.h>
+#include <vgVideoPlayer.h>
 
 #include <vtkVgInstance.h>
 #include <vtkVgTimeStamp.h>
 
-#include <vgVideoPlayer.h>
+#include <vgColor.h>
+#include <vgMatrix.h>
 
-#include <vsEventInfo.h>
+#include <vtkSmartPointer.h>
+#include <vtkTimeStamp.h>
+
+#include <QHash>
+#include <QPoint>
+#include <QSet>
+#include <QSharedPointer>
 
 class QVTKWidget;
 class vtkActor;
@@ -252,7 +252,7 @@ public:
   QList<Update> PendingUpdates;
   vtkVgTimeStamp CurrentFrameTime;
   vtkVgTimeStamp CurrentHomographyReferenceTime;
-  QMatrix4x4 CurrentTransformQt;
+  vgMatrix4d CurrentTransformEigen;
   vtkVgInstance<vtkMatrix4x4> CurrentTransformVtk;
   vtkVgVideoFrameMetaData CurrentFrameMetaData;
 

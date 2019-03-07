@@ -9,12 +9,10 @@ vg_include_library_sdk_directories(
 )
 
 set(vtkVgQtUtilSources
-  vtkVgQtAdapt.cxx
   vtkVgQtUtil.cxx
 )
 
 set(vtkVgQtUtilInstallHeaders
-  vtkVgQtAdapt.h
   vtkVgQtUtil.h
 )
 

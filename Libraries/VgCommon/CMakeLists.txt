@@ -22,6 +22,7 @@ set(vgCommonInstallHeaders
   vgFlags.h
   vgGeodesy.h
   vgGeoTypes.h
+  vgMatrix.h
   vgNamespace.h
   vgPointerInt.h
   vgRange.h
@@ -68,12 +69,17 @@ else ()
   )
 endif ()
 
-add_library(${PROJECT_NAME}
+vg_add_library(${PROJECT_NAME}
   ${vgCommonSources}
   "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
 )
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_include_directories(${PROJECT_NAME}Headers SYSTEM
+  INTERFACE ${EIGEN3_INCLUDE_DIR}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   GeographicLib::GeographicLib
   ${PROJ4_LIBRARY}
 )
