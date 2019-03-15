@@ -108,9 +108,9 @@ void vvTrackInfoWidget::setTrack(vvTrack newTrack)
   // Trajectory states
   qtDelayTreeSorting tds(d->UI.trajectoryStates);
   d->UI.trajectoryStates->clear();
-  static const auto rf = QStringLiteral("%1,%2 %3\u00d7%4");
-  static const auto pf = QStringLiteral("%1, %2");
-  static const auto wf = QStringLiteral("%1:%2E,%3N");
+  static const auto rf = QStringLiteral(u"%1,%2 %3\u00d7%4");
+  static const auto pf = QStringLiteral(u"%1, %2");
+  static const auto wf = QStringLiteral(u"%1:%2E,%3N");
   foreach_iter (vvTrackTrajectory::const_iterator, iter, newTrack.Trajectory)
     {
     QTreeWidgetItem* item = new QTreeWidgetItem;

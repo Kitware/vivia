@@ -293,7 +293,7 @@ void vvVideoQueryDialogPrivate::setTimeConstraint(
 void vvVideoQueryDialogPrivate::updateKeyframeItem(
   QTreeWidgetItem* item, vtkIdType id, const vgRegionKeyframe& keyframe)
 {
-  static const auto name = QStringLiteral("%1,%2 %3\u00d7%4");
+  static const auto name = QStringLiteral(u"%1,%2 %3\u00d7%4");
   QRect r = keyframe.Region;
   item->setText(NameColumn, QStringLiteral("keyframe-") + QString::number(id));
   item->setText(RegionColumn, name.arg(r.left()).arg(r.top())
