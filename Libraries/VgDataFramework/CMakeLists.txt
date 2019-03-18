@@ -1,6 +1,7 @@
 project(vgDataFramework)
 
 set(vgDataFrameworkSources
+  vdfAbstractQuerySessionNode.cxx
   vdfDataReader.cxx
   vdfDataSource.cxx
   vdfNodeBase.cxx
@@ -15,20 +16,6 @@ set(vgDataFrameworkSources
   vdfTrackReader.cxx
   vdfTrackSource.cxx
   vdfUtil.cxx
-)
-
-set(vgDataFrameworkMocHeaders
-  vdfAbstractQuerySessionNode.h
-  vdfDataReader.h
-  vdfDataSource.h
-  vdfNodeBase.h
-  vdfNodeProxy.h
-  vdfQuerySessionNode.h
-  vdfSelector.h
-  vdfTemporalSelector.h
-  vdfTrackReader.h
-  vdfTrackReaderPrivate.h
-  vdfTrackSource.h
 )
 
 set(vgDataFrameworkInstallHeaders
@@ -74,12 +61,7 @@ set(vgDataFrameworkWrapObjects
   #vdfAbstractTrackNode CANNOT WRAP, depends on vtkVgModelView
 )
 
-qt5_wrap_cpp(vgDataFrameworkMocSources ${vgDataFrameworkMocHeaders})
-
-add_library(${PROJECT_NAME}
-  ${vgDataFrameworkSources}
-  ${vgDataFrameworkMocSources}
-)
+add_library(${PROJECT_NAME} ${vgDataFrameworkSources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

@@ -1,10 +1,5 @@
 project(vdfTrackOracleArchiveSource)
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 if(TARGET kwiver::track_oracle)
   include_directories(SYSTEM ${KWIVER_INCLUDE_DIRS})
   add_definitions(-DKWIVER_TRACK_ORACLE)
@@ -17,18 +12,7 @@ set(vdfTrackOracleArchiveSource_Sources
   vdfTrackOracleTrackArchiveSource.cxx
 )
 
-set(vdfTrackOracleArchiveSource_MocHeaders
-  vdfTrackOracleArchiveSourcePlugin.h
-  vdfTrackOracleTrackArchiveSource.h
-)
-
-qt5_wrap_cpp(vdfTrackOracleArchiveSource_MocSources
-             ${vdfTrackOracleArchiveSource_MocHeaders})
-
-vg_add_qt_plugin(${PROJECT_NAME}
-  ${vdfTrackOracleArchiveSource_Sources}
-  ${vdfTrackOracleArchiveSource_MocSources}
-)
+vg_add_qt_plugin(${PROJECT_NAME} ${vdfTrackOracleArchiveSource_Sources})
 
 if(TARGET kwiver::track_oracle)
   target_link_libraries(${PROJECT_NAME}

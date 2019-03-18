@@ -83,6 +83,7 @@ set(vqSources
     vqResultInfo.cxx
     vqSettings.cxx
     vqTimeline.cxx
+    vqTrackingClipBuilder.cxx
     vqTrackingClipViewer.cxx
     vqTreeView.cxx
     vqUserActions.cxx
@@ -95,43 +96,11 @@ set(vqSources
     Backends/vqVqrExporter.cxx
 )
 
-set(vqUI
-    classifierQuery.ui
-    configure.ui
-    predefinedQuery.ui
-    query.ui
-    regionEdit.ui
-    resultFilter.ui
-    resultInfo.ui
-    viqui.ui
+set(vqResSources
+  ../../Icons/stdbutton.qrc
+  ../../Icons/viqui.qrc
+  ../../Icons/vgvideo.qrc
 )
-
-set(vqMocHeaders
-    vqApplication.h
-    vqArchiveVideoSource.h
-    vqClassifierQueryDialog.h
-    vqConfigureDialog.h
-    vqCore.h
-    vqPredefinedQueryCache.h
-    vqPredefinedQueryCachePrivate.h
-    vqPredefinedQueryDialog.h
-    vqQueryDialog.h
-    vqQueryParser.h
-    vqQueryVideoPlayer.h
-    vqRegionEditDialog.h
-    vqResultFilterDialog.h
-    vqResultInfo.h
-    vqTimeline.h
-    vqTrackingClipBuilder.h
-    vqTrackingClipViewer.h
-    vqTreeView.h
-    vqUserActions.h
-    vqVideoPlayer.h
-    vqVideoQueryDialog.h
-    vtkVQBlastLayoutNode.h
-)
-
-set(vqResources ../../Icons/stdbutton.qrc ../../Icons/viqui.qrc ../../Icons/vgvideo.qrc)
 
 # END core program code
 
@@ -139,31 +108,8 @@ set(vqResources ../../Icons/stdbutton.qrc ../../Icons/viqui.qrc ../../Icons/vgvi
 
 # BEGIN build rules
 
-qt5_wrap_ui(uiSources ${vqUI})
-qt5_wrap_cpp(mocSources ${vqMocHeaders})
-qt5_add_resources(resSources ${vqResources})
-
-source_group("User Interface" FILES
-  ${vqUI}
-)
-
-source_group("Resources" FILES
-  ${vqUI}
-  ${EXE_ICON}
-)
-
-source_group("Generated" FILES
-  ${uiSources}
-  ${mocSources}
-  ${resSources}
-)
-
-set_source_files_properties(${vqSources}
-  PROPERTIES OBJECT_DEPENDS "${uiSources}"
-)
-
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-  ${vqSources} ${uiSources} ${mocSources} ${resSources}
+  ${vqSources} ${vqResSources}
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -15,14 +15,6 @@ set(vgGuiFrameworkAMUI
   contextMenu.ui
 )
 
-set(vgGuiFrameworkUI ${vgGuiFrameworkAMUI})
-
-set(vgGuiFrameworkMocHeaders
-  vgfContextMenu.h
-  vgfItemModel.h
-  vgfNoteTreeModel.h
-)
-
 set(vgGuiFrameworkInstallHeaders
   vgfContextMenu.h
   vgfItemModel.h
@@ -39,17 +31,13 @@ set(vgGuiFrameworkWrapObjects
   vgfItemReference
 )
 
-qt5_wrap_ui(vgGuiFrameworkUiSources ${vgGuiFrameworkUI})
 qte_amc_wrap_ui(vgGuiFrameworkAmSources ActionManagerDialog
   ${vgGuiFrameworkAMUI}
 )
-qt5_wrap_cpp(vgGuiFrameworkMocSources ${vgGuiFrameworkMocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vgGuiFrameworkSources}
-  ${vgGuiFrameworkUiSources}
   ${vgGuiFrameworkAmSources}
-  ${vgGuiFrameworkMocSources}
 )
 
 target_link_libraries(${PROJECT_NAME}

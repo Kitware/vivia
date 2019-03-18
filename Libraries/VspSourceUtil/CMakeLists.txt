@@ -16,13 +16,6 @@ set(vspSourceUtil_Sources
     vsVideoHelper.cxx
 )
 
-set(vspSourceUtil_MocHeaders
-    vsStreamSource.h
-    vsStreamSourcePrivate.h
-    vsVideoArchive.h
-    vsVideoHelper.h
-)
-
 set(vspSourceUtilInstallHeaders
   vsAdapt.h
   vsAdaptTracks.h
@@ -36,12 +29,7 @@ set(vspSourceUtilInstallHeaders
   vsVideoHelper.h
 )
 
-qt5_wrap_cpp(vspSourceUtil_MocSources ${vspSourceUtil_MocHeaders})
-
-add_library(${PROJECT_NAME}
-  ${vspSourceUtil_Sources}
-  ${vspSourceUtil_MocSources}
-)
+add_library(${PROJECT_NAME} ${vspSourceUtil_Sources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

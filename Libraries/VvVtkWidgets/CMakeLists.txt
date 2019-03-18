@@ -13,17 +13,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(vvVtkWidgetsMocHeaders
-  vvAbstractSimilarityQueryDialog.h
-  vvClipVideoRepresentation.h
-  vvGenerateReportDialog.h
-  vvQueryVideoPlayer.h
-  vvReportWriter.h
-  vvVideoPlayer.h
-  vvVideoPlayerModel.h
-  vvVideoQueryDialog.h
-)
-
 set(vvVtkWidgetsSources
   vvAbstractSimilarityQueryDialog.cxx
   vvClipVideoRepresentation.cxx
@@ -36,12 +25,6 @@ set(vvVtkWidgetsSources
   vvVideoPlayerModel.cxx
   vvVideoQueryDialog.cxx
   vvVideoQueryDialogPrivate.cxx
-)
-
-set(vvVtkWidgetsUiFiles
-  generateReport.ui
-  videoQuery.ui
-  videoView.ui
 )
 
 set(vvVtkWidgetsInstallHeaders
@@ -80,20 +63,14 @@ if (${VISGUI_ENABLE_KWPPT})
     vvPowerPointTrackSlideGenerator.cxx
     vvPowerPointWriter.cxx
   )
-  list(APPEND vvVtkWidgetsMocHeaders
-    vvGeneratePowerPointDialog.h
-    vvPowerPointWriter.h
-  )
-  list(APPEND vvVtkWidgetsInstallHeaders
+
+ list(APPEND vvVtkWidgetsInstallHeaders
     vvGeneratePowerPointDialog.h
     vvPowerPointEventSlideGenerator.h
     vvPowerPointExtensionInterface.h
     vvPowerPointSlideGenerator.h
     vvPowerPointTrackSlideGenerator.h
     vvPowerPointWriter.h
-  )
-  list(APPEND vvVtkWidgetsUiFiles
-    generatePowerPoint.ui
   )
 endif()
 
@@ -103,14 +80,7 @@ endif()
 
 # BEGIN build rules
 
-qt5_wrap_cpp(mocSources ${vvVtkWidgetsMocHeaders})
-qt5_wrap_ui(uiSources ${vvVtkWidgetsUiFiles})
-
-add_library(${PROJECT_NAME}
-  ${vvVtkWidgetsSources}
-  ${mocSources}
-  ${uiSources}
-)
+add_library(${PROJECT_NAME} ${vvVtkWidgetsSources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

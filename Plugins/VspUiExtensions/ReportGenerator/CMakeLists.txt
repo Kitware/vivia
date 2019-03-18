@@ -4,11 +4,6 @@ include_directories(SYSTEM
   ${KML_INCLUDE_DIRS}
 )
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-)
-
 if(VSPUI_ENABLE_REPORT_GENERATOR)
   add_definitions(-DENABLE_REPORT_GENERATION)
 endif()
@@ -28,18 +23,7 @@ if(VSPUI_ENABLE_REPORT_GENERATOR)
   )
 endif()
 
-set(vsReportGeneratorExtension_MocHeaders
-  vsReportGeneratorInterface.h
-  vsReportGeneratorPlugin.h
-)
-
-qt5_wrap_cpp(vsReportGeneratorExtension_MocSources
-             ${vsReportGeneratorExtension_MocHeaders})
-
-vg_add_qt_plugin(${PROJECT_NAME}
-  ${vsReportGeneratorExtension_Sources}
-  ${vsReportGeneratorExtension_MocSources}
-)
+vg_add_qt_plugin(${PROJECT_NAME} ${vsReportGeneratorExtension_Sources})
 
 target_link_libraries(${PROJECT_NAME}
   vspData

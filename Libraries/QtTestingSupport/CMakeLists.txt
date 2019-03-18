@@ -2,22 +2,6 @@ project(qtTestingSupport)
 
 link_directories(${QtTesting_LIBRARY_DIR})
 
-qt5_wrap_cpp(qtTestingSupportMocSrcs
-  pqCoreTestUtility.h
-  pqFileDialogEventPlayer.h
-  pqFileDialogEventTranslator.h
-  pqInvokeMethodEventPlayer.h
-  pqQDialogButtonBoxEventPlayer.h
-  pqQDialogButtonBoxEventTranslator.h
-  pqQteDoubleSliderEventPlayer.h
-  pqQteDoubleSliderEventTranslator.h
-  pqQVTKWidgetEventTranslator.h
-  pqVgMixerEventPlayer.h
-  pqVgMixerEventTranslator.h
-  pqXMLEventObserver.h
-  pqXMLEventSource.h
-)
-
 set(qtTestingSupportSrcs
   pqCoreTestUtility.cxx
   pqFileDialogEventPlayer.cxx
@@ -37,7 +21,6 @@ set(qtTestingSupportSrcs
 
 add_library(${PROJECT_NAME}
   ${qtTestingSupportSrcs}
-  ${qtTestingSupportMocSrcs}
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM

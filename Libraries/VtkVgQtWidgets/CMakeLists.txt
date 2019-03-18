@@ -13,20 +13,11 @@ set(vtkVgQtWidgetsSources
   vtkVgRegionWidget.cxx
 )
 
-set(vtkVgQtWidgetsMocHeaders
-  vtkVgRegionWidget.h
-)
-
 set(vtkVgQtWidgetsInstallHeaders
   vtkVgRegionWidget.h
 )
 
-qt5_wrap_cpp(vtkVgQtWidgetsMocSources ${vtkVgQtWidgetsMocHeaders})
-
-add_library(${PROJECT_NAME}
-  ${vtkVgQtWidgetsSources}
-  ${vtkVgQtWidgetsMocSources}
-)
+add_library(${PROJECT_NAME} ${vtkVgQtWidgetsSources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

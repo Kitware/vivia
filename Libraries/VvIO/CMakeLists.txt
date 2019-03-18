@@ -19,6 +19,7 @@ set(vvIO_Sources
   vvXmlUtil.cxx
   # Query Server Interface
   vvQueryInstance.cxx
+  vvQueryNotifier.cxx
   vvQueryService.cxx
   vvQuerySession.cxx
   # Utility Functions
@@ -28,12 +29,6 @@ set(vvIO_Sources
   vvKmlLine.cxx
   vvMakeId.cxx
   vvUtil.cxx
-)
-
-set(vvIO_MocHeaders
-  # Query Server Interface
-  vvQueryNotifier.h
-  vvQuerySession.h
 )
 
 set(vvIOInstallHeaders
@@ -72,9 +67,7 @@ set(vvIOWrapObjects
   vvTrackId
 )
 
-qt5_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
-
-add_library(${PROJECT_NAME} ${vvIO_Sources} ${vvIO_MocSources})
+add_library(${PROJECT_NAME} ${vvIO_Sources})
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC

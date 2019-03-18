@@ -5,6 +5,7 @@
  */
 
 #include "vsVvqsDatabaseSourcePlugin.h"
+#include "moc_vsVvqsDatabaseSourcePlugin.cpp"
 
 #include <QSignalMapper>
 #include <QtPlugin>
