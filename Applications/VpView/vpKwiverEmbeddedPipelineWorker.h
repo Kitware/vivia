@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -23,6 +23,7 @@ class object_track_set;
 
 class vpFileDataSource;
 class vtkVpTrackModel;
+class vtkVgTrackTypeRegistry;
 
 class vpKwiverEmbeddedPipelineWorkerPrivate;
 
@@ -34,8 +35,10 @@ public:
   vpKwiverEmbeddedPipelineWorker(QObject* parent = nullptr);
   ~vpKwiverEmbeddedPipelineWorker();
 
-  bool initialize(const QString& pipelineFile, vpFileDataSource* dataSource,
-                  vtkVpTrackModel* trackModel, double videoHeight);
+  bool initialize(
+    const QString& pipelineFile, vpFileDataSource* dataSource,
+    vtkVpTrackModel* trackModel, vtkVgTrackTypeRegistry const* trackTypes,
+    double videoHeight);
 
   std::shared_ptr<kwiver::vital::object_track_set> tracks() const;
 
