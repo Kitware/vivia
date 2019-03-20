@@ -53,6 +53,7 @@ set(vvIOInstallHeaders
   vvQueryServiceInterface.h
   vvQuerySession.h
   vvReader.h
+  vvTrackHash.h
   vvUtil.h
   vvWriterData.h
   vvWriter.h

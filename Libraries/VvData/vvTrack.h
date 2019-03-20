@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -123,20 +123,6 @@ bool vvTrackState::operator<(const vgTimeStamp& timestamp) const
 bool vvTrackState::operator>(const vgTimeStamp& timestamp) const
 {
   return timestamp < this->TimeStamp;
-}
-
-//-----------------------------------------------------------------------------
-extern unsigned int qHash(long long);
-inline unsigned int qHash(const vvTrackId& tid)
-{
-  static const int sourceRotateBits = 4;
-  static const int sourceReverseRotateBits =
-    ((8 * sizeof(unsigned int)) - sourceRotateBits);
-
-  unsigned int source = static_cast<unsigned int>(tid.Source);
-  unsigned int sourceHash = (source >> sourceRotateBits) & (~0U);
-  sourceHash ^= (source << sourceReverseRotateBits & (~0U));
-  return qHash(tid.SerialNumber) ^ sourceHash;
 }
 
 #endif
