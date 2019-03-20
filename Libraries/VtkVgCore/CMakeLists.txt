@@ -64,6 +64,7 @@ set(vtkVgCoreSrcs
   vtkVgSGIReader.cxx
   vtkVgSpaceConversion.cxx
   vtkVgTemporalFilters.cxx
+  vtkVgTIFReader.cxx
   vtkVgTimeStamp.cxx
   vtkVgTrack.cxx
   vtkVgTrackTypeRegistry.cxx
@@ -135,6 +136,7 @@ set(vtkVgCoreInstallHeaders
   vtkVgSGIReader.h
   vtkVgSpaceConversion.h
   vtkVgTemporalFilters.h
+  vtkVgTIFReader.h
   vtkVgTimeStamp.h
   vtkVgTrack.h
   vtkVgTrackTypeRegistry.h

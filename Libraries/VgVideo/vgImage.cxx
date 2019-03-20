@@ -6,6 +6,7 @@
 
 #include "vgImage.h"
 
+#include <QDebug>
 #include <QImage>
 
 #include <limits>
@@ -64,6 +65,13 @@ void arrayDeleter(void* ucharData)
 {
   unsigned char* const data = reinterpret_cast<unsigned char*>(ucharData);
   delete[] data;
+}
+
+//-----------------------------------------------------------------------------
+void qimageDeleter(void* qimagePointer)
+{
+  QImage* qi = reinterpret_cast<QImage*>(qimagePointer);
+  delete qi;
 }
 
 } // namespace <anonymous>
@@ -198,6 +206,24 @@ vgImage::vgImage(unsigned char* data, int ni, int nj, int np,
 }
 
 //-----------------------------------------------------------------------------
+vgImage::vgImage(const QImage& qi)
+{
+  // Make a copy of the image, coercing the data into a known packing order;
+  // this is something of a pessimization based on the assumption that we will
+  // eventually need to convert the data to this format anyway, at the expense
+  // of slower conversion now... (if the image is already the correct format,
+  // this will just be a shallow copy since QImage is implicitly shared, and we
+  // need that anyway as we are allowing QImage to retain ownership of the
+  // memory)
+  QImage* const pqi =
+    new QImage(qi.convertToFormat(QImage::Format_RGB888));
+
+  vgImage::Closure cleanup(&qimageDeleter, pqi);
+  this->d_ptr = new vgImageData(pqi->constBits(), pqi->width(), pqi->height(),
+                                3, 3, pqi->bytesPerLine(), 1, cleanup);
+}
+
+//-----------------------------------------------------------------------------
 vgImage::~vgImage()
 {
 }
@@ -300,9 +326,11 @@ QImage vgImage::toQImage() const
 {
   QTE_D_SHARED(vgImage);
 
-  if (d->pCount != 3)
+  if (d->pCount != 1 && d->pCount != 3)
     {
-    // TODO handle other than 3-plane images?
+    // TODO handle other than 1- and 3-plane images?
+    qDebug() << "vgImage::toQImage: don't know how to convert image with"
+             << d->pCount << "planes";
     return QImage();
     }
 
@@ -326,7 +354,7 @@ QImage vgImage::toQImage() const
   QImage qi(size, QImage::Format_RGB32);
   const int iStep = d->iStep;
   const int jStep = d->jStep;
-  const int planeStep = d->pStep;
+  const int planeStep = (d->pCount == 1 ? 0 : d->pStep);
   const int width = size.width();
   QRgb* const newPixels = reinterpret_cast<QRgb*>(qi.bits());
 

@@ -24,6 +24,10 @@
 #include "vpViewCore.h"
 #include "vtkVpTrackModel.h"
 
+#ifdef VISGUI_USE_SUPER3D
+#include "vpSuperResWidget.h"
+#endif
+
 #include <vtkVgEvent.h>
 #include <vtkVgEventFilter.h>
 #include <vtkVgEventModel.h>
@@ -32,7 +36,12 @@
 #include <vtkVgTrackTypeRegistry.h>
 
 #include <QVTKWidget.h>
+#include <vtkNew.h>
 #include <vtkRenderer.h>
+
+#ifdef _WIN32
+#include <vtkWin32ProcessOutputWindow.h>
+#endif
 
 #ifdef ENABLE_QTTESTING
 #include "pqCoreTestUtility.h"
@@ -48,6 +57,7 @@
 #include <qtUtil.h>
 
 #include <QClipboard>
+#include <QCloseEvent>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QEventLoop>
@@ -55,6 +65,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QSettings>
+#include <QShortcut>
 #include <QSignalMapper>
 #include <QSlider>
 #include <QSplitter>
@@ -88,6 +99,7 @@ public:
 
   QLabel* Coordinates;
   QLabel* Gsd;
+  QLabel* FrameFileName;
   QLabel* FrameDate;
   QLabel* FrameTime;
   QLabel* ActivityCount;
@@ -156,6 +168,29 @@ vpView::vpView()
           this, SLOT(updateTracks()));
 
   this->Internal->UI.setupUi(this);
+
+#ifdef VISGUI_USE_SUPER3D
+    {
+    QDockWidget* superResDock;
+    superResDock = new QDockWidget(this);
+    superResDock->setObjectName(QString::fromUtf8("superResDock"));
+    QWidget* superDockWidgetContents = new QWidget();
+    superDockWidgetContents->setObjectName(
+      QString::fromUtf8("dockWidgetContents_4"));
+    QVBoxLayout* superVerticalLayout = new QVBoxLayout(superDockWidgetContents);
+    superVerticalLayout->setObjectName(QString::fromUtf8("verticalLayout_14"));
+    this->SuperResWidget = new vpSuperResWidget(superDockWidgetContents);
+    this->SuperResWidget->setObjectName(QString::fromUtf8("superResWidget"));
+    superVerticalLayout->addWidget(this->SuperResWidget);
+    QSpacerItem* superVerticalSpacer =
+      new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    superVerticalLayout->addItem(superVerticalSpacer);
+    superResDock->setWidget(superDockWidgetContents);
+    this->addDockWidget(static_cast<Qt::DockWidgetArea>(1), superResDock);
+    superResDock->setWindowTitle(QApplication::translate("vpMainWindow",
+                                 "Super Resolution", 0, QApplication::UnicodeUTF8));
+    }
+#endif
 
   // Add dock and toolbar view actions to the view menu
   QAction* insertBefore = this->Internal->UI.menuView->actions()[0];
@@ -304,6 +339,7 @@ vpView::vpView()
   // Set up status bar
   this->Internal->Coordinates = new QLabel;
   this->Internal->Gsd = new QLabel;
+  this->Internal->FrameFileName = new QLabel;
   this->Internal->FrameDate = new QLabel;
   this->Internal->FrameTime = new QLabel;
   this->Internal->ActivityCount = new QLabel;
@@ -311,6 +347,7 @@ vpView::vpView()
   this->Internal->TrackCount = new QLabel;
   this->statusBar()->addWidget(this->Internal->Coordinates);
   this->statusBar()->addPermanentWidget(this->Internal->Gsd);
+  this->statusBar()->addPermanentWidget(this->Internal->FrameFileName);
   this->statusBar()->addPermanentWidget(this->Internal->FrameDate);
   this->statusBar()->addPermanentWidget(this->Internal->FrameTime);
   this->statusBar()->addPermanentWidget(this->Internal->ActivityCount);
@@ -353,6 +390,17 @@ vpView::vpView()
 
   connect(this->Core, SIGNAL(graphModelExportRequested(QString)),
           this->GraphModelWidget, SLOT(exportJson(QString)));
+
+  connect(this->Core, SIGNAL(projectProcessed()),
+          this, SLOT(onProjectProcessed()));
+
+#ifdef VISGUI_USE_SUPER3D
+  // Super res widget
+  this->SuperResWidget->initialize(this->Core);
+
+  connect(this->Core, SIGNAL(frameRendered()),
+          this->SuperResWidget, SLOT(frameChanged()));
+#endif
 
   // Signals for setting up timeline selections
   connect(this->TimelineDialog, SIGNAL(SelectedObject(int, int)),
@@ -419,7 +467,8 @@ vpView::vpView()
   connect(this->Core, SIGNAL(frameRendered()), this, SLOT(onFrameRendered()));
   connect(this->Core, SIGNAL(eventFilterChanged()), this, SLOT(onEventFilterChanged()));
 
-  connect(this->Core, SIGNAL(objectInfoUpdateNeeded()), this, SLOT(updateInfoWidget()));
+  connect(this->Core, SIGNAL(objectInfoUpdateNeeded(bool)),
+          this, SLOT(updateInfoWidget(bool)));
 
   connect(this->Core, SIGNAL(projectVisibilityChanged(int, bool)),
           this->Internal->UI.sessionView, SLOT(SetSessionVisible(int, bool)));
@@ -484,8 +533,8 @@ vpView::vpView()
                                       vtkMatrix4x4*, QString, bool)),
           this,
           SLOT(onSpatialFilterComplete(vtkPoints*, vtkPoints*,
-                                      const vtkVgTimeStamp*,
-                                      vtkMatrix4x4*, QString, bool)));
+                                       const vtkVgTimeStamp*,
+                                       vtkMatrix4x4*, QString, bool)));
   connect(this->Core,
           SIGNAL(temporalFilterReady(int, const QString&, int,
                                      double, double)),
@@ -626,6 +675,10 @@ vpView::vpView()
           this, SLOT(onFollowTrackChange(int)));
   connect(this->Internal->UI.actionExitFollowMode, SIGNAL(triggered()),
           this, SLOT(onExitFollowTrack()));
+  connect(this->Internal->UI.actionIncreasePolygonNodeSize, SIGNAL(triggered()),
+          this->Core, SLOT(onIncreasePolygonNodeSize()));
+  connect(this->Internal->UI.actionDecreasePolygonNodeSize, SIGNAL(triggered()),
+          this->Core, SLOT(onDecreasePolygonNodeSize()));
 
   // Display options
   QActionGroup* eventExpireGroup = new QActionGroup(this);
@@ -655,6 +708,14 @@ vpView::vpView()
           this, SLOT(onPlayPause()));
   connect(this->Internal->UI.actionFastForward, SIGNAL(triggered(bool)),
           this, SLOT(onFastForward()));
+
+  QShortcut* prevShortcut = new QShortcut(QKeySequence("q"),
+                                          this->Internal->UI.renderFrame);
+  connect(prevShortcut, SIGNAL(activated()), this->Core, SLOT(prevFrame()));
+  QShortcut* nextShortcut = new QShortcut(QKeySequence("w"),
+                                          this->Internal->UI.renderFrame);
+  connect(nextShortcut, SIGNAL(activated()), this->Core, SLOT(nextFrame()));
+
 
   connect(this->Internal->UI.actionLoop, SIGNAL(toggled(bool)),
           this, SLOT(onLoopToggle(bool)));
@@ -779,6 +840,8 @@ vpView::vpView()
           this, SLOT(executeExternalProcess()));
   connect(this->Core, SIGNAL(exportFilters(QString, bool)),
           this, SLOT(exportFilters(QString, bool)));
+  connect(this->Core, SIGNAL(frameChanged(QString)),
+          SLOT(updateFrameFileName(QString)));
 
   // Get notifications of config changes
   connect(vpApplication::instance(),
@@ -840,6 +903,38 @@ vpView::~vpView()
 //-----------------------------------------------------------------------------
 void vpView::closeEvent(QCloseEvent* e)
 {
+  if (this->Core->isTrackExportNeeded() ||
+      this->Core->isSceneElementExportNeeded() ||
+      this->Core->isEventExportNeeded())
+    {
+    QString questionText;
+    if (this->Core->isTrackExportNeeded())
+      {
+      questionText =
+        "Tracks have been modified but not exported. ";
+      }
+    else if (this->Core->isEventExportNeeded())
+      {
+      questionText =
+        "Events have been modified but not exported. ";
+      }
+    if (this->Core->isSceneElementExportNeeded())
+      {
+      questionText =
+        "Scene Elements have been modified but not exported. ";
+      }
+    questionText += "Are you sure you want to exit?";
+    // check whether track states modified at all (or any user editing)
+    QMessageBox::StandardButton resBtn = QMessageBox::question(this, 0,
+      questionText, QMessageBox::Cancel | QMessageBox::No | QMessageBox::Yes,
+      QMessageBox::Yes);
+    if (resBtn != QMessageBox::Yes)
+      {
+      e->ignore();
+      return;
+      }
+    }
+
   // Save window state and geometry.
   QSettings settings(QSettings::NativeFormat, QSettings::UserScope,
                      qApp->organizationName(), qApp->applicationName());
@@ -1012,7 +1107,7 @@ void vpView::updateObject(int objectType, int id)
 }
 
 //-----------------------------------------------------------------------------
-void vpView::updateColorofTracksOfType(int typeIndex, double *rgb)
+void vpView::updateColorofTracksOfType(int typeIndex, double* rgb)
 {
   this->Core->updateColorofTracksOfType(typeIndex, rgb);
   this->Core->updateScene();
@@ -1039,6 +1134,9 @@ void vpView::onTreeSelectionChanged(int sessionId)
   this->Core->onShowObjectInfo(sessionId, this->Internal->UI.objectInfoWidget);
   this->updateInfoWidget();
 
+  this->Core->onShowTrackAttributes(sessionId,
+    this->Internal->UI.trackAttributesWidget);
+
   vgItemInfo info;
   if (!this->Internal->UI.sessionView->GetSelectedItemInfo(info) ||
       info.Type != vgObjectTypeDefinitions::Event)
@@ -1063,17 +1161,23 @@ void vpView::onTreeSelectionChanged(int sessionId)
     {
     this->Core->setTrackSelection(
       this->Internal->UI.sessionView->GetSelectedItems(
-      vgObjectTypeDefinitions::SceneElement), sessionId);
+        vgObjectTypeDefinitions::SceneElement), sessionId);
     }
 }
 
 //-----------------------------------------------------------------------------
-void vpView::updateInfoWidget()
+void vpView::updateInfoWidget(bool trackAttributesOnly/*=false*/)
 {
   vgItemInfo info;
   if (!this->Internal->UI.sessionView->GetSelectedItemInfo(info))
     {
+    this->Internal->UI.trackAttributesWidget->
+      ShowTrackAttributesControls(false);
     this->Internal->UI.objectInfoWidget->ShowEmptyPage();
+    return;
+    }
+  if (trackAttributesOnly && info.Type != vgObjectTypeDefinitions::Track)
+    {
     return;
     }
 
@@ -1094,10 +1198,15 @@ void vpView::updateInfoWidget()
         }
       break;
     case vgObjectTypeDefinitions::Track:
-      this->Internal->UI.objectInfoWidget->ShowTrackInfo(
-        info.Id,
-        info.ParentId,
-        info.Index);
+      this->Internal->UI.trackAttributesWidget->
+        UpdateTrackAttributes(info.Id);
+      if (!trackAttributesOnly)
+        {
+        this->Internal->UI.objectInfoWidget->ShowTrackInfo(
+          info.Id,
+          info.ParentId,
+          info.Index);
+        }
       break;
     case vgObjectTypeDefinitions::SceneElement:
       this->Internal->UI.objectInfoWidget->ShowSceneElementInfo(
@@ -1541,8 +1650,10 @@ void vpView::onWarningError(const QString& warningMsg)
 //-----------------------------------------------------------------------------
 void vpView::onShowConfigureDialog()
 {
-  vpConfigureDialog dialog(this);
+  vpConfigureDialog dialog(this->Core, this);
   dialog.setTrackAttributes(this->Core->getTrackAttributes());
+  dialog.setColorWindow(this->Core->colorWindow());
+  dialog.setColorLevel(this->Core->colorLevel());
 
   if (dialog.exec() == QDialog::Accepted)
     {
@@ -1685,10 +1796,15 @@ void vpView::processCommandLine()
     this->loadSettings();
     }
 
-  // First load the config file. Order is important.
+#ifdef _WIN32
+  vtkNew<vtkWin32ProcessOutputWindow> processOutputWindow;
+  vtkOutputWindow::SetInstance(processOutputWindow.GetPointer());
+#endif
+
+  // Load the config file. Order is important.
   if (!this->Internal->ConfigFileName.isEmpty())
     {
-    this->Core->loadConfig(this->Internal->ConfigFileName.toStdString().c_str());
+    this->Core->loadConfig(qPrintable(this->Internal->ConfigFileName));
     this->GraphModelWidget->loadConfig(this->Internal->ConfigFileName);
     }
 
@@ -1706,9 +1822,6 @@ void vpView::processCommandLine()
 
   if (loadedProject)
     {
-    // Now refresh view.
-    this->Core->refreshView();
-
     // Update observers.
     this->Core->dataChanged();
     }
@@ -1725,6 +1838,7 @@ void vpView::setupDock()
   //       controller's initial state synchronization
   this->Internal->UI.sessionViewDock->show();
   this->Internal->UI.objectInfoDock->show();
+  this->Internal->UI.trackAttributesDock->hide();
   this->Internal->UI.eventOptionDock->hide();
   this->Internal->UI.displayOptionsDock->hide();
   this->Internal->UI.normalcyMapsDock->hide();
@@ -1842,7 +1956,7 @@ void vpView::onSaveRenderedImages(bool state)
   if (state == true)
     {
     QString path = vgFileDialog::getExistingDirectory(
-      0, "Image Output Directory");
+                     0, "Image Output Directory");
 
     if (!path.isEmpty())
       {
@@ -1980,6 +2094,13 @@ void vpView::showGsd(double width, double height, const QString& suffix)
      QString().sprintf("%.3f x %.3f m", width, height)) + suffix);
 
   this->Internal->Gsd->show();
+}
+
+//-----------------------------------------------------------------------------
+void vpView::updateFrameFileName(const QString& fileName)
+{
+  QFileInfo fileInfo(fileName);
+  this->Internal->FrameFileName->setText(fileInfo.fileName());
 }
 
 //-----------------------------------------------------------------------------
@@ -2212,12 +2333,12 @@ void vpView::onSpatialFilterComplete(vtkPoints* contourPoints,
   wi->setData(0, Qt::UserRole + 1, QVariant::fromValue<void*>(filterPoints));
   if (timeStamp)
     {
-    wi->setData(0, Qt::UserRole + 3,
-      timeStamp->HasFrameNumber() ? timeStamp->GetFrameNumber()
-                                  : invalidTimeStamp.GetFrameNumber());
-    wi->setData(0, Qt::UserRole + 4,
-      timeStamp->HasTime() ? timeStamp->GetTimeInSecs()
-                           : invalidTimeStamp.GetTime());
+    wi->setData(0, Qt::UserRole + 3, timeStamp->HasFrameNumber()
+                                     ? timeStamp->GetFrameNumber()
+                                     : invalidTimeStamp.GetFrameNumber());
+    wi->setData(0, Qt::UserRole + 4, timeStamp->HasTime()
+                                     ? timeStamp->GetTimeInSecs()
+                                     : invalidTimeStamp.GetTime());
     }
   else
     {
@@ -2234,7 +2355,7 @@ void vpView::onSpatialFilterComplete(vtkPoints* contourPoints,
     wi->setText(0, name);
     }
   wi->setData(0, Qt::UserRole + 5,
-    QVariant::fromValue<void*>(worldToImageMatrix));
+              QVariant::fromValue<void*>(worldToImageMatrix));
 
   Qt::CheckState initialState = enabled ? Qt::Checked : Qt::Unchecked;
   wi->setCheckState(0, initialState);
@@ -2330,7 +2451,7 @@ void vpView::onTemporalFilterReady(int id, const QString& name,
   wi->setData(0, Qt::UserRole, id);
   wi->setText(0, name);
   wi->setText(1, vtkVgTemporalFilters::StringForType(
-                     vtkVgTemporalFilters::FilterType(type)));
+                   vtkVgTemporalFilters::FilterType(type)));
   wi->setData(1, Qt::UserRole, type);
 
   if (start != -1)
@@ -2478,8 +2599,8 @@ void vpView::temporalFilterChanged(QTreeWidgetItem* item, int column)
     {
     if (column) // column 2 or 3 (not column 0)
       {
-      item->setText(column, this->setTemporalFilterTimeLabelValue(
-        item->data(column, Qt::UserRole).toDouble()));
+      const double value = item->data(column, Qt::UserRole).toDouble();
+      item->setText(column, this->setTemporalFilterTimeLabelValue(value));
       }
     else // did checked state change?
       {
@@ -2620,6 +2741,7 @@ void vpView::loadSettings()
   this->Core->setUseZeroBasedFrameNumbers(settings.useZeroBasedFrameNumbers());
   this->Core->setRightClickToEditEnabled(settings.rightClickToEdit());
   this->Core->setAutoAdvanceDuringCreation(settings.autoAdvanceDuringCreation());
+  this->Core->setInterpolateToGround(settings.interpolateToGround());
   this->Core->setSceneElementLineWidth(settings.sceneElementLineWidth());
 
   this->Core->setTrackUpdateChunkSize(settings.streamingTrackUpdateChunkSize());
@@ -2972,7 +3094,7 @@ void vpView::addEventsToGraphModel(QList<int> eventIds, int sessionId)
   vtkVgEventModel* model = this->Core->getEventModel(sessionId);
   std::vector<vtkVgEvent*> events;
 
-  foreach(int id, eventIds)
+  foreach (int id, eventIds)
     {
     if (vtkVgEvent* event = model->GetEvent(id))
       {
@@ -2993,7 +3115,7 @@ void vpView::addTrackEventsToGraphModel(int id, int sessionId)
   model->GetEvents(id, events);
 
   // Remove all the events are not turned on or don't pass filters
-  for (size_t i = 0; i < events.size(); )
+  for (size_t i = 0; i < events.size();)
     {
     vtkVgEvent* event = events[i];
     vtkVgEventInfo info = model->GetEventInfo(event->GetId());
@@ -3070,7 +3192,8 @@ void vpView::exportSceneElements()
 void vpView::exportFilters()
 {
   QString path = vgFileDialog::getSaveFileName(
-    this, "Save Filters", QString(), "vpView filters (*.txt);;");
+                   this, "Save Filters", QString(),
+                   "vpView filters (*.txt);;");
 
   if (path.isEmpty())
     {
@@ -3103,8 +3226,9 @@ void vpView::exportFilters(QString path, bool startExternalProcess)
       static_cast<vtkPoints*>(item->data(0, Qt::UserRole + 1).value<void*>());
     unsigned int frameNumber = item->data(0, Qt::UserRole + 3).toUInt();
     double time = item->data(0, Qt::UserRole + 4).toDouble();
-    vtkMatrix4x4* worldtoImageMatrix = static_cast<vtkMatrix4x4*>
-      (item->data(0, Qt::UserRole + 5).value<void*>());
+    vtkMatrix4x4* worldtoImageMatrix =
+      static_cast<vtkMatrix4x4*>(
+        item->data(0, Qt::UserRole + 5).value<void*>());
 
     this->Core->writeSpatialFilter(contourPoints, filterPoints,
                                    frameNumber, time, worldtoImageMatrix,
@@ -3165,8 +3289,8 @@ void vpView::setTrackTrailLength()
   else
     {
     // Frame numbers only
-    int prevLength = trailLength.HasFrameNumber() ? trailLength.GetFrameNumber()
-                                                  : 0;
+    int prevLength =
+      trailLength.HasFrameNumber() ? trailLength.GetFrameNumber() : 0;
     bool ok = false;
     int length = QInputDialog::getInt(
                    this, "Set Track Trail Length", "Trail frames (0 = unlimited)",
@@ -3454,4 +3578,33 @@ QString vpView::setTemporalFilterTimeLabelValue(double time)
     ts = QString("%1").arg(time);
     }
   return ts;
+}
+
+//-----------------------------------------------------------------------------
+void vpView::onProjectProcessed()
+{
+#ifdef VISGUI_USE_SUPER3D
+  this->SuperResWidget->disableGreyscaleOption(
+    this->Core->getImagesAreGreyscale());
+
+  if (!this->Core->cameraDirectory().isEmpty())
+    {
+    this->SuperResWidget->loadCameras(
+      stdString(this->Core->cameraDirectory()));
+    }
+
+  if (!this->Core->bundleAdjustmentConfigFile().isEmpty())
+    {
+    this->SuperResWidget->setBundleAjustmentConfigFile(
+      stdString(this->Core->bundleAdjustmentConfigFile()));
+    }
+
+  if (!this->Core->depthConfigFile().isEmpty())
+    {
+    this->SuperResWidget->loadDepthConfigFile(
+      stdString(this->Core->depthConfigFile()));
+    }
+
+  this->SuperResWidget->enableOptions();
+#endif
 }

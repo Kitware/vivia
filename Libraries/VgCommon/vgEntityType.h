@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -17,6 +17,7 @@ public:
   void SetName(const char* name);
   const char* GetName() const { return this->Name; }
 
+  void SetColor(const double* color);
   void SetColor(double r, double g, double b);
   void GetColor(double& r, double& g, double& b) const;
 
@@ -26,9 +27,11 @@ public:
   void SetSecondaryColor(double r, double g, double b);
   void GetSecondaryColor(double& r, double& g, double& b) const;
 
+  void SetLabelForegroundColor(const double* color);
   void SetLabelForegroundColor(double r, double g, double b);
   void GetLabelForegroundColor(double& r, double& g, double& b) const;
 
+  void SetLabelBackgroundColor(const double* color);
   void SetLabelBackgroundColor(double r, double g, double b);
   void GetLabelBackgroundColor(double& r, double& g, double& b) const;
 

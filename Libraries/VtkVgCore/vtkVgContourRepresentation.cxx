@@ -39,6 +39,12 @@ vtkVgContourRepresentation::vtkVgContourRepresentation()
   property->SetAmbient(0.1);
   property->SetDiffuse(0.9);
   property->SetSpecular(0.0);
+
+  void SetZOffset(double offset);
+
+  // Set initial offset to be 0.2, to be above the image where the clicks occur
+  this->ZOffset = 0.2;
+  this->LinesActor->SetPosition(0.0, 0.0, this->ZOffset);
 }
 
 //------------------------------------------------------------------------
@@ -66,6 +72,17 @@ void vtkVgContourRepresentation::Initialize(vtkPolyData* pd, vtkIdList* list)
   this->Superclass::Initialize(pd, list);
   this->TransformedPoints->SetNumberOfPoints(this->GetNumberOfNodes());
   this->UpdateTransformedPoints();
+}
+
+//------------------------------------------------------------------------
+void vtkVgContourRepresentation::SetZOffset(double offset)
+{
+  if (this->ZOffset != offset)
+    {
+    this->ZOffset = offset;
+    this->LinesActor->SetPosition(0.0, 0.0, this->ZOffset);
+    this->Modified();
+    }
 }
 
 //------------------------------------------------------------------------

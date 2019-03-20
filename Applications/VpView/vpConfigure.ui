@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>519</width>
-    <height>448</height>
+    <height>456</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure - VisGUI View</string>
+   <string>Configure - WAMI Viewer</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" rowspan="2">
@@ -659,7 +659,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QGroupBox" name="groupBox_4">
+        <widget class="QGroupBox" name="generalInterfaceGroup">
          <property name="title">
           <string>General</string>
          </property>
@@ -688,11 +688,18 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QCheckBox" name="uiInterpolateToGround">
+            <property name="text">
+             <string>Interpolate to ground between track key frames</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox">
+        <widget class="QGroupBox" name="coordinateGroup">
          <property name="title">
           <string>Coordinate Display</string>
          </property>
@@ -711,6 +718,61 @@
            <widget class="QRadioButton" name="displayImageRelativeCoords">
             <property name="text">
              <string>Image relative</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="transferFunctionGroup">
+         <property name="title">
+          <string>Color Transfer Function</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelColorWindow">
+            <property name="toolTip">
+             <string>Window / range of input color values that will be mapped. The value gives the &lt;i&gt;total&lt;/i&gt; range, not the distance from the median.</string>
+            </property>
+            <property name="text">
+             <string>Window</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QDoubleSpinBox" name="colorWindow">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="decimals">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <double>65535.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="labelColorLevel">
+            <property name="toolTip">
+             <string>Input color value that will be mapped to the median output value, and also serves as the median value of the input color range.</string>
+            </property>
+            <property name="text">
+             <string>Level</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QDoubleSpinBox" name="colorLevel">
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="decimals">
+             <number>2</number>
+            </property>
+            <property name="maximum">
+             <double>65535.000000000000000</double>
             </property>
            </widget>
           </item>

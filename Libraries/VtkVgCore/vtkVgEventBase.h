@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,16 +7,19 @@
 #ifndef __vtkVgEventBase_h
 #define __vtkVgEventBase_h
 
-#include <vtkObject.h>
 
 #include "vtkVgMetaObject.h"
 #include "vtkVgTimeStamp.h"
 #include "vtkVgUtil.h"
 
-#include <map>
-#include <vector>
+#include <vgGeoTypes.h>
 
 #include <vgExport.h>
+
+#include <vtkObject.h>
+
+#include <map>
+#include <vector>
 
 class vtkIdList;
 class vtkPoints;
@@ -90,6 +93,10 @@ public:
   vgPolygon2d GetRegionAtOrAfter(vtkVgTimeStamp& timeStamp) const;
   std::map<vtkVgTimeStamp, vgPolygon2d> GetRegions() const;
 
+  void AddGeodeticRegion(const vtkVgTimeStamp& timeStamp,
+                         const vgGeocodedPoly& region);
+  std::map<vtkVgTimeStamp, vgGeocodedPoly> GetGeodeticRegions() const;
+
   // Description:
   // Get the closest region with time less than or equal to timestamp, or the
   // region after if no other region is available. Returns false if the region
@@ -102,8 +109,16 @@ public:
   void ClearRegions();
 
   // Description:
-  // Return the # of regions.
-  unsigned int GetNumberOfRegions() const;
+  // Return the number of regions.
+  std::size_t GetNumberOfRegions() const;
+
+  // Description:
+  // Remove all geodetic regions from the event.
+  void ClearGeodeticRegions();
+
+  // Description:
+  // Return the number of geodetic regions.
+  std::size_t GetNumberOfGeodeticRegions() const;
 
   // Description:
   // Methods for efficient traversal of event regions.

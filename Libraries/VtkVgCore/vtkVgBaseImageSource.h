@@ -51,7 +51,7 @@ public:
   // Description:
   // If the image has multiple level of details
   // and if the reader supports it set the level of
-  // detail to one particular leve.
+  // detail to one particular level.
   // @NOTE: A lower number means higher resolution.
   vtkGetMacro(Level, int);
   vtkSetMacro(Level, int);

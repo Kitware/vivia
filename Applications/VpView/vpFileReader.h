@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,52 +7,59 @@
 #ifndef __vpFileReader_h
 #define __vpFileReader_h
 
-#include <string>
+#include <QString>
 
 class vpFileReader
 {
 public:
   virtual ~vpFileReader() {}
 
-  void SetTracksFileName(const char* tracksFileName)
+  void SetTracksFileName(const QString& tracksFileName)
     { this->TracksFileName = tracksFileName; }
 
-  void SetTrackTraitsFileName(const char* trackTraitsFileName)
+  void SetTrackTraitsFileName(const QString& trackTraitsFileName)
     { this->TrackTraitsFileName = trackTraitsFileName; }
 
-  void SetEventsFileName(const char* eventsFileName)
+  void SetTrackClassifiersFileName(const QString& trackClassifiersFileName)
+    { this->TrackClassifiersFileName = trackClassifiersFileName; }
+
+  void SetEventsFileName(const QString& eventsFileName)
     { this->EventsFileName = eventsFileName; }
 
-  void SetEventLinksFileName(const char* eventLinksFileName)
+  void SetEventLinksFileName(const QString& eventLinksFileName)
     { this->EventLinksFileName = eventLinksFileName; }
 
-  void SetActivitiesFileName(const char* activitiesFileName)
+  void SetActivitiesFileName(const QString& activitiesFileName)
     { this->ActivitiesFileName = activitiesFileName; }
 
-  std::string GetTracksFileName() const
+  QString GetTracksFileName() const
     { return this->TracksFileName; }
 
-  std::string GetTrackTraitsFileName() const
+  QString GetTrackTraitsFileName() const
     { return this->TrackTraitsFileName; }
 
-  std::string GetEventsFileName() const
+  QString GetTrackClassifiersFileName() const
+    { return this->TrackClassifiersFileName; }
+
+  QString GetEventsFileName() const
     { return this->EventsFileName; }
 
-  std::string GetEventLinksFileName() const
+  QString GetEventLinksFileName() const
     { return this->EventLinksFileName; }
 
-  std::string GetActivitiesFileName() const
+  QString GetActivitiesFileName() const
     { return this->ActivitiesFileName; }
 
   virtual void SetImageHeight(unsigned int imageHeight) = 0;
   virtual unsigned int GetImageHeight() const = 0;
 
 protected:
-  std::string TracksFileName;
-  std::string TrackTraitsFileName;
-  std::string EventsFileName;
-  std::string EventLinksFileName;
-  std::string ActivitiesFileName;
+  QString TracksFileName;
+  QString TrackTraitsFileName;
+  QString TrackClassifiersFileName;
+  QString EventsFileName;
+  QString EventLinksFileName;
+  QString ActivitiesFileName;
 };
 
 #endif // __vpFileReader_h

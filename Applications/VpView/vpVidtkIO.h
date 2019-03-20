@@ -17,6 +17,8 @@ class vpVidtkReader;
 class vtkVgTrack;
 class vtkVgEvent;
 
+class vgAttributeSet;
+
 class vpVidtkIO : public vpModelIO
 {
 public:
@@ -24,8 +26,10 @@ public:
 
   virtual void SetTrackModel(vtkVpTrackModel* trackModel,
                              vpTrackIO::TrackStorageMode storageMode,
+                             bool interpolateToGround,
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
+                             vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
                              vpFrameMap* frameMap);
 

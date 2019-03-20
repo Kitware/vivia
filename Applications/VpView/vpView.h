@@ -23,6 +23,7 @@ class vpCreateEventDialog;
 class vpGraphModelWidget;
 class vpMergeTracksDialog;
 class vpQtViewer3dDialog;
+class vpSuperResWidget;
 class vpTimelineDialog;
 class vpTrackColorDialog;
 class vpViewCore;
@@ -71,7 +72,7 @@ public slots:
   void onTreeSelectionChanged(int sessionId);
   void onTreeHoverItemChanged(int sessionId);
   void updateObject(int objectType, int id);
-  void updateColorofTracksOfType(int typeIndex, double *rgb);
+  void updateColorofTracksOfType(int typeIndex, double* rgb);
   void updateCore();
   void updateEverything();
   void onCreateEvent(int type, vtkIdList* ids);
@@ -99,12 +100,14 @@ public slots:
   void onEventExpirationModeChange(QAction* sizeAction, bool render = true);
   void onContextLODChanged(int value);
   void onWebExport();
+  void onProjectProcessed();
 
   void updateFrameTime();
   void updateObjectCounts();
   void updateUI();
 
   void handleRenderWindowMouseMove(int x, int y);
+  void updateFrameFileName(const QString& fileName);
 
   bool eventFilter(QObject* obj, QEvent* event);
 
@@ -136,7 +139,7 @@ public slots:
   void copyViewportExtentsToClipboard();
   void copyExtendedInfoToClipboard();
 
-  void updateInfoWidget();
+  void updateInfoWidget(bool trackAttributesOnly = false);
   void rebuildObjectViews();
 
   void onSettingsChanged();
@@ -237,6 +240,7 @@ private:
   pqCoreTestUtility*      TestUtility;
 
   vpGraphModelWidget*     GraphModelWidget;
+  vpSuperResWidget*       SuperResWidget;
 };
 
 #endif // __vpView_h

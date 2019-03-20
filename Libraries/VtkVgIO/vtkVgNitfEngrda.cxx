@@ -113,6 +113,8 @@ vtkVgNitfEngrda::vtkVgNitfEngrda()
 //----------------------------------------------------------------------------
 bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
 {
+  size_t bytesRemaining = len;
+
   // Parse engrda metadata from a given data buffer
   std::stringstream block;
   block.write(data, len);
@@ -126,6 +128,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
     char buf[21];
     memset(buf, 0, 21);
     block.read(buf, 20);
+    bytesRemaining -= 20;
     this->Resource = buf;
     }
 
@@ -135,6 +138,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
     char buf[4];
     std::memset(buf, 0, 4);
     block.read(buf, 3);
+    bytesRemaining -= 3;
     if (!block)
       {
       return false;
@@ -154,13 +158,14 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufln[3];
       std::memset(bufln, 0, 3);
       block.read(bufln, 2);
+      bytesRemaining -= 2;
       if (!block)
         {
         return false;
         }
       std::stringstream ssconv(bufln);
       ssconv >> ln;
-      if (!ssconv)
+      if (!ssconv || bytesRemaining < ln)
         {
         return false;
         }
@@ -168,8 +173,10 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char* buf_lbl = new char[ln + 1];
       std::memset(buf_lbl, 0, ln + 1);
       block.read(buf_lbl, ln);
+      bytesRemaining -= ln;
       if (!block)
         {
+        delete[] buf_lbl;
         return false;
         }
       element->Label = buf_lbl;
@@ -180,6 +187,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufmtxc[5];
       std::memset(bufmtxc, 0, 5);
       block.read(bufmtxc, 4);
+      bytesRemaining -= 4;
       if (!block)
         {
         return false;
@@ -193,6 +201,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufmtxr[5];
       std::memset(bufmtxr, 0, 5);
       block.read(bufmtxr, 4);
+      bytesRemaining -= 4;
       if (!block)
         {
         return false;
@@ -207,6 +216,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       {
       // 5: Parse the data type
       block.read(&element->Type, 1);
+      bytesRemaining--;
       if (!block)
         {
         return false;
@@ -217,6 +227,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufdts[2];
       std::memset(bufdts, 0, 2);
       block.read(bufdts, 1);
+      bytesRemaining--;
       if (!block)
         {
         return false;
@@ -233,6 +244,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufdatu[3];
       std::memset(bufdatu, 0, 3);
       block.read(bufdatu, 2);
+      bytesRemaining -= 2;
       if (!block)
         {
         return false;
@@ -244,6 +256,7 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       char bufdatc[9];
       std::memset(bufdatc, 0, 9);
       block.read(bufdatc, 8);
+      bytesRemaining -= 8;
       if (!block)
         {
         return false;
@@ -258,6 +271,10 @@ bool vtkVgNitfEngrda::Parse(const char* data, size_t len)
       {
       // 9: Parse the data
       size_t len = element->DataTypeSize * element->DataCount;
+      if (bytesRemaining < len)
+        {
+        return false;
+        }
       element->Data = new char[len];
       std::memset(element->Data, 0, len);
       block.read(element->Data, len);

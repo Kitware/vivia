@@ -183,6 +183,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->DataSetSpecifierTag, "", "Filename with list of images for each frame or glob for sequence of images");
   blk.add_parameter(prj->TracksFileTag, "", "Filename or glob containing the tracks data");
   blk.add_parameter(prj->TrackTraitsFileTag, "", "Filename containing extra track data (normalcy, etc.)");
+  blk.add_parameter(prj->TrackClassifiersFileTag, "", "Filename containing TOC data for the tracks");
   blk.add_parameter(prj->EventsFileTag, "", "Filename containing the events data");
   blk.add_parameter(prj->EventLinksFileTag, "", "Filename containing the event linking data");
   blk.add_parameter(prj->ActivitiesFileTag, "", "Filename containing the activities data");
@@ -202,11 +203,15 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->ColorLevelTag, "127.5", "Specify color value mean (level) for data set");
   blk.add_parameter(prj->ColorMultiplierTag, "1.0", "Specify color multiplier for objects");
   blk.add_parameter(prj->FrameNumberOffsetTag, "0", "Frame number offset of imagery data");
+  blk.add_parameter(prj->HomographyReferenceFrameTag, "0", "Frame number of reference for homographies");
   blk.add_parameter(prj->ImageTimeMapFileTag, "", "Filename containing image timestamps");
   blk.add_parameter(prj->HomographyIndexFileTag, "", "Filename containing image homographies");
   blk.add_parameter(prj->FiltersFileTag, "", "Filename containing filters to import");
   blk.add_parameter(prj->ImageToGcsMatrixTag, "", "Image to geographic coordinate matrix");
   blk.add_parameter(prj->SceneElementsFileTag, "", "Filename containing scene element data");
+  blk.add_parameter(prj->CameraDirectoryTag, "", "Path to KRTD camera files");
+  blk.add_parameter(prj->DepthConfigFileTag, "", "Path to config file for depth estimation");
+  blk.add_parameter(prj->BundleAdjustmentConfigFileTag, "", "Path to config file for bundle adjustment");
 
   vidtk::config_block_parser blkParser;
   std::istringstream iss;
@@ -275,6 +280,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   prj->ColorLevel = blk.get<double>(prj->ColorLevelTag);
   prj->ColorMultiplier = blk.get<double>(prj->ColorMultiplierTag);
   prj->FrameNumberOffset = blk.get<double>(prj->FrameNumberOffsetTag);
+  prj->HomographyReferenceFrame = blk.get<int>(prj->HomographyReferenceFrameTag);
 
   // Read various fields that consist of two numbers
   double pt[2];
@@ -452,6 +458,8 @@ bool vpProjectParser::Parse(vpProject* prj)
   readValue(context, prj->OverviewOriginTag,     prj->OverviewOrigin);
   readValue(context, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
   readValue(context, prj->TrackColorOverrideTag, prj->TrackColorOverride);
+  readValue(context, prj->HomographyReferenceFrameTag,
+            /*    */ prj->HomographyReferenceFrame);
 
   // Read AOI
   reader.beginGroup("AOI");

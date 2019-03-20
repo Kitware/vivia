@@ -108,6 +108,36 @@ bool vpContour::CanInteract(int X, int Y)
 }
 
 //-----------------------------------------------------------------------------
+void vpContour::SetPointSize(float pointSize)
+{
+  if (pointSize > 0)
+    {
+    this->ContourRepresentation->GetProperty()->SetPointSize(pointSize);
+    }
+}
+
+//-----------------------------------------------------------------------------
+float vpContour::GetPointSize()
+{
+  return this->ContourRepresentation->GetProperty()->GetPointSize();
+}
+
+//-----------------------------------------------------------------------------
+void vpContour::SetActivePointSize(float pointSize)
+{
+  if (pointSize > 0)
+    {
+    this->ContourRepresentation->GetActiveProperty()->SetPointSize(pointSize);
+    }
+}
+
+//-----------------------------------------------------------------------------
+float vpContour::GetActivePointSize()
+{
+  return this->ContourRepresentation->GetActiveProperty()->GetPointSize();
+}
+
+//-----------------------------------------------------------------------------
 void vpContour::SetLineColor(double r, double g, double b)
 {
   this->ContourRepresentation->SetLineColor(r, g, b);

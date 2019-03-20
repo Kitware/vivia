@@ -40,11 +40,6 @@ public:
   const double* GetGeoCornerPoints();
 
   // Description:
-  // Return extent of the data
-  vtkSetVector6Macro(DataExtents, int);
-  int* GetDataExtent();
-
-  // Description:
   // Set desired width and height of the image
   vtkSetVector2Macro(TargetDimensions, int);
   vtkGetVector2Macro(TargetDimensions, int);
@@ -52,18 +47,6 @@ public:
   // Description:
   // Get raster width and heigth
   vtkGetVector2Macro(RasterDimensions, int);
-
-  // Description:
-  // Set spacing of the data in the file.
-  vtkSetVector3Macro(DataSpacing, double);
-  // Get spacing of the data in the file.
-  vtkGetVector3Macro(DataSpacing, double);
-
-  // Description:
-  // Set origin of the data (location of first pixel in the file).
-  vtkSetVector3Macro(DataOrigin, double);
-  // Get origin of the data (location of first pixel in the file).
-  vtkGetVector3Macro(DataOrigin, double);
 
   // Description:
   // Return metadata as reported by GDAL
@@ -92,9 +75,6 @@ protected:
 
 protected:
   char* FileName;
-  double DataSpacing[3];
-  double DataOrigin[3];
-  int DataExtents[6];
   int TargetDimensions[2];
   int RasterDimensions[2];
   std::string Projection;

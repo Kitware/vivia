@@ -99,8 +99,10 @@ void vtkVgInteractorStyleRubberBand2D::OnChar()
   // hide ResetCamera
   switch (this->Interactor->GetKeyCode())
     {
-    case 'r' :
-    case 'R' :
+    case 'r':
+    case 'R':
+    case 'f':
+    case 'F':
       return;
     default:
       this->Superclass::OnChar();

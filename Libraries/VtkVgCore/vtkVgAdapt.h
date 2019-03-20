@@ -12,9 +12,12 @@
 #include <vgExport.h>
 
 #include <vtkSmartPointer.h>
-#include <vtkMatrix4x4.h>
 
+#include <vil/vil_image_view.h>
 #include <vnl/vnl_matrix_fixed.h>
+
+class vtkImageData;
+class vtkMatrix4x4;
 
 extern VTKVG_CORE_EXPORT void
 vtkVgAdapt(const vnl_matrix_fixed<double, 3, 3>& in, vtkMatrix4x4* out);
@@ -30,5 +33,11 @@ vtkVgAdapt(const vgMatrix4d& in, vtkMatrix4x4* out);
 
 extern VTKVG_CORE_EXPORT vtkSmartPointer<vtkMatrix4x4>
 vtkVgAdapt(const vgMatrix4d&);
+
+extern VTKVG_CORE_EXPORT void
+vtkVgAdapt(const vil_image_view<double>& img, vtkImageData* data);
+
+extern VTKVG_CORE_EXPORT void
+vtkVgAdapt(vtkImageData* data, vil_image_view<vxl_byte>& img);
 
 #endif

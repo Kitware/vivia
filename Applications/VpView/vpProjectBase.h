@@ -21,6 +21,7 @@ struct vpProjectBase
   QString DataSetSpecifier;
   QString TracksFile;
   QString TrackTraitsFile;
+  QString TrackClassifiersFile;
   QString EventsFile;
   QString EventLinksFile;
   QString IconsFile;
@@ -31,6 +32,9 @@ struct vpProjectBase
   QString HomographyIndexFile;
   QString FiltersFile;
   QString SceneElementsFile;
+  QString CameraDirectory;
+  QString DepthConfigFile;
+  QString BundleAdjustmentConfigFile;
 
   int PrecomputeActivity = 0;
 
@@ -48,6 +52,7 @@ struct vpProjectBase
   vgColor TrackColorOverride;
 
   int FrameNumberOffset = 0;
+  int HomographyReferenceFrame = 0;
 };
 
 #endif

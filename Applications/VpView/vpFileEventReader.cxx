@@ -1,20 +1,27 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vpFileEventIOImpl.h"
+#include "vpFileEventReader.h"
 
 #include "vpEventIO.h"
 
 #include <vtkVgEventModel.h>
 
+#include <qtStlUtil.h>
+
 //-----------------------------------------------------------------------------
-bool vpFileEventIOImpl::ReadEventLinks(vpEventIO* io,
-                                       const std::string& eventLinksFileName)
+vpFileEventReader::vpFileEventReader(vpEventIO* io) : IO{io}
 {
-  std::ifstream file(eventLinksFileName.c_str());
+}
+
+//-----------------------------------------------------------------------------
+bool vpFileEventReader::ReadEventLinks(
+  const QString& eventLinksFileName) const
+{
+  std::ifstream file(stdString(eventLinksFileName));
   if (!file)
     {
     return false;
@@ -25,7 +32,7 @@ bool vpFileEventIOImpl::ReadEventLinks(vpEventIO* io,
     {
     // convert from log probability
     link.Probability = exp(link.Probability);
-    io->EventModel->AddEventLink(link);
+    this->IO->EventModel->AddEventLink(link);
     }
 
   return true;

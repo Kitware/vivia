@@ -587,7 +587,7 @@ void vsCorePrivate::updateTrack(
   vtkVgTrack* track = 0;
   vvTrack& vvTrack = this->getVvTrack(trackId);
   bool stateAccepted = false;
-  bool isFirstPoint = false;
+  bool isNewTrack = false;
   foreach (const vvTrackState& state, states)
     {
     // Always accept the state for our internal vvTrack (used for QF), as we
@@ -655,8 +655,10 @@ void vsCorePrivate::updateTrack(
     wstate.point = QPointF(wp[0], wp[1]);
 
     // Accept the update
-    track || (track = this->track(trackId));
-    isFirstPoint = isFirstPoint || !track->GetStartFrame().IsValid();
+    if (!track)
+      {
+      track = this->track(trackId, &isNewTrack);
+      }
     track->SetPoint(state.TimeStamp, wp, state.WorldLocation,
                     object.count() / 3, object.data());
     this->emitInput(&vsCore::trackUpdated,
@@ -701,7 +703,7 @@ void vsCorePrivate::updateTrack(
 
     // Notify observers that a track has been created or updated
     this->postTrackUpdateSignal(
-      track, isFirstPoint ? &vsCore::trackAdded : &vsCore::trackChanged);
+      track, isNewTrack ? &vsCore::trackAdded : &vsCore::trackChanged);
     emit q->updated();
     }
 }
@@ -992,32 +994,35 @@ void vsCorePrivate::addDescriptors(
 //-----------------------------------------------------------------------------
 void vsCorePrivate::addEvent(vsDescriptorSource* source, vsEvent eventBase)
 {
-  QHash<int, int>& typeMap = this->UserEventTypeMap[source];
+  QHash<int, UserEventType>& typeMap = this->UserEventTypeMap[source];
 
   const std::vector<int> classifiers = eventBase->GetClassifierTypes();
 
   // Remap user event types and check for classifier types
   for (size_t n = 0, k = classifiers.size(); n < k; ++n)
     {
+    vsEventInfo::Group groupHint = vsEventInfo::Unknown;
     int classifier = classifiers[n];
 
     // Check if this is a user-defined event type
     if (typeMap.contains(classifier))
       {
-      const int mappedType = typeMap[classifier];
-      if (mappedType != classifier)
+      const UserEventType mappedType = typeMap[classifier];
+      if (mappedType.id != classifier)
         {
         // Get classifier values and replace user type with mapped type
         const double probability = eventBase->GetProbability(classifier);
         const double normalcy = eventBase->GetNormalcy(classifier);
         eventBase->RemoveClassifier(classifier);
-        eventBase->AddClassifier(mappedType, probability, normalcy);
-        classifier = mappedType;
+        eventBase->AddClassifier(mappedType.id, probability, normalcy);
+        classifier = mappedType.id;
         }
+      groupHint = mappedType.group;
       }
 
     // Ensure that the event group for this event type is shown
-    const vsEventInfo::Group group = vsEventInfo::eventGroup(classifier);
+    const vsEventInfo::Group group =
+      vsEventInfo::eventGroup(classifier, groupHint);
     switch (group)
       {
       case vsEventInfo::Classifier:

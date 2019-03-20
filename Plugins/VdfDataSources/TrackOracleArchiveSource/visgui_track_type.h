@@ -10,9 +10,11 @@
 #include "track_oracle_utils.h"
 
 #ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/core/state_flags.h>
 #include <track_oracle/core/track_base.h>
 #include <track_oracle/core/track_field.h>
 #else
+#include <track_oracle/state_flags.h>
 #include <track_oracle/track_base.h>
 #include <track_oracle/track_field.h>
 #endif
@@ -48,6 +50,7 @@ struct visgui_track_type :
   TRACK_ORACLE_FIELD(tracking, frame_number);
   TRACK_ORACLE_FIELD(tracking, world_location);
   TRACK_ORACLE_FIELD(tracking, world_gcs);
+  TRACK_ORACLE_FIELD(utility, state_flags);
 
   visgui_track_type()
     {
@@ -56,6 +59,7 @@ struct visgui_track_type :
     Frame.add_field(frame_number);
     Frame.add_field(world_location);
     Frame.add_field(world_gcs);
+    Frame.add_field(state_flags);
     }
 };
 

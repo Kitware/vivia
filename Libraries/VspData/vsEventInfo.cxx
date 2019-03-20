@@ -21,20 +21,12 @@ namespace // anonymous
 {
 
 //-----------------------------------------------------------------------------
-struct EventInfoTemplate
-{
-  int type;
-  const char* name;
-  unsigned char color[6];
-};
-
-//-----------------------------------------------------------------------------
-static const EventInfoTemplate emptyEventTemplate =
+static const vsEventInfo::Template emptyEventTemplate =
 {
   0, 0, { 240, 240, 240, 112, 112, 112 }
 };
 
-static const EventInfoTemplate eventsGeneral[] =
+static const vsEventInfo::Template eventsGeneral[] =
 {
   { vsEventInfo::Tripwire,        "Tripwire",
     { 240, 240, 240, 112, 112, 112 } },
@@ -47,20 +39,20 @@ static const EventInfoTemplate eventsGeneral[] =
   emptyEventTemplate
 };
 
-static const EventInfoTemplate eventsUser[] =
+static const vsEventInfo::Template eventsUser[] =
 {
   emptyEventTemplate
 };
 
 //-----------------------------------------------------------------------------
-void loadColor(QSettings& settings, double (&color)[3], QString key,
+void loadColor(QSettings& settings, vgColor& color, QString key,
                const QColor& defaultColor)
 {
-  vgColor::read(settings, key, defaultColor).fillArray(color);
+  color = vgColor::read(settings, key, defaultColor);
 }
 
 //-----------------------------------------------------------------------------
-void loadColor(QSettings& settings, double (&color)[3], QString key,
+void loadColor(QSettings& settings, vgColor& color, QString key,
                unsigned char defaultColor[])
 {
   QColor q(defaultColor[0], defaultColor[1], defaultColor[2]);
@@ -69,14 +61,15 @@ void loadColor(QSettings& settings, double (&color)[3], QString key,
 
 //-----------------------------------------------------------------------------
 vsEventInfo eventFromSettings(QSettings& settings, int type,
-                              EventInfoTemplate tpl)
+                              vsEventInfo::Template tpl)
 {
   vsEventInfo ei;
 
+  ei.group = vsEventInfo::eventGroup(type);
+  ei.type = type;
+
   with_expr (qtScopedSettingsGroup{settings, QString::number(type)})
     {
-
-    ei.type = type;
     const QString defaultName =
       (tpl.name ? tpl.name : QString("Unknown type %1").arg(type));
     ei.name = settings.value("Name", defaultName).toString();
@@ -89,15 +82,50 @@ vsEventInfo eventFromSettings(QSettings& settings, int type,
   return ei;
 }
 
+} // namespace <anonymous>
+
 //-----------------------------------------------------------------------------
-QList<vsEventInfo> eventsFromGroup(QSettings& settings,
-                                   const QString& settingsGroup,
-                                   const EventInfoTemplate* ta)
+vgEventType vsEventInfo::toVgEventType() const
+{
+  vgEventType vget;
+  vget.SetId(this->type);
+  vget.SetName(qPrintable(this->name));
+  vget.SetColor(this->pcolor.constData().array);
+  vget.SetLabelForegroundColor(this->fcolor.constData().array);
+  vget.SetLabelBackgroundColor(this->bcolor.constData().array);
+  return vget;
+}
+
+//-----------------------------------------------------------------------------
+vsEventInfo vsEventInfo::fromEventSetInfo(
+  const vvEventSetInfo& vvInfo, int type)
+{
+  vsEventInfo vsInfo;
+
+  vsInfo.group = eventGroup(type);
+  vsInfo.type = type;
+  vsInfo.name = vvInfo.Name;
+  vsInfo.pcolor = vvInfo.PenColor;
+  vsInfo.bcolor = vvInfo.BackgroundColor;
+  vsInfo.fcolor = vvInfo.ForegroundColor;
+
+  return vsInfo;
+}
+
+//-----------------------------------------------------------------------------
+QList<vsEventInfo> vsEventInfo::events(
+  QSettings& settings, const QString& settingsGroup,
+  const vsEventInfo::Template* ta)
 {
   // Convert bare templates to something we can reference by type
-  QHash<int, EventInfoTemplate> builtinTypes;
-  for (int i = 0; ta[i].type; ++i)
-    builtinTypes.insert(ta[i].type, ta[i]);
+  QHash<int, vsEventInfo::Template> builtinTypes;
+  if (ta)
+    {
+    for (int i = 0; ta[i].type; ++i)
+      {
+      builtinTypes.insert(ta[i].type, ta[i]);
+      }
+    }
 
   // Get list of user defined event types
   QList<int> types;
@@ -124,7 +152,7 @@ QList<vsEventInfo> eventsFromGroup(QSettings& settings,
   QList<vsEventInfo> events;
   foreach (const auto i, types)
     {
-    EventInfoTemplate t =
+    const vsEventInfo::Template t =
       (builtinTypes.contains(i) ? builtinTypes.value(i) : emptyEventTemplate);
     events.append(eventFromSettings(settings, i, t));
     }
@@ -132,37 +160,6 @@ QList<vsEventInfo> eventsFromGroup(QSettings& settings,
   settings.endGroup();
 
   return events;
-}
-
-} // namespace <anonymous>
-
-//-----------------------------------------------------------------------------
-vgEventType vsEventInfo::toVgEventType() const
-{
-  vgEventType vget;
-  vget.SetId(this->type);
-  vget.SetName(qPrintable(this->name));
-  vget.SetColor(this->pcolor[0], this->pcolor[1], this->pcolor[2]);
-  vget.SetLabelForegroundColor(this->fcolor[0], this->fcolor[1],
-                               this->fcolor[2]);
-  vget.SetLabelBackgroundColor(this->bcolor[0], this->bcolor[1],
-                               this->bcolor[2]);
-  return vget;
-}
-
-//-----------------------------------------------------------------------------
-vsEventInfo vsEventInfo::fromEventSetInfo(
-  const vvEventSetInfo& vvInfo, int type)
-{
-  vsEventInfo vsInfo;
-
-  vsInfo.type = type;
-  vsInfo.name = vvInfo.Name;
-  vgColor::fillArray(vvInfo.PenColor, vsInfo.pcolor);
-  vgColor::fillArray(vvInfo.BackgroundColor, vsInfo.bcolor);
-  vgColor::fillArray(vvInfo.ForegroundColor, vsInfo.fcolor);
-
-  return vsInfo;
 }
 
 //-----------------------------------------------------------------------------
@@ -176,15 +173,16 @@ QList<vsEventInfo> vsEventInfo::events(vsEventInfo::Groups groups)
 
   QList<vsEventInfo> vsEvents;
 
-  foreach (vvEventInfo vvEvent, vvEventInfo::eventTypes(vvGroups))
+  foreach (vvEventInfo vvInfo, vvEventInfo::eventTypes(vvGroups))
     {
-    vsEventInfo vsEvent;
-    vsEvent.type = vvEvent.Type;
-    vsEvent.name = vvEvent.Name;
-    vvEvent.PenColor.fillArray(vsEvent.pcolor);
-    vvEvent.BackgroundColor.fillArray(vsEvent.bcolor);
-    vvEvent.ForegroundColor.fillArray(vsEvent.fcolor);
-    vsEvents.append(vsEvent);
+    vsEventInfo vsInfo;
+    vsInfo.group = eventGroup(vvInfo.Type);
+    vsInfo.type = vvInfo.Type;
+    vsInfo.name = vvInfo.Name;
+    vsInfo.pcolor = vvInfo.PenColor;
+    vsInfo.bcolor = vvInfo.BackgroundColor;
+    vsInfo.fcolor = vvInfo.ForegroundColor;
+    vsEvents.append(vsInfo);
     }
 
   // Add vsPlay event types
@@ -192,22 +190,27 @@ QList<vsEventInfo> vsEventInfo::events(vsEventInfo::Groups groups)
     {
     QSettings settings;
     settings.beginGroup("EventTypes");
-    vsEvents += eventsFromGroup(settings, "General", eventsGeneral);
+    vsEvents += events(settings, "General", eventsGeneral);
     }
   if (groups.testFlag(vsEventInfo::User))
     {
     QSettings settings;
     settings.beginGroup("EventTypes");
-    vsEvents += eventsFromGroup(settings, "User", eventsUser);
+    vsEvents += events(settings, "User", eventsUser);
     }
 
   return vsEvents;
 }
 
 //-----------------------------------------------------------------------------
-vsEventInfo::Group vsEventInfo::eventGroup(int eventType)
+vsEventInfo::Group vsEventInfo::eventGroup(int eventType, Group hint)
 {
-  if (eventType > 0)
+  if (hint != Unknown)
+    {
+    // Always trust the hint, if provided
+    return hint;
+    }
+  else if (eventType > 0)
     {
     // Anything positive is considered a classifier (but we don't try to
     // determine a specific group)

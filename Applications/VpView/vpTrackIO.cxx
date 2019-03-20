@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -39,6 +39,7 @@ static const unsigned char DefaultTrackColors[NumDefaultTrackColors][3] =
 //-----------------------------------------------------------------------------
 vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
+                     bool interpolateToGround,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes,
                      vtkMatrix4x4* geoTransform,
@@ -48,7 +49,8 @@ vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
   StorageMode(storageMode),
   TimeStampMode(timeStampMode),
   GeoTransform(geoTransform),
-  FrameMap(frameMap)
+  FrameMap(frameMap),
+  InterpolateToGround(interpolateToGround)
 {
   assert(trackModel);
 }
@@ -70,7 +72,13 @@ bool vpTrackIO::ReadTrackTraits()
 }
 
 //-----------------------------------------------------------------------------
-bool vpTrackIO::ImportTracks(vtkIdType, float, float)
+bool vpTrackIO::ReadTrackClassifiers()
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vpTrackIO::ImportTracks(int, vtkIdType, float, float)
 {
   return false;
 }
@@ -148,6 +156,7 @@ int vpTrackIO::GetTrackTypeIndex(const char* typeName)
   vgTrackType type;
   type.SetId(typeName);
 
+  const auto newIndex = this->TrackTypes->GetNumberOfTypes();
   this->TrackTypes->AddType(type);
-  return this->TrackTypes->GetTypeIndex(typeName);
+  return newIndex;
 }

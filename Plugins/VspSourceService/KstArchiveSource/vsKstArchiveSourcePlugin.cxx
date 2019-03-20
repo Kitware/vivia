@@ -86,7 +86,7 @@ vsSimpleSourceFactory* vsKstArchiveSourcePlugin::createArchiveSource(
     {
     CHECK_ARG(type == vs::ArchiveDescriptorSource, 0);
     CHECK_ARG(uri.scheme() == "file", 0);
-    CHECK_ARG(regexMatch(uri.toLocalFile(), "\\.vsr(x|\\..xml)?$"), 0);
+    CHECK_ARG(regexMatch(uri.toLocalFile(), "\\.vsr(x|\\.xml)?$"), 0);
     }
 
   // Verify that file exists and is readable

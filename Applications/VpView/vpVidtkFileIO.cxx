@@ -24,22 +24,25 @@ vpVidtkFileIO::~vpVidtkFileIO()
 //-----------------------------------------------------------------------------
 void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
                                   vpTrackIO::TrackStorageMode storageMode,
+                                  bool interpolateToGround,
                                   vpTrackIO::TrackTimeStampMode timeStampMode,
                                   vtkVgTrackTypeRegistry* trackTypes,
+                                  vgAttributeSet* trackAttributes,
                                   vtkMatrix4x4* geoTransform,
                                   vpFrameMap* frameMap)
 {
   this->TrackMap.clear();
   this->TrackIO.reset(
     new vpVidtkFileTrackIO(this->Reader, this->TrackMap,
-                           this->SourceTrackIdToModelIdMap, trackModel,
-                           storageMode, timeStampMode, trackTypes,
+                           this->SourceTrackIdToModelIdMap,
+                           trackModel, storageMode, interpolateToGround,
+                           timeStampMode, trackTypes, trackAttributes,
                            geoTransform, frameMap));
 
   this->FseTrackIO.reset(
-    new vpFseTrackIO(trackModel, storageMode, timeStampMode,
-                     trackTypes, geoTransform, frameMap));
-  this->FseTrackIO->SetTracksFileName(this->FseTracksFileName.c_str());
+    new vpFseTrackIO(trackModel, storageMode, interpolateToGround,
+                     timeStampMode, trackTypes, geoTransform, frameMap));
+  this->FseTrackIO->SetTracksFileName(this->FseTracksFileName);
   this->FseTrackIO->SetImageHeight(this->ImageHeight);
 }
 
@@ -73,7 +76,7 @@ unsigned int vpVidtkFileIO::GetImageHeight() const
 }
 
 //-----------------------------------------------------------------------------
-void vpVidtkFileIO::SetFseTracksFileName(const char* fseTracksFileName)
+void vpVidtkFileIO::SetFseTracksFileName(const QString& fseTracksFileName)
 {
   this->FseTracksFileName = fseTracksFileName;
   if (this->FseTrackIO)
