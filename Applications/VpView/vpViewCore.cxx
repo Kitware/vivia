@@ -5530,7 +5530,10 @@ void vpViewCore::forceUpdate()
         {
         this->ImageSource->UpdateInformation();
         int dim[2];
-        this->ImageSource->GetDimensions(dim);
+        if (!this->ImageSource->GetRasterDimensions(dim))
+          {
+          this->ImageSource->GetDimensions(dim);
+          }
 
         if (dim[1] != this->FirstImageY)
           {
