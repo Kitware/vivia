@@ -6,30 +6,26 @@
 
 #include "vqArchiveVideoSource.h"
 
-// QtExtensions includes.
-#include <qtStlUtil.h>
+#include <vtkVgVideoFrameData.h>
+#include <vtkVgVideoMetadata.h>
 
-// VG includes.
-#include <vgKwaArchive.h>
-#include <vgKwaFrameMetadata.h>
-#include <vgKwaVideoClip.h>
+#include <vtkVgAdapt.h>
 
 #include <vtkVgAdaptImage.h>
 #include <vtkVgVideoFrameMetaData.h>
 
-// vtkVgCore includes
-#include <vtkVgAdapt.h>
+#include <vgKwaArchive.h>
+#include <vgKwaFrameMetadata.h>
+#include <vgKwaVideoClip.h>
 
-// vtkVgModelView includes
-#include <vtkVgVideoFrameData.h>
-#include <vtkVgVideoMetadata.h>
-
-// STL includes.
-#include <algorithm>
-
-// VTK includes.
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
+
+#include <qtStlUtil.h>
+
+#include <QUrlQuery>
+
+#include <algorithm>
 
 vtkStandardNewMacro(vqArchiveVideoSource);
 
@@ -78,7 +74,7 @@ int vqArchiveVideoSource::AcquireVideoClip(vgKwaArchive* videoArchive)
     return VTK_ERROR; // no clip found
     }
 
-  clipUri.setEncodedQuery(QByteArray());
+  clipUri.setQuery(QUrlQuery{});
   return this->SetVideoClip(clip, clipUri);
 }
 
@@ -86,7 +82,7 @@ int vqArchiveVideoSource::AcquireVideoClip(vgKwaArchive* videoArchive)
 int vqArchiveVideoSource::AcquireVideoClip(QUrl clipUri)
 {
   // Not expecting limits in URI, but strip query just in case...
-  clipUri.setEncodedQuery(QByteArray());
+  clipUri.setQuery(QUrlQuery{});
 
   // Obtain full clip
   QScopedPointer<vgKwaVideoClip> clip(new vgKwaVideoClip(clipUri));

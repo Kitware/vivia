@@ -48,7 +48,7 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   vgCommonHeaders
   qtExtensionsHeaders
-  ${QT_LIBRARIES}
+  Qt5::Gui
   PRIVATE
   qtExtensions
   vnl_io

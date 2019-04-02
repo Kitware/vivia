@@ -23,7 +23,7 @@ set(vdfTrackOracleArchiveSource_MocHeaders
   vdfTrackOracleTrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vdfTrackOracleArchiveSource_MocSources
+qt5_wrap_cpp(vdfTrackOracleArchiveSource_MocSources
              ${vdfTrackOracleArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
@@ -46,7 +46,6 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   vgDataFramework
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

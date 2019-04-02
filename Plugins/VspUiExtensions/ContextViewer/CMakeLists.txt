@@ -27,7 +27,7 @@ set(vsContextViewerPlugin_MocHeaders
   vsContextViewerPlugin.h
 )
 
-qt4_wrap_cpp(vsContextViewerPlugin_MocSources
+qt5_wrap_cpp(vsContextViewerPlugin_MocSources
   ${vsContextViewerPlugin_MocHeaders}
 )
 
@@ -43,7 +43,6 @@ target_link_libraries(${PROJECT_NAME}
   vtkVgQtUtil
   qtVgCommon
   vtkGUISupportQt
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

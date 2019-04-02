@@ -40,6 +40,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES
   LINK_PRIVATE
   vgl_algo
+  Qt5::Core
 )
 
 install_library_targets(${PROJECT_NAME})

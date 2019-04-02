@@ -18,7 +18,6 @@ vg_add_dependencies(${PROJECT_NAME}
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
   vtkInteractionStyle
-  ${QT_LIBRARIES}
 )
 
 install_executable_target(${PROJECT_NAME} Tools)

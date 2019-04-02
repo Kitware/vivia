@@ -17,7 +17,7 @@ set(vsRandomAlertDescriptor_MocHeaders
   vsRandomAlertDescriptorPlugin.h
 )
 
-qt4_wrap_cpp(vsRandomAlertDescriptor_MocSources
+qt5_wrap_cpp(vsRandomAlertDescriptor_MocSources
              ${vsRandomAlertDescriptor_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
@@ -27,7 +27,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   vspSourceUtil
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

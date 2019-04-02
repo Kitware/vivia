@@ -74,7 +74,7 @@ set(vgDataFrameworkWrapObjects
   #vdfAbstractTrackNode CANNOT WRAP, depends on vtkVgModelView
 )
 
-qt4_wrap_cpp(vgDataFrameworkMocSources ${vgDataFrameworkMocHeaders})
+qt5_wrap_cpp(vgDataFrameworkMocSources ${vgDataFrameworkMocHeaders})
 
 vg_include_library_sdk_directories(TARGET ${PROJECT_NAME} INTERFACE
   qtExtensions
@@ -91,7 +91,7 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
+  Qt5::Core Qt5::Concurrent
 )
 
 install_library_targets(${PROJECT_NAME})

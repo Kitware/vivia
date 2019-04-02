@@ -21,7 +21,7 @@ set(vtkVgQtWidgetsInstallHeaders
   vtkVgRegionWidget.h
 )
 
-qt4_wrap_cpp(vtkVgQtWidgetsMocSources ${vtkVgQtWidgetsMocHeaders})
+qt5_wrap_cpp(vtkVgQtWidgetsMocSources ${vtkVgQtWidgetsMocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vtkVgQtWidgetsSources}
@@ -39,7 +39,6 @@ vg_add_dependencies(${PROJECT_NAME}
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
   LINK_PUBLIC
-  ${QT_LIBRARIES}
   vtkInteractionWidgets
 )
 

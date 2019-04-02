@@ -6,8 +6,6 @@
 
 #include "vsSettings.h"
 
-#include <vgStringLiteral.h>
-
 #define QTSETTINGS_SUBCLASS_NAME vsSettings
 #include <qtSettingsImpl.h>
 

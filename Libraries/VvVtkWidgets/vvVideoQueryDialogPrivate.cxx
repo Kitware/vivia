@@ -6,7 +6,6 @@
 
 #include "vvVideoQueryDialogPrivate.h"
 
-#include <vgStringLiteral.h>
 #include <vgUnixTime.h>
 
 Q_DECLARE_METATYPE(vgTimeStamp)

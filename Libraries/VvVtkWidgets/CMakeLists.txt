@@ -103,8 +103,8 @@ endif()
 
 # BEGIN build rules
 
-qt4_wrap_cpp(mocSources ${vvVtkWidgetsMocHeaders})
-qt4_wrap_ui(uiSources ${vvVtkWidgetsUiFiles})
+qt5_wrap_cpp(mocSources ${vvVtkWidgetsMocHeaders})
+qt5_wrap_ui(uiSources ${vvVtkWidgetsUiFiles})
 
 add_library(${PROJECT_NAME}
   ${vvVtkWidgetsSources}
@@ -130,8 +130,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkCommonSystem
   vtkGUISupportQt
   ${KWPPT_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

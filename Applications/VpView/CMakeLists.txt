@@ -260,9 +260,9 @@ endif()
 
 # BEGIN build rules
 
-qt4_wrap_ui(uiSources ${vpViewUI})
-qt4_wrap_cpp(mocSources ${vpViewHeaders})
-qt4_add_resources(resSources ${vpViewResources})
+qt5_wrap_ui(uiSources ${vpViewUI})
+qt5_wrap_cpp(mocSources ${vpViewHeaders})
+qt5_add_resources(resSources ${vpViewResources})
 
 source_group("Resources" FILES
   ${vpViewUI}
@@ -300,7 +300,6 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   vtkViewsInfovis vtkViewsContext2D
   ${LIBJSON_LIBRARY}
   ${QT_TESTING_SUPPORT_LIBRARIES}
-  ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES}
 )
 
 if(VISGUI_ENABLE_KWIVER)

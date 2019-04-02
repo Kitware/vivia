@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,17 +7,18 @@
 #include "vsVvqsDatabaseQueryDialog.h"
 #include "ui_vvqsDatabaseQuery.h"
 
-#include <QMessageBox>
-#include <QPushButton>
-#include <QSettings>
+#include <vvQueryServerDialog.h>
+#include <vvQueryService.h>
+
+#include <vgUnixTime.h>
 
 #include <qtUiState.h>
 #include <qtUtil.h>
 
-#include <vgUnixTime.h>
-
-#include <vvQueryServerDialog.h>
-#include <vvQueryService.h>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSettings>
+#include <QUrlQuery>
 
 QTE_IMPLEMENT_D_FUNC(vsVvqsDatabaseQueryDialog)
 
@@ -132,9 +133,11 @@ void vsVvqsDatabaseQueryDialog::accept()
   d->Uri = QUrl::fromUserInput(d->UI.serverUri->text());
   d->UiState.save();
 
+  auto query = QUrlQuery{d->Uri};
+
   if (d->UI.streamLimit->isChecked())
     {
-    d->Uri.addQueryItem("Stream", d->UI.streamId->text());
+    query.addQueryItem("Stream", d->UI.streamId->text());
     }
   else
     {
@@ -146,16 +149,18 @@ void vsVvqsDatabaseQueryDialog::accept()
     {
     const vgUnixTime tl(d->UI.timeLower->dateTime());
     const vgUnixTime tu(d->UI.timeUpper->dateTime());
-    d->Uri.addQueryItem("TemporalLower", QString::number(tl.toInt64()));
-    d->Uri.addQueryItem("TemporalUpper", QString::number(tu.toInt64()));
+    query.addQueryItem("TemporalLower", QString::number(tl.toInt64()));
+    query.addQueryItem("TemporalUpper", QString::number(tu.toInt64()));
     settings.setValue("TemporalLower", tl.toInt64());
     settings.setValue("TemporalUpper", tu.toInt64());
     }
 
   if (d->UI.extractClassifiers->isChecked())
     {
-    d->Uri.addQueryItem("ExtractClassifiers", "true");
+    query.addQueryItem("ExtractClassifiers", "true");
     }
+
+  d->Uri.setQuery(query);
 
   // Done
   QDialog::accept();

@@ -127,11 +127,11 @@ set(vspUserInterface_SdkHeaders
 
 # BEGIN build rules
 
-qt4_wrap_ui(vspUserInterface_UiSources ${vspUserInterface_UI})
+qt5_wrap_ui(vspUserInterface_UiSources ${vspUserInterface_UI})
 qte_amc_wrap_ui(vspUserInterface_AmSources ActionManagerDialog
   ${vspUserInterface_AMUI}
 )
-qt4_wrap_cpp(vspUserInterface_MocSources ${vspUserInterface_MocHeaders})
+qt5_wrap_cpp(vspUserInterface_MocSources ${vspUserInterface_MocHeaders})
 
 source_group("User Interface" FILES
   ${vspUserInterface_UI}
@@ -156,9 +156,6 @@ add_library(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  LINK_PUBLIC
-  ${QT_QTMAIN_LIBRARY}
-  ${QT_LIBRARIES}
   LINK_PRIVATE
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkCommonSystem

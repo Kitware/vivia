@@ -66,8 +66,8 @@ set(vvWidgetsInstallHeaders
   vvTrackInfoWidget.h
 )
 
-qt4_wrap_cpp(vvWidgets_MocSources ${vvWidgets_MocHeaders})
-qt4_wrap_ui(vvWidgets_UiSources ${vvWidgets_UiFiles})
+qt5_wrap_cpp(vvWidgets_MocSources ${vvWidgets_MocHeaders})
+qt5_wrap_ui(vvWidgets_UiSources ${vvWidgets_UiFiles})
 
 add_library(${PROJECT_NAME}
   ${vvWidgets_Sources}
@@ -80,9 +80,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   qtVgCommon
   qtExtensions
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 vg_add_test_subdirectory()

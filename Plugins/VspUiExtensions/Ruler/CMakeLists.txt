@@ -28,7 +28,7 @@ set(vsRuler_MocHeaders
   vsRulerPlugin.h
 )
 
-qt4_wrap_cpp(vsRuler_MocSources
+qt5_wrap_cpp(vsRuler_MocSources
   ${vsRuler_MocHeaders}
 )
 
@@ -39,7 +39,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
   ${vsRuler_SdkTargets}
-  ${QT_LIBRARIES}
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
 )

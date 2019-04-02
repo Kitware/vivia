@@ -28,12 +28,6 @@ vtk_module_library(${PROJECT_NAME}
   ${vtkVgQtUtilSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
-)
-
 install_library_targets(${PROJECT_NAME})
 install_headers(${vtkVgQtUtilInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VtkVgQtUtil)

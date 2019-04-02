@@ -1,4 +1,4 @@
-set(VGTEST_LINK_LIBRARIES vvWidgets vvIO qtExtensions ${QT_LIBRARIES})
+set(VGTEST_LINK_LIBRARIES vvWidgets vvIO qtExtensions)
 
 vg_add_test(testQueryInfoLabel INTERACTIVE
   SOURCES TestQueryInfoLabel.cxx

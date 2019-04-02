@@ -16,7 +16,7 @@ set(vsKstArchiveSource_MocHeaders
   vsKstDescriptorArchiveSource.h
 )
 
-qt4_wrap_cpp(vsKstArchiveSource_MocSources ${vsKstArchiveSource_MocHeaders})
+qt5_wrap_cpp(vsKstArchiveSource_MocSources ${vsKstArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vsKstArchiveSource_Sources}
@@ -26,7 +26,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   vspSourceUtil
   vvIO
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

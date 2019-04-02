@@ -11,7 +11,7 @@ include_directories(
 link_directories( ${QtTesting_LIBRARY_DIR} )
 
 # Source files.
-qt4_wrap_cpp(qtTestingSupportMocSrcs
+qt5_wrap_cpp(qtTestingSupportMocSrcs
   pqCoreTestUtility.h
   pqFileDialogEventPlayer.h
   pqFileDialogEventTranslator.h
@@ -57,7 +57,6 @@ add_library(${PROJECT_NAME}
 vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
   ${QtTesting_LIBRARIES}
   LINK_PRIVATE
   vtkGUISupportQt

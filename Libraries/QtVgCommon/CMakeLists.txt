@@ -21,7 +21,6 @@ set(qtVgCommonInstallHeaders
   vgGeoUtil.h
   vgPluginLoader.h
   vgRegionKeyframe.h
-  vgStringLiteral.h
   vgSwatchCache.h
   vgTimeBase.h
   vgTime.h
@@ -38,7 +37,6 @@ add_library(${PROJECT_NAME} ${sources})
 
 vg_add_dependencies(${PROJECT_NAME}
   PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
-  LINK_LIBRARIES LINK_PUBLIC ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

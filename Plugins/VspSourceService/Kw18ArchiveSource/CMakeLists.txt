@@ -23,7 +23,7 @@ set(vsKw18ArchiveSource_MocHeaders
   vsKw18TrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vsKw18ArchiveSource_MocSources ${vsKw18ArchiveSource_MocHeaders})
+qt5_wrap_cpp(vsKw18ArchiveSource_MocSources ${vsKw18ArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vsKw18ArchiveSource_Sources}
@@ -33,7 +33,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   vvVidtk
   vspSourceUtil
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

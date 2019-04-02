@@ -31,7 +31,7 @@ include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
 )
 
-qt4_wrap_cpp(mocSources ${vvvMocHeaders})
+qt5_wrap_cpp(mocSources ${vvvMocHeaders})
 
 source_group("Generated" FILES ${mocSources})
 
@@ -45,7 +45,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vtkVgVideo
   LINK_LIBRARIES
   LINK_PUBLIC
-  ${QT_LIBRARIES}
   vtkRenderingCore
   ${VTK_JPEG_LIBRARIES}
   LINK_PRIVATE

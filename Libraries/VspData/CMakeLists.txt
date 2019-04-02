@@ -68,7 +68,7 @@ set(vspDataInstallHeaders
   vtkVsTrackInfo.h
 )
 
-qt4_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
+qt5_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
 
 add_library(${PROJECT_NAME}
   ${vspData_Sources}
@@ -84,9 +84,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   vgVtkVideo
   vvVtkWidgets
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

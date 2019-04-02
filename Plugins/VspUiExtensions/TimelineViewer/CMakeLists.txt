@@ -25,7 +25,7 @@ set(vsTimelineViewerPlugin_MocHeaders
   vsTimelineViewerPlugin.h
 )
 
-qt4_wrap_cpp(vsTimelineViewerPlugin_MocSources
+qt5_wrap_cpp(vsTimelineViewerPlugin_MocSources
   ${vsTimelineViewerPlugin_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
@@ -40,7 +40,6 @@ target_link_libraries(${PROJECT_NAME}
   vtkGUISupportQt
   vtkChartsCore
   vtkViewsContext2D
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

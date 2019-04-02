@@ -44,8 +44,8 @@ set(qtVgWidgetsInstallHeaders
   vgVideoScrubber.h
 )
 
-qt4_wrap_ui(qtVgWidgetsUiSources vgAboutDialog.ui vgTextEditDialog.ui)
-qt4_wrap_cpp(qtvgWidgetsMocSources ${qtvgWidgetsMocHeaders})
+qt5_wrap_ui(qtVgWidgetsUiSources vgAboutDialog.ui vgTextEditDialog.ui)
+qt5_wrap_cpp(qtvgWidgetsMocSources ${qtvgWidgetsMocHeaders})
 
 source_group("Generated" FILES
   ${qtVgWidgetsUiSources}
@@ -58,7 +58,6 @@ add_library(${PROJECT_NAME}
 
 vg_add_dependencies(${PROJECT_NAME}
   PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
-  LINK_LIBRARIES LINK_PUBLIC ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})

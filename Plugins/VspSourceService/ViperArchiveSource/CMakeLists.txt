@@ -27,10 +27,10 @@ set(vsViperArchiveSource_UI
   viperOptions.ui
 )
 
-qt4_wrap_cpp(vsViperArchiveSource_MocSources
+qt5_wrap_cpp(vsViperArchiveSource_MocSources
              ${vsViperArchiveSource_MocHeaders})
 
-qt4_wrap_ui(vsViperArchiveSource_UiSources ${vsViperArchiveSource_UI})
+qt5_wrap_ui(vsViperArchiveSource_UiSources ${vsViperArchiveSource_UI})
 
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vsViperArchiveSource_Sources}
@@ -41,7 +41,6 @@ vg_add_qt_plugin(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   track_xgtf
   vspSourceUtil
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

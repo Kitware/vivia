@@ -19,7 +19,7 @@ set(vtkVwCoreInstallHeaders
   vtkVwVideo.h
 )
 
-qt4_wrap_cpp(vtkVwCoreMocSources ${vtkVwCoreMocHeaders})
+qt5_wrap_cpp(vtkVwCoreMocSources ${vtkVwCoreMocHeaders})
 
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS vtkCommonCore
@@ -37,7 +37,6 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   LINK_LIBRARIES
   LINK_PRIVATE
-  ${QT_LIBRARIES}
   ${LIBJSON_LIBRARY}
   ${PYTHON_LIBRARIES}
 )

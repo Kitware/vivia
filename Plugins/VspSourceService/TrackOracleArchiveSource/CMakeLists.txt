@@ -25,7 +25,7 @@ set(vsTrackOracleArchiveSource_MocHeaders
   vsTrackOracleTrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vsTrackOracleArchiveSource_MocSources
+qt5_wrap_cpp(vsTrackOracleArchiveSource_MocSources
              ${vsTrackOracleArchiveSource_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
@@ -47,7 +47,6 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}
   vspSourceUtil
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})

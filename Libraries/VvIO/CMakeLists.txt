@@ -53,6 +53,7 @@ set(vvIOInstallHeaders
   vvQueryServiceInterface.h
   vvQuerySession.h
   vvReader.h
+  vvTrackHash.h
   vvUtil.h
   vvWriterData.h
   vvWriter.h
@@ -71,7 +72,7 @@ set(vvIOWrapObjects
   vvTrackId
 )
 
-qt4_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
+qt5_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
 
 add_library(${PROJECT_NAME} ${vvIO_Sources} ${vvIO_MocSources})
 
@@ -87,8 +88,6 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_PRIVATE
   ${Boost_LIBRARIES}
   ${KML_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 vg_add_test_subdirectory()

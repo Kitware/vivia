@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,9 +10,9 @@
 #include <qtScopedValueChange.h>
 #include <qtUtil.h>
 
-QTE_IMPLEMENT_D_FUNC(vvCustomQueryServerChooser)
+#include <QUrlQuery>
 
-namespace { typedef QPair<QString, QString> QueryItem; }
+QTE_IMPLEMENT_D_FUNC(vvCustomQueryServerChooser)
 
 //-----------------------------------------------------------------------------
 class vvCustomQueryServerChooserPrivate
@@ -80,7 +80,7 @@ void vvCustomQueryServerChooser::setUri(QUrl newUri)
   d->UI.authority->setText(newUri.authority());
   d->UI.path->setText(newUri.path());
   d->UI.arguments->clear();
-  foreach (QueryItem qi, newUri.queryItems())
+  foreach (const auto& qi, QUrlQuery{newUri}.queryItems())
     {
     this->addArgument(qi.first, qi.second);
     }
@@ -131,17 +131,16 @@ void vvCustomQueryServerChooser::updateUri()
   d->UI.authority->setText(newUri.authority());
 
   // Set path
-  QByteArray newPath = QUrl::toPercentEncoding(d->UI.path->text(), "/", "?");
-  newUri.setEncodedPath(newPath);
-  d->UI.path->setText(newUri.path());
+  newUri.setPath(d->UI.path->text(), QUrl::DecodedMode);
+  d->UI.path->setText(newUri.path(QUrl::FullyDecoded));
 
   // Set query items
-  QList<QueryItem> queryItems;
+  QUrlQuery query;
   foreach_child (QTreeWidgetItem* item, d->UI.arguments->invisibleRootItem())
     {
-    queryItems.append(QueryItem(item->text(0), item->text(1)));
+    query.addQueryItem(item->text(0), item->text(1));
     }
-  newUri.setQueryItems(queryItems);
+  newUri.setQuery(query);
 
   // Done
   d->uri = newUri;

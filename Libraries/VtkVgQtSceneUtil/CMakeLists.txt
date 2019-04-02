@@ -23,7 +23,6 @@ vg_add_dependencies(${PROJECT_NAME}
   qtExtensions
   LINK_LIBRARIES
   LINK_PRIVATE
-  ${QT_LIBRARIES}
   vil_io
   vnl_io
   vgl_algo

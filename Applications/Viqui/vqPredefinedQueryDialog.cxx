@@ -1,11 +1,19 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vqPredefinedQueryDialog.h"
 #include "ui_predefinedQuery.h"
+
+#include "vqEventInfo.h"
+#include "vqPredefinedQueryCache.h"
+#include "vqSettings.h"
+
+#include <qtMap.h>
+#include <qtStlUtil.h>
+#include <qtUtil.h>
 
 #include <QButtonGroup>
 #include <QDesktopWidget>
@@ -15,15 +23,8 @@
 #include <QRadioButton>
 #include <QSettings>
 #include <QStringList>
+#include <QStyle>
 #include <QVBoxLayout>
-
-#include <qtMap.h>
-#include <qtStlUtil.h>
-#include <qtUtil.h>
-
-#include "vqEventInfo.h"
-#include "vqPredefinedQueryCache.h"
-#include "vqSettings.h"
 
 QTE_IMPLEMENT_D_FUNC(vqPredefinedQueryDialog)
 

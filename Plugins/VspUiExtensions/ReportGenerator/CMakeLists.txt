@@ -36,7 +36,7 @@ set(vsReportGeneratorExtension_MocHeaders
   vsReportGeneratorPlugin.h
 )
 
-qt4_wrap_cpp(vsReportGeneratorExtension_MocSources
+qt5_wrap_cpp(vsReportGeneratorExtension_MocSources
              ${vsReportGeneratorExtension_MocHeaders})
 
 vg_add_qt_plugin(${PROJECT_NAME}
@@ -48,9 +48,6 @@ vg_add_dependencies(${PROJECT_NAME}
   PRIVATE_INTERFACE_TARGETS
   vspData
   vspUserInterface
-  LINK_LIBRARIES
-  LINK_PRIVATE
-  ${QT_LIBRARIES}
 )
 
 install_plugin_targets(${PROJECT_NAME})
