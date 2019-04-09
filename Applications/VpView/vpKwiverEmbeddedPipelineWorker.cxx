@@ -130,7 +130,7 @@ public:
 
   void reportProgress(int);
 
-  std::vector<std::string> framePaths;
+  QStringList framePaths;
 
   kwiver::arrows::vxl::image_io loader;
   kwiver::embedded_pipeline pipeline;
@@ -161,8 +161,8 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
 {
   QTE_Q();
 
-  const auto totalFrames = this->framePaths.size();
-  emit q->progressRangeChanged(0, static_cast<int>(totalFrames));
+  const auto totalFrames = this->framePaths.count();
+  emit q->progressRangeChanged(0, totalFrames);
   emit q->progressValueChanged(0);
 
   const auto ports = this->pipeline.input_port_names();
@@ -188,7 +188,7 @@ void vpKwiverEmbeddedPipelineWorkerPrivate::run()
     if (image_port)
     {
       auto frameImage = this->loader.load(
-        this->framePaths[currentFrame]);
+        stdString(this->framePaths[currentFrame]));
 
       ids->add_value(*image_port, frameImage);
     }
@@ -276,10 +276,7 @@ bool vpKwiverEmbeddedPipelineWorker::initialize(
   QTE_D();
 
   // Copy inputs
-  for (const auto i : qtIndexRange(dataSource->getFileCount()))
-  {
-    d->framePaths.push_back(dataSource->getDataFile(i));
-  }
+  d->framePaths = dataSource->frameNames();
 
   trackModel->InitTrackTraversal();
   while (const auto& track = trackModel->GetNextTrack())

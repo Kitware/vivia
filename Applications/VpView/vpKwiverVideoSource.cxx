@@ -8,16 +8,19 @@
 
 #include "vpFileDataSource.h"
 
+#include <qtStlUtil.h>
+
+#include <QStringList>
+
 namespace kv = kwiver::vital;
 
 //-----------------------------------------------------------------------------
 vpKwiverVideoSource::vpKwiverVideoSource(vpFileDataSource* ds) :
   CurrentFrame(-1)
 {
-  const auto totalFrames = ds->getFileCount();
-  for (int i = 0; i < totalFrames; ++i)
+  for (const auto& f : ds->frameNames())
     {
-    this->FramePaths.push_back(ds->getDataFile(i));
+    this->FramePaths.push_back(stdString(f));
     }
 }
 

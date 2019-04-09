@@ -17,10 +17,11 @@
 
 #include <QThread>
 
-#include <map>
-#include <vector>
-
 // Forward declarations.
+template <typename T> class QList;
+template <typename T1, typename T2> struct QPair;
+template <typename K, typename V> class QMap;
+
 class vtkMatrix4x4;
 
 class vpFileDataSource;
@@ -29,8 +30,7 @@ class vpFrameMapPrivate;
 class vpFrame
 {
 public:
-  vpFrame() : Index(0), Homography(0)
-    {}
+  vpFrame() = default;
 
   ~vpFrame()
     {
@@ -40,12 +40,12 @@ public:
       }
     }
 
-  void set(unsigned int index, vgTimeStamp time,
-           const vtkMatrix4x4* homography = 0);
+  void set(int index, vgTimeStamp time,
+           const vtkMatrix4x4* homography = nullptr);
 
-  unsigned int Index;
+  int Index = 0;
   vtkVgTimeStamp Time;
-  vtkMatrix4x4* Homography;
+  vtkMatrix4x4* Homography = nullptr;
 };
 
 class vpFrameMap : public QThread
@@ -63,20 +63,18 @@ public:
 
   bool first(vpFrame& frame);
   bool last(vpFrame& frame);
-  bool getFrame(unsigned int frameIndex, vpFrame& frameValue);
+  bool getFrame(int frameIndex, vpFrame& frameValue);
 
-  std::map<unsigned int, vgTimeStamp> getTimeMap();
+  QMap<int, vgTimeStamp> timeMap();
 
-  void setImageTime(const std::string& filename, double microseconds);
-  void setImageHomography(const std::string& filename,
-                          vtkMatrix4x4 *homography);
+  void setImageTime(const QString& filename, double microseconds);
+  void setImageHomography(const QString& filename, vtkMatrix4x4* homography);
   void startUpdate();
   void stop();
 
   int progress();
 
-  void exportImageTimes(std::vector<std::pair<std::string, double> >&
-                          imageTimes);
+  QList<QPair<QString, double>> imageTimes();
 
 signals:
   void updated();
