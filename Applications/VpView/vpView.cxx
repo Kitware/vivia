@@ -42,7 +42,7 @@
 #include <vgUnixTime.h>
 
 #include <qtCliArgs.h>
-#include <qtScopedSettingGroup.h>
+#include <qtScopedSettingsGroup.h>
 #include <qtScopedValueChange.h>
 #include <qtStlUtil.h>
 #include <qtUtil.h>
@@ -3284,7 +3284,7 @@ void vpView::exportTypeFilters(const QString& path)
   QSettings out{path, QSettings::IniFormat};
 
   auto* const ttr = this->Core->getTrackTypeRegistry();
-  qtScopedSettingGroup sg{out, "Tracks"};
+  qtScopedSettingsGroup sg{out, "Tracks"};
   for (const auto tti : qtIndexRange(ttr->GetNumberOfTypes()))
     {
     const auto v = this->Internal->UI.tocFilter->value(tti);
@@ -3313,7 +3313,7 @@ void vpView::importTypeFilters()
 void vpView::importTypeFilters(const QString& path)
 {
   QSettings in{path, QSettings::IniFormat};
-  qtScopedSettingGroup sg{in, "Tracks"};
+  qtScopedSettingsGroup sg{in, "Tracks"};
   const auto& importedTypes = in.childKeys();
   for (const auto& ttn : importedTypes)
     {
