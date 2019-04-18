@@ -2083,7 +2083,7 @@ void vpViewCore::addTrackFilter(
 {
     filterWidget->addItem(typeId, typeName);
     filterWidget->setValue(typeId, 0.0);
-    filterWidget->setSingleStep(0.001);
+    filterWidget->setSingleStep(typeId, 0.001);
     this->TrackFilter->SetShowType(typeId, true);
     this->TrackFilter->SetMinProbability(typeId, 0.0);
     this->TrackFilter->SetMaxProbability(typeId, 1.0);
