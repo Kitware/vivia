@@ -15,7 +15,9 @@ set(vvVidtkInstallHeaders
 
 add_library(${PROJECT_NAME} vvAdaptVidtk.cxx)
 
-target_link_libraries(${PROJECT_NAME} vidtk_tracking)
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC Qt5::Core
+  PRIVATE vidtk_tracking)
 
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVidtkInstallHeaders} TARGET ${PROJECT_NAME}
