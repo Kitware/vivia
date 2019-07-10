@@ -70,6 +70,6 @@ void vpVidtkIO::UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                              unsigned int updateEndFrame)
 {
   assert(this->TrackIO);
-  static_cast<vpVidtkTrackIO*>(this->TrackIO.data())->UpdateTracks(
+  static_cast<vpVidtkTrackIO*>(this->TrackIO.get())->UpdateTracks(
     tracks, updateStartFrame, updateEndFrame);
 }
