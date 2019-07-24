@@ -33,6 +33,12 @@ public:
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Request a particular resolution. This is useful
+  // if the actual image is much bigger than the
+  // dimension of the display viewport or window.
+  virtual int SetOutputResolution(int w, int h);
+
+  // Description:
   // Return number of level of detail.
   virtual int GetNumberOfLevels() const;
 

@@ -58,6 +58,17 @@ vtkVgGDALReader::~vtkVgGDALReader()
     }
 }
 
+//----------------------------------------------------------------------------
+int vtkVgGDALReader::SetOutputResolution(int w, int h)
+{
+  this->OutputResolution[0] = w;
+  this->OutputResolution[1] = h;
+
+  this->Modified();
+
+  return VTK_OK;
+}
+
 //-----------------------------------------------------------------------------
 void vtkVgGDALReader::PrintSelf(ostream& os, vtkIndent indent)
 {

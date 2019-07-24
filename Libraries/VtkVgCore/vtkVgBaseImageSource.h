@@ -40,8 +40,8 @@ public:
   // Request a particular resolution. This is useful
   // if the actual image is much bigger than the
   // dimension of the display viewport or window.
-  void GetOutputResolution(int& w, int& h) const;
-  int  SetOutputResolution(int w, int h);
+  virtual void GetOutputResolution(int& w, int& h) const;
+  virtual int  SetOutputResolution(int w, int h);
 
   // Description:
   // The extent of pixels to read.
