@@ -48,7 +48,7 @@ void vtkVgBaseImageSource::GetOutputResolution(int& w, int& h) const
 //----------------------------------------------------------------------------
 int vtkVgBaseImageSource::SetOutputResolution(int w, int h)
 {
-  if (w < 0)
+  /*if (w < 0)
     {
     // Error.
     return VTK_ERROR;
@@ -58,7 +58,7 @@ int vtkVgBaseImageSource::SetOutputResolution(int w, int h)
     {
     // Error.
     return VTK_ERROR;
-    }
+    }*/
 
   this->OutputResolution[0] = w;
   this->OutputResolution[1] = h;
