@@ -145,7 +145,6 @@ kv::image_container_sptr vpKwiverImageLoader::load(const std::string& filename)
   {
     auto* const factory = vpImageSourceFactory::GetInstance();
     d->imageSource.TakeReference(factory->Create(filename));
-    d->imageSource->SetOutputResolution(-1, -1);
     if (!d->imageSource)
     {
       return nullptr;
@@ -154,6 +153,7 @@ kv::image_container_sptr vpKwiverImageLoader::load(const std::string& filename)
 
   // Read image data from file
   d->imageSource->SetFileName(filename.c_str());
+  d->imageSource->SetOutputResolution(-1, -1);
   d->imageSource->Update();
   auto* const data = d->imageSource->GetOutput();
 
