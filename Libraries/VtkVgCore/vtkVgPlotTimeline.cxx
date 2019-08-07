@@ -232,7 +232,7 @@ struct IdToPointXIter
     : Points(pts), Pointer(start)
     {}
 
-  double operator*()
+  double operator*() const
     { return this->Points[*Pointer].GetX(); }
 
   IdToPointXIter& operator++()
