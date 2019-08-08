@@ -459,10 +459,11 @@ bool vvKipQuerySessionPrivate::stQueryProcess()
 vvKipQuerySession::vvKipQuerySession(QUrl server)
   : d_ptr(new vvKipQuerySessionPrivate(this, server))
 {
-  static auto const pluginsLoaded [[maybe_unused]] = [](){
+  static auto const pluginsLoaded = [](){
     kwiver::vital::plugin_manager::instance().load_all_plugins();
     return true;
   }();
+  Q_UNUSED(pluginsLoaded)
 }
 
 //-----------------------------------------------------------------------------
