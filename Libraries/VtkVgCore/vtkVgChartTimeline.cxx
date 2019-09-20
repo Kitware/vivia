@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -44,7 +44,7 @@ boost::gregorian::date GetEpoch()
 boost::posix_time::ptime GetPosixTimeSeconds(double us)
 {
   boost::posix_time::ptime pt(GetEpoch());
-  return pt + boost::posix_time::seconds(us * 1.0e-6);
+  return pt + boost::posix_time::seconds(static_cast<int64_t>(us * 1.0e-6));
 }
 
 boost::posix_time::ptime GetPosixTime(double us)
