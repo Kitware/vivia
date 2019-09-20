@@ -13,7 +13,7 @@ find_package(Qt5 5.8.0 REQUIRED COMPONENTS
 
 # Boost is required.
 find_package(Boost REQUIRED
-  COMPONENTS thread signals system filesystem date_time
+  COMPONENTS thread system filesystem date_time
 )
 add_definitions(-DBOOST_ALL_NO_LIB)
 
