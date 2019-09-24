@@ -4,6 +4,7 @@ set(vgDataFrameworkSources
   vdfAbstractQuerySessionNode.cxx
   vdfDataReader.cxx
   vdfDataSource.cxx
+  vdfEventReader.cxx
   vdfEventSource.cxx
   vdfNodeBase.cxx
   vdfNodeProxy.cxx
@@ -29,6 +30,7 @@ set(vgDataFrameworkInstallHeaders
   vdfDataReader.h
   vdfDataSource.h
   vdfDataSourceInterface.h
+  vdfEventReader.h
   vdfEventSource.h
   vdfNamespace.h
   vdfNodeBase.h
