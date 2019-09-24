@@ -56,27 +56,27 @@ void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
   const auto& formats =
     track_oracle::file_format_manager::format_matches_schema(schema);
   for (const auto& format : formats)
-    {
+  {
     auto* const format_instance =
       track_oracle::file_format_manager::get_format(format);
     if (format_instance)
-      {
+    {
       map.insert(format, format_instance);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
 bool vdfTrackOracleArchiveSourcePluginPrivate::quickTest(
   const std::string& fileName) const
 {
-  foreach (auto* const format, this->Formats)
-    {
+  for (auto* const format : this->Formats)
+  {
     if (format->filename_matches_globs(fileName))
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -85,21 +85,21 @@ track_oracle::file_format_base*
 vdfTrackOracleArchiveSourcePluginPrivate::inspect(
   const std::string& fileName) const
 {
-  foreach (auto* const format, this->Formats)
-    {
+  for (auto* const format : this->Formats)
+  {
     if (format->inspect_file(fileName))
-      {
+    {
       return format;
-      }
     }
-  return 0;
+  }
+  return nullptr;
 }
 
 //-----------------------------------------------------------------------------
 vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
   d_ptr(new vdfTrackOracleArchiveSourcePluginPrivate)
 {
-  QTE_D(vdfTrackOracleArchiveSourcePlugin);
+  QTE_D();
 
   // kwiver and csv are open-ended and should always be tried
   d->Formats.insert(
@@ -121,21 +121,21 @@ vdfTrackOracleArchiveSourcePlugin::~vdfTrackOracleArchiveSourcePlugin()
 vdfArchivePluginInfo
 vdfTrackOracleArchiveSourcePlugin::archivePluginInfo() const
 {
-  QTE_D_CONST(vdfTrackOracleArchiveSourcePlugin);
+  QTE_D();
 
   vdfArchivePluginInfo info;
 
-  foreach (auto* const format, d->Formats)
-    {
+  for (auto* const format : d->Formats)
+  {
     vdfArchiveFileType fileType;
     fileType.Description = qtString(format->format_description());
     std::vector<std::string> globs = format->format_globs();
-    for (size_t n = 0, k = globs.size(); n < k; ++n)
-      {
+    for (auto const n : qtIndexRange(globs.size()))
+    {
       fileType.Patterns.append(qtString(globs[n]));
-      }
-    info.SupportedFileTypes.append(fileType);
     }
+    info.SupportedFileTypes.append(fileType);
+  }
 
   return info;
 }
@@ -144,20 +144,20 @@ vdfTrackOracleArchiveSourcePlugin::archivePluginInfo() const
 vdfDataSource* vdfTrackOracleArchiveSourcePlugin::createArchiveSource(
   const QUrl& uri, SourceCreateMode mode)
 {
-  QTE_D_CONST(vdfTrackOracleArchiveSourcePlugin);
+  QTE_D();
 
   // Quick test for acceptable archive
   if (mode == vdfArchiveSourceInterface::QuickTest)
-    {
-    CHECK_ARG(uri.scheme() == "file", 0);
-    CHECK_ARG(d->quickTest(stdString(uri.toLocalFile())), 0);
-    }
+  {
+    CHECK_ARG(uri.scheme() == "file", nullptr);
+    CHECK_ARG(d->quickTest(stdString(uri.toLocalFile())), nullptr);
+  }
 
   // Verify that file exists and is readable
   const QString fileName = uri.toLocalFile();
-  CHECK_ARG(QFileInfo(fileName).exists(), 0);
+  CHECK_ARG(QFileInfo(fileName).exists(), nullptr);
   QFile file(fileName);
-  CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), 0);
+  CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), nullptr);
 
   auto* const format_instance = d->inspect(stdString(fileName));
 
