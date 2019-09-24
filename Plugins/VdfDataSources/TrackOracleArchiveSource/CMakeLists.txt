@@ -9,7 +9,7 @@ endif()
 
 set(vdfTrackOracleArchiveSource_Sources
   vdfTrackOracleArchiveSourcePlugin.cxx
-  vdfTrackOracleTrackArchiveSource.cxx
+  vdfTrackOracleTrackDataSource.cxx
 )
 
 vg_add_qt_plugin(${PROJECT_NAME} ${vdfTrackOracleArchiveSource_Sources})

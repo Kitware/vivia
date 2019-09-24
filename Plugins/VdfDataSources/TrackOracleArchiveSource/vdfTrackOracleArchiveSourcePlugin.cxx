@@ -6,7 +6,7 @@
 
 #include "vdfTrackOracleArchiveSourcePlugin.h"
 
-#include "vdfTrackOracleTrackArchiveSource.h"
+#include "vdfTrackOracleTrackDataSource.h"
 #include "visgui_track_type.h"
 
 #include <vgCheckArg.h>
