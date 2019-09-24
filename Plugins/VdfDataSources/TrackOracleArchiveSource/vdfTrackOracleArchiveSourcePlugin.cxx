@@ -9,6 +9,11 @@
 #include "vdfTrackOracleTrackDataSource.h"
 #include "visgui_track_type.h"
 
+#ifdef KWIVER_TRACK_ORACLE
+#include "vdfTrackOracleEventDataSource.h"
+#include "visgui_event_type.h"
+#endif
+
 #include <vgCheckArg.h>
 
 #include <qtStlUtil.h>
@@ -32,26 +37,55 @@ QTE_IMPLEMENT_D_FUNC(vdfTrackOracleArchiveSourcePlugin)
 
 namespace // anonymous
 {
-using FileFormatMap =
-  QMap<track_oracle::file_format_enum, track_oracle::file_format_base*>;
+
+using ArchiveSourceConstructor =
+  vdfDataSource* (*)(const QUrl&, track_oracle::file_format_base*);
+
+//-----------------------------------------------------------------------------
+template <typename T>
+vdfDataSource* createArchiveSource(
+  const QUrl& uri, track_oracle::file_format_base* format)
+{
+  return new T{uri, format};
 }
+
+//-----------------------------------------------------------------------------
+struct FormatInfo
+{
+  FormatInfo() = default;
+  FormatInfo(track_oracle::file_format_base* of, ArchiveSourceConstructor sc)
+    : OracleFormat{of}, SourceConstructor{sc} {}
+
+  vdfDataSource* createArchiveSource(const QUrl& uri) const
+  {
+    return (*this->SourceConstructor)(uri, this->OracleFormat);
+  }
+
+  track_oracle::file_format_base* OracleFormat = nullptr;
+  ArchiveSourceConstructor SourceConstructor = nullptr;
+};
+
+using FileFormatMap = QMap<track_oracle::file_format_enum, FormatInfo>;
+
+} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 class vdfTrackOracleArchiveSourcePluginPrivate
 {
 public:
-  void addSchemas(FileFormatMap& map,
-                  const track_oracle::track_base_impl& schema);
+  void addSchemas(const track_oracle::track_base_impl& schema,
+                  ArchiveSourceConstructor sourceConstructor);
 
   bool quickTest(const std::string& fileName) const;
-  track_oracle::file_format_base* inspect(const std::string& fileName) const;
+  FormatInfo inspect(const std::string& fileName) const;
 
   FileFormatMap Formats;
 };
 
 //-----------------------------------------------------------------------------
 void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
-  FileFormatMap& map, const track_oracle::track_base_impl& schema)
+  const track_oracle::track_base_impl& schema,
+  ArchiveSourceConstructor sourceConstructor)
 {
   const auto& formats =
     track_oracle::file_format_manager::format_matches_schema(schema);
@@ -61,7 +95,7 @@ void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
       track_oracle::file_format_manager::get_format(format);
     if (format_instance)
     {
-      map.insert(format, format_instance);
+      this->Formats.insert(format, {format_instance, sourceConstructor});
     }
   }
 }
@@ -70,9 +104,9 @@ void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
 bool vdfTrackOracleArchiveSourcePluginPrivate::quickTest(
   const std::string& fileName) const
 {
-  for (auto* const format : this->Formats)
+  for (const auto& format : this->Formats)
   {
-    if (format->filename_matches_globs(fileName))
+    if (format.OracleFormat->filename_matches_globs(fileName))
     {
       return true;
     }
@@ -81,18 +115,17 @@ bool vdfTrackOracleArchiveSourcePluginPrivate::quickTest(
 }
 
 //-----------------------------------------------------------------------------
-track_oracle::file_format_base*
-vdfTrackOracleArchiveSourcePluginPrivate::inspect(
+FormatInfo vdfTrackOracleArchiveSourcePluginPrivate::inspect(
   const std::string& fileName) const
 {
-  for (auto* const format : this->Formats)
+  for (const auto& format : this->Formats)
   {
-    if (format->inspect_file(fileName))
+    if (format.OracleFormat->inspect_file(fileName))
     {
       return format;
     }
   }
-  return nullptr;
+  return {};
 }
 
 //-----------------------------------------------------------------------------
@@ -101,6 +134,7 @@ vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
 {
   QTE_D();
 
+  /* FIXME
   // kwiver and csv are open-ended and should always be tried
   d->Formats.insert(
     track_oracle::TF_CSV,
@@ -108,8 +142,14 @@ vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
   d->Formats.insert(
     track_oracle::TF_KWIVER,
     track_oracle::file_format_manager::get_format(track_oracle::TF_KWIVER));
+  */
 
-  d->addSchemas(d->Formats, visgui_minimal_track_type());
+  d->addSchemas(visgui_minimal_track_type{},
+                &::createArchiveSource<vdfTrackOracleTrackDataSource>);
+#ifdef KWIVER_TRACK_ORACLE
+  d->addSchemas(visgui_minimal_event_type{},
+                &::createArchiveSource<vdfTrackOracleEventDataSource>);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -125,11 +165,11 @@ vdfTrackOracleArchiveSourcePlugin::archivePluginInfo() const
 
   vdfArchivePluginInfo info;
 
-  for (auto* const format : d->Formats)
+  for (const auto& format : d->Formats)
   {
     vdfArchiveFileType fileType;
-    fileType.Description = qtString(format->format_description());
-    std::vector<std::string> globs = format->format_globs();
+    fileType.Description = qtString(format.OracleFormat->format_description());
+    std::vector<std::string> globs = format.OracleFormat->format_globs();
     for (auto const n : qtIndexRange(globs.size()))
     {
       fileType.Patterns.append(qtString(globs[n]));
@@ -159,7 +199,8 @@ vdfDataSource* vdfTrackOracleArchiveSourcePlugin::createArchiveSource(
   QFile file(fileName);
   CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), nullptr);
 
-  auto* const format_instance = d->inspect(stdString(fileName));
+  const auto& format = d->inspect(stdString(fileName));
+  CHECK_ARG(format.SourceConstructor, nullptr);
 
-  return new vdfTrackOracleTrackDataSource(uri, format_instance);
+  return format.createArchiveSource(uri);
 }

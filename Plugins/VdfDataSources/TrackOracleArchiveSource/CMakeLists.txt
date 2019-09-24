@@ -12,6 +12,12 @@ set(vdfTrackOracleArchiveSource_Sources
   vdfTrackOracleTrackDataSource.cxx
 )
 
+if(TARGET kwiver::track_oracle)
+  list(APPEND vdfTrackOracleArchiveSource_Sources
+    vdfTrackOracleEventDataSource.cxx
+  )
+endif()
+
 vg_add_qt_plugin(${PROJECT_NAME} ${vdfTrackOracleArchiveSource_Sources})
 
 if(TARGET kwiver::track_oracle)
