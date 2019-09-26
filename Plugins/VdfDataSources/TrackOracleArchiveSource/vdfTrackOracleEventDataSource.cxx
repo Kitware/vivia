@@ -6,7 +6,7 @@
 
 #include "vdfTrackOracleEventDataSource.h"
 
-#include "visgui_event_type.h"
+#include <visgui_event_type.h>
 
 #include <vdfEventSource.h>
 

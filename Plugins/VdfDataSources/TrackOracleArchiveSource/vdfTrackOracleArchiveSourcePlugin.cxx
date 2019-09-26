@@ -7,12 +7,15 @@
 #include "vdfTrackOracleArchiveSourcePlugin.h"
 
 #include "vdfTrackOracleTrackDataSource.h"
-#include "visgui_track_type.h"
-
 #ifdef KWIVER_TRACK_ORACLE
 #include "vdfTrackOracleEventDataSource.h"
-#include "visgui_event_type.h"
 #endif
+
+#ifdef KWIVER_TRACK_ORACLE
+#include <visgui_event_type.h>
+#endif
+
+#include <visgui_track_type.h>
 
 #include <vgCheckArg.h>
 

@@ -7,9 +7,9 @@
 #ifndef __vdfTrackOracleEventDataSource_h
 #define __vdfTrackOracleEventDataSource_h
 
-#include <vdfThreadedArchiveSource.h>
+#include <track_oracle_file_format_fwd.h>
 
-#include "track_oracle_file_format_fwd.h"
+#include <vdfThreadedArchiveSource.h>
 
 class vdfTrackOracleEventDataSourcePrivate;
 

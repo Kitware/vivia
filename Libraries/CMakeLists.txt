@@ -13,6 +13,10 @@ if(VISGUI_ENABLE_VSPLAY OR VISGUI_ENABLE_VIQUI)
   add_subdirectory(VvWidgets)
 endif()
 
+if(TARGET track_oracle OR TARGET kwiver::track_oracle)
+  add_subdirectory(VvTrackOracle)
+endif()
+
 add_subdirectory(VgVideo)
 
 # VTK dependent libraries
