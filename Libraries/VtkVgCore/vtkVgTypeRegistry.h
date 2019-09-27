@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -35,6 +35,10 @@ public:
   virtual void SetEntityType(int index, const vgEntityType& type);
 
   // Description:
+  // Get index of registered track type or -1 if not found.
+  int GetTypeIndex(const char* name) const;
+
+  // Description:
   // Add to registered types. The supplied type should have a unique id.
   void AddType(const T& type);
 
@@ -62,11 +66,12 @@ void vtkVgTypeRegistry<T>::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   os << indent << "Types:\n";
-  for (int i = 0, end = this->GetNumberOfTypes(); i < end; ++i)
-    {
+  const auto end = this->GetNumberOfTypes();
+  for (decltype(+end) i = 0; i < end; ++i)
+  {
     os << indent << this->Types[i].GetName()
        << " (" << this->Types[i].GetId() << ")\n";
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -108,6 +113,21 @@ void vtkVgTypeRegistry<T>::SetEntityType(int index, const vgEntityType& type)
 
 //-----------------------------------------------------------------------------
 template <typename T>
+int vtkVgTypeRegistry<T>::GetTypeIndex(const char* name) const
+{
+  const auto end = this->GetNumberOfTypes();
+  for (decltype(+end) i = 0; i < end; ++i)
+  {
+    if (strcmp(this->GetType(i).GetName(), name) == 0)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+//-----------------------------------------------------------------------------
+template <typename T>
 void vtkVgTypeRegistry<T>::AddType(const T& type)
 {
   this->Types.push_back(type);
@@ -142,10 +162,11 @@ void vtkVgTypeRegistry<T>::MarkTypeUsed(int index)
 template <typename T>
 void vtkVgTypeRegistry<T>::MarkAllTypesUnused()
 {
-  for (size_t i = 0, end = this->Types.size(); i < end; ++i)
-    {
+  const auto end = this->Types.size();
+  for (decltype(+end) i = 0; i < end; ++i)
+  {
     this->Types[i].SetIsUsed(false);
-    }
+  }
   this->Modified();
 }
 
