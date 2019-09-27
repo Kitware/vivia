@@ -19,6 +19,7 @@
 #include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
@@ -179,13 +180,6 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   }
   else
   {
-    if (d->TracksUri.isLocalFile())
-    {
-      const auto& filePath = d->TracksUri.toLocalFile();
-      d->FileReader.ReadRegionsFile(filePath, 0.0f, 0.0f, trackRegionMap);
-      supplementalFileBases.append(filePath);
-    }
-
     // Construct the track source and track reader
     QScopedPointer<vdfDataSource> source{
       vdfSourceService::createArchiveSource(d->TracksUri)};
@@ -227,9 +221,9 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     if (this->TrackModel->GetTrack(vtkId))
     {
       const auto fallbackId = this->TrackModel->GetNextAvailableId();
-      std::cout << "Track id " << vtkId
-                << " is not unique: changing id of imported track to "
-                << fallbackId << std::endl;
+      qInfo() << "Track id" << vtkId
+              << "is not unique: changing id of imported track to"
+              << fallbackId;
       track->SetId(fallbackId);
     }
     else
