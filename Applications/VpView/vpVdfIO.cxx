@@ -1,30 +1,18 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vpVdfIO.h"
 
+#include "vpVdfEventIO.h"
 #include "vpVdfTrackIO.h"
 
+#include <QHash>
 #include <QUrl>
 
 QTE_IMPLEMENT_D_FUNC(vpVdfIO)
-
-//-----------------------------------------------------------------------------
-class vpVdfEventIO : public vpEventIO
-{
-public:
-  vpVdfEventIO(vtkVgEventModel* eventModel,
-               vtkVgEventTypeRegistry* eventTypes)
-    : vpEventIO{eventModel, eventTypes} {}
-
-  ~vpVdfEventIO() {}
-
-  virtual bool ReadEvents() QTE_OVERRIDE { return false; }
-  virtual bool WriteEvents(const char*) const  QTE_OVERRIDE { return false; }
-};
 
 //-----------------------------------------------------------------------------
 class vpVdfActivityIO : public vpActivityIO
@@ -44,9 +32,15 @@ class vpVdfIOPrivate
 {
 public:
   unsigned int ImageHeight;
+
   QUrl TracksUri;
   QString TrackTraitsFilePath;
   QString TrackClassifiersFilePath;
+
+  QUrl EventsUri;
+
+  QHash<long long, vtkIdType> TrackSourceIdToModelIdMap;
+  QHash<long long, vtkIdType> EventSourceIdToModelIdMap;
 };
 
 //-----------------------------------------------------------------------------
@@ -73,9 +67,9 @@ void vpVdfIO::SetTrackModel(
   QTE_D();
 
   auto* const trackIO =
-    new vpVdfTrackIO{this, trackModel, storageMode, interpolateToGround,
-                     timeStampMode, trackTypes, trackAttributes,
-                     geoTransform, frameMap};
+    new vpVdfTrackIO{this, d->TrackSourceIdToModelIdMap, trackModel,
+                     storageMode, interpolateToGround, timeStampMode,
+                     trackTypes, trackAttributes, geoTransform, frameMap};
   this->TrackIO.reset(trackIO);
 
   trackIO->SetTracksUri(d->TracksUri);
@@ -87,7 +81,16 @@ void vpVdfIO::SetTrackModel(
 void vpVdfIO::SetEventModel(vtkVgEventModel* eventModel,
                             vtkVgEventTypeRegistry* eventTypes)
 {
-  this->EventIO.reset(new vpVdfEventIO{eventModel, eventTypes});
+  QTE_D();
+
+  auto* const eventIO =
+    new vpVdfEventIO{
+      d->EventSourceIdToModelIdMap,
+      d->TrackSourceIdToModelIdMap,
+      eventModel, eventTypes};
+  this->EventIO.reset(eventIO);
+
+  eventIO->SetEventsUri(d->EventsUri);
 }
 
 //-----------------------------------------------------------------------------
@@ -141,5 +144,16 @@ void vpVdfIO::SetTrackClassifiersFilePath(const QString& filePath)
   if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.get()))
     {
     trackIO->SetTrackClassifiersFilePath(filePath);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetEventsUri(const QUrl& uri)
+{
+  QTE_D();
+  d->EventsUri = uri;
+  if (auto* const eventIO = dynamic_cast<vpVdfEventIO*>(this->EventIO.get()))
+    {
+    eventIO->SetEventsUri(uri);
     }
 }

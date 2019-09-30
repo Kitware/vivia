@@ -193,6 +193,7 @@ if(VISGUI_ENABLE_VIDTK)
 else()
   list(APPEND vpViewSources
     vpVdfIO.cxx
+    vpVdfEventIO.cxx
     vpVdfTrackIO.cxx
   )
 endif()

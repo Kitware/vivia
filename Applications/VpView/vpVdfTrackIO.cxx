@@ -78,20 +78,21 @@ public:
   vpFileTrackReader FileReader;
   vpVdfIO* Base;
   QUrl TracksUri;
+  QHash<long long, vtkIdType>& TrackSourceIdToModelIdMap;
   QString TrackTraitsFilePath;
   QString TrackClassifiersFilePath;
 };
 
 //-----------------------------------------------------------------------------
 vpVdfTrackIO::vpVdfTrackIO(
-  vpVdfIO* base, vtkVpTrackModel* trackModel,
-  TrackStorageMode storageMode, bool interpolateToGround,
-  TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
-  vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
-  vpFrameMap* frameMap)
+  vpVdfIO* base, QHash<long long, vtkIdType>& trackSourceIdToModelIdMap,
+  vtkVpTrackModel* trackModel, TrackStorageMode storageMode,
+  bool interpolateToGround, TrackTimeStampMode timeStampMode,
+  vtkVgTrackTypeRegistry* trackTypes, vgAttributeSet* trackAttributes,
+  vtkMatrix4x4* geoTransform, vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
               trackTypes, geoTransform, frameMap},
-    d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}}}
+    d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}, trackSourceIdToModelIdMap}}
 {
 }
 
@@ -225,6 +226,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
               << "is not unique: changing id of imported track to"
               << fallbackId;
       track->SetId(fallbackId);
+      d->TrackSourceIdToModelIdMap.insert(ti.key().SerialNumber, fallbackId);
     }
     else
     {

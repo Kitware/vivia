@@ -3199,6 +3199,7 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
   io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
   io->SetTrackTraitsFilePath(project->TrackTraitsFile);
   io->SetTrackClassifiersFilePath(project->TrackClassifiersFile);
+  io->SetEventsUri(QUrl::fromUserInput(project->EventsFile));
   project->ModelIO = io;
 
 #endif
