@@ -94,6 +94,11 @@ void vdfTrackOracleArchiveSourcePluginPrivate::addSchemas(
     track_oracle::file_format_manager::format_matches_schema(schema);
   for (const auto& format : formats)
   {
+    if (this->Formats.contains(format))
+    {
+      continue;
+    }
+
     auto* const format_instance =
       track_oracle::file_format_manager::get_format(format);
     if (format_instance)
@@ -147,7 +152,9 @@ vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
     track_oracle::file_format_manager::get_format(track_oracle::TF_KWIVER));
   */
 
-  d->addSchemas(visgui_minimal_track_type{},
+  d->addSchemas(visgui_minimal_track_type_with_time_usecs{},
+                &::createArchiveSource<vdfTrackOracleTrackDataSource>);
+  d->addSchemas(visgui_minimal_track_type_with_frame_number{},
                 &::createArchiveSource<vdfTrackOracleTrackDataSource>);
 #ifdef KWIVER_TRACK_ORACLE
   d->addSchemas(visgui_minimal_event_type{},
