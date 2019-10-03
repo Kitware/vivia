@@ -12,27 +12,26 @@
 
 #include <vgGeodesy.h>
 
+#include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
 #include <QDebug>
 #include <QSet>
 #include <QUuid>
 
-#if QT_VERSION < 0x040800
-#include <QtEndian>
-#endif
-
 #ifdef KWIVER_TRACK_ORACLE
-#include <track_oracle/file_formats/file_format_base.h>
+  #include <track_oracle/file_formats/file_format_base.h>
 #else
-#include <track_oracle/file_format_base.h>
+  #include <track_oracle/file_format_base.h>
 #endif
 
 #ifndef KWIVER_TRACK_ORACLE
 namespace track_oracle
 {
-  using track_oracle_core = ::vidtk::track_oracle;
-}
+
+using track_oracle_core = ::vidtk::track_oracle;
+
+} // namespace track_oracle
 #endif
 
 namespace // anonymous
@@ -43,18 +42,8 @@ namespace // anonymous
 //-----------------------------------------------------------------------------
 QUuid qtUuid(const boost::uuids::uuid& in)
 {
-#if QT_VERSION >= 0x040800
-  const QByteArray bytes(reinterpret_cast<const char*>(in.data), 16);
+  const QByteArray bytes{reinterpret_cast<const char*>(in.data), 16};
   return QUuid::fromRfc4122(bytes);
-#else
-  const uchar* const data = in.data;
-  const uint l = qFromBigEndian<uint>(data + 0);
-  const ushort w1 = qFromBigEndian<ushort>(data + 4);
-  const ushort w2 = qFromBigEndian<ushort>(data + 6);
-
-  return QUuid(l, w1, w2, data[8], data[9], data[10], data[11],
-               data[12], data[13], data[14], data[15]);
-#endif
 }
 
 #else
@@ -65,9 +54,9 @@ QUuid qtUuid(const kwiver::vital::uid& in)
   const auto& bytes = qtBytes(in.value());
   const auto result = QUuid{bytes};
   if (!result.isNull())
-    {
+  {
     return result;
-    }
+  }
 
   // TODO build UUID from hash of input?
   return result;
@@ -102,17 +91,17 @@ QTE_IMPLEMENT_D_FUNC(vdfTrackOracleTrackDataSource)
 //-----------------------------------------------------------------------------
 vdfTrackOracleTrackDataSourcePrivate::vdfTrackOracleTrackDataSourcePrivate(
   vdfTrackOracleTrackDataSource* q,
-  vdfTrackOracleTrackDataSourcePrivate::FileFormat* format) :
-  Format(format),
-  TrackSourceInterface(q->addInterface<vdfTrackSource>())
+  vdfTrackOracleTrackDataSourcePrivate::FileFormat* format)
+  : Format{format},
+    TrackSourceInterface{q->addInterface<vdfTrackSource>()}
 {
 }
 
 //-----------------------------------------------------------------------------
 vdfTrackOracleTrackDataSource::vdfTrackOracleTrackDataSource(
-  const QUrl& uri, track_oracle::file_format_base* format, QObject* parent) :
-  vdfThreadedArchiveSource(uri, parent),
-  d_ptr(new vdfTrackOracleTrackDataSourcePrivate(this, format))
+  const QUrl& uri, track_oracle::file_format_base* format, QObject* parent)
+  : vdfThreadedArchiveSource{uri, parent},
+    d_ptr{new vdfTrackOracleTrackDataSourcePrivate{this, format}}
 {
 }
 
@@ -134,20 +123,20 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
   std::vector<track_oracle::element_descriptor> missingFieldDescriptors;
 
   if (!d->Format->read(fileName, tracks, schema, missingFieldDescriptors))
-    {
+  {
     qWarning() << "error reading tracks from" << uri;
     return false;
-    }
+  }
 
   // Are we missing any fields?
   if (missingFieldDescriptors.size() > 0)
-    {
+  {
     // Build set of missing fields
     QSet<QString> missingFields;
     for (size_t n = 0, k = missingFieldDescriptors.size(); n < k; ++n)
-      {
+    {
       missingFields.insert(qtString(missingFieldDescriptors[n].name));
-      }
+    }
 
     // Remove fields that are allowed to be missing
     // NOTE: It is okay for any one of these fields to be missing, but some
@@ -167,21 +156,21 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
 
     // Check if any mandatory fields are missing
     if (!missingFields.empty())
-      {
+    {
       qWarning() << "unable to read tracks from" << uri
                  << "due to missing fields" << missingFields;
       return false;
-      }
     }
+  }
 
   // Process the tracks
   visgui_track_type oracle;
   bool good = false, error = false;
   for (size_t n = 0, k = tracks.size(); n < k; ++n)
-    {
+  {
     const auto& trackHandle = tracks[n];
     if (trackHandle.is_valid())
-      {
+    {
       // Set oracle object to track instance referenced by handle
       oracle(trackHandle);
 
@@ -199,10 +188,10 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
         track_oracle::track_oracle_core::get_frames(trackHandle);
 
       for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
-        {
+      {
         const auto& frameHandle = frameHandles[n];
         if (frameHandle.is_valid())
-          {
+        {
           vvTrackState state;
 
           // Set oracle object to frame instance referenced by handle
@@ -210,29 +199,29 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
 
           // Extract timestamp
           if (oracle.timestamp_usecs.exists())
-            {
+          {
             state.TimeStamp.Time = oracle.timestamp_usecs();
-            }
+          }
           if (oracle.frame_number.exists())
-            {
+          {
             state.TimeStamp.FrameNumber = oracle.frame_number();
-            }
+          }
           if (!state.TimeStamp.IsValid())
-            {
+          {
             // Don't add state if timestamp is not valid
             error = true;
             continue;
-            }
+          }
 
           if (!oracle.bounding_box.exists() && !oracle.obj_location.exists())
-            {
+          {
             // Don't add state if it has no image location information
             error = true;
             continue;
-            }
+          }
 
           if (oracle.bounding_box.exists())
-            {
+          {
             // Extract bounding box
             const vgl_box_2d<double>& vglBox = oracle.bounding_box();
             vvImageBoundingBox& box = state.ImageBox;
@@ -242,80 +231,80 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
             box.BottomRight.Y = vglBox.max_y();
 
             // Copy bounding box to object
-            state.ImageObject.push_back(
-              vvImagePointF(box.TopLeft.X, box.TopLeft.Y));
-            state.ImageObject.push_back(
-              vvImagePointF(box.BottomRight.X, box.TopLeft.Y));
-            state.ImageObject.push_back(
-              vvImagePointF(box.BottomRight.X, box.BottomRight.Y));
-            state.ImageObject.push_back(
-              vvImagePointF(box.TopLeft.X, box.BottomRight.Y));
-            }
+            state.ImageObject.emplace_back(
+              box.TopLeft.X, box.TopLeft.Y);
+            state.ImageObject.emplace_back(
+              box.BottomRight.X, box.TopLeft.Y);
+            state.ImageObject.emplace_back(
+              box.BottomRight.X, box.BottomRight.Y);
+            state.ImageObject.emplace_back(
+              box.TopLeft.X, box.BottomRight.Y);
+          }
 
           if (oracle.obj_location.exists())
-            {
+          {
             // Extract image location
-            const vgl_point_2d<double>& vglPoint = oracle.obj_location();
+            const auto& vglPoint = oracle.obj_location();
             state.ImagePoint.X = vglPoint.x();
             state.ImagePoint.Y = vglPoint.y();
-            }
+          }
 
           if (oracle.world_location.exists())
-            {
+          {
             // Extract world location
-            const vgl_point_3d<double>& p = oracle.world_location();
+            const auto& p = oracle.world_location();
             state.WorldLocation =
-              vgGeocodedCoordinate(p.y(), p.x(), vgGeodesy::LatLon_Wgs84);
+              vgGeocodedCoordinate{p.y(), p.x(), vgGeodesy::LatLon_Wgs84};
             if (oracle.world_gcs.exists() && oracle.world_gcs() > 0)
-              {
+            {
               state.WorldLocation.GCS = oracle.world_gcs();
-              }
             }
+          }
 
           if (oracle.state_flags.exists())
-            {
+          {
             auto ai = oracle.state_flags().get_flags();
             if (!ai.empty())
-              {
+            {
               vdfTrackAttributes& ao =
                 *attrs.insert(state.TimeStamp, vdfTrackAttributes());
 
-              foreach_iter(auto, iter, ai)
-                {
+              for (auto iter : qtEnumerate(ai))
+              {
                 // Distinguish between old-style attributes and new-style
                 // key/value pairs: if the value is empty, it's an old-style
                 // attribute
                 if (iter->second.empty())
-                  {
+                {
                   ao.insert(qtString(iter->first));
-                  }
                 }
               }
             }
+          }
 
           // Add state
           states.append(state);
-          }
         }
+      }
 
       // Emit track (but skip empty tracks)
       if (!states.isEmpty())
-        {
+      {
         good = true;
         emit d->TrackSourceInterface->trackUpdated(id, states, attrs, data);
         emit d->TrackSourceInterface->trackClosed(id);
-        }
       }
     }
+  }
 
   // Done; test if we got any usable data and (unless the file simply had no
   // data) spit out a warning otherwise
   if (error && !good)
-    {
+  {
     qWarning().nospace()
       << "error reading tracks from " << uri
       << ": none of the oracle frames contained usable data";
     return false;
-    }
+  }
   return true;
 }
