@@ -248,6 +248,11 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
             state.ImagePoint.X = vglPoint.x();
             state.ImagePoint.Y = vglPoint.y();
           }
+          else
+          {
+            state.ImagePoint.X = qQNaN();
+            state.ImagePoint.Y = qQNaN();
+          }
 
           if (oracle.world_location.exists())
           {

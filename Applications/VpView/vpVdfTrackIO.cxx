@@ -67,6 +67,18 @@ void addPoint(std::vector<float>& points, float x, float y, float z = 0.0f)
   points.push_back(z);
 }
 
+//-----------------------------------------------------------------------------
+QPointF toQPointF(vvImagePoint const& p)
+{
+  return QPoint{p.X, p.Y};
+}
+
+//-----------------------------------------------------------------------------
+QRectF toQRectF(vvImageBoundingBox const& box)
+{
+  return {toQPointF(box.TopLeft), toQPointF(box.BottomRight)};
+}
+
 } // namespace <anonymous>
 
 QTE_IMPLEMENT_D_FUNC(vpVdfTrackIO)
@@ -280,6 +292,12 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
       // Extract point location
       double p[4] = {s.ImagePoint.X, s.ImagePoint.Y, 0.0, 1.0};
+      if (!qIsFinite(p[0]) || !qIsFinite(p[1]))
+      {
+        auto const& ep = this->EstimateTrackPoint(toQRectF(s.ImageBox));
+        p[0] = ep.x();
+        p[1] = ep.y();
+      }
       if (this->StorageMode == TSM_InvertedImageCoords)
       {
         p[1] = this->GetImageHeight() - p[1];
