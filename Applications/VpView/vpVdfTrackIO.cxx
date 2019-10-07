@@ -176,10 +176,8 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
       QScopedPointer<vdfDataSource> source{
         vdfSourceService::createArchiveSource(trackUri)};
 
-      if (source)
+      if (source && reader.setSource(source.data()))
       {
-        reader.setSource(source.data());
-
         // Read tracks
         if (!reader.exec() && reader.failed())
         {

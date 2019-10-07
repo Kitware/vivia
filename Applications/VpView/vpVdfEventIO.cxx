@@ -95,10 +95,8 @@ bool vpVdfEventIO::ReadEvents()
       QScopedPointer<vdfDataSource> source{
         vdfSourceService::createArchiveSource(eventUri)};
 
-      if (source)
+      if (source && reader.setSource(source.data()))
       {
-        reader.setSource(source.data());
-
         // Read events
         if (!reader.exec() && reader.failed())
         {
