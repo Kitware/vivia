@@ -13,8 +13,8 @@
 #include <vtkVgTrackModel.h>
 
 #include <vdfDataSource.h>
-#include <vdfSourceService.h>
 #include <vdfEventReader.h>
+#include <vdfSourceService.h>
 
 #include <vgCheckArg.h>
 
@@ -67,6 +67,7 @@ bool vpVdfEventIO::ReadEvents()
   QTE_D();
 
   vdfEventReader reader;
+  auto const& desiredSources = reader.desiredSources();
 
   auto* const trackModel = this->EventModel->GetTrackModel();
   CHECK_ARG(trackModel, false);
@@ -93,7 +94,7 @@ bool vpVdfEventIO::ReadEvents()
       // Construct the event source and event reader
       const auto& eventUri = QUrl::fromLocalFile(filePath);
       QScopedPointer<vdfDataSource> source{
-        vdfSourceService::createArchiveSource(eventUri)};
+        vdfSourceService::createArchiveSource(eventUri, desiredSources)};
 
       if (source && reader.setSource(source.data()))
       {
@@ -110,7 +111,7 @@ bool vpVdfEventIO::ReadEvents()
   {
     // Construct the event source and event reader
     QScopedPointer<vdfDataSource> source{
-      vdfSourceService::createArchiveSource(d->EventsUri)};
+      vdfSourceService::createArchiveSource(d->EventsUri, desiredSources)};
 
     if (source)
     {

@@ -79,6 +79,12 @@ bool vdfTrackReader::hasData() const
 }
 
 //-----------------------------------------------------------------------------
+QList<const QMetaObject*> vdfTrackReader::desiredSources() const
+{
+  return {&vdfTrackSource::staticMetaObject};
+}
+
+//-----------------------------------------------------------------------------
 QHash<vdfTrackId, vdfTrackReader::Track> vdfTrackReader::tracks() const
 {
   QTE_D_CONST(vdfTrackReader);

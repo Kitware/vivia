@@ -35,6 +35,9 @@ public:
   /// \copydoc vdfDataReader::hasData
   virtual bool hasData() const override;
 
+  /// \copydoc vdfDataReader::desiredSources
+  virtual QList<const QMetaObject*> desiredSources() const override;
+
   /// Get events that have been read.
   ///
   /// This returns a collection of events that have been read by this reader.

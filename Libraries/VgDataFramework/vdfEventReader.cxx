@@ -66,6 +66,12 @@ bool vdfEventReader::hasData() const
 }
 
 //-----------------------------------------------------------------------------
+QList<const QMetaObject*> vdfEventReader::desiredSources() const
+{
+  return {&vdfEventSource::staticMetaObject};
+}
+
+//-----------------------------------------------------------------------------
 QList<vvEvent> vdfEventReader::events() const
 {
   QTE_D();

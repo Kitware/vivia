@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -54,7 +54,8 @@ QList<vdfArchivePluginInfo> vdfSourceService::archivePluginInfo()
 }
 
 //-----------------------------------------------------------------------------
-vdfDataSource* vdfSourceService::createArchiveSource(const QUrl& archive)
+vdfDataSource* vdfSourceService::createArchiveSource(
+  const QUrl& archive, const QList<QMetaObject const*>& desiredInterfaces)
 {
   vdfArchiveSourceInterface::SourceCreateMode mode =
     vdfArchiveSourceInterface::QuickTest;
@@ -67,7 +68,7 @@ vdfDataSource* vdfSourceService::createArchiveSource(const QUrl& archive)
              ssInstance()->ArchiveSources)
       {
       vdfDataSource* const source =
-        archiveSource->createArchiveSource(archive, mode);
+        archiveSource->createArchiveSource(archive, desiredInterfaces, mode);
       if (source)
         {
         return source;

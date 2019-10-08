@@ -142,3 +142,9 @@ bool vdfDataReader::exec()
   // We are successful if data was received
   return !this->failed() && this->hasData();
 }
+
+//-----------------------------------------------------------------------------
+QList<const QMetaObject*> vdfDataReader::desiredSources() const
+{
+  return {};
+}

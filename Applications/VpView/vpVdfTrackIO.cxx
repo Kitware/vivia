@@ -147,6 +147,8 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   QTE_D();
 
   vdfTrackReader reader;
+  const auto& desiredSources = reader.desiredSources();
+
   QStringList supplementalFileBases;
   vpFileTrackReader::TrackRegionMap trackRegionMap;
 
@@ -174,7 +176,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
       // Construct the track source and track reader
       const auto& trackUri = QUrl::fromLocalFile(filePath);
       QScopedPointer<vdfDataSource> source{
-        vdfSourceService::createArchiveSource(trackUri)};
+        vdfSourceService::createArchiveSource(trackUri, desiredSources)};
 
       if (source && reader.setSource(source.data()))
       {
@@ -193,7 +195,7 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   {
     // Construct the track source and track reader
     QScopedPointer<vdfDataSource> source{
-      vdfSourceService::createArchiveSource(d->TracksUri)};
+      vdfSourceService::createArchiveSource(d->TracksUri, desiredSources)};
 
     if (source)
     {
