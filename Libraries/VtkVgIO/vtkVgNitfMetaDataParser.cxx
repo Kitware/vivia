@@ -86,7 +86,7 @@ bool vtkVgNitfMetaDataParser::ParseDateTime(
   int mins = 0;
   int secs = 0;
   // Milliseconds
-  int ms = 0;
+  int ms = -1;
 
   years = ConvertToInt(std::string(nitfTime, 0, 4)) - 1900;
   months = ConvertToInt(std::string(nitfTime, 4, 2)) - 1;
@@ -108,12 +108,44 @@ bool vtkVgNitfMetaDataParser::ParseDateTime(
         std::string msstr;
         vtkVgNitfEngrda nitfEngdra;
         vtkVgNitfMetaDataParser::ParseEngrda(tokens[1], nitfEngdra);
-        nitfEngdra.Get("milliseconds")->GetData(msstr);
-
-        if (!msstr.empty())
+        auto mseconds = nitfEngdra.Get("milliseconds");
+        if (mseconds)
           {
-          ms = ConvertToInt(msstr);
+          mseconds->GetData(msstr);
+
+          if (!msstr.empty())
+            {
+            ms = ConvertToInt(msstr);
+            }
           }
+        }
+      }
+    }
+
+  // If ms data not read from ENGRDA, look for it in the NITF_IMAGE_COMMENTS
+  if (ms < 0)
+    {
+    for (size_t i = 0; i < mdata.size(); ++i)
+      {
+      size_t found = mdata[i].find("NITF_IMAGE_COMMENTS");
+      if (found != std::string::npos)
+        {
+        tokens = vgStringUtils::Split(mdata[i], ' ');
+
+        // Format: "     COLLECTION TIMESTAMP: 20150731184301.043659    UTC"
+        for (int i = 0; i < tokens.size() - 2; ++i)
+          {
+          if (tokens[i] == "COLLECTION" && tokens[i + 1] == "TIMESTAMP:")
+            {
+            // Split date/time in secs from data after the decimal point
+            tokens = vgStringUtils::Split(tokens[i + 2], '.');
+            // Make sure we have exactly 3 characters
+            tokens[1].resize(3, '0');
+            ms = ConvertToInt(tokens[1]);
+            }
+          }
+
+        break;
         }
       }
     }
@@ -124,7 +156,7 @@ bool vtkVgNitfMetaDataParser::ParseDateTime(
 
   boost::posix_time::ptime pt (boost::gregorian::date_from_tm(utm),
     bt::hours(hrs) + bt::minutes(mins) + bt::seconds(secs) +
-    bt::milliseconds(ms));
+    bt::milliseconds(ms > -1 ? ms : 0));
 
   // To micoseconds
   time.SetTime(static_cast<double>(Convert(pt)) * 1e3);
