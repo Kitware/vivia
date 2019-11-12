@@ -1143,7 +1143,7 @@ void vpViewCore::updateTrack(
 #ifdef VISGUI_USE_KWIVER
   for (auto state : *kwiverTrack | kv::as_object_track)
     {
-    if (!state || !state->detection)
+    if (!state || !state->detection())
       {
       // Bad state (shouldn't happen, but better safe than SEGV'd)
       continue;
@@ -1170,7 +1170,7 @@ void vpViewCore::updateTrack(
 
     // Replace track point
     auto narrow = [](double x){ return static_cast<float>(x); };
-    const auto& bbox = state->detection->bounding_box();
+    const auto& bbox = state->detection()->bounding_box();
     const auto points = std::array<float, 12>{{
       narrow(bbox.min_x()), narrow(videoHeight - bbox.min_y()), 0.0f,
       narrow(bbox.min_x()), narrow(videoHeight - bbox.max_y()), 0.0f,
@@ -1185,7 +1185,7 @@ void vpViewCore::updateTrack(
 
     if (updateToc)
       {
-      if (auto dot = state->detection->type())
+      if (auto dot = state->detection()->type())
         {
         std::map<int, double> toc;
         for (const auto& c : *dot)
