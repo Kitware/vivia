@@ -76,7 +76,7 @@ endif()
 
 # Needed for GDAL readers
 if(VISGUI_ENABLE_GDAL)
-  list(APPEND vgSdkTargets vtkVgIO)
+  list(APPEND vgSdkTargets vtkVgIO ${GDAL_LIBRARY})
 endif()
 
 vg_include_library_sdk_directories(${vgSdkTargets} vvData)

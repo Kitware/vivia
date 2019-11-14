@@ -138,6 +138,7 @@ void vtkGDALReader::vtkGDALReaderInternal::ReadMetaData(
   this->ReleaseData();
 
   this->GDALData = (GDALDataset*) GDALOpen(fileName.c_str(), GA_ReadOnly);
+  std::cout << "Using GDAL reader to open file: " << fileName << std::endl;
 
   if (this->GDALData == NULL)
     {
