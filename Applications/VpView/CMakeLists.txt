@@ -304,7 +304,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 
 if(VISGUI_ENABLE_KWIVER)
   target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-    kwiver::sprokit_tools
+    kwiver::sprokit_pipeline
     kwiver::kwiver_adapter
     kwiver::kwiver_algo_vxl
     kwiver::kwiver_algo_core
