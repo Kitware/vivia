@@ -44,7 +44,7 @@ vg_add_qt_plugin(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
-  kwiver::sprokit_tools
+  kwiver::sprokit_pipeline
   kwiver::kwiver_adapter
   kwiver::vital_vpm
   kwiver::vital
