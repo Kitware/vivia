@@ -189,7 +189,7 @@ vvTrackState fromKwiver(kwiver::vital::object_track_state const& in)
 
   out.TimeStamp.FrameNumber = in.frame();
 
-  auto const& dp = in.detection;
+  auto const& dp = in.detection();
   if (dp)
   {
     auto const& d = *dp;
@@ -216,9 +216,9 @@ vvTrack fromKwiver(kwiver::vital::track const& in)
     out.Trajectory.insert(fromKwiver(os));
 
     // Store detected type for later application
-    if (os.detection)
+    if (os.detection())
     {
-      auto const& t = os.detection->type();
+      auto const& t = os.detection()->type();
       type = (t ? t.get() : type);
     }
   }
