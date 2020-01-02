@@ -1227,12 +1227,14 @@ bool vpViewCore::splitTrack(int trackId, int newTrackId, int session)
   // Trim beginning of new track up to (but not including) the split frame
   while (newTrack->GetStartFrame() < this->CoreTimeStamp)
     {
+    project->TrackModel->RemoveKeyframe(track->GetId(), track->GetStartFrame());
     newTrack->DeletePoint(newTrack->GetStartFrame());
     }
 
   // Trim end of the original track back to (but not including) the split frame
   while (track->GetEndFrame() > this->CoreTimeStamp)
     {
+    project->TrackModel->RemoveKeyframe(track->GetId(), track->GetEndFrame());
     track->DeletePoint(track->GetEndFrame());
     }
 
@@ -1333,20 +1335,32 @@ bool vpViewCore::mergeTracks(int trackA, int trackB, int session)
 //-----------------------------------------------------------------------------
 vtkVgTrack* vpViewCore::cloneTrack(int trackId, int newTrackId, int session)
 {
-  vtkVgTrack* track = this->Projects[session]->TrackModel->GetTrack(trackId);
+  vtkVpTrackModel* trackModel = this->Projects[session]->TrackModel;
+  vtkVgTrack* track = trackModel->GetTrack(trackId);
   if (!track)
     {
     return 0;
     }
 
   // make sure id is available
-  if (this->Projects[session]->TrackModel->GetTrack(newTrackId))
+  if (trackModel->GetTrack(newTrackId))
     {
     return 0;
     }
 
   vtkVgTrack* newTrack = this->makeTrack(newTrackId, session);
   newTrack->CopyData(track);
+  vtkVgTimeStamp priorFrame = newTrack->GetEndFrame();
+  vtkVgTimeStamp currentFrame;
+  do
+    {
+    currentFrame = priorFrame;
+    if (trackModel->GetIsKeyframe(trackId, currentFrame))
+      {
+      trackModel->AddKeyframe(newTrackId, currentFrame);
+      }
+    } while (newTrack->GetPriorFramePtId(currentFrame, priorFrame) != -1);
+
   return newTrack;
 }
 

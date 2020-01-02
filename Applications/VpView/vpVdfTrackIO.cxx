@@ -275,6 +275,7 @@ bool vpVdfTrackIO::ReadTracks()
 
       track->InsertNextPoint(ts, p, s.WorldLocation,
                              shell.size() / 3, shell.data());
+      this->TrackModel->AddKeyframe(track->GetId(), ts);
       }
 
     track->Close();
