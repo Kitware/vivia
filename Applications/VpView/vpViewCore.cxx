@@ -8882,7 +8882,7 @@ void vpViewCore::executeEmbeddedPipeline(
         const auto nextId = trackModel->GetNextAvailableId();
 
         auto* const newTrack = vtkVgTrack::New();
-        newTrack->InterpolateMissingPointsOnInsertOn();
+        newTrack->InterpolateMissingPointsOnInsertOff();
         newTrack->SetId(nextId);
         newTrack->SetPoints(trackModel->GetPoints());
 
