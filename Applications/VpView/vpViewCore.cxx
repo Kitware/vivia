@@ -1068,7 +1068,8 @@ void vpViewCore::improveTrack(int trackId, int session)
 
   // Add the new states to the track
   const auto& timeMap = this->FrameMap->timeMap();
-  this->updateTrack(track, improvedTrack, timeMap, videoHeight);
+  this->updateTrack(project->TrackModel, track, improvedTrack, timeMap,
+	                videoHeight);
 
   project->TrackModel->Modified();
   emit this->objectInfoUpdateNeeded();
@@ -1135,7 +1136,7 @@ void vpViewCore::removeUnusedTrackTypes(const QSet<QString>& typesToKeep)
 }
 
 //-----------------------------------------------------------------------------
-void vpViewCore::updateTrack(
+void vpViewCore::updateTrack(vtkVpTrackModel* trackModel,
   vtkVgTrack* track, const std::shared_ptr<kv::track>& kwiverTrack,
   const QMap<int, vgTimeStamp>& timeMap,
   double videoHeight, bool updateToc)
@@ -1182,6 +1183,7 @@ void vpViewCore::updateTrack(
     center[1] = videoHeight - center[1];
 
     track->SetPoint(ts, center.data(), {}, 4, points.data());
+	trackModel->AddKeyframe(track->GetId(), ts);
 
     if (updateToc)
       {
@@ -8890,7 +8892,8 @@ void vpViewCore::executeEmbeddedPipeline(
         vpTrackIO::GetDefaultTrackColor(nextId, color);
         newTrack->SetColor(color);
 
-        this->updateTrack(newTrack, kwiverTrack, timeMap, videoHeight, true);
+        this->updateTrack(trackModel, newTrack, kwiverTrack, timeMap,
+			              videoHeight, true);
 
         trackModel->AddTrack(newTrack);
         newTrack->FastDelete();

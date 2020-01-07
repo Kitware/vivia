@@ -249,7 +249,8 @@ public:
   int getTrackTypeIndex(const char* typeName);
   void removeUnusedTrackTypes(const QSet<QString>& typesToKeep = {});
 
-  void updateTrack(vtkVgTrack*, const std::shared_ptr<kwiver::vital::track>&,
+  void updateTrack(vtkVpTrackModel*, vtkVgTrack*,
+	               const std::shared_ptr<kwiver::vital::track>&,
                    const QMap<int, vgTimeStamp>& timeMap,
                    double videoHeight, bool updateToc = false);
 
