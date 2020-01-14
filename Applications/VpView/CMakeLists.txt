@@ -59,6 +59,7 @@ include_directories(
 
 set(vgSdkTargets
   vgCommon
+  vgVideo
   vgVtkVideo
   qtExtensions
   qtVgCommon
@@ -66,6 +67,7 @@ set(vgSdkTargets
   vtkVgCore
   vtkVgModelView
   vtkVgQtUtil
+  vtkVgVideo
   vgDataFramework
 )
 
@@ -244,6 +246,7 @@ endif()
 if(VISGUI_ENABLE_KWIVER)
   list(APPEND vpViewSources
     vpKwiverEmbeddedPipelineWorker.cxx
+    vpKwiverImageLoader.cxx
     vpKwiverImproveTrackWorker.cxx
     vpKwiverVideoSource.cxx
   )

@@ -20,7 +20,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="datasetLabel">
      <property name="toolTip">
-      <string>Path to the project imagery. This may be an image list file, or a glob expression of image files.</string>
+      <string>Path to the project imagery. This may be an image list file, a KWA index file, or a glob expression of image files.</string>
      </property>
      <property name="text">
       <string>&amp;Imagery</string>
@@ -38,7 +38,7 @@
      <item>
       <widget class="QLineEdit" name="dataset">
        <property name="toolTip">
-        <string>Path to the project imagery. This may be an image list file, or a glob expression of image files.</string>
+        <string>Path to the project imagery. This may be an image list file, a KWA index file, or a glob expression of image files.</string>
        </property>
       </widget>
      </item>
@@ -144,7 +144,7 @@
   </layout>
   <action name="actionDatasetPickFile">
    <property name="text">
-    <string>Pick &amp;File...</string>
+    <string>Pick &amp;Image List / KWA...</string>
    </property>
   </action>
   <action name="actionDatasetPickDirectory">

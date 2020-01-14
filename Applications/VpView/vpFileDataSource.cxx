@@ -6,6 +6,8 @@
 
 #include "vpFileDataSource.h"
 
+#include <vgKwaUtil.h>
+
 #include <qtNaturalSort.h>
 
 #include <QDebug>
@@ -14,11 +16,26 @@
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QStringList>
+#include <QTextStream>
 
 #include <algorithm>
 
 namespace // anonymous
 {
+
+//-----------------------------------------------------------------------------
+QByteArray readLine(QFile& f)
+{
+  auto result = f.readLine();
+
+  const auto l = result.length();
+  if (l > 0 && result[l-1] == '\n')
+  {
+    result = result.left(l - 1);
+  }
+
+  return result;
+}
 
 //-----------------------------------------------------------------------------
 QStringList glob(const QDir& base, const QString& pattern)
@@ -43,6 +60,9 @@ QStringList glob(const QDir& base, const QString& pattern)
 class vpFileDataSourcePrivate
 {
 public:
+  void readImageList(QFile& file, const QDir& baseDir);
+  void readKwaIndex(QFile& file);
+
   QString DataSetSpecifier;
   QStringList DataFiles;
 
@@ -51,6 +71,98 @@ public:
 };
 
 QTE_IMPLEMENT_D_FUNC(vpFileDataSource)
+
+//-----------------------------------------------------------------------------
+void vpFileDataSourcePrivate::readImageList(QFile& file, const QDir& baseDir)
+{
+  while (!file.atEnd())
+  {
+    const auto line = readLine(file);
+    if (line.isEmpty())
+    {
+      continue;
+    }
+
+    const auto path = baseDir.absoluteFilePath(QString::fromUtf8(line));
+    if (!QFileInfo{path}.exists())
+    {
+      qWarning() << "Image data file" << path << "does not exist";
+      continue;
+    }
+
+    qDebug() << "Archiving" << path;
+    this->DataFiles.append(path);
+  }
+}
+
+//-----------------------------------------------------------------------------
+void vpFileDataSourcePrivate::readKwaIndex(QFile& file)
+{
+  const auto& versionLine = readLine(file);
+
+  // Read index version
+  bool okay = true;
+  const auto version = versionLine.toInt(&okay);
+  if (!okay)
+  {
+    qWarning().nospace()
+      << "Unable to read data source " << this->DataSetSpecifier
+      << ": " << versionLine << " is not a valid KWA version number";
+    return;
+  }
+  if (version < 1 || version > 4)
+  {
+    qWarning().nospace()
+      << "Unable to read data source " << this->DataSetSpecifier
+      << ": KWA version " << version << " is not a supported";
+    return;
+  }
+
+  // Read header
+  auto dataName = QString::fromUtf8(readLine(file));
+  if (!vgKwaUtil::resolvePath(dataName, this->DataSetSpecifier, "data"))
+  {
+    return;
+  }
+  if (version > 1)
+  {
+    if (version > 2)
+    {
+      // Read name of .meta file
+      file.readLine();
+    }
+
+    // Read mission ID
+    file.readLine();
+
+    if (version > 3)
+    {
+      // Read stream ID
+      file.readLine();
+    }
+  }
+
+  // Read frames
+  while (!file.atEnd())
+  {
+    // Read index line
+    qint64 time;
+    quint64 offset;
+
+    auto line = QString::fromLatin1(readLine(file));
+    QTextStream lineStream{&line};
+    lineStream >> time >> offset;
+
+    if (lineStream.status() != QTextStream::Ok)
+    {
+      qWarning() << "Failed to parse KWA index entry" << line;
+      continue;
+    }
+
+    qDebug() << "Archiving" << dataName << offset;
+    this->DataFiles.append(dataName + "@" + QString::number(offset));
+  }
+}
 
 //-----------------------------------------------------------------------------
 vpFileDataSource::vpFileDataSource() : d_ptr{new vpFileDataSourcePrivate}
@@ -152,23 +264,13 @@ void vpFileDataSource::update()
     QFile file{d->DataSetSpecifier};
     if (file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
-      while (!file.atEnd())
+      if (d->DataSetSpecifier.toLower().endsWith(".index"))
       {
-        const auto line = file.readLine();
-        if (line.isEmpty())
-        {
-          continue;
-        }
-
-        const auto path = baseDir.absoluteFilePath(QString::fromUtf8(line));
-        if (!QFileInfo{path}.exists())
-        {
-          qWarning() << "Image data file" << path << "does not exist";
-          continue;
-        }
-
-        qDebug() << "Archiving" << path;
-        d->DataFiles.append(path);
+        d->readKwaIndex(file);
+      }
+      else
+      {
+        d->readImageList(file, baseDir);
       }
     }
     else

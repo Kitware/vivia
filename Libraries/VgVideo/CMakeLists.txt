@@ -23,6 +23,7 @@ set(vgVideoInstallHeaders
   vgImage.h
   vgKwaArchive.h
   vgKwaFrameMetadata.h
+  vgKwaUtil.h
   vgKwaVideoClip.h
   vgVideoBuffer.h
   vgVideoFramePtr.h

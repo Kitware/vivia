@@ -33,14 +33,13 @@ vpKwiverVideoSource::~vpKwiverVideoSource()
 void vpKwiverVideoSource::set_configuration(
   kv::config_block_sptr config)
 {
-  this->Loader.set_configuration(config);
 }
 
 //-----------------------------------------------------------------------------
 bool vpKwiverVideoSource::check_configuration(
   kv::config_block_sptr config) const
 {
-  return this->Loader.check_configuration(config);
+  return true;
 }
 
 //-----------------------------------------------------------------------------
