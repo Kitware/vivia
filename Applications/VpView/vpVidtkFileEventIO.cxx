@@ -1,12 +1,11 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
 #include "vpVidtkFileEventIO.h"
 
-#include "vpFileEventIOImpl.h"
 #include "vpVidtkFileReader.h"
 
 //-----------------------------------------------------------------------------
@@ -18,15 +17,16 @@ vpVidtkFileEventIO::vpVidtkFileEventIO(
   const std::map<unsigned int, vtkIdType>& sourceTrackIdToModelIdMap,
   vtkVgEventModel* eventModel,
   vtkVgEventTypeRegistry* eventTypes) :
-  vpVidtkEventIO(reader, eventMap, sourceEventIdToModelIdMap,
+  vpVidtkEventIO{reader, eventMap, sourceEventIdToModelIdMap,
                  trackMap, sourceTrackIdToModelIdMap,
-                 eventModel, eventTypes)
+                 eventModel, eventTypes},
+  FileReader{this}
 {}
 
 //-----------------------------------------------------------------------------
 bool vpVidtkFileEventIO::ReadEventLinks()
 {
-  return vpFileEventIOImpl::ReadEventLinks(
-           this, static_cast<const vpVidtkFileReader&>(
-                   this->GetReader()).GetEventLinksFileName());
+  const auto& reader =
+    static_cast<const vpVidtkFileReader&>(this->GetReader());
+  return this->FileReader.ReadEventLinks(reader.GetEventLinksFileName());
 }

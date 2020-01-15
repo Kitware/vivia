@@ -9,7 +9,7 @@
 
 #include "vpTrackIO.h"
 
-#include "vpFileTrackIOImpl.h"
+#include "vpFileTrackReader.h"
 
 #include <tracking_data/track.h>
 
@@ -51,9 +51,9 @@ public:
   virtual vtkIdType GetModelTrackId(unsigned int sourceId) const;
 
 protected:
-  bool ReadTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
+  bool ReadTracks(const vpFileTrackReader::TrackRegionMap* trackRegionMap);
 
-  bool ImportTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+  bool ImportTracks(const vpFileTrackReader::TrackRegionMap* trackRegionMap,
                     vtkIdType idsOffset, float offsetX, float offsetY);
 
   const vpVidtkReader& GetReader() const { return this->Reader; }
@@ -62,9 +62,9 @@ protected:
 
 private:
   vtkIdType ComputeNumberOfPoints(
-    const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
+    const vpFileTrackReader::TrackRegionMap* trackRegionMap);
   void ReadTrack(const vidtk::track_sptr vidtkTrack,
-                 const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+                 const vpFileTrackReader::TrackRegionMap* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
                  bool update = false,
                  unsigned int updateStartFrame = 0,

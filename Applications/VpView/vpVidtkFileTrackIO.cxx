@@ -6,7 +6,6 @@
 
 #include "vpVidtkFileTrackIO.h"
 
-#include "vpFileTrackIOImpl.h"
 #include "vpVidtkFileReader.h"
 
 //-----------------------------------------------------------------------------
@@ -20,9 +19,10 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
   vtkVgTrackTypeRegistry* trackTypes,
   vtkMatrix4x4* geoTransform,
   vpFrameMap* frameMap) :
-  vpVidtkTrackIO(reader, trackMap, sourceIdToModelIdMap, trackModel,
+  vpVidtkTrackIO{reader, trackMap, sourceIdToModelIdMap, trackModel,
                  storageMode, timeStampMode, trackTypes, geoTransform,
-                 frameMap)
+                 frameMap},
+  FileReader{this}
 {}
 
 //-----------------------------------------------------------------------------
@@ -31,16 +31,16 @@ bool vpVidtkFileTrackIO::ReadTracks()
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
   const auto& tracksFileName = reader.GetTracksFileName();
 
-  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
-  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
-                                     trackRegionMap);
+  vpFileTrackReader::TrackRegionMap trackRegionMap;
+  this->FileReader.ReadRegionsFile(
+    tracksFileName, 0.0f, 0.0f, trackRegionMap);
 
   if (!vpVidtkTrackIO::ReadTracks(&trackRegionMap))
     {
     return false;
     }
 
-  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  this->FileReader.ReadTypesFile(tracksFileName);
 
   return true;
 }
@@ -52,9 +52,9 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
   const auto& tracksFileName = reader.GetTracksFileName();
 
-  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
-  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
-                                     trackRegionMap);
+  vpFileTrackReader::TrackRegionMap trackRegionMap;
+  this->FileReader.ReadRegionsFile(
+    tracksFileName, offsetX, offsetY, trackRegionMap);
 
   if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, idsOffset,
                                     offsetX, offsetY))
@@ -62,7 +62,7 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
     return false;
     }
 
-  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  this->FileReader.ReadTypesFile(tracksFileName);
 
   return true;
 }
@@ -70,7 +70,7 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
 //-----------------------------------------------------------------------------
 bool vpVidtkFileTrackIO::ReadTrackTraits()
 {
-  return vpFileTrackIOImpl::ReadTrackTraits(
-           this, static_cast<const vpVidtkFileReader&>(
-                   this->GetReader()).GetTrackTraitsFileName());
+  const auto& reader =
+    static_cast<const vpVidtkFileReader&>(this->GetReader());
+  return this->FileReader.ReadTrackTraits(reader.GetTrackTraitsFileName());
 }
