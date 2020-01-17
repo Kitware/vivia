@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2020 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -257,8 +257,8 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
       if (region && !region->KeyFrame)
       {
-        // Since this is an interpolated frame, don't set it; the track will
-        // object will handle recomputing interpolated frames
+        // Since this is an interpolated frame, don't set it; the track object
+        // will handle recomputing interpolated frames
         // TODO - add option to track class to insert interpolated frames
         skippedInterpolationPointSinceLastInsert = true;
         continue;

@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2020 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -930,8 +930,8 @@ void vpVidtkTrackIO::ReadTrack(
     const auto* matchingFrame = getValue(matchingTrack, frameNumber);
     if (matchingFrame && !matchingFrame->KeyFrame)
       {
-      // Since this is an interpolated frame, don't set it; the track will
-      // object will handle recomputing interpolated frames
+      // Since this is an interpolated frame, don't set it; the track object
+      // will handle recomputing interpolated frames
       // TODO - add option to track class to insert interpolated frames
       skippedInterpolationPointSinceLastInsert = true;
       continue;
