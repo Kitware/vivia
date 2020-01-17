@@ -151,8 +151,8 @@ void vsVideoArchive::requestFrame(vgVideoSeekRequest request)
   QTE_D(vsVideoArchive);
 
   // Seek to the appropriate frame
-  vgVideoFramePtr frame =
-    d->Helper.updateFrame(d->Clip, request);
+  vgImage image;
+  vgVideoFramePtr frame = d->Helper.updateFrame(d->Clip, request, image);
 
   if (frame.isValid())
     {
@@ -160,7 +160,7 @@ void vsVideoArchive::requestFrame(vgVideoSeekRequest request)
     const vgKwaFrameMetadata metadata = d->Clip.metadataAt(frame.time());
 
     // Extract the pixels in VTK-usable format
-    vgVtkVideoFramePtr rframe(new vtkVgVideoFrame(vtkVgAdapt(*frame)));
+    vgVtkVideoFramePtr rframe(new vtkVgVideoFrame(vtkVgAdapt(image)));
 
     // Build the metadata and hand the frame to the caller
     rframe->MetaData = adaptMetadata(metadata);

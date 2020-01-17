@@ -185,7 +185,8 @@ void vsTrackTreeView::setSelectionModel(QItemSelectionModel* m)
 void vsTrackTreeView::itemActivated(const QModelIndex& index)
 {
   bool toEnd = (index.column() == vsTrackTreeModel::EndTimeColumn);
-  emit this->jumpToTrack(this->trackIdFromIndex(index), toEnd);
+  const auto& proxyIndex = this->proxyModel->mapToSource(index);
+  emit this->jumpToTrack(this->trackIdFromIndex(proxyIndex), toEnd);
 }
 
 //-----------------------------------------------------------------------------

@@ -459,7 +459,16 @@ menu, which is accessed by right clicking on a list item or list selection:
   :action:`view-zoom-target Focus on Target` is checked, the video view is also
   centered on the track's end position.
 
-.. TODO: document track start/stop following actions
+:icon:`target` Follow Track
+  This instructs vsPlay to emit a stream of updated geolocations for the
+  indicated track to its plugin interface. This may affect external processes
+  that are using the following information for their own purposes (e.g. if
+  vsPlay is connected to a sensor control interface).
+
+:icon:`target-cancel` Cancel Following
+  This cancels any automatic detection following that is being done. This may
+  affect external processes that are using the following information for their
+  own purposes (e.g. if vsPlay is connected to a sensor control interface).
 
 Double clicking on a track in the "End Time" column jumps to the end of the
 track; double clicking in any other column jumps to the start. A tool bar below

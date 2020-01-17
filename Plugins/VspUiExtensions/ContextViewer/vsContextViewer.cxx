@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -47,11 +47,13 @@
 
 // VTK includes
 #include <vtkMath.h>
+#include <vtkPoints.h>
 #include <vtkProp3DCollection.h>
-#include <vtkSmartPointer.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderedAreaPicker.h>
+#include <vtkSmartPointer.h>
 
 // QT includes
 #include <QApplication>
@@ -59,6 +61,7 @@
 #include <QHelpEvent>
 #include <QMenu>
 #include <QMessageBox>
+#include <QSettings>
 #include <QTimerEvent>
 #include <QToolTip>
 
@@ -115,6 +118,30 @@ vgPoint2d barycenter(const vgPolygon2d& points)
 }
 
 //-----------------------------------------------------------------------------
+vgGeocodedCoordinate barycenter(const vgGeocodedPoly& polygon)
+{
+  const auto& points = polygon.Coordinate;
+  const size_t k = points.size();
+
+  vgGeocodedCoordinate result(0.0, 0.0, k ? polygon.GCS : -1);
+
+  for (size_t i = 0; i < k; ++i)
+    {
+    const auto& point = points[i];
+    result.Northing += point.Northing;
+    result.Easting += point.Easting;
+    }
+
+  // This will incidentally make the result (NaN, NaN) if there were no input
+  // points (ki -> inf; 0 * ki -> NaN)... which is perfectly reasonable :-)
+  const double ki = 1.0 / k;
+  result.Northing *= ki;
+  result.Easting *= ki;
+
+  return result;
+}
+
+//-----------------------------------------------------------------------------
 vgGeocodedCoordinate barycenter(vtkVgVideoFrameCorners corners)
 {
   const double lat = 0.25 * (corners.LowerLeft.Latitude +
@@ -145,6 +172,12 @@ public:
     const vgPoint2d& stabPosition,
     const vgGeocodedCoordinate& geoPosition = vgGeocodedCoordinate());
 
+  vtkSmartPointer<vtkVgMarker> addMarker(
+    vtkIdType id, int type, const vtkVgTimeStamp& timeStamp,
+    const vgGeocodedPoly& geoRegion);
+
+  void finalizeMarker(vtkVgMarker* marker, vtkIdType id, int type);
+
   void setMarkerReadyPosition(
     vtkVgMarker* marker, const vgGeocodedCoordinate& gc);
 
@@ -153,6 +186,10 @@ public:
     vtkVgMarker* marker, const vtkVgTimeStamp& timeStamp,
     const vgPoint2d& stabCenter,
     const vgGeocodedCoordinate& geoCenter = vgGeocodedCoordinate());
+
+  void setMarkerReadyRegion(vtkVgMarker* marker,
+                            const vgGeocodedPoly& geoRegion);
+  void setMarkerRegion(vtkVgMarker* marker, const vgGeocodedPoly& geoRegion);
 
   void selectItemsOnContext();
   void pickItemOnContext();
@@ -186,6 +223,7 @@ public:
 protected:
   QTE_DECLARE_PUBLIC_PTR(vsContextViewer)
 
+  bool SceneDirty;
   bool RenderPending;
   bool ModifyingSelection;
 
@@ -207,6 +245,7 @@ protected:
   LabelInfoMap EventInfo;
 
   QHash<vtkVgMarker*, vgGeocodedCoordinate> UnresolvedMarkers;
+  QHash<vtkVgMarker*, vgGeocodedPoly> UnresolvedMarkerRegions;
 
   vsCore* const Core;
   vsScene* const Scene;
@@ -228,6 +267,7 @@ vsContextViewerPrivate::vsContextViewerPrivate(
   Core(core),
   Scene(scene)
 {
+  this->SceneDirty = false;
   this->RenderPending = false;
   this->ModifyingSelection = false;
 
@@ -280,6 +320,34 @@ vtkSmartPointer<vtkVgMarker> vsContextViewerPrivate::addMarker(
     return vtkSmartPointer<vtkVgMarker>();
     }
 
+  this->finalizeMarker(marker, id, type);
+
+  return marker;
+}
+
+//-----------------------------------------------------------------------------
+vtkSmartPointer<vtkVgMarker> vsContextViewerPrivate::addMarker(
+  vtkIdType id, int type, const vtkVgTimeStamp& timeStamp,
+  const vgGeocodedPoly& geoRegion)
+{
+  if (geoRegion.Coordinate.size() <= 2)
+    {
+    const auto& geoCenter = barycenter(geoRegion);
+    return this->addMarker(id, type, timeStamp, vgPoint2d(), geoCenter);
+    }
+
+  vtkSmartPointer<vtkVgMarker> marker(vtkSmartPointer<vtkVgMarker>::New());
+  this->setMarkerRegion(marker, geoRegion);
+
+  this->finalizeMarker(marker, id, type);
+
+  return marker;
+}
+
+//-----------------------------------------------------------------------------
+void vsContextViewerPrivate::finalizeMarker(vtkVgMarker* marker, vtkIdType id,
+                                            int type)
+{
   marker->SetRenderer(this->Viewer->GetSceneRenderer());
   marker->PickableOn();
   marker->SetUseBounds(true);
@@ -289,8 +357,6 @@ vtkSmartPointer<vtkVgMarker> vsContextViewerPrivate::addMarker(
   vtkSmartPointer<vtkVgGeode> markerGeode = vtkSmartPointer<vtkVgGeode>::New();
   markerGeode->AddDrawable(marker);
   this->SceneObjectsRoot->AddChild(markerGeode);
-
-  return marker;
 }
 
 //-----------------------------------------------------------------------------
@@ -349,6 +415,55 @@ bool vsContextViewerPrivate::setMarkerPosition(
 
   setMarkerPosition(marker, gc);
   return true;
+}
+
+//-----------------------------------------------------------------------------
+void vsContextViewerPrivate::setMarkerReadyRegion(
+  vtkVgMarker* marker, const vgGeocodedPoly& geoRegion)
+{
+  const vtkMatrix4x4* const xf =
+    this->TerrainSource->GetCoordinateTransformMatrix();
+
+  const auto& polyPoints = geoRegion.Coordinate;
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  vtkIdType numPoints = static_cast<vtkIdType>(polyPoints.size());
+  points->SetNumberOfPoints(numPoints);
+
+  for (vtkIdType i = 0; i < numPoints; ++i)
+    {
+    double pos[3] = { polyPoints[i].Easting, polyPoints[i].Northing, 1.0 };
+    vtkVgApplyHomography(pos, *xf, pos);
+    points->SetPoint(i, pos);
+    }
+
+  marker->SetRegionPoints(points);
+}
+
+//-----------------------------------------------------------------------------
+void vsContextViewerPrivate::setMarkerRegion(
+  vtkVgMarker* marker, const vgGeocodedPoly& geoRegion)
+{
+  if (!this->TerrainSource)
+    {
+    // If context is not loaded, use unconverted lat/lon coordinates for now,
+    // and add to list for later repositioning
+    const auto& polyPoints = geoRegion.Coordinate;
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+    vtkIdType numPoints = static_cast<vtkIdType>(polyPoints.size());
+    points->SetNumberOfPoints(numPoints);
+
+    for (vtkIdType i = 0; i < numPoints; ++i)
+      {
+      points->SetPoint(i, polyPoints[i].Easting, polyPoints[i].Northing, 1.0);
+      }
+    marker->SetRegionPoints(points);
+
+    this->UnresolvedMarkerRegions.insert(marker, geoRegion);
+    }
+  else
+    {
+    this->setMarkerReadyRegion(marker, geoRegion);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -830,12 +945,16 @@ void vsContextViewer::addRasterLayer(const QUrl& uri)
 
   // Update positions of any markers that were created before the layer was
   // added
-  typedef QHash<vtkVgMarker*, vgGeocodedCoordinate>::const_iterator Iterator;
-  foreach_iter (Iterator, iter, d->UnresolvedMarkers)
+  foreach_iter (auto, iter, d->UnresolvedMarkers)
     {
     d->setMarkerReadyPosition(iter.key(), iter.value());
     }
   d->UnresolvedMarkers.clear();
+  foreach_iter (auto, iter, d->UnresolvedMarkerRegions)
+    {
+    d->setMarkerReadyRegion(iter.key(), iter.value());
+    }
+  d->UnresolvedMarkerRegions.clear();
 
   this->updateSceneGraph();
 
@@ -850,12 +969,19 @@ void vsContextViewer::updateSceneGraph()
 {
   QTE_D(vsContextViewer);
   d->Viewer->Frame(vtkVgTimeStamp(false));
+  d->SceneDirty = false;
 }
 
 //-----------------------------------------------------------------------------
 void vsContextViewer::render()
 {
   QTE_D(vsContextViewer);
+
+  if (d->SceneDirty)
+    {
+    this->updateSceneGraph();
+    }
+
   d->RenderPending = false;
   d->Viewer->ForceRender(false);
 
@@ -1013,7 +1139,7 @@ void vsContextViewer::updateTrackMarker(vtkVgTrack* track)
         }
 
       d->updateMarker(info, &vsScene::trackDisplayInfo);
-      this->updateSceneGraph();
+      d->SceneDirty = true;
       this->update();
       }
     }
@@ -1026,52 +1152,108 @@ void vsContextViewer::updateEventMarker(vtkVgEvent* event)
 
   const vtkIdType id = event->GetId();
   vtkVgTimeStamp ts = event->GetStartFrame();
-  if (ts.IsValid())
+
+  vgPoint2d regionCenter;
+  vgGeocodedCoordinate geoCenter;
+
+  const auto& geoRegions = event->GetGeodeticRegions();
+  vgGeocodedPoly geoRegion;
+
+  // Determine geodetic location of the event
+  if (!geoRegions.empty())
     {
-    const vgPolygon2d& region = event->GetRegionAtOrAfter(ts);
-    vgPoint2d regionCenter;
-    vgGeocodedCoordinate geoCenter;
-    if (region.size())
+    // If using geodetic regions, just use the first available one
+    geoRegion = geoRegions.begin()->second;
+    if (geoRegion.GCS == -1 || geoRegion.Coordinate.size() == 0)
       {
-      regionCenter = barycenter(region);
+      qDebug() << "Invalid geodetic region - ignoring";
+      geoRegion.GCS = -1;
+      }
+    else if (geoRegion.Coordinate.size() < 2)
+      {
+      geoCenter = barycenter(geoRegion);
+      }
+    }
+
+  if (geoRegion.GCS == -1)
+    {
+    if (ts.IsValid())
+      {
+      // Try to determine image location; in this case we use the region at (or
+      // the first region following) the nominal start of the event
+      const auto& region = event->GetRegionAtOrAfter(ts);
+      if (!region.empty())
+        {
+        // Use center of image bounding box... this might not be ideal (often
+        // we use the midpoint of the bottom edge for such purposes), but our
+        // geodetic location is likely to be highly approximate anyway...
+        regionCenter = barycenter(region);
+        }
+      else
+        {
+        // No regions in the event; use the center of the video frame at the
+        // start of the event
+        const vtkVgVideoFrameMetaData md =
+          d->Core->frameMetadata(ts, vg::SeekNearest);
+        if (!md.AreCornerPointsValid())
+          {
+          // Oh, dear, there is no geoposition information for the frame; we
+          // won't be able to set the marker position
+          // TODO search for a valid frame over event's duration?
+          qDebug() << "Failed to compute world position for time"
+                   << ts.GetRawTimeStamp();
+          return;
+          }
+        geoCenter = barycenter(md.WorldLocation);
+        }
       }
     else
       {
-      // No regions in the event, so just use center of frame at start
-      const vtkVgVideoFrameMetaData md =
-        d->Core->frameMetadata(ts, vg::SeekNearest);
-      if (!md.AreCornerPointsValid())
-        {
-        // Oh, dear, there is no geoposition information for the frame; we
-        // won't be able to set the marker position
-        // TODO search for a valid frame over event's duration?
-        qDebug() << "Failed to compute world position for time"
-                 << ts.GetRawTimeStamp();
-        return;
-        }
-      geoCenter = barycenter(md.WorldLocation);
+      // The event start time stamp isn't valid
+      // TODO use the first available region?
+      return;
       }
-    MarkerInfo& info = d->EventMarkers[id];
-    if (!info.Marker)
+    }
+
+  MarkerInfo& info = d->EventMarkers[id];
+  if (!info.Marker)
+    {
+    info.EntityId = id;
+    info.Time = ts;
+    // If we have a valid geoRegion and it is actually a region (and not just a
+    // point, or two), make it transparent (current expectation is that this is
+    // an "Alert")
+    double opacity = 1.0;
+    if (geoRegion.GCS != -1 && geoRegion.Coordinate.size() > 2)
       {
-      info.EntityId = id;
-      info.Time = ts;
+      QSettings settings;
+      opacity = settings.value("RegionOpacity", 0.6).toDouble();
+      info.Marker = d->addMarker(id, EventEntity, ts, geoRegion);
+      }
+    else
+      {
       info.Marker = d->addMarker(id, EventEntity, ts, regionCenter, geoCenter);
-      if (!info.Marker)
-        {
-        return;
-        }
-      }
-    else if (info.Time != ts)
-      {
-      info.Time = ts;
-      d->setMarkerPosition(info.Marker, ts, regionCenter, geoCenter);
       }
 
-    d->updateMarker(info, &vsScene::eventDisplayInfo);
-    this->updateSceneGraph();
-    this->update();
+    if (!info.Marker)
+      {
+      return;
+      }
+    info.Marker->GetProperty()->SetOpacity(opacity);
     }
+  else if (!ts.IsValid())
+    {
+    // Must be a geodetic region - ignore update (for now?)
+    }
+  else if (info.Time != ts)
+    {
+    info.Time = ts;
+    d->setMarkerPosition(info.Marker, ts, regionCenter, geoCenter);
+    }
+
+  d->updateMarker(info, &vsScene::eventDisplayInfo);
+  d->SceneDirty = true;
+  this->update();
 }
 
 //-----------------------------------------------------------------------------

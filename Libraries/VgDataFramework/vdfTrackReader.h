@@ -8,12 +8,14 @@
 #define __vdfTrackReader_h
 
 #include "vdfDataReader.h"
+#include "vdfTrackData.h"
 #include "vdfTrackId.h"
 
 #include <vgTimeMap.h>
 #include <vvTrack.h>
 
-template <class Key, class Value> class QHash;
+#include <QHash>
+#include <QSet>
 
 class vdfTrackReaderPrivate;
 
@@ -31,6 +33,8 @@ public:
     QString Name;
     vvTrackObjectClassification Classification;
     vgTimeMap<vvTrackState> Trajectory;
+    vgTimeMap<vdfTrackAttributes> Attributes;
+    QHash<QString, vdfTrackScalarData> ScalarData;
     };
 
 public:

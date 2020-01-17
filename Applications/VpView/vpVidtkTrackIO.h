@@ -15,6 +15,7 @@
 
 class vpVidtkReader;
 class vtkVgTrack;
+class vgAttributeSet;
 
 class vpVidtkTrackIO : public vpTrackIO
 {
@@ -24,18 +25,22 @@ public:
                  std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                  vtkVpTrackModel* trackModel,
                  vpTrackIO::TrackStorageMode storageMode,
+                 bool interpolateToGround,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
                  vtkVgTrackTypeRegistry* trackTypes = 0,
+                 vgAttributeSet* trackAttributes = 0,
                  vtkMatrix4x4* geoTransform = 0,
                  vpFrameMap* frameMap = 0);
 
   virtual ~vpVidtkTrackIO();
 
-  virtual bool ReadTracks();
+  virtual bool ReadTracks(int frameOffset);
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename, bool writeSceneElements) const;
+  virtual bool WriteTracks(const char* filename, int frameOffset,
+                           QPointF aoiOffset, bool writeSceneElements) const;
 
   void UpdateTracks(const std::vector<vidtk::track_sptr>& tracks,
                     unsigned int updateStartFrame, unsigned int updateEndFrame);
@@ -51,19 +56,24 @@ public:
   virtual vtkIdType GetModelTrackId(unsigned int sourceId) const;
 
 protected:
-  bool ReadTracks(const vpFileTrackReader::TrackRegionMap* trackRegionMap);
+  bool ReadTracks(int frameOffset,
+                  const vpFileTrackReader::TrackRegionMap* trackRegionMap);
 
   bool ImportTracks(const vpFileTrackReader::TrackRegionMap* trackRegionMap,
-                    vtkIdType idsOffset, float offsetX, float offsetY);
+                    int frameOffset, vtkIdType idsOffset,
+                    float offsetX, float offsetY);
 
   const vpVidtkReader& GetReader() const { return this->Reader; }
 
   virtual unsigned int GetImageHeight() const;
 
+  vgAttributeSet* TrackAttributes;
+
 private:
   vtkIdType ComputeNumberOfPoints(
     const vpFileTrackReader::TrackRegionMap* trackRegionMap);
-  void ReadTrack(const vidtk::track_sptr vidtkTrack,
+
+  void ReadTrack(const vidtk::track_sptr vidtkTrack, int frameOffset,
                  const vpFileTrackReader::TrackRegionMap* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
                  bool update = false,

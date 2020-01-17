@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -29,7 +29,7 @@ class vtkTexturedActor2D;
 class VTKVG_CORE_EXPORT vtkVgLabeledRegion : public vtkProp
 {
 public:
-  enum Layout
+  enum LayoutStyle
     {
     LayoutTextToRightOfImage,
     LayoutTextBelowImage
@@ -88,8 +88,8 @@ public:
 
   // Description:
   // Set/Get the layout of text and image.
-  vtkSetMacro(Layout, Layout);
-  vtkGetMacro(Layout, Layout);
+  vtkSetMacro(Layout, LayoutStyle);
+  vtkGetMacro(Layout, LayoutStyle);
 
   // Description:
   // Set/get the normalized position of the label (image + text)  relative to
@@ -120,7 +120,7 @@ protected:
   vtkImageData* Image;
 
   // placement
-  Layout Layout;
+  LayoutStyle Layout;
   int Padding;
   int ImageSize[2];
   double NormalizedLabelPosition[2];

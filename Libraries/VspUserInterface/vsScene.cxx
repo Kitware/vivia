@@ -242,6 +242,8 @@ void vsScene::setupFilterWidget(vgMixerWidget* filterWidget)
           this, SLOT(setEventVisibility(int, bool)));
   connect(filterWidget, SIGNAL(valueChanged(int, double)),
           this, SLOT(setEventThreshold(int, double)));
+  connect(filterWidget, SIGNAL(invertedChanged(int, bool)),
+          this, SLOT(setEventThresholdInverted(int, bool)));
 
   // Set up object type filters
   int groupId = filterWidget->addGroup("Object Type");
@@ -591,6 +593,63 @@ void vsScene::setEventThreshold(int type, double threshold)
 }
 
 //-----------------------------------------------------------------------------
+void vsScene::setEventThresholdInverted(int type, bool inverted)
+{
+  QTE_D(vsScene);
+
+  switch (type)
+    {
+    case vsTrackInfo::Person:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Person));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Person,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Person));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
+        }
+      break;
+    case vsTrackInfo::Vehicle:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Vehicle));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Vehicle));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+        }
+      break;
+    case vsTrackInfo::Other:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Other,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Other));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Other,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Other));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
+        }
+      break;
+    default:
+      d->EventFilter->SetInverse(type, inverted);
+      break;
+    }
+
+  this->postUpdate();
+}
+
+//-----------------------------------------------------------------------------
 void vsScene::resetView()
 {
   QTE_D(vsScene);
@@ -893,8 +952,10 @@ void vsScene::beginDrawing(vsContour::Type type)
   this->cancelInteraction();
 
   emit this->contourStarted();
-  emit this->statusMessageAvailable("Drawing contour;"
-                                    " right click to enter adjustment mode");
+  emit this->statusMessageAvailable(
+    "Drawing contour"
+    "(<b>left click</b> to add points;"
+    " <b>right click</b> to enter editing mode)");
 
   d->EditContour.reset(
     new vsContourWidget(d->Core->createContourId(),
@@ -997,7 +1058,8 @@ void vsScene::beginContourManipulation()
   QTE_D(vsScene);
   if (d->EditContour->isClosed())
     emit this->contourClosed();
-  emit this->statusMessageAvailable("Editing contour; right click when done");
+  emit this->statusMessageAvailable(
+    "Editing contour (<b>right click</b> when done)");
 }
 
 //-----------------------------------------------------------------------------
@@ -1031,6 +1093,7 @@ void vsScene::finalizeContour()
 
       // Emit completed contour and destroy widget
       emit this->contourCompleted(d->EditContour.data()->toContour());
+      emit this->statusMessageAvailable("");
       d->EditContour.reset();
       }
 
@@ -1187,7 +1250,7 @@ void vsScene::addUserEventType(
 {
   Q_UNUSED(id);
   QTE_D(vsScene);
-  d->addFilter(info, vsEventInfo::User, true, initialThreshold);
+  d->addFilter(info, info.group, true, initialThreshold);
 }
 
 //-----------------------------------------------------------------------------

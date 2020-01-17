@@ -242,6 +242,7 @@ vtkVgTrack::vtkVgTrack()
   this->Flags = 0;
   this->DisplayFlags = DF_Normal;
   this->InterpolateMissingPointsOnInsert = false;
+  this->InterpolateToGround = false;
 
   this->InterpolationSpacing.SetFrameNumber(1);
   this->InterpolationSpacing.SetTime(0.5e6);
@@ -515,56 +516,158 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
   vtkIdType numPreviousShellPts, *prevShellPtIds, pointId;
   this->GetHeadIdentifier(previousTimeStamp, numPreviousShellPts,
                           prevShellPtIds, pointId);
+  // If multiple points in the head, the version pulled by GetHeadIdentifier
+  // has the first point duplicated at the end (we do not want to consider that
+  // point when doing the interpolation.
+  if (numPreviousShellPts > 1)
+    {
+    --numPreviousShellPts;
+    }
 
   // get the start index, since the pointer may be invalidated once we start
   // allocating new heads
   vtkIdType headIdsStart
     = prevShellPtIds - this->Internal->HeadIdentifierIds->GetPointer(0);
 
-  double delta[2] =
-    {
-    (point[0] - previousPoint[0]) / numFrames,
-    (point[1] - previousPoint[1]) / numFrames
-    };
-
-  float* shellPtsTmp = 0;
-  if (numShellPts != 0 && numPreviousShellPts != 0)
-    {
-    if (numPreviousShellPts > 1)
-      {
-      --numPreviousShellPts;
-      }
-    if (numShellPts != numPreviousShellPts)
-      {
-      if (warnOnFailure)
-        {
-        vtkErrorMacro("Track regions do not have the same number of points - "
-                      "interpolating centers only.");
-        }
-      }
-    else
-      {
-      // allocate scratch space for doing interpolation of head regions,
-      // which could have an unknown number of points
-      shellPtsTmp = new float[3 * numShellPts];
-      }
-    }
-
   vtkVgTimeStamp interpolateTimeStamp = previousTimeStamp;
   interpolateTimeStamp.ShiftForward(this->InterpolationSpacing);
 
-  vtkIdType ptId;
-  for (int j = 1; j < numFrames; j++)
+  if (!this->InterpolateToGround)
     {
-    ptId = this->Points->InsertNextPoint(previousPoint[0] + delta[0] * j,
-                                         previousPoint[1] + delta[1] * j,
-                                         0.0);
-
-    this->Internal->AllPointsIdMap[interpolateTimeStamp] = ptId;
-
-    if (shellPtsTmp)
+    float* shellPtsTmp = 0;
+    double delta[2] =
       {
+      (point[0] - previousPoint[0]) / numFrames,
+      (point[1] - previousPoint[1]) / numFrames
+      };
+    if (numShellPts != 0 && numPreviousShellPts != 0)
+      {
+      if (numShellPts != numPreviousShellPts)
+        {
+        if (warnOnFailure)
+          {
+          vtkErrorMacro("Track regions do not have the same number of points - "
+            "interpolating centers only.");
+          }
+        }
+      else
+        {
+        // allocate scratch space for doing interpolation of head regions,
+        // which could have an unknown number of points
+        shellPtsTmp = new float[3 * numShellPts];
+        }
+      }
+
+    vtkIdType ptId;
+    for (int j = 1; j < numFrames; j++)
+      {
+      ptId = this->Points->InsertNextPoint(previousPoint[0] + delta[0] * j,
+        previousPoint[1] + delta[1] * j,
+        0.0);
+
+      this->Internal->AllPointsIdMap[interpolateTimeStamp] = ptId;
+
+      if (shellPtsTmp)
+        {
+        // compute interpolated region for this frame
+        float tempPt[3];
+        for (vtkIdType p = 0; p < numShellPts; ++p)
+          {
+          const float* shellPt;
+          if (fromShellPts)
+            {
+            double* pt = fromShellPts->GetPoint(fromShellPtsStart + p);
+            tempPt[0] = pt[0];
+            tempPt[1] = pt[1];
+            tempPt[2] = pt[2];
+            shellPt = tempPt;
+            }
+          else
+            {
+            shellPt = shellPts + p * 3;
+            }
+
+          double prevShellPt[3];
+          this->Points->GetPoint(
+            this->Internal->HeadIdentifierIds->GetId(headIdsStart + p),
+            prevShellPt);
+
+          double delta[3] =
+            {
+            j* ((shellPt[0] - prevShellPt[0]) / numFrames),
+            j* ((shellPt[1] - prevShellPt[1]) / numFrames),
+            j* ((shellPt[2] - prevShellPt[2]) / numFrames)
+            };
+
+          shellPtsTmp[p * 3 + 0] = prevShellPt[0] + delta[0];
+          shellPtsTmp[p * 3 + 1] = prevShellPt[1] + delta[1];
+          shellPtsTmp[p * 3 + 2] = prevShellPt[2] + delta[2];
+          }
+
+        // insert interpolated head region
+        this->Internal->SetHeadIdentifier(interpolateTimeStamp, this->Points,
+          numShellPts, 0, -1, shellPtsTmp);
+        }
+
+      // advance to next "interpolated" timestamp
+      interpolateTimeStamp.ShiftForward(this->InterpolationSpacing);
+      }
+
+    delete[] shellPtsTmp;
+    }
+  else // Homography based "stabilization" for interpolation
+    {
+    int maxShellPoints =
+      (numPreviousShellPts > numShellPts) ? numPreviousShellPts
+                                          : numShellPts;
+    float* shellPtsTmp = new float[3 * maxShellPoints];
+
+    int midFrame;
+    if (numFrames % 2)
+      {
+      midFrame = (numFrames + 1) / 2;
+      }
+    else
+      {
+      // TODO:
+      // if an even number of segments (numFrames), which means an add number of
+      // inserted points, figure out which non-interpolated point the middle
+      // interpolated point is closer to.
+      midFrame = (numFrames) / 2;
+      }
+    int j;
+    // Stabilize the first chunk of frames based on the previous keyframe
+    for (j = 1; j < midFrame; j++)
+      {
+      vtkIdType ptId = this->Points->InsertNextPoint(previousPoint[0], previousPoint[1], 0.0);
+      this->Internal->AllPointsIdMap[interpolateTimeStamp] = ptId;
+
       // compute interpolated region for this frame
+      for (vtkIdType p = 0; p < numPreviousShellPts; ++p)
+        {
+        double prevShellPt[3];
+        this->Points->GetPoint(
+          this->Internal->HeadIdentifierIds->GetId(headIdsStart + p),
+          prevShellPt);
+
+        shellPtsTmp[p * 3 + 0] = prevShellPt[0];
+        shellPtsTmp[p * 3 + 1] = prevShellPt[1];
+        shellPtsTmp[p * 3 + 2] = prevShellPt[2];
+        }
+
+      // insert interpolated head region
+      this->Internal->SetHeadIdentifier(interpolateTimeStamp, this->Points,
+        numPreviousShellPts, 0, -1, shellPtsTmp);
+
+      // advance to next "interpolated" timestamp
+      interpolateTimeStamp.ShiftForward(this->InterpolationSpacing);
+      }
+    // And the second chunk based on the next keyframe
+    for (; j < numFrames; j++)
+      {
+      vtkIdType ptId = this->Points->InsertNextPoint(point[0], point[1], 0.0);
+      this->Internal->AllPointsIdMap[interpolateTimeStamp] = ptId;
+
       float tempPt[3];
       for (vtkIdType p = 0; p < numShellPts; ++p)
         {
@@ -582,33 +685,20 @@ void vtkVgTrack::AddInterpolationPoints(const vtkVgTimeStamp& previousTimeStamp,
           shellPt = shellPts + p * 3;
           }
 
-        double prevShellPt[3];
-        this->Points->GetPoint(
-          this->Internal->HeadIdentifierIds->GetId(headIdsStart + p),
-          prevShellPt);
-
-        double delta[3] =
-          {
-          j* ((shellPt[0] - prevShellPt[0]) / numFrames),
-          j* ((shellPt[1] - prevShellPt[1]) / numFrames),
-          j* ((shellPt[2] - prevShellPt[2]) / numFrames)
-          };
-
-        shellPtsTmp[p * 3 + 0] = prevShellPt[0] + delta[0];
-        shellPtsTmp[p * 3 + 1] = prevShellPt[1] + delta[1];
-        shellPtsTmp[p * 3 + 2] = prevShellPt[2] + delta[2];
+        shellPtsTmp[p * 3 + 0] = shellPt[0];
+        shellPtsTmp[p * 3 + 1] = shellPt[1];
+        shellPtsTmp[p * 3 + 2] = shellPt[2];
         }
 
       // insert interpolated head region
       this->Internal->SetHeadIdentifier(interpolateTimeStamp, this->Points,
-                                        numShellPts, 0, -1, shellPtsTmp);
+        numShellPts, 0, -1, shellPtsTmp);
+
+      // advance to next "interpolated" timestamp
+      interpolateTimeStamp.ShiftForward(this->InterpolationSpacing);
       }
-
-    // advance to next "interpolated" timestamp
-    interpolateTimeStamp.ShiftForward(this->InterpolationSpacing);
+    delete[] shellPtsTmp;
     }
-
-  delete[] shellPtsTmp;
 }
 
 //-----------------------------------------------------------------------------

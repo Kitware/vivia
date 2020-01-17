@@ -11,6 +11,6 @@ include_directories(SYSTEM
 
 add_executable(${PROJECT_NAME} ${SRCS})
 
-target_link_libraries(${PROJECT_NAME} ${KML_LIBRARY})
+target_link_libraries(${PROJECT_NAME} kml)
 
 install_executable_target(${PROJECT_NAME} Tools)

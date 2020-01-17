@@ -87,7 +87,7 @@ vg_add_dependencies(${PROJECT_NAME}
   LINK_LIBRARIES
   LINK_PRIVATE
   ${Boost_LIBRARIES}
-  ${KML_LIBRARY}
+  kml
 )
 
 vg_add_test_subdirectory()

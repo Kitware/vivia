@@ -79,6 +79,13 @@ if(VISGUI_ENABLE_GDAL)
   list(APPEND vgSdkTargets vtkVgIO)
 endif()
 
+if(VISGUI_ENABLE_SUPER3D)
+  include_directories(${Super3D_INCLUDE_DIR})
+  include_directories(${MAPTK_INCLUDE_DIRS})
+  link_directories(${Super3D_LIBRARY_DIR})
+  link_directories(${OpenCV_LIB_DIR})
+endif()
+
 vg_include_library_sdk_directories(${vgSdkTargets} vvData)
 
 # Configure version file
@@ -112,13 +119,13 @@ set(vpViewSources
   vpFileDataSource.cxx
   vpFileEventReader.cxx
   vpFileTrackReader.cxx
+  vpFileUtil.cxx
   vpFilterTypeDelegate.cxx
   vpGraphModelHelper.cxx
   vpGraphModelView.cxx
   vpFseTrackIO.cxx
   vpGraphModelWidget.cxx
   vpFrameMap.cxx
-  vpFseIO.cxx
   vpImageSourceFactory.cxx
   vpInformaticsDialog.cxx
   vpMergeTracksDialog.cxx
@@ -141,6 +148,7 @@ set(vpViewSources
   vpSessionView.cxx
   vpSettings.cxx
   vpTimelineDialog.cxx
+  vpTrackAttributesPanel.cxx
   vpTrackColorDialog.cxx
   vpTrackConfig.cxx
   vpTrackIO.cxx
@@ -170,9 +178,18 @@ set(vpViewUI
   vpSelectTimeIntervalDialog.ui
   vpTimelineDialog.ui
   vpTrackAttributeColorDialog.ui
+  vpTrackAttributesPanel.ui
   vpTrackColorDialog.ui
   vpView.ui
 )
+
+if(VISGUI_ENABLE_SUPER3D)
+  list(APPEND vpViewUI
+    vpSuperResDepthViewer.ui
+    vpSuperResViewer.ui
+    vpSuperResWidget.ui
+    )
+endif()
 
 set(vpViewHeaders
   vpApplication.h
@@ -190,6 +207,7 @@ set(vpViewHeaders
   vpMergeTracksDialog.h
   vpObjectInfoPanel.h
   vpObjectSelectionPanel.h
+  vpProject.h
   vpProjectEditor.h
   vpProjectList.h
   vpQtViewer3d.h
@@ -199,6 +217,7 @@ set(vpViewHeaders
   vpSessionView.h
   vpTimelineDialog.h
   vpTabWidget.h
+  vpTrackAttributesPanel.h
   vpTrackColorDialog.h
   vpTreeView.h
   vpVideoAnimation.h
@@ -213,9 +232,20 @@ set(vpViewResources ../../Icons/vpView.qrc)
 
 ###############################################################################
 
-# BEGIN OPTIONAL vidtk io
+# BEGIN OPTIONAL vidtk io and super3d
 
 if(VISGUI_ENABLE_VIDTK)
+  if(VISGUI_ENABLE_SUPER3D)
+    list(APPEND vpViewSources
+    vpSuperResDepthViewer.cxx
+    vpSuperResDepthWarper.cxx
+    vpSuperResHomogWarper.cxx
+    vpSuperResViewer.cxx
+    vpSuperResWidget.cxx
+    vpSuperResWorker.cxx
+    )
+  endif()
+
   list(APPEND vpViewSources
     vpVidtkActivityIO.cxx
     vpVidtkEventIO.cxx
@@ -226,6 +256,18 @@ if(VISGUI_ENABLE_VIDTK)
     vpVidtkIO.cxx
     vpVidtkTrackIO.cxx
   )
+
+  if(VISGUI_ENABLE_SUPER3D)
+    list(APPEND vpViewHeaders
+      vpSuperResDepthWarper.h
+      vpSuperResDepthViewer.h
+      vpSuperResHomogWarper.h
+      vpSuperResViewer.h
+      vpSuperResWarper.h
+      vpSuperResWidget.h
+      vpSuperResWorker.h
+      )
+  endif()
 else()
   list(APPEND vpViewSources
     vpVdfIO.cxx
@@ -285,7 +327,7 @@ endif()
 set(ExecProperties ${ExecProperties} MACOSX_BUNDLE)
 
 add_executable(${PROJECT_NAME} ${ExecProperties}
-  ${vpViewSources} ${uiSources} ${mocSources} ${resSources}
+  ${vpViewSources} ${vpViewHeaders} ${uiSources} ${mocSources} ${resSources}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
@@ -315,6 +357,18 @@ if(VISGUI_ENABLE_VIDTK)
     vidtk_events_lib
     vidtk_tracking
     vidtk_utilities
+  )
+endif()
+
+if(VISGUI_ENABLE_SUPER3D)
+  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+    imesh
+    imesh_algo
+    maptk_ocv
+    maptk_proj
+    maptk_utilities
+    opencv_videostab
+    super3d_depth
   )
 endif()
 

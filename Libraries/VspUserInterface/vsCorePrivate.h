@@ -37,6 +37,12 @@ public:
   vsCorePrivate(vsCore*);
   ~vsCorePrivate();
 
+  struct UserEventType
+    {
+    int id;
+    vsEventInfo::Group group;
+    };
+
   struct DeferredTrackUpdate
     {
     QList<vvTrackState> updates;
@@ -194,7 +200,7 @@ public:
   AlertMap Alerts;
   int NextAlertType;
 
-  QHash<const vsDescriptorSource*, QHash<int, int> > UserEventTypeMap;
+  QHash<const vsDescriptorSource*, QHash<int, UserEventType> > UserEventTypeMap;
   QList<vsEventInfo> ManualEventTypes;
   QHash<int, int> ManualEventTypesMap;
   int NextUserType;

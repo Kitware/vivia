@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -30,17 +30,6 @@
 #define test_or_die(_cond, _msg) if (!(_cond)) die(_msg)
 
 QTE_IMPLEMENT_D_FUNC(vsAlertEditor)
-
-namespace // anonymous
-{
-
-//-----------------------------------------------------------------------------
-QColor qColor(const double (&dc)[3])
-{
-  return vgColor(dc).toQColor();
-}
-
-} // namespace <anonymous>
 
 //-----------------------------------------------------------------------------
 class vsAlertEditorPrivate
@@ -173,12 +162,9 @@ void vsAlertEditor::apply()
 {
   QTE_D(vsAlertEditor);
   d->originalEventInfo.name = d->UI.name->text();
-  vgColor::fillArray(d->UI.penColor->color(),
-                     d->originalEventInfo.pcolor);
-  vgColor::fillArray(d->UI.foregroundColor->color(),
-                     d->originalEventInfo.fcolor);
-  vgColor::fillArray(d->UI.backgroundColor->color(),
-                     d->originalEventInfo.bcolor);
+  d->originalEventInfo.pcolor = d->UI.penColor->color();
+  d->originalEventInfo.fcolor = d->UI.foregroundColor->color();
+  d->originalEventInfo.bcolor = d->UI.backgroundColor->color();
   d->originalDisplayThreshold = d->UI.displayThreshold->value();
 
   d->changed = true;
@@ -197,9 +183,9 @@ void vsAlertEditor::reset()
   qtScopedBlockSignals bsBC(d->UI.backgroundColor);
   qtScopedBlockSignals bsDT(d->UI.displayThreshold);
 
-  d->UI.penColor->setColor(qColor(d->originalEventInfo.pcolor));
-  d->UI.foregroundColor->setColor(qColor(d->originalEventInfo.fcolor));
-  d->UI.backgroundColor->setColor(qColor(d->originalEventInfo.bcolor));
+  d->UI.penColor->setColor(d->originalEventInfo.pcolor.toQColor());
+  d->UI.foregroundColor->setColor(d->originalEventInfo.fcolor.toQColor());
+  d->UI.backgroundColor->setColor(d->originalEventInfo.bcolor.toQColor());
   d->UI.name->setText(d->originalEventInfo.name);
   d->UI.displayThreshold->setValue(d->originalDisplayThreshold);
 
@@ -215,12 +201,12 @@ void vsAlertEditor::setModified()
     return;
 
   bool modified = d->originalEventInfo.name != d->UI.name->text();
-  modified |= (qColor(d->originalEventInfo.pcolor)
-               != d->UI.penColor->color());
-  modified |= (qColor(d->originalEventInfo.fcolor)
-               != d->UI.foregroundColor->color());
-  modified |= (qColor(d->originalEventInfo.bcolor)
-               != d->UI.backgroundColor->color());
+  modified |= (d->originalEventInfo.pcolor.toQColor() !=
+               d->UI.penColor->color());
+  modified |= (d->originalEventInfo.fcolor.toQColor() !=
+               d->UI.foregroundColor->color());
+  modified |= (d->originalEventInfo.bcolor.toQColor() !=
+               d->UI.backgroundColor->color());
   modified |= (!qFuzzyCompare(d->originalDisplayThreshold,
                               d->UI.displayThreshold->value()));
 

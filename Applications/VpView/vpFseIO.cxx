@@ -32,7 +32,7 @@ void vpFseIO::SetTrackModel(vtkVpTrackModel* trackModel,
     new vpFseTrackIO(trackModel, storageMode, timeStampMode,
                      trackTypes, geoTransform, frameMap)};
   io->SetImageHeight(this->ImageHeight);
-  io->SetTracksFileName(this->TracksFilename.c_str());
+  io->SetTracksFileName(this->TracksFilename);
   this->TrackIO = std::move(io);
 }
 
@@ -49,12 +49,13 @@ void vpFseIO::SetActivityModel(vtkVgActivityManager*,
 }
 
 //-----------------------------------------------------------------------------
-void vpFseIO::SetTracksFileName(const char* tracksFileName)
+void vpFseIO::SetTracksFileName(const QString& tracksFileName)
 {
   this->TracksFilename = tracksFileName;
   if (this->TrackIO)
     {
-    static_cast<vpFseTrackIO*>(this->TrackIO.get())->SetTracksFileName(tracksFileName);
+    auto* const io = static_cast<vpFseTrackIO*>(this->TrackIO.get());
+    io->SetTracksFileName(tracksFileName);
     }
 }
 
@@ -64,7 +65,8 @@ void vpFseIO::SetImageHeight(unsigned int imageHeight)
   this->ImageHeight = imageHeight;
   if (this->TrackIO)
     {
-    static_cast<vpFseTrackIO*>(this->TrackIO.get())->SetImageHeight(imageHeight);
+    auto* const io = static_cast<vpFseTrackIO*>(this->TrackIO.get());
+    io->SetImageHeight(imageHeight);
     }
 }
 

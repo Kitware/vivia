@@ -11,6 +11,8 @@
 
 #include <vtkSmartPointer.h>
 
+#include <QPointF>
+
 class vpFrameMap;
 
 class vtkVpTrackModel;
@@ -49,6 +51,7 @@ public:
 public:
   vpTrackIO(vtkVpTrackModel* trackModel,
             TrackStorageMode storageMode,
+            bool interpolateToGround,
             TrackTimeStampMode timeStampMode,
             vtkVgTrackTypeRegistry* trackTypes,
             vtkMatrix4x4* geoTransform,
@@ -58,12 +61,15 @@ public:
 
   void SetOverrideColor(const vgColor&);
 
-  virtual bool ReadTracks() = 0;
+  virtual bool ReadTracks(int frameOffset) = 0;
   virtual bool ReadTrackTraits();
+  virtual bool ReadTrackClassifiers();
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename,
+  virtual bool WriteTracks(const char* filename, int frameOffset,
+                           QPointF aoiOffset,
                            bool writeSceneElements) const = 0;
 
   virtual bool GetNextValidTrackFrame(vtkVgTrack* track,
@@ -96,6 +102,7 @@ protected:
   vtkSmartPointer<vtkMatrix4x4> GeoTransform;
   vpFrameMap* FrameMap;
   vgColor OverrideColor;
+  bool InterpolateToGround;
 };
 
 #endif // __vpTrackIO_h

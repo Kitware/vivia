@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>VisGUI View</string>
+   <string>WAMI Viewer</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QStatusBar QLabel { padding-left: 4px; padding-right: 4px }</string>
@@ -277,6 +277,9 @@
     <addaction name="actionDecreaseSceneElementTransparency"/>
     <addaction name="separator"/>
     <addaction name="actionSetFrameOffset"/>
+    <addaction name="separator"/>
+    <addaction name="actionIncreasePolygonNodeSize"/>
+    <addaction name="actionDecreasePolygonNodeSize"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -323,7 +326,33 @@
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
-   <widget class="vpObjectInfoPanel" name="objectInfoWidget"/>
+   <widget class="vpObjectInfoPanel" name="objectInfoWidget">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QDockWidget" name="trackAttributesDock">
+   <property name="allowedAreas">
+    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Track Attributes</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="vpTrackAttributesPanel" name="trackAttributesWidget">
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+   </widget>
   </widget>
   <widget class="QDockWidget" name="sessionViewDock">
    <property name="allowedAreas">
@@ -1583,6 +1612,28 @@
     <string>(No pipelines configured)</string>
    </property>
   </action>
+  <action name="actionIncreasePolygonNodeSize">
+   <property name="text">
+    <string>Increase Polygon Node Size</string>
+   </property>
+   <property name="toolTip">
+    <string>Increase the node size of polygon for head editing</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+N</string>
+   </property>
+  </action>
+  <action name="actionDecreasePolygonNodeSize">
+   <property name="text">
+    <string>Decrease Polygon Node Size</string>
+   </property>
+   <property name="toolTip">
+    <string>Increase the node size of polygon for head editing</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Shift+N</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -1607,6 +1658,12 @@
    <class>vpObjectInfoPanel</class>
    <extends>QWidget</extends>
    <header>vpObjectInfoPanel.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>vpTrackAttributesPanel</class>
+   <extends>QWidget</extends>
+   <header>vpTrackAttributesPanel.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

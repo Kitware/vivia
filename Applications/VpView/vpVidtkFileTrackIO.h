@@ -21,16 +21,20 @@ public:
                      std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                      vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
+                     bool interpolateToGround,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes = 0,
+                     vgAttributeSet* trackAttributes = 0,
                      vtkMatrix4x4* geoTransform = 0,
                      vpFrameMap* frameMap = 0);
 
-  virtual bool ReadTracks();
+  virtual bool ReadTracks(int frameOffset);
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
   bool ReadTrackTraits();
+  bool ReadTrackClassifiers();
 
 protected:
   vpFileTrackReader FileReader;

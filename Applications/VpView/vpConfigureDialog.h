@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -15,6 +15,8 @@
 #include "ui_vpConfigure.h"
 
 class vgAttributeSet;
+
+class vpViewCore;
 
 class vpConfigureDialog : public QDialog
 {
@@ -33,10 +35,12 @@ public:
     DATABASE_SETTINGS_KEY
     };
 
-  vpConfigureDialog(QWidget* parent);
+  explicit vpConfigureDialog(vpViewCore* core, QWidget* parent = 0);
   virtual ~vpConfigureDialog();
 
   void setTrackAttributes(vgAttributeSet* attribs);
+  void setColorWindow(int colorWindow);
+  void setColorLevel(int colorLevel);
 
   Ui::vpConfigureDialog UI;
 
@@ -69,6 +73,7 @@ protected slots:
   void uiUseZeroBasedFrameNumbersToggled(bool);
   void uiRightClickToEditToggled(bool);
   void uiAutoAdvanceFrameDuringCreationToggled(bool);
+  void uiInterpolateToGroundToggled(bool state);
 
   void streamingUpdateIntervalChanged(int);
   void streamingTrackUpdateChunkSizeChanged(int);

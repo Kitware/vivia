@@ -6,6 +6,9 @@
 
 #include "vtkVgAdapt.h"
 
+#include <vtkImageData.h>
+#include <vtkMatrix4x4.h>
+
 //-----------------------------------------------------------------------------
 void vtkVgAdapt(const vnl_matrix_fixed<double, 3, 3>& in, vtkMatrix4x4* out)
 {
@@ -60,4 +63,92 @@ vgMatrix4d vtkVgAdapt(const vtkMatrix4x4* in)
 {
   // FIXME(VTK9)
   return vgMatrix4d{const_cast<vtkMatrix4x4*>(in)->GetData()};
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgAdapt(const vil_image_view<double>& img, vtkImageData* data)
+{
+  unsigned int nc = img.nplanes();
+
+  int* dim = data->GetDimensions();
+  if (dim[0] != img.ni() || dim[1] != img.nj() ||
+      data->GetNumberOfScalarComponents() != nc ||
+      data->GetScalarType() != VTK_DOUBLE)
+    {
+    data->SetDimensions(img.ni(), img.nj(), 1);
+    data->AllocateScalars(VTK_DOUBLE, nc);
+    }
+
+  // vtk images have their origin at the bottom left, so we flip the y axis
+  double* vtkptr = static_cast<double*>(data->GetScalarPointer());
+  vtkptr += img.ni() * (img.nj() - 1) * nc;
+
+  const double* vxlptr = img.top_left_ptr();
+  ptrdiff_t istp = img.istep(), jstp = img.jstep();
+  ptrdiff_t pstep = img.planestep();
+  ptrdiff_t vtkrstep = nc * img.ni();
+  for (unsigned int p = 0; p < nc; p++, vxlptr += pstep, ++vtkptr)
+    {
+    const double* vxlpl = vxlptr;
+    double* vtkch = vtkptr;
+    for (unsigned int j = 0; j < img.nj(); j++, vxlpl += jstp, vtkch -= vtkrstep)
+      {
+      const double* vxlrow = vxlpl;
+      double* vtkrow = vtkch;
+      for (unsigned int i = 0; i < img.ni(); i++, vxlrow += istp, vtkrow += nc)
+        {
+        *vtkrow = *vxlrow;
+        }
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkVgAdapt(vtkImageData* data, vil_image_view<vxl_byte>& img)
+{
+  if (data->GetScalarType() != VTK_UNSIGNED_CHAR)
+    {
+    std::cerr << "Input vtkImageData must be of type unsigned char\n";
+    }
+
+  unsigned int numberOfComponents =
+    static_cast<unsigned int>(data->GetNumberOfScalarComponents());
+  if (numberOfComponents != 1)
+    {
+    std::cerr << "Currently only support single component input vtkImgeData: "
+              << numberOfComponents << std::endl;
+    return;
+    }
+
+  int* dim = data->GetDimensions();
+
+  img.set_size(dim[0], dim[1], numberOfComponents);
+  vxl_byte* vxlPtr = img.top_left_ptr();
+
+  // vtk images have their origin at the bottom left, so we flip the y axis
+  const unsigned char* vtkptr =
+    static_cast<unsigned char*>(data->GetScalarPointer());
+  vtkptr += img.ni() * (img.nj() - 1) * numberOfComponents;
+
+  vxl_byte* vxlptr = img.top_left_ptr();
+  ptrdiff_t istp = img.istep(), jstp = img.jstep();
+  ptrdiff_t pstep = img.planestep();
+  ptrdiff_t vtkrstep = numberOfComponents * img.ni();
+  for (unsigned int p = 0; p < numberOfComponents;
+       p++, vxlptr += pstep, ++vtkptr)
+    {
+    vxl_byte* vxlpl = vxlptr;
+    const unsigned char* vtkch = vtkptr;
+    for (unsigned int j = 0; j < img.nj();
+         j++, vxlpl += jstp, vtkch -= vtkrstep)
+      {
+      vxl_byte* vxlrow = vxlpl;
+      const unsigned char* vtkrow = vtkch;
+      for (unsigned int i = 0; i < img.ni();
+           i++, vxlrow += istp, vtkrow += numberOfComponents)
+        {
+        *vxlrow = *vtkrow;
+        }
+      }
+    }
 }

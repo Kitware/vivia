@@ -89,3 +89,8 @@ vg_add_dependencies(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vspDataInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VspData)
+
+vg_add_documentation(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}
+  Qt
+  qtExtensions
+)

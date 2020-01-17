@@ -19,8 +19,10 @@ vpVidtkIO::~vpVidtkIO()
 //-----------------------------------------------------------------------------
 void vpVidtkIO::SetTrackModel(vtkVpTrackModel* trackModel,
                               vpTrackIO::TrackStorageMode storageMode,
+                              bool interpolateToGround,
                               vpTrackIO::TrackTimeStampMode timeStampMode,
                               vtkVgTrackTypeRegistry* trackTypes,
+                              vgAttributeSet* trackAttributes,
                               vtkMatrix4x4* geoTransform,
                               vpFrameMap* frameMap)
 {
@@ -28,8 +30,9 @@ void vpVidtkIO::SetTrackModel(vtkVpTrackModel* trackModel,
   this->TrackIO.reset(
     new vpVidtkTrackIO(this->GetReader(), this->TrackMap,
                        this->SourceTrackIdToModelIdMap,
-                       trackModel, storageMode, timeStampMode,
-                       trackTypes, geoTransform, frameMap));
+                       trackModel, storageMode, interpolateToGround,
+                       timeStampMode, trackTypes, trackAttributes,
+                       geoTransform, frameMap));
 }
 
 //-----------------------------------------------------------------------------
