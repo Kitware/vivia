@@ -17,21 +17,6 @@ set(qtvgWidgetsSources
     vgVideoScrubber.cxx
 )
 
-set(qtvgWidgetsMocHeaders
-    ctkRangeSlider.h
-    vgAboutAction.h
-    vgAboutDialog.h
-    vgApplication.h
-    vgFrameScrubber.h
-    vgFrameSpinBox.h
-    vgMixerDrawer.h
-    vgMixerItem.h
-    vgMixerWidget.h
-    vgTextEditDialog.h
-    vgUserManualAction.h
-    vgVideoScrubber.h
-)
-
 set(qtVgWidgetsInstallHeaders
   vgAboutAction.h
   vgAboutDialog.h
@@ -44,20 +29,12 @@ set(qtVgWidgetsInstallHeaders
   vgVideoScrubber.h
 )
 
-qt5_wrap_ui(qtVgWidgetsUiSources vgAboutDialog.ui vgTextEditDialog.ui)
-qt5_wrap_cpp(qtvgWidgetsMocSources ${qtvgWidgetsMocHeaders})
+add_library(${PROJECT_NAME} ${qtvgWidgetsSources})
 
-source_group("Generated" FILES
-  ${qtVgWidgetsUiSources}
-  ${qtvgWidgetsMocSources}
-)
-
-add_library(${PROJECT_NAME}
-  ${qtvgWidgetsSources} ${qtVgWidgetsUiSources} ${qtvgWidgetsMocSources}
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS qtExtensions vgCommon
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  qtExtensions
+  vgCommon
 )
 
 install_library_targets(${PROJECT_NAME})

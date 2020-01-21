@@ -1,8 +1,4 @@
-vg_include_library_sdk_directories(qtExtensions)
-
-set(VGTEST_LINK_LIBRARIES qtExtensions)
-
-include_directories(${vtkVgCore_SOURCE_DIR})
+set(VGTEST_LINK_LIBRARIES qtExtensions vtkVgCoreHeaders)
 
 vg_add_test(vtkVgCore-Instance testVtkVgInstance
             SOURCES TestInstance.cxx LINK_LIBRARIES vtkVgCore

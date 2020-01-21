@@ -1,31 +1,6 @@
-# Name of the project.
 project(qtTestingSupport)
 
-# Requires Qt and QtTesting.
-include_directories(
-  ${QtTesting_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  ${vtkGUISupportQt_INCLUDE_DIRS}
-  )
-
-link_directories( ${QtTesting_LIBRARY_DIR} )
-
-# Source files.
-qt5_wrap_cpp(qtTestingSupportMocSrcs
-  pqCoreTestUtility.h
-  pqFileDialogEventPlayer.h
-  pqFileDialogEventTranslator.h
-  pqInvokeMethodEventPlayer.h
-  pqQDialogButtonBoxEventPlayer.h
-  pqQDialogButtonBoxEventTranslator.h
-  pqQteDoubleSliderEventPlayer.h
-  pqQteDoubleSliderEventTranslator.h
-  pqQVTKWidgetEventTranslator.h
-  pqVgMixerEventPlayer.h
-  pqVgMixerEventTranslator.h
-  pqXMLEventObserver.h
-  pqXMLEventSource.h
-)
+link_directories(${QtTesting_LIBRARY_DIR})
 
 set(qtTestingSupportSrcs
   pqCoreTestUtility.cxx
@@ -44,30 +19,32 @@ set(qtTestingSupportSrcs
   pqXMLEventSource.cxx
 )
 
-source_group("Generated" FILES
-  ${qtTestingSupportMocSrcs}
-)
-
-# Build and link library.
 add_library(${PROJECT_NAME}
   ${qtTestingSupportSrcs}
-  ${qtTestingSupportMocSrcs}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  LINK_LIBRARIES
-  LINK_PUBLIC
+target_include_directories(${PROJECT_NAME} SYSTEM
+  PUBLIC
+  ${QtTesting_INCLUDE_DIRS}
+  ${vtkGUISupportQt_INCLUDE_DIRS}
+)
+
+target_include_directories(${PROJECT_NAME}
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   ${QtTesting_LIBRARIES}
-  LINK_PRIVATE
+  PRIVATE
+  qtExtensions
+  qtVgWidgets
   vtkGUISupportQt
   vtkRenderingCore
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkTestingRendering
   vtksys
-  PRIVATE_INTERFACE_TARGETS
-  qtExtensions
-  qtVgWidgets
 )
-vg_target_include_directories(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
 install_library_targets(${PROJECT_NAME})

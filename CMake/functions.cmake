@@ -135,145 +135,6 @@ function(find_multi_configuration_library VAR NAME)
   endif(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
 endfunction()
 
-# Function to add definitions to individual source files' compile flags
-function(add_source_files_definitions)
-  extract_args("_symbols=SYMBOLS;_symbols=DEFINITIONS" ${ARGN})
-
-  # Generate list of new compile flags
-  set(_extra_flags)
-  foreach(_symbol ${_symbols})
-    set(_extra_flags "${_extra_flags} -D${_symbol}")
-  endforeach()
-
-  # Iterate over each file
-  foreach(_file ${ARGN})
-    # Get current flags
-    get_source_file_property(_flags "${_file}" COMPILE_FLAGS)
-    if("x_${_flags}" STREQUAL "x_NOTFOUND")
-      set(_flags)
-    endif()
-    # Append new flags
-    set(_flags "${_flags} ${_extra_flags}")
-    # Set new flags
-    set_source_files_properties("${_file}" PROPERTIES COMPILE_FLAGS "${_flags}")
-  endforeach()
-endfunction()
-
-# Function to add definitions to individual source files' compile flags
-function(add_targets_definitions)
-  extract_args("_symbols=SYMBOLS;_symbols=DEFINITIONS" ${ARGN})
-
-  # Generate list of new compile flags
-  set(_extra_flags)
-  foreach(_symbol ${_symbols})
-    set(_extra_flags "${_extra_flags} -D${_symbol}")
-  endforeach()
-
-  # Iterate over each file
-  foreach(_target ${ARGN})
-    # Get current flags
-    get_target_property(_flags "${_target}" COMPILE_FLAGS)
-    if("x_${_flags}" STREQUAL "x_NOTFOUND" OR "x_${_flags}" STREQUAL "x__flags-NOTFOUND")
-      set(_flags)
-    endif()
-    # Append new flags
-    set(_flags "${_flags} ${_extra_flags}")
-    # Set new flags
-    set_target_properties("${_target}" PROPERTIES COMPILE_FLAGS "${_flags}")
-  endforeach()
-endfunction()
-
-# Function to resolve library names to full paths
-function(resolve_library_paths VAR)
-  set(_libraries)
-  foreach(_library ${${VAR}})
-    if(IS_ABSOLUTE ${_library})
-      list(APPEND _libraries "${_library}")
-    else()
-      find_multi_configuration_library(${_library} ${_library} ${ARGN})
-      if(${_library}_LIBRARY)
-        list(APPEND _libraries "${${_library}_LIBRARY}")
-        mark_as_advanced(${_library}_LIBRARY)
-      else()
-        list(APPEND _libraries "${_library}")
-      endif()
-    endif()
-  endforeach()
-
-  set(${VAR} ${_libraries} PARENT_SCOPE)
-endfunction()
-
-# Function to add include directory to target's SDK include directories
-function(vg_target_include_directories TARGET)
-  set(_changed FALSE)
-  foreach(_path ${ARGN})
-    list(FIND ${TARGET}_INCLUDE_DIRS "${_path}" _index)
-    if(_index EQUAL -1)
-      list(APPEND ${TARGET}_INCLUDE_DIRS "${_path}")
-      set(_changed TRUE)
-    endif()
-  endforeach()
-  if(_changed)
-    set(${TARGET}_INCLUDE_DIRS "${${TARGET}_INCLUDE_DIRS}"
-        CACHE INTERNAL "SDK include directories for ${TARGET}")
-  endif()
-endfunction()
-
-# Function to include library SDK directories
-function(vg_include_library_sdk_directories)
-  extract_args("_target=TARGET;_interface_targets=INTERFACE" ${ARGN})
-
-  if(NOT "x_${_interface_targets}" STREQUAL "x_")
-    if("x_${_target}" STREQUAL "x_")
-      message(FATAL_ERROR "vg_include_library_sdk_directories:"
-                          " INTERFACE includes specified,"
-                          " but no TARGET specified")
-    endif()
-
-    # Handle interface include directories
-    foreach(_interface ${_interface_targets})
-      vg_target_include_directories(
-        ${_target} "${${_interface}_INCLUDE_DIRS}"
-      )
-      include_directories(${${_interface}_INCLUDE_DIRS})
-    endforeach()
-  endif()
-
-  # Handle non-interface include directories
-  if(NOT "x_${ARGN}" STREQUAL "x_")
-    foreach(_lib ${ARGN})
-      include_directories(${${_lib}_INCLUDE_DIRS})
-    endforeach()
-  endif()
-endfunction()
-
-# Function to add include and/or link dependencies to a target
-function(vg_add_dependencies TARGET)
-  set(_args)
-  list(APPEND _args "_link=LINK_LIBRARIES")
-  list(APPEND _args "_public_targets=PUBLIC_INTERFACE_TARGETS")
-  list(APPEND _args "_private_targets=PRIVATE_INTERFACE_TARGETS")
-  extract_args("${_args}" ${ARGN})
-  list(APPEND _private_interface_targets ${ARGN})
-
-  # Add include directories
-  vg_include_library_sdk_directories(
-    ${_private_targets}
-    TARGET ${TARGET} INTERFACE ${_public_targets}
-  )
-
-  # Link libraries
-  if(NOT "x_${_private_targets}" STREQUAL "x_")
-    target_link_libraries(${TARGET} LINK_PRIVATE ${_private_targets})
-  endif()
-  if(NOT "x_${_public_targets}" STREQUAL "x_")
-    target_link_libraries(${TARGET} LINK_PUBLIC ${_public_targets})
-  endif()
-  if(NOT "x_${_link}" STREQUAL "x_")
-    target_link_libraries(${TARGET} ${_link})
-  endif()
-endfunction()
-
 # Function to generate a target to copy a list of files to a destination
 function(copy_files_target TARGET DESTINATION)
   set(_target_depends)
@@ -363,7 +224,7 @@ endmacro()
 function(vg_add_qt_plugin NAME)
   add_library(${NAME} MODULE ${ARGN})
   get_target_property(_type ${NAME} TYPE)
-  add_targets_definitions(${NAME} SYMBOLS QT_PLUGIN QT_SHARED)
+  target_compile_definitions(${NAME} PRIVATE QT_PLUGIN QT_SHARED)
   set_target_properties(${NAME} PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/plugins
@@ -460,18 +321,36 @@ function(install_headers)
     # Iterate over subdirectory groups and install headers
     foreach(_dir ${_dirs})
       if("x_${_dir}" STREQUAL "x_.")
-        vg_target_include_directories(
-          ${_target} "${CMAKE_BINARY_DIR}/${_dest}"
+        target_include_directories(
+          ${_target} INTERFACE
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>"
+          "$<INSTALL_INTERFACE:${_dest}>"
         )
+        if(TARGET ${_target}Headers)
+          target_include_directories(
+            ${_target}Headers INTERFACE
+            "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>"
+            "$<INSTALL_INTERFACE:${_dest}>"
+          )
+        endif()
         install(FILES ${_dir__}
                 COMPONENT Development
                 DESTINATION "${_dest}"
         )
       else()
         string(REGEX REPLACE "[^A-Za-z0-9]" "_" _dirvar "${_dir}")
-        vg_target_include_directories(
-          ${_target} "${CMAKE_BINARY_DIR}/${_dest}/${_dir}"
+        target_include_directories(
+          ${_target} INTERFACE
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>"
+          "$<INSTALL_INTERFACE:${_dest}/${_dir}>"
         )
+        if(TARGET ${_target}Headers)
+          target_include_directories(
+            ${_target}Headers INTERFACE
+            "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>"
+            "$<INSTALL_INTERFACE:${_dest}/${_dir}>"
+          )
+        endif()
         install(FILES ${_dir_${_dirvar}}
                 COMPONENT Development
                 DESTINATION "${_dest}/${_dir}"

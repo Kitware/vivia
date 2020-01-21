@@ -19,24 +19,17 @@ set(vtkVwCoreInstallHeaders
   vtkVwVideo.h
 )
 
-qt5_wrap_cpp(vtkVwCoreMocSources ${vtkVwCoreMocHeaders})
-
 vg_vtk_module(${PROJECT_NAME}
   DEPENDS vtkCommonCore
   EXCLUDE_FROM_WRAP_HIERARCHY
 )
-vtk_module_library(${PROJECT_NAME}
-  ${vtkVwCoreSources}
-  ${vtkVwCoreMocSources}
-)
+vtk_module_library(${PROJECT_NAME} ${vtkVwCoreSources})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   vgVideo
   vtkVgCore
   vvIO
-  LINK_LIBRARIES
-  LINK_PRIVATE
   ${LIBJSON_LIBRARY}
   ${PYTHON_LIBRARIES}
 )

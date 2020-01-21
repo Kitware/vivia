@@ -86,8 +86,6 @@ if(VISGUI_ENABLE_SUPER3D)
   link_directories(${OpenCV_LIB_DIR})
 endif()
 
-vg_include_library_sdk_directories(${vgSdkTargets} vvData)
-
 # Configure version file
 include(vpVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vpVersion.h.in
@@ -104,6 +102,7 @@ set(vpViewSources
   vpActivityConfig.cxx
   vpActivityIO.cxx
   vpAnnotation.cxx
+  vpApplication.cxx
   vpAttributeConfig.cxx
   vpBox.cxx
   vpConfigUtils.cxx
@@ -147,6 +146,7 @@ set(vpViewSources
   vpSelectTimeIntervalDialog.cxx
   vpSessionView.cxx
   vpSettings.cxx
+  vpTabWidget.cxx
   vpTimelineDialog.cxx
   vpTrackAttributesPanel.cxx
   vpTrackColorDialog.cxx
@@ -160,73 +160,7 @@ set(vpViewSources
   vtkVpTrackModel.cxx
 )
 
-set(vpViewUI
-  qtInformaticsDialog.ui
-  qtNormalcyDialog.ui
-  qtRenderWindowDialog.ui
-  vpConfigure.ui
-  vpCreateEventDialog.ui
-  vpEditTrackTypesDialog.ui
-  vpExternalProcessDialog.ui
-  vpGraphModelWidget.ui
-  vpMergeTracksDialog.ui
-  vpObjectInfoPanel.ui
-  vpObjectSelectionPanel.ui
-  vpProjectEditor.ui
-  vpQtViewer3dDialog.ui
-  vpQtViewer3dWidget.ui
-  vpSelectTimeIntervalDialog.ui
-  vpTimelineDialog.ui
-  vpTrackAttributeColorDialog.ui
-  vpTrackAttributesPanel.ui
-  vpTrackColorDialog.ui
-  vpView.ui
-)
-
-if(VISGUI_ENABLE_SUPER3D)
-  list(APPEND vpViewUI
-    vpSuperResDepthViewer.ui
-    vpSuperResViewer.ui
-    vpSuperResWidget.ui
-    )
-endif()
-
-set(vpViewHeaders
-  vpApplication.h
-  vpConfigureDialog.h
-  vpCreateEventDialog.h
-  vpEditTrackTypesDialog.h
-  vpEntityConfigWidget.h
-  vpExternalProcessDialog.h
-  vpFileDataSource.h
-  vpGraphModelHelper.h
-  vpGraphModelView.h
-  vpGraphModelWidget.h
-  vpFrameMap.h
-  vpInformaticsDialog.h
-  vpMergeTracksDialog.h
-  vpObjectInfoPanel.h
-  vpObjectSelectionPanel.h
-  vpProject.h
-  vpProjectEditor.h
-  vpProjectList.h
-  vpQtViewer3d.h
-  vpQtViewer3dDialog.h
-  vpQtViewer3dWidget.h
-  vpSelectTimeIntervalDialog.h
-  vpSessionView.h
-  vpTimelineDialog.h
-  vpTabWidget.h
-  vpTrackAttributesPanel.h
-  vpTrackColorDialog.h
-  vpTreeView.h
-  vpVideoAnimation.h
-  vpView.h
-  vpViewCore.h
-  vtkVpTrackModel.h
-)
-
-set(vpViewResources ../../Icons/vpView.qrc)
+set(vpViewResSources ../../Icons/vpView.qrc)
 
 # END core program code
 
@@ -256,18 +190,6 @@ if(VISGUI_ENABLE_VIDTK)
     vpVidtkIO.cxx
     vpVidtkTrackIO.cxx
   )
-
-  if(VISGUI_ENABLE_SUPER3D)
-    list(APPEND vpViewHeaders
-      vpSuperResDepthWarper.h
-      vpSuperResDepthViewer.h
-      vpSuperResHomogWarper.h
-      vpSuperResViewer.h
-      vpSuperResWarper.h
-      vpSuperResWidget.h
-      vpSuperResWorker.h
-      )
-  endif()
 else()
   list(APPEND vpViewSources
     vpVdfIO.cxx
@@ -287,11 +209,6 @@ if(VISGUI_ENABLE_KWIVER)
     vpKwiverImproveTrackWorker.cxx
     vpKwiverVideoSource.cxx
   )
-
-  list(APPEND vpViewHeaders
-    vpKwiverEmbeddedPipelineWorker.h
-    vpKwiverImproveTrackWorker.h
-  )
 endif()
 
 # END OPTIONAL kwiver integration
@@ -299,25 +216,6 @@ endif()
 ###############################################################################
 
 # BEGIN build rules
-
-qt5_wrap_ui(uiSources ${vpViewUI})
-qt5_wrap_cpp(mocSources ${vpViewHeaders})
-qt5_add_resources(resSources ${vpViewResources})
-
-source_group("Resources" FILES
-  ${vpViewUI}
-  ${EXE_ICON}
-)
-
-source_group("Generated" FILES
-  ${uiSources}
-  ${mocSources}
-  ${ResourceSources}
-)
-
-set_source_files_properties(${vpViewSources}
-  PROPERTIES OBJECT_DEPENDS "${uiSources}"
-)
 
 # Hide the console window on release builds
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -327,10 +225,11 @@ endif()
 set(ExecProperties ${ExecProperties} MACOSX_BUNDLE)
 
 add_executable(${PROJECT_NAME} ${ExecProperties}
-  ${vpViewSources} ${vpViewHeaders} ${uiSources} ${mocSources} ${resSources}
+  ${vpViewSources} ${vpViewResSources}
 )
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   ${vgSdkTargets}
   vgl vnl vul vil_io
   GeographicLib::GeographicLib
@@ -343,7 +242,8 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
 )
 
 if(VISGUI_ENABLE_KWIVER)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     kwiver::sprokit_pipeline
     kwiver::kwiver_adapter
     kwiver::kwiver_algo_vxl
@@ -352,7 +252,8 @@ if(VISGUI_ENABLE_KWIVER)
 endif()
 
 if(VISGUI_ENABLE_VIDTK)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     vidtk_activity_detectors_lib
     vidtk_events_lib
     vidtk_tracking
@@ -361,7 +262,8 @@ if(VISGUI_ENABLE_VIDTK)
 endif()
 
 if(VISGUI_ENABLE_SUPER3D)
-  target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+  target_link_libraries(${PROJECT_NAME}
+    PRIVATE
     imesh
     imesh_algo
     maptk_ocv

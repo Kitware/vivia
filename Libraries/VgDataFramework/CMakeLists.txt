@@ -1,6 +1,7 @@
 project(vgDataFramework)
 
 set(vgDataFrameworkSources
+  vdfAbstractQuerySessionNode.cxx
   vdfDataReader.cxx
   vdfDataSource.cxx
   vdfNodeBase.cxx
@@ -15,20 +16,6 @@ set(vgDataFrameworkSources
   vdfTrackReader.cxx
   vdfTrackSource.cxx
   vdfUtil.cxx
-)
-
-set(vgDataFrameworkMocHeaders
-  vdfAbstractQuerySessionNode.h
-  vdfDataReader.h
-  vdfDataSource.h
-  vdfNodeBase.h
-  vdfNodeProxy.h
-  vdfQuerySessionNode.h
-  vdfSelector.h
-  vdfTemporalSelector.h
-  vdfTrackReader.h
-  vdfTrackReaderPrivate.h
-  vdfTrackSource.h
 )
 
 set(vgDataFrameworkInstallHeaders
@@ -74,24 +61,15 @@ set(vgDataFrameworkWrapObjects
   #vdfAbstractTrackNode CANNOT WRAP, depends on vtkVgModelView
 )
 
-qt5_wrap_cpp(vgDataFrameworkMocSources ${vgDataFrameworkMocHeaders})
+add_library(${PROJECT_NAME} ${vgDataFrameworkSources})
 
-vg_include_library_sdk_directories(TARGET ${PROJECT_NAME} INTERFACE
-  qtExtensions
-  vgCommon
-)
-
-add_library(${PROJECT_NAME}
-  ${vgDataFrameworkSources}
-  ${vgDataFrameworkMocSources}
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvIO
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  Qt5::Core Qt5::Concurrent
+  vgCommonHeaders
+  qtExtensionsHeaders
+  Qt5::Core
+  Qt5::Concurrent
 )
 
 install_library_targets(${PROJECT_NAME})

@@ -15,26 +15,12 @@ function(vg_add_test)
     shift_arg(test_name ${ARGN})
   endif()
   shift_arg(test_executable ${ARGN})
-  set(_opts "_srcs=SOURCES;_moc=MOC_HEADERS;_res=RESOURCES;_ui=UI")
+  set(_opts "_srcs=SOURCES")
   set(_opts "${_opts};_libs=LINK_LIBRARIES;_args=ARGS")
   extract_args("${_opts}" ${ARGN})
   set(_srcs ${_srcs} ${ARGN}) # Use leftover args as sources
 
   if(NOT TARGET ${test_executable})
-    # Handle Qt executables
-    if(NOT "x_${_moc}" STREQUAL "x_")
-      qt5_wrap_cpp(_moc_srcs ${_moc})
-      set(_srcs ${_srcs} ${_moc_srcs})
-    endif()
-    if(NOT "x_${_ui}" STREQUAL "x_")
-      qt5_wrap_ui(_ui_srcs ${_ui})
-      set(_srcs ${_srcs} ${_ui_srcs})
-    endif()
-    if(NOT "x_${_res}" STREQUAL "x_")
-      qt5_add_resources(_res_srcs ${_res})
-      set(_srcs ${_srcs} ${_res_srcs})
-    endif()
-
     # Generate test executable
     add_executable(${test_executable} ${_srcs})
     target_link_libraries(${test_executable} ${_libs} ${VGTEST_LINK_LIBRARIES})

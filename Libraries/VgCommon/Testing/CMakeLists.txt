@@ -1,4 +1,3 @@
-vg_include_library_sdk_directories(qtExtensions)
 set(VGTEST_LINK_LIBRARIES qtExtensions vgCommon)
 
 vg_add_test(vgCommon-Geodesy testVgGeodesy SOURCES TestGeodesy.cxx)

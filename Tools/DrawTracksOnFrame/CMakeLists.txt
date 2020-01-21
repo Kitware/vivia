@@ -1,20 +1,18 @@
 project(drawTracksOnFrame)
 
-vg_include_library_sdk_directories(qtExtensions)
-
 add_executable(${PROJECT_NAME} drawTracksOnFrame.cxx)
 
 if(VISGUI_ENABLE_GDAL)
   set(vtkVgIO_LIBRARY vtkVgIO)
 endif()
 
-vg_add_dependencies(${PROJECT_NAME}
-  PRIVATE_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   vgDataFramework
   ${vtkVgIO_LIBRARY}
   vtkVgModelView
   vtkVgCore
-  LINK_LIBRARIES LINK_PRIVATE
+  qtExtensionsHeaders
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkGUISupportQt
   vtkInteractionStyle

@@ -70,46 +70,6 @@ set(vspUserInterface_AMUI
     vsp.ui
 )
 
-set(vspUserInterface_UI
-    alertEditor.ui
-    eventInfo.ui
-    trackColor.ui
-    ${vspUserInterface_AMUI}
-)
-
-set(vspUserInterface_MocHeaders
-    # Core code
-    vsApplication.h
-    vsCore.h
-    vsMainWindow.h
-    vsMainWindowPrivate.h
-    vsScene.h
-    # Supporting code
-    vsAlertEditor.h
-    vsAlertList.h
-    vsContourWidget.h
-    vsEventDataModel.h
-    vsEventInfoWidget.h
-    vsEventTreeModel.h
-    vsEventTreeSelectionModel.h
-    vsEventTreeView.h
-    vsEventTreeWidget.h
-    vsNoteTreeWidget.h
-    vsRegionList.h
-    vsTrackColorDialog.h
-    vsTrackTreeModel.h
-    vsTrackTreeSelectionModel.h
-    vsTrackTreeView.h
-    vsTrackTreeWidget.h
-# TODO: Everything below should be moved to either plugins or the application
-    # Query formulation (viqui integration)
-    vsQfDialog.h
-    vsQfVideoPlayer.h
-    vsQfVideoSource.h
-    # Built-in live descriptors - TODO: move to application?
-    vsTripwireDescriptor.h
-)
-
 set(vspUserInterface_SdkHeaders
     # Core code
     vsApplication.h
@@ -127,57 +87,34 @@ set(vspUserInterface_SdkHeaders
 
 # BEGIN build rules
 
-qt5_wrap_ui(vspUserInterface_UiSources ${vspUserInterface_UI})
 qte_amc_wrap_ui(vspUserInterface_AmSources ActionManagerDialog
   ${vspUserInterface_AMUI}
-)
-qt5_wrap_cpp(vspUserInterface_MocSources ${vspUserInterface_MocHeaders})
-
-source_group("User Interface" FILES
-  ${vspUserInterface_UI}
-)
-
-source_group("Generated" FILES
-  ${vspUserInterface_UiSources}
-  ${vspUserInterface_AmSources}
-  ${vspUserInterface_MocSources}
-)
-
-set_source_files_properties(${vspUserInterface_Sources}
-  PROPERTIES OBJECT_DEPENDS
-  "${vspUserInterface_UiSources};${vspUserInterface_AmSources}"
 )
 
 add_library(${PROJECT_NAME}
   ${vspUserInterface_Sources}
-  ${vspUserInterface_UiSources}
   ${vspUserInterface_AmSources}
-  ${vspUserInterface_MocSources}
 )
 
 target_link_libraries(${PROJECT_NAME}
-  LINK_PRIVATE
-  ${VTK_OPENGL_RENDERING_COMPONENTS}
-  vtkCommonSystem
-  vtkImagingStencil
-  vtkGUISupportQt
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+  PUBLIC
   qtExtensions
   vtkVgCore
   vtkVgModelView
   vgVtkVideo
   vgGuiFramework
   vspData
-  PRIVATE_INTERFACE_TARGETS
+  PRIVATE
   vgCommon
   qtVgCommon
   qtVgWidgets
   vvIO
   vvWidgets
   vtkVgQtUtil
+  ${VTK_OPENGL_RENDERING_COMPONENTS}
+  vtkCommonSystem
+  vtkImagingStencil
+  vtkGUISupportQt
   ${TESTING_INTERFACES}
 # TODO: Only needed for code that should be moved out
   vtkVgSceneGraph

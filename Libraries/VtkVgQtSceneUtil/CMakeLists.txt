@@ -17,12 +17,11 @@ set(vtkVgQtSceneUtilInstallHeaders
 # Build and link library.
 add_library(${PROJECT_NAME} ${vtkVgQtSceneUtilSrcs})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vtkVgSceneGraph
   qtExtensions
-  LINK_LIBRARIES
-  LINK_PRIVATE
+  PRIVATE
   vil_io
   vnl_io
   vgl_algo

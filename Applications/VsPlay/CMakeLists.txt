@@ -35,8 +35,6 @@ set(vspSdkTargets
   vspUserInterface # Inherit the rest of our dependencies from this
 )
 
-vg_include_library_sdk_directories(${vspSdkTargets})
-
 # Configure version header here
 include(vsVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vsVersion.h.in
@@ -62,22 +60,6 @@ set(vspPluginSources
     Plugins/vsVvqsDatabaseSourcePlugin.cxx
 )
 
-set(vspPluginMocHeaders
-    # Archive sources
-    Plugins/vsVideoArchiveSourcePlugin.h
-    Plugins/vsTrackArchiveSourcePlugin.h
-    Plugins/vsDescriptorArchiveSourcePlugin.h
-    # Other sources
-    Plugins/vsVvqsDatabaseQueryDialog.h
-    Plugins/vsVvqsDatabaseSource.h
-    Plugins/vsVvqsDatabaseSourcePrivate.h
-    Plugins/vsVvqsDatabaseSourcePlugin.h
-)
-
-set(vspPluginUI
-    Plugins/vvqsDatabaseQuery.ui
-)
-
 # END built-in plugins
 
 ###############################################################################
@@ -91,15 +73,7 @@ set(vspSources
     ${vspPluginSources}
 )
 
-set(vspUI
-    ${vspPluginUI}
-)
-
-set(vspMocHeaders
-    ${vspPluginMocHeaders}
-)
-
-set(vspResources
+set(vspResSources
   ../../Icons/stdbutton.qrc
   ../../Icons/vgvideo.qrc
   ../../Icons/vsp.qrc
@@ -111,37 +85,15 @@ set(vspResources
 
 # BEGIN build rules
 
-qt5_wrap_ui(uiSources ${vspUI})
-qt5_wrap_cpp(mocSources ${vspMocHeaders})
-qt5_add_resources(resSources ${vspResources})
-
-source_group("User Interface" FILES
-  ${vspUI}
-)
-
-source_group("Resources" FILES
-  ${vspUI}
-  ${EXE_ICON}
-)
-
-source_group("Generated" FILES
-  ${uiSources}
-  ${mocSources}
-  ${resSources}
-)
-
-set_source_files_properties(${vspSources}
-  PROPERTIES OBJECT_DEPENDS "${uiSources}"
-)
-
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-  ${vspSources} ${uiSources} ${mocSources} ${resSources}
+  ${vspSources} ${vspResSources}
 )
 
 # Built-in plugins should be considered static plugins
 target_compile_definitions(${PROJECT_NAME} PRIVATE QT_STATICPLUGIN)
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   ${vspSdkTargets}
   ${QT_TESTING_SUPPORT_LIBRARIES}
   Qt5::Network

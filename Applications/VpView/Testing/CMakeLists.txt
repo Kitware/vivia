@@ -2,7 +2,6 @@
 vg_add_test(vpView-FileDataSource testFileDataSource
   ARGS ${VISGUI_DATA_ROOT}/CLIF/images/*.png ${VISGUI_DATA_ROOT}/CLIF/images.txt
   SOURCES testFileDataSource.cxx ../vpFileDataSource.cxx
-  MOC_HEADERS ../vpFileDataSource.h
   LINK_LIBRARIES vtksys vtkFiltersGeneral vtkIOCore
 )
 

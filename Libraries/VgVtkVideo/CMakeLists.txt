@@ -1,21 +1,13 @@
 project(vgVtkVideo)
 
-set(vvvSources
+set(vgVtkVideoSources
   vgVideoAnimation.cxx
   vgVideoSeekRequest.cxx
   vgVideoPlayer.cxx
   vgVideoPlayerBufferedRequestor.cxx
   vgVideoPlayerRequestor.cxx
   vgVideoRequestor.cxx
-)
-
-set(vvvMocHeaders
-  vgVideoAnimation.h
-  vgVideoPlayer.h
-  vgVideoPlayerBufferedRequestor.h
-  vgVideoPlayerPrivate.h
-  vgVideoPlayerRequestor.h
-  vgVideoSourceRequestor.h
+  vgVideoSourceRequestor.cxx
 )
 
 set(vgVtkVideoInstallHeaders
@@ -31,23 +23,17 @@ include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
 )
 
-qt5_wrap_cpp(mocSources ${vvvMocHeaders})
+add_library(${PROJECT_NAME} ${vgVtkVideoSources})
 
-source_group("Generated" FILES ${mocSources})
-
-add_library(${PROJECT_NAME} ${vvvSources} ${mocSources})
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   qtExtensions
   vgVideo
   vtkVgCore
   vtkVgVideo
-  LINK_LIBRARIES
-  LINK_PUBLIC
   vtkRenderingCore
   ${VTK_JPEG_LIBRARIES}
-  LINK_PRIVATE
+  PRIVATE
   vgl
   vgl_algo
 )

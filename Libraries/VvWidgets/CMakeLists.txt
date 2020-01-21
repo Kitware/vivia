@@ -6,6 +6,7 @@ include_directories(
 )
 
 set(vvWidgets_Sources
+  vvAbstractQueryServerChooser.cxx
   vvCustomQueryServerChooser.cxx
   vvDescriptorInfoDialog.cxx
   vvDescriptorInfoTree.cxx
@@ -22,31 +23,6 @@ set(vvWidgets_Sources
   vvScoreGradientWidget.cxx
   vvTrackInfoDialog.cxx
   vvTrackInfoWidget.cxx
-)
-
-set(vvWidgets_MocHeaders
-  vvAbstractQueryServerChooser.h
-  vvCustomQueryServerChooser.h
-  vvDescriptorInfoDialog.h
-  vvDescriptorInfoTree.h
-  vvDescriptorInfoWidget.h
-  vvDescriptorStyleDelegate.h
-  vvQueryInfoLabel.h
-  vvQueryServerDialog.h
-  vvScoreGradientStopTree.h
-  vvScoreGradientWidget.h
-  vvTrackInfoDialog.h
-  vvTrackInfoWidget.h
-)
-
-set(vvWidgets_UiFiles
-  vvCustomQueryServerChooser.ui
-  vvDescriptorInfoDialog.ui
-  vvDescriptorInfoWidget.ui
-  vvQueryServerDialog.ui
-  vvScoreGradientWidget.ui
-  vvTrackInfoDialog.ui
-  vvTrackInfoWidget.ui
 )
 
 set(vvWidgetsInstallHeaders
@@ -66,17 +42,10 @@ set(vvWidgetsInstallHeaders
   vvTrackInfoWidget.h
 )
 
-qt5_wrap_cpp(vvWidgets_MocSources ${vvWidgets_MocHeaders})
-qt5_wrap_ui(vvWidgets_UiSources ${vvWidgets_UiFiles})
+add_library(${PROJECT_NAME} ${vvWidgets_Sources})
 
-add_library(${PROJECT_NAME}
-  ${vvWidgets_Sources}
-  ${vvWidgets_MocSources}
-  ${vvWidgets_UiSources}
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvIO
   qtVgCommon
   qtExtensions

@@ -11,6 +11,10 @@ find_package(Qt5 5.8.0 REQUIRED COMPONENTS
   Xml
 )
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
 # Generally, Boost is built shared, but give an advanced option to find a static build.
 option(USE_STATIC_BOOST
   "Find a static build of Boost"

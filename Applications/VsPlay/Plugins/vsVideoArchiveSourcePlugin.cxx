@@ -5,6 +5,7 @@
  */
 
 #include "vsVideoArchiveSourcePlugin.h"
+#include "moc_vsVideoArchiveSourcePlugin.cpp"
 
 #include <QtPlugin>
 

@@ -65,7 +65,7 @@ else ()
   )
   set_source_files_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
-    PROPERTIES GENERATED TRUE
+    PROPERTIES GENERATED TRUE SKIP_AUTOGEN TRUE
   )
 endif ()
 

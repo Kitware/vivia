@@ -1,16 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
-
 project(mrjTranslator)
 
-set(srcs MrjTranslator.cxx
-)
+add_executable(${PROJECT_NAME} MrjTranslator.cxx)
 
-add_executable(${PROJECT_NAME} ${srcs})
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
-  vtkVgCore
-  LINK_LIBRARIES LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   vtkVgCore
   vtkCommonCore
   vtkCommonSystem

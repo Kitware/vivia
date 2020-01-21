@@ -4,7 +4,7 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vsVvqsDatabaseSourcePrivate.h"
+#include "moc_vsVvqsDatabaseSourcePrivate.cpp"
 
 #include <vsAdapt.h>
 

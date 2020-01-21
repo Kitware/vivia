@@ -11,6 +11,8 @@ set(vspData_Sources
     vsSourceService.cxx
     # Data sources
     vsDataSource.cxx
+    vsDescriptorSource.cxx
+    vsTrackSource.cxx
     vsVideoSource.cxx
     vsSimpleSourceFactory.cxx
     vsSourceFactory.cxx
@@ -24,18 +26,6 @@ set(vspData_Sources
     vsLibDebug.cxx
     vsTrackInfo.cxx
     vtkVsTrackInfo.cxx
-)
-
-set(vspData_MocHeaders
-    # Live descriptors
-    vsLiveDescriptor.h
-    vsLiveDescriptorPrivate.h
-    # Data sources
-    vsDataSource.h
-    vsVideoSource.h
-    vsVideoSourcePrivate.h
-    vsTrackSource.h
-    vsDescriptorSource.h
 )
 
 set(vspDataInstallHeaders
@@ -68,15 +58,10 @@ set(vspDataInstallHeaders
   vtkVsTrackInfo.h
 )
 
-qt5_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
+add_library(${PROJECT_NAME} ${vspData_Sources})
 
-add_library(${PROJECT_NAME}
-  ${vspData_Sources}
-  ${vspData_MocSources}
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   qtExtensions
   qtVgCommon
   vgVideo

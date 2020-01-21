@@ -5,6 +5,7 @@
  */
 
 #include "vsDescriptorArchiveSourcePlugin.h"
+#include "moc_vsDescriptorArchiveSourcePlugin.cpp"
 
 #include <QtPlugin>
 

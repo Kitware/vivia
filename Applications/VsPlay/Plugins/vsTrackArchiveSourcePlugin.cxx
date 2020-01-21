@@ -5,6 +5,7 @@
  */
 
 #include "vsTrackArchiveSourcePlugin.h"
+#include "moc_vsTrackArchiveSourcePlugin.cpp"
 
 #include <QtPlugin>
 

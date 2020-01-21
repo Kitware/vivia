@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -54,7 +54,8 @@ enum
 
 struct CompareByRank
 {
-  bool operator()(const ClipElement& c1, const ClipElement& c2)
+  bool operator()(const vqTrackingClipBuilder::ClipElement& c1,
+                  const vqTrackingClipBuilder::ClipElement& c2)
     {
     return c1.second->GetRank() < c2.second->GetRank();
     }

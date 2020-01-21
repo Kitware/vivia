@@ -196,12 +196,10 @@ function(vg_wrap_library NAME)
   )
   include_directories(${_extra_include_dirs})
   vg_add_sbk_library(${_pyname} ${_sources})
-  vg_add_dependencies(${_pyname}
-    PRIVATE_INTERFACE_TARGETS
+  target_link_libraries(${_pyname}
+    PRIVATE
     ${NAME}
     ${_DEPENDS}
-    LINK_LIBRARIES
-    LINK_PRIVATE
     ${SHIBOKEN_PYTHON_LIBRARIES}
     ${SHIBOKEN_LIBRARY}
     ${_extra_link_libraries}
@@ -236,12 +234,6 @@ endfunction()
 # Function to wrap a library using VTK
 function(vg_wrap_vtk_library NAME)
   if(VISGUI_ENABLE_PYTHON)
-    # Temporarily unset VisGUI module include directories, as VTK uses the same
-    # name, and we need VTK to see a different directory list (must remove it
-    # from cache or vtk_module_load will not be able to populate it)
-    set(_old_include_dirs "${${NAME}_INCLUDE_DIRS}")
-    unset(${NAME}_INCLUDE_DIRS CACHE)
-
     vtk_module_load("${NAME}")
     vtk_module_headers_load("${NAME}")
 
@@ -262,9 +254,5 @@ function(vg_wrap_vtk_library NAME)
     list(REMOVE_DUPLICATES ${NAME}_INCLUDE_DIRS)
 
     vtk_add_python_wrapping("${NAME}")
-
-    # Restore VisGUI module include directories
-    set(${NAME}_INCLUDE_DIRS)
-    vg_target_include_directories(${NAME} ${_old_include_dirs})
   endif()
 endfunction()
