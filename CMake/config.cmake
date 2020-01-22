@@ -45,7 +45,13 @@ else()
 endif()
 
 # Set extra compiler flags
-if(NOT MSVC)
+if(MSVC)
+  # Turn on additional warnings-as-errors
+  vg_add_cxx_flags(
+    # Character cannot be represented in current code page
+    -we4566
+  )
+else()
   # Determine what flags (if any) are needed for required C++ language support
   # Note: MSVC always uses latest known C++ extensions
   vg_add_cxx_flags_priority(-std=c++11 -std=c++0x)

@@ -312,7 +312,7 @@ QString vsVvqsDatabaseSourcePrivate::displayableRequestUri() const
 {
   // Separate query items with zero-width space for better line breaking
   QString uri = this->RequestUri.toString();
-  static const auto replacement = QStringLiteral("\u200b\\1");
+  static const auto replacement = QStringLiteral(u"\u200b\\1");
   return uri.replace(QRegExp(QStringLiteral("([?&])")), replacement);
 }
 

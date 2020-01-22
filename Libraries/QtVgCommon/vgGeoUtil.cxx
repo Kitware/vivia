@@ -116,10 +116,10 @@ QString dmsString(double coord, const QString& dp, const QString& dn,
       resultTemplate = QStringLiteral("%1d%2\'%3\"%4");
       break;
     case vgGeodesy::FormatDmsLatin1:
-      resultTemplate = QStringLiteral("%1\u00b0%2\'%3\"%4");
+      resultTemplate = QStringLiteral(u"%1\u00b0%2\'%3\"%4");
       break;
     case vgGeodesy::FormatDmsUnicode:
-      resultTemplate = QStringLiteral("%1\u00b0%2\u2032%3\u2033%4");
+      resultTemplate = QStringLiteral(u"%1\u00b0%2\u2032%3\u2033%4");
       break;
     default:
       qWarning().nospace() << __FUNCTION__ << ": invalid format mode " << fm;

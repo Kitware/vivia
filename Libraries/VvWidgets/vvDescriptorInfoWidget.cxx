@@ -134,7 +134,7 @@ void vvDescriptorInfoWidget::setDescriptor(vvDescriptor newDescriptor)
   // Regions
   qtDelayTreeSorting rds(d->UI.regions);
   d->UI.regions->clear();
-  static const auto rf = QStringLiteral("%1,%2 %3\u00d7%4");
+  static const auto rf = QStringLiteral(u"%1,%2 %3\u00d7%4");
   foreach_iter (vvDescriptorRegionMap::const_iterator, iter,
                 newDescriptor.Region)
     {
