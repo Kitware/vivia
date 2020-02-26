@@ -70,7 +70,7 @@ bool vpModelIO::ImportTracks(int frameOffset, vtkIdType idsOffset,
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::WriteTracks(const char* filename, int frameOffset,
+bool vpModelIO::WriteTracks(const QString& filename, int frameOffset,
                             QPointF aoiOffset)
 {
   assert(this->TrackIO);
@@ -129,7 +129,7 @@ bool vpModelIO::ImportFseTracks(vtkIdType idsOffset,
 }
 
 //-----------------------------------------------------------------------------
-bool vpModelIO::WriteFseTracks(const char* filename, QPointF aoiOffset,
+bool vpModelIO::WriteFseTracks(const QString& filename, QPointF aoiOffset,
                                bool writeSceneElements)
 {
   assert(this->FseTrackIO);

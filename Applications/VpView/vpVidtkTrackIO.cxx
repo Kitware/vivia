@@ -26,7 +26,11 @@
 #include <tracking_data/pvo_probability.h>
 #include <tracking_data/tracking_keys.h>
 
-#include <assert.h>
+#include <qtStlUtil.h>
+
+#include <QStringList>
+
+#include <cassert>
 
 namespace
 {
@@ -209,8 +213,20 @@ bool vpVidtkTrackIO::ImportTracks(
 }
 
 //-----------------------------------------------------------------------------
+QStringList vpVidtkTrackIO::GetSupportedFormats() const
+{
+  return {"Kitware CSV tracks (*.kw18)"};
+}
+
+//-----------------------------------------------------------------------------
+QString vpVidtkTrackIO::GetDefaultFormat() const
+{
+  return "kw18";
+}
+
+//-----------------------------------------------------------------------------
 bool vpVidtkTrackIO::WriteTracks(
-  const char* filename, int frameOffset, QPointF aoiOffset,
+  const QString& filename, int frameOffset, QPointF aoiOffset,
   bool writeSceneElements) const
 {
   if (writeSceneElements)
@@ -221,11 +237,11 @@ bool vpVidtkTrackIO::WriteTracks(
 
   vidtk::track_writer_process writer("vpVidtkTrackIO::WriteTracks");
 
-  std::string filestr(filename);
-  std::string format = filestr.substr(filestr.rfind('.') + 1);
+  const auto& filestr = stdString(filename);
+  const auto& format = filestr.substr(filestr.rfind('.') + 1);
 
   if (!writer.set_params(
-        writer.params().set_value("filename", filename)
+        writer.params().set_value("filename", filestr)
                        .set_value("overwrite_existing", true)
                        .set_value("format", format)
                        .set_value("disabled", false)))
@@ -265,11 +281,8 @@ bool vpVidtkTrackIO::WriteTracks(
   bool regionsFileOpenFailed = false;
   bool attributesFileOpenFailed = false;
 
-  std::string typesFilename(filename);
-  typesFilename += ".types";
-
-  std::string regionsFilename(filename);
-  regionsFilename += ".regions";
+  const auto& typesFilename = filestr + ".types";
+  const auto& regionsFilename = filestr + ".regions";
 
   std::string attributesFilename(filename);
   attributesFilename += ".attributes";

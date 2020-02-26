@@ -43,8 +43,11 @@ public:
   virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
                             float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const char* filename, int frameOffset,
+  virtual bool WriteTracks(const QString& filename, int frameOffset,
                            QPointF aoiOffset, bool writeSceneElements) const;
+
+  virtual QStringList GetSupportedFormats() const;
+  virtual QString GetDefaultFormat() const;
 
 private:
   QString TracksFileName;

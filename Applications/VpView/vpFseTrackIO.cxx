@@ -21,6 +21,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QStringList>
 
 #include <json.h>
 
@@ -268,8 +269,20 @@ bool vpFseTrackIO::ImportTracks(int vtkNotUsed(frameOffset),
 }
 
 //-----------------------------------------------------------------------------
+QStringList vpFseTrackIO::GetSupportedFormats() const
+{
+  return {"Scene Elements (JSON) (*.json)"};
+}
+
+//-----------------------------------------------------------------------------
+QString vpFseTrackIO::GetDefaultFormat() const
+{
+  return "json";
+}
+
+//-----------------------------------------------------------------------------
 bool vpFseTrackIO::WriteTracks(
-  const char* filename, int vtkNotUsed(frameOffset),
+  const QString& filename, int vtkNotUsed(frameOffset),
   QPointF aoiOffset, bool writeSceneElements) const
 {
   vtkPoints* points = this->TrackModel->GetPoints();
@@ -402,11 +415,11 @@ bool vpFseTrackIO::WriteTracks(
     }
   root.push_back(tracks);
 
-  std::ofstream file(filename, ios::out | ios::trunc | ios::binary);
+  std::ofstream file(stdString(filename), ios::out | ios::trunc | ios::binary);
   if (!file.is_open())
     {
     std::cerr << "ERROR: Failed to write tracks to "
-              << filename << '\n';
+              << qPrintable(filename) << '\n';
     return false;
     }
 

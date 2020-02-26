@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -11,6 +11,7 @@
 #include "vtkVgPicker.h"
 #include "vtkVgTrackFilter.h"
 #include "vtkVgTrackModel.h"
+#include "vtkVgTrackTypeRegistry.h"
 
 #include <vtkCommand.h>
 #include <vtkLookupTable.h>
@@ -18,6 +19,9 @@
 vtkCxxSetObjectMacro(vtkVgTrackRepresentationBase,
                      TrackFilter,
                      vtkVgTrackFilter);
+vtkCxxSetObjectMacro(vtkVgTrackRepresentationBase,
+                     TrackTypeRegistry,
+                     vtkVgTrackTypeRegistry);
 vtkCxxSetObjectMacro(vtkVgTrackRepresentationBase,
                      ContourOperatorManager,
                      vtkVgContourOperatorManager);
@@ -44,8 +48,8 @@ enum { NumRandomColors = sizeof(RandomColors) / sizeof(RandomColors[0]) };
 
 //-----------------------------------------------------------------------------
 vtkVgTrackRepresentationBase::vtkVgTrackRepresentationBase()
-  : vtkVgRepresentationBase(), ContourOperatorManager(0),
-    TrackModel(0), TrackFilter(0), ColorMode(TCM_Model), ColorHelper(0),
+  : vtkVgRepresentationBase(), ContourOperatorManager(0), TrackModel(0),
+    TrackFilter(0), TrackTypeRegistry(0), ColorMode(TCM_Model), ColorHelper(0),
     StateAttributeGroupMask(0), ExcludedTrack(0)
 {
   // for now, PVO colors default to P=b, V=g, O=r
@@ -74,6 +78,7 @@ vtkVgTrackRepresentationBase::vtkVgTrackRepresentationBase()
 vtkVgTrackRepresentationBase::~vtkVgTrackRepresentationBase()
 {
   this->SetTrackFilter(0);
+  this->SetTrackTypeRegistry(0);
   this->SetTrackModel(0);
   this->SetContourOperatorManager(0);
   this->SetExcludedTrack(0);
@@ -173,13 +178,13 @@ void vtkVgTrackRepresentationBase::SetColorHelper(
 }
 
 //-----------------------------------------------------------------------------
-int vtkVgTrackRepresentationBase::GetTrackPVOType(vtkVgTrack* track)
+int vtkVgTrackRepresentationBase::GetTrackTOCType(vtkVgTrack* track)
 {
   if (this->TrackFilter)
     {
     return this->TrackFilter->GetBestClassifier(track);
     }
-  return track->GetBestPVOClassifier();
+  return track->GetBestTOCClassifier().first;
 }
 
 //-----------------------------------------------------------------------------
@@ -212,20 +217,33 @@ const double* vtkVgTrackRepresentationBase::GetTrackColor(
     case TCM_Model:
       return track->GetColor();
 
-    case TCM_PVO:
+    case TCM_TOC:
       {
       if (!trackInfo.GetDisplayTrack())
         {
         return this->UnclassifiedColor;
         }
 
-      switch (this->GetTrackPVOType(track))
+      const auto tt = this->GetTrackTOCType(track);
+      if (this->TrackTypeRegistry)
         {
-        case vtkVgTrack::Person:  return this->PersonColor;
-        case vtkVgTrack::Vehicle: return this->VehicleColor;
-        case vtkVgTrack::Other:   return this->OtherColor;
-        default:                  return this->UnclassifiedColor;
+        if (tt >= 0 && tt < this->TrackTypeRegistry->GetNumberOfTypes())
+          {
+          const auto& type = this->TrackTypeRegistry->GetEntityType(tt);
+          return type.GetColor();
+          }
         }
+      else
+        {
+        switch (tt)
+          {
+          case vtkVgTrack::Person:  return this->PersonColor;
+          case vtkVgTrack::Vehicle: return this->VehicleColor;
+          case vtkVgTrack::Other:   return this->OtherColor;
+          default:                  break;
+          }
+        }
+      return this->UnclassifiedColor;
       }
 
     case TCM_Random:

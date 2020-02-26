@@ -37,12 +37,15 @@ public:
   void SetTrackTraitsFilePath(const QString& filePath);
   void SetTrackClassifiersFilePath(const QString& filePath);
 
-  virtual bool ReadTracks(int frameOffset) QTE_OVERRIDE;
-  virtual bool WriteTracks(const char*, int, QPointF, bool) const QTE_OVERRIDE
+  virtual bool ReadTracks(int frameOffset) override;
+  virtual bool WriteTracks(const QString&, int, QPointF, bool) const override
     { return false; }
 
   virtual bool ReadTrackTraits() override;
   virtual bool ReadTrackClassifiers() override;
+
+  virtual QStringList GetSupportedFormats() const override;
+  virtual QString GetDefaultFormat() const override;
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);

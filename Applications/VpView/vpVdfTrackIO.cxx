@@ -21,6 +21,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QStringList>
 #include <QUrl>
 
 namespace
@@ -376,4 +377,16 @@ bool vpVdfTrackIO::ReadTrackClassifiers()
 {
   QTE_D();
   return d->FileReader.ReadTrackClassifiers(d->TrackClassifiersFilePath);
+}
+
+//-----------------------------------------------------------------------------
+QStringList vpVdfTrackIO::GetSupportedFormats() const
+{
+  return {};
+}
+
+//-----------------------------------------------------------------------------
+QString vpVdfTrackIO::GetDefaultFormat() const
+{
+  return {};
 }
