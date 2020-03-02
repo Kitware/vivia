@@ -27,6 +27,15 @@ set(vvVtkWidgetsSources
   vvVideoQueryDialogPrivate.cxx
 )
 
+get_property(_is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(_is_multi_config)
+  set(${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/include_$<CONFIG>)
+else()
+  set(${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/include)
+endif()
+
 set(vvVtkWidgetsInstallHeaders
   vvAbstractSimilarityQueryDialog.h
   vvClipVideoRepresentation.h
@@ -41,8 +50,8 @@ set(vvVtkWidgetsInstallHeaders
   vvVideoPlayerPrivate.h
   vvVideoQueryDialog.h
   vvVideoQueryDialogPrivate.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ui_videoQuery.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ui_videoView.h
+  ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoQuery.h
+  ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoView.h
 )
 
 #END common sources
