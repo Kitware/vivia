@@ -15,6 +15,8 @@
 
 #include <vtkMatrix4x4.h>
 
+#include <QSettings>
+
 #include <algorithm>
 
 #include <assert.h>
@@ -159,4 +161,21 @@ int vpTrackIO::GetTrackTypeIndex(const char* typeName)
   const auto newIndex = this->TrackTypes->GetNumberOfTypes();
   this->TrackTypes->AddType(type);
   return newIndex;
+}
+
+//-----------------------------------------------------------------------------
+QPointF vpTrackIO::EstimateTrackPoint(const QRectF& box)
+{
+  constexpr static auto half = static_cast<qreal>(0.5);
+
+  static const bool bottom =
+    QSettings{}.value("TrackPointsAtBottom", false).toBool();
+
+  auto const x = half * (box.left() + box.right());
+  if (bottom)
+  {
+    return {x, box.bottom()};
+  }
+
+  return {x, half * (box.top() + box.bottom())};
 }

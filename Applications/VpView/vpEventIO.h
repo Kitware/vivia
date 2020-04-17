@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -26,6 +26,9 @@ public:
   virtual bool ImportEvents(vtkIdType idsOffset, float offsetX, float offsetY);
 
   virtual bool WriteEvents(const char* filename) const = 0;
+
+  int GetEventType(const char* typeName);
+  int GetEventTypeIndex(const char* typeName);
 
 protected:
   friend class vpFileEventReader;

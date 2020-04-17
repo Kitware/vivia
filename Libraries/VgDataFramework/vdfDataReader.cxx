@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -105,7 +105,8 @@ bool vdfDataReader::hasData() const
 //-----------------------------------------------------------------------------
 bool vdfDataReader::failed() const
 {
-  return this->source()->status() == vdfDataSource::Invalid;
+  auto* const s = this->source();
+  return (s && (s->status() == vdfDataSource::Invalid));
 }
 
 //-----------------------------------------------------------------------------
@@ -140,4 +141,10 @@ bool vdfDataReader::exec()
 
   // We are successful if data was received
   return !this->failed() && this->hasData();
+}
+
+//-----------------------------------------------------------------------------
+QList<const QMetaObject*> vdfDataReader::desiredSources() const
+{
+  return {};
 }

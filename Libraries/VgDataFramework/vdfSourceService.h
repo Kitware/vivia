@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -10,6 +10,7 @@
 #include <vgExport.h>
 
 template <typename T> class QList;
+class QMetaObject;
 class QUrl;
 
 struct vdfArchivePluginInfo;
@@ -41,8 +42,14 @@ namespace vdfSourceService
   /// archive source plugins to create a static source factory from the
   /// specified \p archive. If no plugin is able to process the \p archive,
   /// a null pointer is returned.
+  ///
+  /// If not empty, \p desiredInterfaces provides a hint to the plugin as to
+  /// what source interfaces the user desires for the created source to
+  /// provide. This can help select the correct source if multiple sources
+  /// (which provide different types of data) believe they can process the
+  /// archive.
   VG_DATA_FRAMEWORK_EXPORT vdfDataSource* createArchiveSource(
-    const QUrl& archive);
+    const QUrl& archive, const QList<QMetaObject const*>& desiredInterfaces);
 }
 
 #endif

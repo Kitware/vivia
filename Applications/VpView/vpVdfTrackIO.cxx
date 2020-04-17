@@ -19,6 +19,7 @@
 #include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QUrl>
@@ -66,6 +67,18 @@ void addPoint(std::vector<float>& points, float x, float y, float z = 0.0f)
   points.push_back(z);
 }
 
+//-----------------------------------------------------------------------------
+QPointF toQPointF(vvImagePoint const& p)
+{
+  return QPoint{p.X, p.Y};
+}
+
+//-----------------------------------------------------------------------------
+QRectF toQRectF(vvImageBoundingBox const& box)
+{
+  return {toQPointF(box.TopLeft), toQPointF(box.BottomRight)};
+}
+
 } // namespace <anonymous>
 
 QTE_IMPLEMENT_D_FUNC(vpVdfTrackIO)
@@ -77,20 +90,21 @@ public:
   vpFileTrackReader FileReader;
   vpVdfIO* Base;
   QUrl TracksUri;
+  QHash<long long, vtkIdType>& TrackSourceIdToModelIdMap;
   QString TrackTraitsFilePath;
   QString TrackClassifiersFilePath;
 };
 
 //-----------------------------------------------------------------------------
 vpVdfTrackIO::vpVdfTrackIO(
-  vpVdfIO* base, vtkVpTrackModel* trackModel,
-  TrackStorageMode storageMode, bool interpolateToGround,
-  TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
-  vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
-  vpFrameMap* frameMap)
+  vpVdfIO* base, QHash<long long, vtkIdType>& trackSourceIdToModelIdMap,
+  vtkVpTrackModel* trackModel, TrackStorageMode storageMode,
+  bool interpolateToGround, TrackTimeStampMode timeStampMode,
+  vtkVgTrackTypeRegistry* trackTypes, vgAttributeSet* trackAttributes,
+  vtkMatrix4x4* geoTransform, vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
               trackTypes, geoTransform, frameMap},
-    d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}}}
+    d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}, trackSourceIdToModelIdMap}}
 {
 }
 
@@ -133,6 +147,8 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   QTE_D();
 
   vdfTrackReader reader;
+  const auto& desiredSources = reader.desiredSources();
+
   QStringList supplementalFileBases;
   vpFileTrackReader::TrackRegionMap trackRegionMap;
 
@@ -160,12 +176,10 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
       // Construct the track source and track reader
       const auto& trackUri = QUrl::fromLocalFile(filePath);
       QScopedPointer<vdfDataSource> source{
-        vdfSourceService::createArchiveSource(trackUri)};
+        vdfSourceService::createArchiveSource(trackUri, desiredSources)};
 
-      if (source)
+      if (source && reader.setSource(source.data()))
       {
-        reader.setSource(source.data());
-
         // Read tracks
         if (!reader.exec() && reader.failed())
         {
@@ -179,16 +193,9 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
   }
   else
   {
-    if (d->TracksUri.isLocalFile())
-    {
-      const auto& filePath = d->TracksUri.toLocalFile();
-      d->FileReader.ReadRegionsFile(filePath, 0.0f, 0.0f, trackRegionMap);
-      supplementalFileBases.append(filePath);
-    }
-
     // Construct the track source and track reader
     QScopedPointer<vdfDataSource> source{
-      vdfSourceService::createArchiveSource(d->TracksUri)};
+      vdfSourceService::createArchiveSource(d->TracksUri, desiredSources)};
 
     if (source)
     {
@@ -227,10 +234,11 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
     if (this->TrackModel->GetTrack(vtkId))
     {
       const auto fallbackId = this->TrackModel->GetNextAvailableId();
-      std::cout << "Track id " << vtkId
-                << " is not unique: changing id of imported track to "
-                << fallbackId << std::endl;
+      qInfo() << "Track id" << vtkId
+              << "is not unique: changing id of imported track to"
+              << fallbackId;
       track->SetId(fallbackId);
+      d->TrackSourceIdToModelIdMap.insert(ti.key().SerialNumber, fallbackId);
     }
     else
     {
@@ -284,6 +292,12 @@ bool vpVdfTrackIO::ReadTracks(int /*frameOffset*/)
 
       // Extract point location
       double p[4] = {s.ImagePoint.X, s.ImagePoint.Y, 0.0, 1.0};
+      if (!qIsFinite(p[0]) || !qIsFinite(p[1]))
+      {
+        auto const& ep = this->EstimateTrackPoint(toQRectF(s.ImageBox));
+        p[0] = ep.x();
+        p[1] = ep.y();
+      }
       if (this->StorageMode == TSM_InvertedImageCoords)
       {
         p[1] = this->GetImageHeight() - p[1];

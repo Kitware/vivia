@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -7,6 +7,8 @@
 #include "vtkVgEventTypeRegistry.h"
 
 #include <vtkObjectFactory.h>
+
+#include <algorithm>
 
 template class vtkVgTypeRegistry<vgEventType>;
 
@@ -23,10 +25,10 @@ const vgEventType& vtkVgEventTypeRegistry::GetTypeById(int id)
 {
   int index = this->GetTypeIndex(id);
   if (index == -1)
-    {
+  {
     this->WarnTypeNotFound(id);
     return this->InvalidType;
-    }
+  }
   return this->GetType(index);
 }
 
@@ -35,24 +37,37 @@ void vtkVgEventTypeRegistry::RemoveTypeById(int id)
 {
   int index = this->GetTypeIndex(id);
   if (index == -1)
-    {
+  {
     this->WarnTypeNotFound(id);
     return;
-    }
+  }
   return this->RemoveType(index);
 }
 
 //-----------------------------------------------------------------------------
 int vtkVgEventTypeRegistry::GetTypeIndex(int id) const
 {
-  for (int i = 0, end = this->GetNumberOfTypes(); i < end; ++i)
-    {
+  const auto end = this->GetNumberOfTypes();
+  for (auto i = decltype(end){0}; i < end; ++i)
+  {
     if (this->GetType(i).GetId() == id)
-      {
+    {
       return i;
-      }
     }
+  }
   return -1;
+}
+
+//-----------------------------------------------------------------------------
+int vtkVgEventTypeRegistry::GetNextAvailableId() const
+{
+  int result = 0;
+  const auto end = this->GetNumberOfTypes();
+  for (auto i = decltype(end){0}; i < end; ++i)
+  {
+    result = std::max(result, this->GetType(i).GetId());
+  }
+  return ++result;
 }
 
 //-----------------------------------------------------------------------------

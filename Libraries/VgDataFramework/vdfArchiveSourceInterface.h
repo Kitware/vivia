@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -24,7 +24,7 @@ class vdfArchiveSourceInterface
 public:
   /// Mode in which source creation should operate.
   enum SourceCreateMode
-    {
+  {
     /// Quick archive validation.
     ///
     /// This mode specifies that the plugin should make a quick, educated guess
@@ -48,7 +48,7 @@ public:
     /// plugins have been asked to process the archive in ::QuickTest mode, but
     /// none accepted the archive.
     ThoroughTest
-    };
+  };
 
   virtual ~vdfArchiveSourceInterface() {}
 
@@ -63,8 +63,12 @@ public:
   /// This method requests that the plugin create sources for the specified
   /// \p archive. The plugin should test if the \p archive is of a type that it
   /// supports, and if not, return null.
+  ///
+  /// If \p desiredSources is non-empty, the plugin should prefer to create
+  /// sources which provide the specified interface(s).
   virtual vdfDataSource* createArchiveSource(
-    const QUrl& archive, SourceCreateMode) = 0;
+    const QUrl& archive, const QList<const QMetaObject*>& desiredSources,
+    SourceCreateMode) = 0;
 };
 
 Q_DECLARE_INTERFACE(vdfArchiveSourceInterface,

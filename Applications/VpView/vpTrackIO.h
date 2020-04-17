@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -12,6 +12,7 @@
 #include <vtkSmartPointer.h>
 
 #include <QPointF>
+#include <QRectF>
 
 class vpFrameMap;
 
@@ -88,6 +89,8 @@ public:
 
 protected:
   virtual unsigned int GetImageHeight() const = 0;
+
+  QPointF EstimateTrackPoint(const QRectF& box);
 
 protected:
   friend class vpFileTrackReader;

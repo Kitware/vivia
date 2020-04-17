@@ -45,6 +45,8 @@ public:
   void SetTrackTraitsFilePath(const QString& filePath);
   void SetTrackClassifiersFilePath(const QString& filePath);
 
+  void SetEventsUri(const QUrl& uri);
+
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfIO);
 

@@ -2,6 +2,7 @@ project(vvData)
 
 set(vvData_InstallHeaders
   vvDescriptor.h
+  vvEvent.h
   vvIqr.h
   vvQuery.h
   vvQueryResult.h

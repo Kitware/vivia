@@ -26,9 +26,9 @@ public:
   vdfTrackOracleArchiveSourcePlugin();
   virtual ~vdfTrackOracleArchiveSourcePlugin();
 
-  virtual vdfArchivePluginInfo archivePluginInfo() const QTE_OVERRIDE;
+  virtual vdfArchivePluginInfo archivePluginInfo() const override;
   virtual vdfDataSource* createArchiveSource(
-    const QUrl&, SourceCreateMode) QTE_OVERRIDE;
+    const QUrl&, const QList<const QMetaObject*>&, SourceCreateMode) override;
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vdfTrackOracleArchiveSourcePlugin)

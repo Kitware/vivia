@@ -3199,6 +3199,7 @@ vpProject* vpViewCore::loadProject(QScopedPointer<vpProject>& project)
   io->SetTracksUri(QUrl::fromUserInput(project->TracksFile));
   io->SetTrackTraitsFilePath(project->TrackTraitsFile);
   io->SetTrackClassifiersFilePath(project->TrackClassifiersFile);
+  io->SetEventsUri(QUrl::fromUserInput(project->EventsFile));
   project->ModelIO = io;
 
 #endif
@@ -9336,21 +9337,21 @@ bool vpViewCore::getHomography(int frameIndex, vtkMatrix4x4* homography) const
     vtkMatrix4x4::Multiply4x4(this->LatLonToWorldMatrix, imageToLatLon,
                               this->ImageToWorkingWorldMatrix);
 
-    // Convert from and back to vidtk coordinates (Y down instead of up)
-    vtkSmartPointer<vtkMatrix4x4> fromVidtk =
+    // Convert from and back to image coordinates (Y down instead of up)
+    vtkSmartPointer<vtkMatrix4x4> fromImage =
       vtkSmartPointer<vtkMatrix4x4>::New();
-    fromVidtk->SetElement(1, 1, -1);
-    fromVidtk->SetElement(1, 3, this->FirstImageY - 1);
-    vtkMatrix4x4::Multiply4x4(fromVidtk, this->ImageToWorkingWorldMatrix,
+    fromImage->SetElement(1, 1, -1);
+    fromImage->SetElement(1, 3, this->FirstImageY - 1);
+    vtkMatrix4x4::Multiply4x4(fromImage, this->ImageToWorkingWorldMatrix,
                               this->ImageToWorkingWorldMatrix);
 
-    vtkSmartPointer<vtkMatrix4x4> backToVidtk =
+    vtkSmartPointer<vtkMatrix4x4> backToImage =
       vtkSmartPointer<vtkMatrix4x4>::New();
-    backToVidtk->SetElement(1, 1, -1);
+    backToImage->SetElement(1, 1, -1);
     int dim[2];
     imageSource->GetRasterDimensions(dim);
-    backToVidtk->SetElement(1, 3, dim[1] - 1);
-    vtkMatrix4x4::Multiply4x4(this->ImageToWorkingWorldMatrix, backToVidtk,
+    backToImage->SetElement(1, 3, dim[1] - 1);
+    vtkMatrix4x4::Multiply4x4(this->ImageToWorkingWorldMatrix, backToImage,
                               this->ImageToWorkingWorldMatrix);
 
     homography->DeepCopy(this->ImageToWorkingWorldMatrix);

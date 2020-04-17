@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -69,9 +69,10 @@ bool vpVidtkFileReader::ReadTracks(std::vector<vidtk::track_sptr>& outTracks)
     for (size_t i = 0, k = files.size(); i < k; ++i)
       {
       // Construct the track source and track reader
-      const QUrl trackUri = QUrl::fromLocalFile(qtString(files[i]));
+      const auto& desiredSources = reader.desiredSources();
+      const auto& trackUri = QUrl::fromLocalFile(qtString(files[i]));
       QScopedPointer<vdfDataSource> source(
-        vdfSourceService::createArchiveSource(trackUri));
+        vdfSourceService::createArchiveSource(trackUri, desiredSources));
 
       if (source)
         {

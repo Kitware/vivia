@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -25,11 +25,11 @@ class vpVdfTrackIO : public vpTrackIO
 {
 public:
   vpVdfTrackIO(
-    vpVdfIO* base, vtkVpTrackModel* trackModel,
-    TrackStorageMode storageMode, bool interpolateToGround,
-    TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
-    vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
-    vpFrameMap* frameMap);
+    vpVdfIO* base, QHash<long long, vtkIdType>& eventSourceIdToModelIdMap,
+    vtkVpTrackModel* trackModel, TrackStorageMode storageMode,
+    bool interpolateToGround, TrackTimeStampMode timeStampMode,
+    vtkVgTrackTypeRegistry* trackTypes, vgAttributeSet* trackAttributes,
+    vtkMatrix4x4* geoTransform, vpFrameMap* frameMap);
 
   virtual ~vpVdfTrackIO();
 

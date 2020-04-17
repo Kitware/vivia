@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -79,6 +79,17 @@ public:
   ///         (i.e. hasData() returns \c true and failed() returns \c false),
   ///         otherwise \c false.
   virtual bool exec();
+
+  /// Sources desired by the reader.
+  ///
+  /// This returns a list of the meta-objects of the data sources that the
+  /// reader wants available in order to obtain data. This is typically used
+  /// as a hint when creating the source, as additional information to the
+  /// source factory to obtain a source that will be able to provide the
+  /// desired data.
+  ///
+  /// \sa vdfSourceService::createArchiveSource
+  virtual QList<const QMetaObject*> desiredSources() const;
 
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vdfDataReader)
