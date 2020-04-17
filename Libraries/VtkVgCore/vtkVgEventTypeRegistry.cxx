@@ -8,6 +8,8 @@
 
 #include <vtkObjectFactory.h>
 
+#include <algorithm>
+
 template class vtkVgTypeRegistry<vgEventType>;
 
 vtkStandardNewMacro(vtkVgEventTypeRegistry);
@@ -46,7 +48,7 @@ void vtkVgEventTypeRegistry::RemoveTypeById(int id)
 int vtkVgEventTypeRegistry::GetTypeIndex(int id) const
 {
   const auto end = this->GetNumberOfTypes();
-  for (decltype(+end) i = 0; i < end; ++i)
+  for (auto i = decltype(end){0}; i < end; ++i)
   {
     if (this->GetType(i).GetId() == id)
     {
@@ -61,7 +63,7 @@ int vtkVgEventTypeRegistry::GetNextAvailableId() const
 {
   int result = 0;
   const auto end = this->GetNumberOfTypes();
-  for (decltype(+end) i = 0; i < end; ++i)
+  for (auto i = decltype(end){0}; i < end; ++i)
   {
     result = std::max(result, this->GetType(i).GetId());
   }

@@ -67,7 +67,7 @@ void vtkVgTypeRegistry<T>::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Types:\n";
   const auto end = this->GetNumberOfTypes();
-  for (decltype(+end) i = 0; i < end; ++i)
+  for (auto i = decltype(end){0}; i < end; ++i)
   {
     os << indent << this->Types[i].GetName()
        << " (" << this->Types[i].GetId() << ")\n";
@@ -116,7 +116,7 @@ template <typename T>
 int vtkVgTypeRegistry<T>::GetTypeIndex(const char* name) const
 {
   const auto end = this->GetNumberOfTypes();
-  for (decltype(+end) i = 0; i < end; ++i)
+  for (auto i = decltype(end){0}; i < end; ++i)
   {
     if (strcmp(this->GetType(i).GetName(), name) == 0)
     {
@@ -163,7 +163,7 @@ template <typename T>
 void vtkVgTypeRegistry<T>::MarkAllTypesUnused()
 {
   const auto end = this->Types.size();
-  for (decltype(+end) i = 0; i < end; ++i)
+  for (auto i = decltype(end){0}; i < end; ++i)
   {
     this->Types[i].SetIsUsed(false);
   }
