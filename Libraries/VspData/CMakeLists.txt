@@ -41,7 +41,6 @@ set(vspDataInstallHeaders
   vsEventInfo.h
   vsFactoryAction.h
   vsLiveDescriptor.h
-  vsLiveDescriptorPrivate.h
   vsSimpleSourceFactory.h
   vsSourceFactory.h
   vsSourceFactoryInterface.h
@@ -54,9 +53,13 @@ set(vspDataInstallHeaders
   vsTrackSource.h
   vsTrackState.h
   vsVideoSource.h
-  vsVideoSourcePrivate.h
   vtkVsTrackInfo.h
 )
+set(vspDataPrivateHeaders
+  vsLiveDescriptorPrivate.h
+  vsVideoSourcePrivate.h
+)
+
 
 add_library(${PROJECT_NAME} ${vspData_Sources})
 
@@ -74,6 +77,8 @@ target_link_libraries(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vspDataInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VspData)
+vg_export_headers(${vspDataPrivateHeaders} TARGET ${PROJECT_NAME}
+                  DESTINATION include/VspData)
 
 vg_add_documentation(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}
   Qt

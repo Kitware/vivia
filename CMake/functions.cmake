@@ -6,86 +6,6 @@ macro(vg_option NAME DEFAULT_VALUE DOCSTRING DEPENDENCIES)
   )
 endmacro()
 
-# Function to extract first argument into named variable
-function(shift_arg variable value)
-  set(${variable} "${value}" PARENT_SCOPE)
-  set(ARGN "${ARGN}" PARENT_SCOPE)
-endfunction()
-
-# Helper macro to parse template argument of extract_flags, extract_args
-macro(__parse_extract_template template)
-  set(_vars "")
-  set(_extra "")
-
-  foreach(pair ${template})
-    string(REGEX MATCH "^[^=]+" varname "${pair}")
-    string(REGEX REPLACE "^[^=]+=" "" token "${pair}")
-    if("x_${varname}" STREQUAL "x_" OR "x_${token}" STREQUAL "x_")
-      message(FATAL_ERROR "extract_args: bad variable/token pair '${pair}'")
-    endif()
-    set(${varname} "")
-    set(__var_for_token_${token} "${varname}")
-    list(APPEND _vars "${varname}")
-  endforeach()
-endmacro()
-
-# Function to extract named flags
-function(extract_flags template)
-  __parse_extract_template("${template}")
-  foreach(_var ${_vars})
-    # Initially set all flags to FALSE
-    set(${_var} FALSE PARENT_SCOPE)
-  endforeach()
-
-  foreach(arg ${ARGN})
-    # Skip empty args
-    if(NOT "x_${arg}" STREQUAL "x_")
-      # Test if arg is a token
-      if(NOT "x_${__var_for_token_${arg}}" STREQUAL "x_")
-        # Yes; set flag to TRUE
-        set(${__var_for_token_${arg}} TRUE PARENT_SCOPE)
-      else()
-        # No; add to leftovers list
-        list(APPEND _extra "${arg}")
-      endif()
-    endif()
-  endforeach()
-
-  # Shift ARGN
-  set(ARGN "${_extra}" PARENT_SCOPE)
-endfunction()
-
-# Function to extract named arguments
-function(extract_args template)
-  __parse_extract_template("${template}")
-  set(_var "")
-
-  foreach(arg ${ARGN})
-    # Skip empty args
-    if(NOT "x_${arg}" STREQUAL "x_")
-      # Test if arg is a token
-      if(NOT "x_${__var_for_token_${arg}}" STREQUAL "x_")
-        set(_var "${__var_for_token_${arg}}")
-      # Not a token; test if we have a current token
-      elseif(NOT "x_${_var}" STREQUAL "x_")
-        # Add arg to named list
-        list(APPEND ${_var} "${arg}")
-      else()
-        # Add arg to leftovers list
-        list(APPEND _extra "${arg}")
-      endif()
-    endif()
-  endforeach()
-
-  # Raise lists to parent scope
-  foreach(varname ${_vars})
-    set(${varname} "${${varname}}" PARENT_SCOPE)
-  endforeach()
-
-  # Shift ARGN
-  set(ARGN "${_extra}" PARENT_SCOPE)
-endfunction()
-
 # Function to extract path to a library given a set of libraries
 function(find_libraries_path library_search_paths)
   set(search_paths)
@@ -278,20 +198,34 @@ function(vg_install_files_with_prefix)
   add_custom_target(${_install_TARGET} ALL DEPENDS ${_target_depends})
 endfunction()
 
-# Function to install headers
-function(install_headers)
-  extract_args("_target=TARGET;_dest=DESTINATION" ${ARGN})
-  if(NOT _dest)
+# Helper function to add interface include directories for targets
+function(vg_add_include_interface TARGET)
+  target_include_directories(${TARGET} INTERFACE ${ARGN})
+  if(TARGET ${_export_TARGET}Headers)
+    target_include_directories(${TARGET}Headers INTERFACE ${ARGN})
+  endif()
+endfunction()
+
+# Function to export headers for use by other libraries
+function(vg_export_headers)
+  cmake_parse_arguments(_export
+    "INSTALL"
+    "TARGET;DESTINATION"
+    ""
+    ${ARGN})
+  if(NOT _export_DESTINATION)
     set(_dest include)
+  else()
+    set(_dest "${_export_DESTINATION}")
   endif()
 
-  if("x_${_target}" STREQUAL "x_")
-    message(FATAL_ERROR "install_headers: no TARGET specified")
+  if("x_${_export_TARGET}" STREQUAL "x_")
+    message(FATAL_ERROR "vg_export_headers: no TARGET specified")
   endif()
 
-  if(NOT "x_${ARGN}" STREQUAL "x_")
+  if(NOT "x_${_export_UNPARSED_ARGUMENTS}" STREQUAL "x_")
     # Iterate over file list
-    foreach(_file ${ARGN})
+    foreach(_file IN LISTS _export_UNPARSED_ARGUMENTS)
       # Get name, canonical path and subdirectory
       string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" "" _relfile "${_file}")
       get_filename_component(_name "${_file}" NAME)
@@ -321,43 +255,38 @@ function(install_headers)
     # Iterate over subdirectory groups and install headers
     foreach(_dir ${_dirs})
       if("x_${_dir}" STREQUAL "x_.")
-        target_include_directories(
-          ${_target} INTERFACE
-          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>"
-          "$<INSTALL_INTERFACE:${_dest}>"
-        )
-        if(TARGET ${_target}Headers)
-          target_include_directories(
-            ${_target}Headers INTERFACE
-            "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>"
-            "$<INSTALL_INTERFACE:${_dest}>"
+        vg_add_include_interface(${_export_TARGET}
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>")
+
+        if(_export_INSTALL)
+          vg_add_include_interface(${_export_TARGET}
+            "$<INSTALL_INTERFACE:${_dest}>")
+          install(FILES ${_dir__}
+                  COMPONENT Development
+                  DESTINATION "${_dest}"
           )
         endif()
-        install(FILES ${_dir__}
-                COMPONENT Development
-                DESTINATION "${_dest}"
-        )
       else()
         string(REGEX REPLACE "[^A-Za-z0-9]" "_" _dirvar "${_dir}")
-        target_include_directories(
-          ${_target} INTERFACE
-          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>"
-          "$<INSTALL_INTERFACE:${_dest}/${_dir}>"
-        )
-        if(TARGET ${_target}Headers)
-          target_include_directories(
-            ${_target}Headers INTERFACE
-            "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>"
-            "$<INSTALL_INTERFACE:${_dest}/${_dir}>"
+        vg_add_include_interface(${_export_TARGET}
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>")
+
+        if(_export_INSTALL)
+          vg_add_include_interface(${_export_TARGET}
+            "$<INSTALL_INTERFACE:${_dest}/${_dir}>")
+          install(FILES ${_dir_${_dirvar}}
+                  COMPONENT Development
+                  DESTINATION "${_dest}/${_dir}"
           )
         endif()
-        install(FILES ${_dir_${_dirvar}}
-                COMPONENT Development
-                DESTINATION "${_dest}/${_dir}"
-        )
       endif()
     endforeach()
   endif()
+endfunction()
+
+# Function to install headers
+function(install_headers)
+  vg_export_headers(INSTALL ${ARGN})
 endfunction()
 
 # Function to add a library with an include-only interface

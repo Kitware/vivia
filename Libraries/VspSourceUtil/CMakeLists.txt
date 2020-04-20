@@ -20,13 +20,16 @@ set(vspSourceUtilInstallHeaders
   vsAdapt.h
   vsAdaptTracks.h
   vsArchiveSource.h
-  vsArchiveSourcePrivate.h
   vsSourceFactoryPlugin.h
   vsStreamFactory.h
   vsStreamSource.h
-  vsStreamSourcePrivate.h
   vsVideoArchive.h
   vsVideoHelper.h
+)
+
+set(vspSourceUtilPrivateHeaders
+  vsArchiveSourcePrivate.h
+  vsStreamSourcePrivate.h
 )
 
 add_library(${PROJECT_NAME} ${vspSourceUtil_Sources})
@@ -39,3 +42,5 @@ target_link_libraries(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vspSourceUtilInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VspSourceUtil)
+vg_export_headers(${vspSourceUtilPrivateHeaders} TARGET ${PROJECT_NAME}
+                  DESTINATION include/VspSourceUtil)
