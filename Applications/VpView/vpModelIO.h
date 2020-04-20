@@ -57,7 +57,7 @@ public:
   bool ImportTracks(int frameOffset, vtkIdType idsOffset = 0,
                     float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteTracks(const char* filename, int frameOffset,
+  bool WriteTracks(const QString& filename, int frameOffset,
                    QPointF aoiOffset);
 
   bool ReadEvents();
@@ -74,7 +74,7 @@ public:
   bool ImportFseTracks(vtkIdType idsOffset = 0,
                        float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteFseTracks(const char* filename, QPointF aoiOffset,
+  bool WriteFseTracks(const QString& filename, QPointF aoiOffset,
                       bool writeSceneElements = true);
 
   const vpTrackIO* GetTrackIO() const { return this->TrackIO.get(); }

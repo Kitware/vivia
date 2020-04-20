@@ -3324,9 +3324,9 @@ void vpView::changeTrackColors()
       dlg.setMode(vpTrackColorDialog::ColorByStateAttribute);
       break;
       }
-    case vtkVgTrackRepresentationBase::TCM_PVO:
+    case vtkVgTrackRepresentationBase::TCM_TOC:
       {
-      dlg.setMode(vpTrackColorDialog::ColorByStatePVO);
+      dlg.setMode(vpTrackColorDialog::ColorByTypeClassifier);
       break;
       }
     case vtkVgTrackRepresentationBase::TCM_Random:
@@ -3361,10 +3361,10 @@ void vpView::updateTrackColorsFromDialog(vpTrackColorDialog* dlg)
         vtkVgTrackRepresentationBase::TCM_StateAttrs, dlg->attributeGroup());
       break;
       }
-    case vpTrackColorDialog::ColorByStatePVO:
+    case vpTrackColorDialog::ColorByTypeClassifier:
       {
       this->Core->setTrackColorMode(
-        vtkVgTrackRepresentationBase::TCM_PVO, dlg->attributeGroup());
+        vtkVgTrackRepresentationBase::TCM_TOC, dlg->attributeGroup());
       break;
       }
     case vpTrackColorDialog::RandomColor:

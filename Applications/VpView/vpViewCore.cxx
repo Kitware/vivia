@@ -23,6 +23,7 @@
 #include "vpEventTypeRegistry.h"
 #include "vpFileDataSource.h"
 #include "vpFrameMap.h"
+#include "vpFseTrackIO.h"
 #include "vpImageSourceFactory.h"
 #include "vpInformaticsDialog.h"
 #include "vpModelIO.h"
@@ -37,6 +38,7 @@
 #include "vpTimelineDialog.h"
 #include "vpTrackAttributesPanel.h"
 #include "vpTrackConfig.h"
+#include "vpTrackIO.h"
 #include "vpVideoAnimation.h"
 #include "vtkVpTrackModel.h"
 
@@ -871,36 +873,46 @@ void vpViewCore::exportTracksToFile()
     return;
     }
 
-  const auto& aoiOffset = this->computeAOIOffsetForExport();
+  const auto session = this->SessionView->GetCurrentSession();
+  const auto* project = this->Projects[static_cast<size_t>(session)];
+  const auto* trackIO = project->ModelIO->GetTrackIO();
+  const auto* fseIO = project->ModelIO->GetFseTrackIO();
 
-  QString filter = "*.kw18;;*.json";
-  vgFileDialog fileDialog(0, tr("Export Tracks"), QString(), filter);
+  auto supportedTypes = trackIO->GetSupportedFormats();
+  if (fseIO)
+    {
+    supportedTypes.append(fseIO->GetSupportedFormats());
+    }
+  supportedTypes.append("All files (*)");
+
+  vgFileDialog fileDialog{qApp->activeWindow(), "Export Tracks",
+                          QString{}, supportedTypes.join(";;")};
   fileDialog.setObjectName("ExportTracks");
   fileDialog.setAcceptMode(QFileDialog::AcceptSave);
-  fileDialog.setDefaultSuffix("kw18");
+  fileDialog.setDefaultSuffix(trackIO->GetDefaultFormat());
   if (fileDialog.exec() != QDialog::Accepted)
     {
     return;
     }
 
-  QStringList files = fileDialog.selectedFiles();
+  const auto filename = fileDialog.selectedFiles().first();
+  const auto aoiOffset = this->computeAOIOffsetForExport();
 
   QMessageBox msgBox;
   msgBox.setWindowTitle("Writing tracks...");
   msgBox.setText("Writing tracks...");
   msgBox.show();
 
-  int session = this->SessionView->GetCurrentSession();
   bool success;
-  if (QFileInfo(files[0]).suffix() == "json")
+  if (fseIO && QFileInfo(filename).suffix() == "json")
     {
-    success = this->Projects[session]->ModelIO->WriteFseTracks(
-                qPrintable(files[0]), aoiOffset, false);
+    success = fseIO->WriteTracks(
+      filename, this->FrameNumberOffset, aoiOffset, false);
     }
   else
     {
-    success = this->Projects[session]->ModelIO->WriteTracks(
-                qPrintable(files[0]), this->FrameNumberOffset, aoiOffset);
+    success = trackIO->WriteTracks(
+      filename, this->FrameNumberOffset, aoiOffset, false);
     }
 
   if (!success)
@@ -3801,6 +3813,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackRepresentation->SetZOffset(0.1);
   project->TrackRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
 
   project->SelectedTrackRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackRepresentation->UseAutoUpdateOff();
@@ -3819,6 +3832,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
   project->TrackHeadRepresentation->SetColorMultiplier(project->ColorMultiplier);
   project->TrackHeadRepresentation->SetZOffset(0.1);
   project->TrackHeadRepresentation->SetDisplayMask(vtkVgTrack::DF_Normal);
+  project->TrackHeadRepresentation->SetTrackTypeRegistry(this->TrackTypeRegistry);
 
   project->SelectedTrackHeadRepresentation->SetOverrideColor(SelectedColor);
   project->SelectedTrackHeadRepresentation->UseAutoUpdateOff();
