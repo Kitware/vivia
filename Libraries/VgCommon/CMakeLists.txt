@@ -62,10 +62,11 @@ else ()
     -D GIT_STATUS_OUTPUT_FILE:PATH="${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
     -P ${CMAKE_SOURCE_DIR}/CMake/GetGitStatus.cmake
     COMMENT "Generating build identification"
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
   )
   set_source_files_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
-    PROPERTIES GENERATED TRUE SKIP_AUTOGEN TRUE
+    PROPERTIES SKIP_AUTOGEN TRUE
   )
 endif ()
 
