@@ -244,12 +244,7 @@ function(vg_export_headers)
       endif()
       # Create SDK wrapper header
       set(_wrapper "${CMAKE_BINARY_DIR}/${_dest}/${_subdir}/${_name}")
-      file(WRITE "${_wrapper}.tmp" "#include \"${_realpath}\"\n")
-      execute_process(
-        COMMAND ${CMAKE_COMMAND}
-                -E copy_if_different "${_wrapper}.tmp" "${_wrapper}"
-      )
-      file(REMOVE "${_wrapper}.tmp")
+      file(GENERATE OUTPUT "${_wrapper}" CONTENT "#include \"${_realpath}\"\n")
     endforeach()
 
     # Iterate over subdirectory groups and install headers

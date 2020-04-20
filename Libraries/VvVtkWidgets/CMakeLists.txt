@@ -115,7 +115,12 @@ target_link_libraries(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVtkWidgetsInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VvVtkWidgets)
-vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
-                  DESTINATION include/VvVtkWidgets)
+if(_is_multi_config)
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/$<CONFIG>/VvVtkWidgets)
+else()
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/VvVtkWidgets)
+endif()
 
 # END build rules
