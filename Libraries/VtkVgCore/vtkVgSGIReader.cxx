@@ -226,7 +226,7 @@ int vtkVgSGIReader::RequestInformation(
   if (header.StorageFormat != SGI_SF_Normal)
     {
     // TODO also support RLE?
-    NOT_SUPPORTED("storage format", header.StorageFormat, "");
+    NOT_SUPPORTED("storage format", static_cast<int>(header.StorageFormat), "");
     }
   if (header.ColorMap != SGI_CM_Normal)
     {
