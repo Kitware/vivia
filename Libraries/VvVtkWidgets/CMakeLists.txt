@@ -42,13 +42,16 @@ set(vvVtkWidgetsInstallHeaders
   vvEventInfo.h
   vvGenerateReportDialog.h
   vvQueryVideoPlayer.h
-  vvQueryVideoPlayerPrivate.h
   vvReportWriter.h
   vvTrackInfo.h
   vvVideoPlayer.h
   vvVideoPlayerModel.h
-  vvVideoPlayerPrivate.h
   vvVideoQueryDialog.h
+)
+
+set(vvVtkWidgetsPrivateHeaders
+  vvQueryVideoPlayerPrivate.h
+  vvVideoPlayerPrivate.h
   vvVideoQueryDialogPrivate.h
   ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoQuery.h
   ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoView.h
@@ -112,5 +115,12 @@ target_link_libraries(${PROJECT_NAME}
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVtkWidgetsInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VvVtkWidgets)
+if(_is_multi_config)
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/$<CONFIG>/VvVtkWidgets)
+else()
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/VvVtkWidgets)
+endif()
 
 # END build rules
