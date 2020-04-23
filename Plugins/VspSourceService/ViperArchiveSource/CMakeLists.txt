@@ -5,9 +5,6 @@ include_directories(SYSTEM
 )
 
 set(vsViperArchiveSource_Sources
-#moc was not being done on this file for the signals on Mac
-  vsViperArchiveSourcePrivate.h
-
   vsViperArchiveImportOptionsDialog.cxx
   vsViperArchiveSourcePlugin.cxx
   vsViperArchiveSource.cxx

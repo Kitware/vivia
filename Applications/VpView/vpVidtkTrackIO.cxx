@@ -284,7 +284,7 @@ bool vpVidtkTrackIO::WriteTracks(
   const auto& typesFilename = filestr + ".types";
   const auto& regionsFilename = filestr + ".regions";
 
-  std::string attributesFilename(filename.toStdString());
+  std::string attributesFilename(stdString(filename));
   attributesFilename += ".attributes";
   int maxAttributeBit = 0;
   std::vector<int> attributes;

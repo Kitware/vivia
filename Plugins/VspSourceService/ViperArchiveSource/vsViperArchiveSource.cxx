@@ -4,7 +4,7 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
-#include "vsViperArchiveSourcePrivate.h"
+#include "moc_vsViperArchiveSourcePrivate.cpp"
 
 #include <QApplication>
 #include <QTimerEvent>
