@@ -24,8 +24,8 @@
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
-#include <vital/types/object_track_set.h>
 #include <vital/types/class_map.h>
+#include <vital/types/object_track_set.h>
 
 #include <arrows/vxl/image_io.h>
 
