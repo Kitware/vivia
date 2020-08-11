@@ -1,5 +1,5 @@
 /*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
+ * Copyright 2020 by Kitware, Inc. All Rights Reserved. Please refer to
  * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
@@ -24,6 +24,7 @@
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
+#include <vital/types/class_map.h>
 #include <vital/types/object_track_set.h>
 
 #include <arrows/vxl/image_io.h>
@@ -70,7 +71,7 @@ kv::track_sptr convertTrack(
   // Generate object type classifier
   auto const& toc = getTrackToc(in);
   auto dotp =
-    (!toc.empty() ? std::make_shared<kv::detected_object_type>() : nullptr);
+    (!toc.empty() ? std::make_shared<kv::class_map>() : nullptr);
   for (auto const& c : toc)
   {
     auto const& n = std::string{trackTypes->GetEntityType(c.first).GetName()};
