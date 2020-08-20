@@ -68,14 +68,15 @@ void vpVdfIO::SetTrackModel(
   vpTrackIO::TrackStorageMode storageMode, bool interpolateToGround,
   vpTrackIO::TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes, vgAttributeSet* trackAttributes,
-  vtkMatrix4x4* geoTransform, vpFrameMap* frameMap)
+  vtkMatrix4x4* geoTransform, vpFileDataSource* imageDataSource,
+  vpFrameMap* frameMap)
 {
   QTE_D();
 
   auto* const trackIO =
     new vpVdfTrackIO{this, trackModel, storageMode, interpolateToGround,
                      timeStampMode, trackTypes, trackAttributes,
-                     geoTransform, frameMap};
+                     geoTransform, imageDataSource, frameMap};
   this->TrackIO.reset(trackIO);
 
   trackIO->SetTracksUri(d->TracksUri);

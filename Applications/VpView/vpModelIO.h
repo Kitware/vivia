@@ -16,6 +16,8 @@
 #include <vector>
 
 class vgAttributeSet;
+
+class vpFileDataSource;
 class vpFrameMap;
 
 class vpModelIO
@@ -31,6 +33,7 @@ public:
                              vtkVgTrackTypeRegistry* trackTypes,
                              vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
+                             vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap) = 0;
 
   virtual void SetEventModel(vtkVgEventModel* eventModel,

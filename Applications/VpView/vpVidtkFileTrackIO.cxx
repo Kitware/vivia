@@ -20,10 +20,11 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
   vtkVgTrackTypeRegistry* trackTypes,
   vgAttributeSet* trackAttributes,
   vtkMatrix4x4* geoTransform,
+  vpFileDataSource* imageDataSource,
   vpFrameMap* frameMap) :
   vpVidtkTrackIO{reader, trackMap, sourceIdToModelIdMap, trackModel,
                  storageMode, interpolateToGround, timeStampMode, trackTypes,
-                 trackAttributes, geoTransform, frameMap},
+                 trackAttributes, geoTransform, imageDataSource, frameMap},
   FileReader{this}
 {}
 

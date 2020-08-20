@@ -29,6 +29,7 @@ void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
                                   vtkVgTrackTypeRegistry* trackTypes,
                                   vgAttributeSet* trackAttributes,
                                   vtkMatrix4x4* geoTransform,
+                                  vpFileDataSource* imageDataSource,
                                   vpFrameMap* frameMap)
 {
   this->TrackMap.clear();
@@ -37,11 +38,12 @@ void vpVidtkFileIO::SetTrackModel(vtkVpTrackModel* trackModel,
                            this->SourceTrackIdToModelIdMap,
                            trackModel, storageMode, interpolateToGround,
                            timeStampMode, trackTypes, trackAttributes,
-                           geoTransform, frameMap));
+                           geoTransform, imageDataSource, frameMap));
 
   this->FseTrackIO.reset(
     new vpFseTrackIO(trackModel, storageMode, interpolateToGround,
-                     timeStampMode, trackTypes, geoTransform, frameMap));
+                     timeStampMode, trackTypes, geoTransform,
+                     imageDataSource, frameMap));
   this->FseTrackIO->SetTracksFileName(this->FseTracksFileName);
   this->FseTrackIO->SetImageHeight(this->ImageHeight);
 }

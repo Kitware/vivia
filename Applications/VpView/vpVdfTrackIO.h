@@ -29,7 +29,7 @@ public:
     TrackStorageMode storageMode, bool interpolateToGround,
     TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
     vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
-    vpFrameMap* frameMap);
+    vpFileDataSource* imageDataSource, vpFrameMap* frameMap);
 
   virtual ~vpVdfTrackIO();
 
@@ -38,8 +38,7 @@ public:
   void SetTrackClassifiersFilePath(const QString& filePath);
 
   virtual bool ReadTracks(int frameOffset) override;
-  virtual bool WriteTracks(const QString&, int, QPointF, bool) const override
-    { return false; }
+  virtual bool WriteTracks(const QString&, int, QPointF, bool) const override;
 
   virtual bool ReadTrackTraits() override;
   virtual bool ReadTrackClassifiers() override;
@@ -51,6 +50,7 @@ protected:
   QTE_DECLARE_PRIVATE_RPTR(vpVdfTrackIO);
 
   virtual unsigned int GetImageHeight() const;
+  QString GetImageFile(unsigned int) const;
 
 private:
   QTE_DECLARE_PRIVATE(vpVdfTrackIO);

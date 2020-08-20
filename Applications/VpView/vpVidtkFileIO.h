@@ -24,6 +24,7 @@ public:
                              vtkVgTrackTypeRegistry* trackTypes,
                              vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
+                             vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap);
 
   virtual void SetEventModel(vtkVgEventModel* eventModel,

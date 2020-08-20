@@ -27,10 +27,11 @@ public:
                  vpTrackIO::TrackStorageMode storageMode,
                  bool interpolateToGround,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
-                 vtkVgTrackTypeRegistry* trackTypes = 0,
-                 vgAttributeSet* trackAttributes = 0,
-                 vtkMatrix4x4* geoTransform = 0,
-                 vpFrameMap* frameMap = 0);
+                 vtkVgTrackTypeRegistry* trackTypes = nullptr,
+                 vgAttributeSet* trackAttributes = nullptr,
+                 vtkMatrix4x4* geoTransform = nullptr,
+                 vpFileDataSource* imageDataSource = nullptr,
+                 vpFrameMap* frameMap = nullptr);
 
   virtual ~vpVidtkTrackIO();
 

@@ -36,9 +36,10 @@ vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
                            TrackTimeStampMode timeStampMode,
                            vtkVgTrackTypeRegistry* trackTypes,
                            vtkMatrix4x4* geoTransform,
+                           vpFileDataSource* imageDataSource,
                            vpFrameMap* frameMap) :
   vpTrackIO(trackModel, storageMode, interpolateToGround, timeStampMode,
-            trackTypes, geoTransform, frameMap),
+            trackTypes, geoTransform, imageDataSource, frameMap),
   ImageHeight(0)
 {
   // TSM_TransformedGeoCoords is equal to TSM_ImageCoords for FSEs; the

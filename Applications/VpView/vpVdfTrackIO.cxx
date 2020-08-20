@@ -6,6 +6,7 @@
 
 #include "vpVdfTrackIO.h"
 
+#include "vpFileDataSource.h"
 #include "vpFrameMap.h"
 #include "vpFileTrackReader.h"
 #include "vpFileUtil.h"
@@ -16,12 +17,17 @@
 #include <vdfSourceService.h>
 #include <vdfTrackReader.h>
 
+#include <vtkVgTrackTypeRegistry.h>
+
 #include <qtEnumerate.h>
 #include <qtStlUtil.h>
 
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QStringList>
+#include <QTextStream>
 #include <QUrl>
 
 namespace
@@ -88,9 +94,9 @@ vpVdfTrackIO::vpVdfTrackIO(
   TrackStorageMode storageMode, bool interpolateToGround,
   TrackTimeStampMode timeStampMode, vtkVgTrackTypeRegistry* trackTypes,
   vgAttributeSet* trackAttributes, vtkMatrix4x4* geoTransform,
-  vpFrameMap* frameMap)
+  vpFileDataSource* imageDataSource, vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
-              trackTypes, geoTransform, frameMap},
+              trackTypes, geoTransform, imageDataSource, frameMap},
     d_ptr{new vpVdfTrackIOPrivate{{this}, base, {}}}
 {
 }
@@ -105,6 +111,17 @@ unsigned int vpVdfTrackIO::GetImageHeight() const
 {
   QTE_D();
   return d->Base->GetImageHeight();
+}
+
+//-----------------------------------------------------------------------------
+QString vpVdfTrackIO::GetImageFile(unsigned int frame) const
+{
+  if (this->ImageDataSource)
+    {
+    const auto fi = static_cast<int>(frame);
+    return this->ImageDataSource->frameName(fi);
+    }
+  return {};
 }
 
 //-----------------------------------------------------------------------------
@@ -382,11 +399,95 @@ bool vpVdfTrackIO::ReadTrackClassifiers()
 //-----------------------------------------------------------------------------
 QStringList vpVdfTrackIO::GetSupportedFormats() const
 {
-  return {};
+  return {"NOAA CSV tracks (*.csv)"};
 }
 
 //-----------------------------------------------------------------------------
 QString vpVdfTrackIO::GetDefaultFormat() const
 {
-  return {};
+  return "csv";
+}
+
+//-----------------------------------------------------------------------------
+bool vpVdfTrackIO::WriteTracks(
+  const QString& filename, int, QPointF, bool writeSceneElements) const
+{
+  if (writeSceneElements)
+    {
+    qCritical() << "ERROR: Can't write scene element tracks to csv";
+    return false;
+    }
+
+  // Open output file
+  QFile file{filename};
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+    qCritical().nospace()
+      << "Failed to open output track file " << filename
+      << ": " << qPrintable(file.errorString());
+    return false;
+    }
+
+  QTextStream s{&file};
+  const auto imageHeight = this->GetImageHeight();
+
+  // Write tracks
+  this->TrackModel->InitTrackTraversal();
+  while (auto* track = this->TrackModel->GetNextTrack().GetTrack())
+    {
+    // Skip scene elements
+    if (track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement)
+      {
+      continue;
+      }
+
+    const auto trackId = track->GetId();
+
+    // Get track classification
+    auto toc = track->GetTOC();
+    const auto tt = track->GetType();
+    if (tt >= 0)
+      {
+      // Track type overrides classifiers
+      toc.clear();
+      toc.emplace(tt, 1.0);
+      }
+
+    // Iterate over track states
+    vtkVgTimeStamp ts;
+    track->InitPathTraversal();
+    while (track->GetNextPathPt(ts) >= 0)
+      {
+      const auto& imagePath = this->GetImageFile(ts.GetFrameNumber());
+      const auto& imageFile = QFileInfo{imagePath}.fileName();
+      const auto& bbox = track->GetHeadBoundingBox(ts);
+      s << trackId << ','
+        << imageFile << ','
+        << ts.GetFrameNumber() << ',';
+      if (this->StorageMode == TSM_InvertedImageCoords)
+        {
+        s <<               bbox.GetBound(0) << ','
+          << imageHeight - bbox.GetBound(2) << ','
+          <<               bbox.GetBound(1) << ','
+          << imageHeight - bbox.GetBound(3) << ',';
+        }
+      else
+        {
+        s << bbox.GetBound(0) << ','
+          << bbox.GetBound(2) << ','
+          << bbox.GetBound(1) << ','
+          << bbox.GetBound(3) << ',';
+        }
+      s << "-1"/*confidence*/ << ','
+        << "-1"/*scalar*/;
+      for (const auto& c : toc)
+        {
+        const auto tt = this->TrackTypes->GetType(c.first);
+        s << ',' << tt.GetId() << ',' << c.second;
+        }
+      s << '\n';
+      }
+    }
+
+  return true;
 }

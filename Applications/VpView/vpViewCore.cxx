@@ -3944,7 +3944,7 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                   this->TrackTypeRegistry,
                                   &project->TrackDetectionAttributes,
                                   this->LatLonToWorldMatrix,
-                                  this->FrameMap);
+                                  this->ImageDataSource, this->FrameMap);
 
   project->ModelIO->SetEventModel(project->EventModel, this->EventTypeRegistry);
 
