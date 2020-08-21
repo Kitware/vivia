@@ -387,6 +387,19 @@ bool vpVdfTrackIO::WriteTracks(
         const auto tt = this->TrackTypes->GetType(c.first);
         s << ',' << tt.GetId() << ',' << c.second;
         }
+      const auto& poly = track->GetHeadPolygon(ts);
+      s << ',' << "(poly)";
+      for (const auto& p : poly)
+        {
+        if (this->StorageMode == TSM_InvertedImageCoords)
+          {
+          s << ' ' << p.X << ' ' << imageHeight - p.Y;
+          }
+        else
+          {
+          s << ' ' << p.X << ' ' << p.Y;
+          }
+        }
       s << '\n';
       }
     }

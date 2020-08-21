@@ -952,6 +952,23 @@ vtkBoundingBox vtkVgTrack::GetHeadBoundingBox(const vtkVgTimeStamp& timeStamp,
 }
 
 //-----------------------------------------------------------------------------
+vgPolygon2d vtkVgTrack::GetHeadPolygon(const vtkVgTimeStamp& timeStamp,
+                                       double tolerance) const
+{
+  vtkIdType npts, *ptIds, ptId;
+  this->GetHeadIdentifier(timeStamp, npts, ptIds, ptId, tolerance);
+
+  vgPolygon2d poly;
+  for (vtkIdType i = 0; i < npts; ++i)
+    {
+    auto* const point = this->Points->GetPoint(ptIds[i]);
+    poly.push_back(vgPoint2d{point[0], point[1]});
+    }
+
+  return poly;
+}
+
+//-----------------------------------------------------------------------------
 vtkVgGeoCoord vtkVgTrack::GetGeoCoord(const vtkVgTimeStamp& timeStamp)
 {
   std::map<vtkVgTimeStamp, vtkVgGeoCoord>::iterator itr =
