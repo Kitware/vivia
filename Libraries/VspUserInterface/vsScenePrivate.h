@@ -8,6 +8,7 @@
 #define __vsScenePrivate_h
 
 #include <QHash>
+#include <QMap>
 #include <QMatrix4x4>
 #include <QPoint>
 #include <QSet>
