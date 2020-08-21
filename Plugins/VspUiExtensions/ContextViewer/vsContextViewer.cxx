@@ -472,7 +472,8 @@ void vsContextViewerPrivate::updateMarker(
 {
   const vsDisplayInfo& info = (this->Scene->*getInfo)(markerInfo.EntityId);
 
-  const double* c = info.Color.value().array;
+  auto const& v = info.Color.value();
+  const double* c = v.array;
   markerInfo.Marker->SetVisibility(info.Visible);
   markerInfo.Marker->SetDefaultColor(c[0], c[1], c[2]);
 
