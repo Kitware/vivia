@@ -397,6 +397,8 @@ void vtkVgTrack::InsertNextPoint(const vtkVgTimeStamp& timeStamp,
                                  vtkPoints* fromShellPoints,
                                  vtkIdType fromShellPtsStart)
 {
+  vtkDebugMacro("insert next point: " << timeStamp);
+
   if (!this->Points)
     {
     vtkErrorMacro("Must set Points before inserting track points!");
@@ -709,6 +711,7 @@ void vtkVgTrack::SetPoint(const vtkVgTimeStamp& timeStamp,
                           vtkPoints* fromShellPts,
                           vtkIdType fromShellPtsStart)
 {
+  vtkDebugMacro("set point: " << timeStamp);
   // if not closed and after the last point, just use InsertNextPoint()
   if (!this->EndFrame.IsValid() &&
       (this->Internal->PointIdMap.size() == 0 ||
