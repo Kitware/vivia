@@ -41,6 +41,25 @@ void addPoint(std::vector<float>& points, float x, float y, float z = 0.0f)
   points.push_back(z);
 }
 
+//-----------------------------------------------------------------------------
+bool isAlignedBox(const std::vector<vgPoint2d>& poly)
+{
+  const auto closed = (poly.front() == poly.back());
+  if (poly.size() != (closed ? 5 : 4))
+    {
+    return false;
+    }
+
+  return (qFuzzyCompare(poly[0].X, poly[1].X) &&
+          qFuzzyCompare(poly[2].X, poly[3].X) &&
+          qFuzzyCompare(poly[1].Y, poly[2].Y) &&
+          qFuzzyCompare(poly[3].Y, poly[0].Y)) ||
+         (qFuzzyCompare(poly[0].Y, poly[1].Y) &&
+          qFuzzyCompare(poly[2].Y, poly[3].Y) &&
+          qFuzzyCompare(poly[1].X, poly[2].X) &&
+          qFuzzyCompare(poly[3].X, poly[0].X));
+}
+
 } // namespace <anonymous>
 
 QTE_IMPLEMENT_D_FUNC(vpVdfTrackIO)
@@ -388,16 +407,19 @@ bool vpVdfTrackIO::WriteTracks(
         s << ',' << tt.GetId() << ',' << c.second;
         }
       const auto& poly = track->GetHeadPolygon(ts);
-      s << ',' << "(poly)";
-      for (const auto& p : poly)
+      if (!poly.empty() && !isAlignedBox(poly))
         {
-        if (this->StorageMode == TSM_InvertedImageCoords)
+        s << ',' << "(poly)";
+        for (const auto& p : poly)
           {
-          s << ' ' << p.X << ' ' << imageHeight - p.Y;
-          }
-        else
-          {
-          s << ' ' << p.X << ' ' << p.Y;
+          if (this->StorageMode == TSM_InvertedImageCoords)
+            {
+            s << ' ' << p.X << ' ' << imageHeight - p.Y;
+            }
+          else
+            {
+            s << ' ' << p.X << ' ' << p.Y;
+            }
           }
         }
       s << '\n';
