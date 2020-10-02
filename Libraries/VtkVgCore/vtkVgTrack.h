@@ -22,6 +22,7 @@
 #include <vgExport.h>
 
 #include "vtkVgGeoCoord.h"
+#include "vtkVgUtil.h"
 
 class vtkIdList;
 class vtkPoints;
@@ -160,6 +161,9 @@ public:
 
   vtkBoundingBox GetHeadBoundingBox(const vtkVgTimeStamp& timeStamp,
                                     double tolerance = 0.001) const;
+
+  vgPolygon2d GetHeadPolygon(const vtkVgTimeStamp& timeStamp,
+                             double tolerance = 0.001) const;
 
   // Description:
   // Return the geo coordinate for given time
