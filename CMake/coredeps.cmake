@@ -1,6 +1,6 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 REQUIRED NO_MODULE)
 
 find_package(Qt5 5.8.0 REQUIRED COMPONENTS
   Core
