@@ -76,7 +76,7 @@ endif()
 
 # Needed for GDAL readers
 if(VISGUI_ENABLE_GDAL)
-  list(APPEND vgSdkTargets vtkVgIO)
+  list(APPEND vgSdkTargets vtkVgIO ${GDAL_LIBRARY})
 endif()
 
 if(VISGUI_ENABLE_SUPER3D)
