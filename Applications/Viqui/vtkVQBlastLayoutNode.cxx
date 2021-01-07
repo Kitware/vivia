@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVQBlastLayoutNode.h"
 
@@ -43,7 +41,6 @@
 #include <sstream>
 
 vtkStandardNewMacro(vtkVQBlastLayoutNode);
-
 
 const double vtkVQBlastLayoutNode::MinDelta  = 10.0;
 
@@ -88,7 +85,6 @@ public:
   SortedZSortStack;
   int                                   PrevNumberOfChildren;
 
-
   // Description:
   // Helper functions.
   void MakeNonIntersectBounds(double delta[3], vtkBoundingBox& bb1,
@@ -110,7 +106,6 @@ public:
   void DoBlast(vtkVgNodeBase::SmartPtr node,
                std::vector<NewNodeBoundData>& otherNodeBounds, double delta[3],
                double nodeBounds[6], double translation[3]);
-
 
   vtkVgGeode::SmartPtr
   CreateConnectingNodes(
@@ -978,7 +973,6 @@ void vtkVQBlastLayoutNode::SetLayoutToBlast(vtkVgNodeVisitorBase& nodeVisitor)
     do
       {
       this->Implementation->Repeat = false;
-
 
       // Do blast against the coincidental nodes.
       this->Implementation->DoBlast(coincidentalNodes[i], coincidentalNodes, i,

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsKmlWriter.h"
 
@@ -54,7 +52,6 @@ public:
                 const vtkVgTimeStamp& endTime, vtkVgTrack* track,
                 const QString& note, vtkMatrix4x4* refToImage,
                 vtkMatrix4x4* imageToLatLon);
-
 
   QString OutputPath;
   QList<vsEventUserInfo> Events;

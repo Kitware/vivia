@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "ui_vpView.h"
 
@@ -146,7 +144,6 @@ public:
 private:
   bool& Var;
 };
-
 
 // Constructor
 //-----------------------------------------------------------------------------
@@ -715,7 +712,6 @@ vpView::vpView()
   QShortcut* nextShortcut = new QShortcut(QKeySequence("w"),
                                           this->Internal->UI.renderFrame);
   connect(nextShortcut, SIGNAL(activated()), this->Core, SLOT(nextFrame()));
-
 
   connect(this->Internal->UI.actionLoop, SIGNAL(toggled(bool)),
           this, SLOT(onLoopToggle(bool)));
@@ -1679,7 +1675,6 @@ void vpView::onShowExternalProcessDialog()
                                      dialog.getIOPath());
     }
 }
-
 
 //-----------------------------------------------------------------------------
 void vpView::executeExternalProcess()

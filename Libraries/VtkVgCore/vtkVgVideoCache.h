@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 // .NAME vtkVgVideoCache - cache a subset of a video stream.
 // .SECTION Description
@@ -14,7 +12,6 @@
 // Note that the cache contains the actual data. It knows the whole extent
 // of the data, but maintains data representing a subset of the whole extent
 // at potentially a different resolution.
-
 
 #ifndef __vtkVgVideoCache_h
 #define __vtlVideoManager_h
@@ -92,7 +89,6 @@ public:
 protected:
   vtkVgVideoCache();
   virtual ~vtkVgVideoCache();
-
 
 private:
   vtkVgVideoCache(const vtkVgVideoCache&);  // Not implemented.

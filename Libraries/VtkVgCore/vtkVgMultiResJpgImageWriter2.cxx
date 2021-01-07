@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgMultiResJpgImageWriter2.h"
 #include "vtkSmartPointer.h"
@@ -34,8 +32,6 @@ vtkVgMultiResJpgImageWriter2::vtkVgMultiResJpgImageWriter2()
   this->SetNumberOfOutputPorts(0);
 }
 
-
-
 //----------------------------------------------------------------------------
 vtkVgMultiResJpgImageWriter2::~vtkVgMultiResJpgImageWriter2()
 {
@@ -46,7 +42,6 @@ vtkVgMultiResJpgImageWriter2::~vtkVgMultiResJpgImageWriter2()
     }
 }
 
-
 //----------------------------------------------------------------------------
 void vtkVgMultiResJpgImageWriter2::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -55,7 +50,6 @@ void vtkVgMultiResJpgImageWriter2::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileName: " <<
      (this->FileName ? this->FileName : "(none)") << "\n";
 }
-
 
 //----------------------------------------------------------------------------
 vtkImageData* vtkVgMultiResJpgImageWriter2::GetInput()
@@ -250,7 +244,6 @@ int vtkVgMultiResJpgImageWriter2::WriteImage(vtkImageData* input)
 
   return VTK_OK;
 }
-
 
 //----------------------------------------------------------------------------
 int vtkVgMultiResJpgImageWriter2::WriteLevel(FILE* fp, vtkImageData* input)

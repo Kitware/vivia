@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 // .NAME vtkVgIconManager - manage icons in the display
 // .SECTION Description
@@ -26,7 +24,6 @@ class vtkTexturedActor2D;
 class vtkViewport;
 class vtkRenderer;
 class vtkImageData;
-
 
 class VTKVG_CORE_EXPORT vtkVgIconManager : public vtkObject
 {
@@ -141,7 +138,6 @@ public:
   // Update the position of an existing icon.
   void UpdateIconPosition(vtkIdType iconId, int pos[2]);
   void GetIconPosition(vtkIdType iconId, int pos[2]);
-
 
   // Description:
   // Pick operation from display (i.e., pixel) coordinates in the current

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpViewCore.h"
 
@@ -594,7 +592,6 @@ void vpViewCore::importProject()
       return;
     }
 
-
   // TODO: For completeness, we should import activities as well. But the lack
   // of id tracking in the activitiy manager makes that tricky at the moment.
 
@@ -723,7 +720,6 @@ bool vpViewCore::importActivitiesFromFile(vpProject* project,
       }
     }
 
-
   return result;
 }
 
@@ -826,7 +822,6 @@ bool vpViewCore::importNormalcyMapsFromFile(vpProject* project)
 
   return false;
 }
-
 
 //-----------------------------------------------------------------------------
 QPointF vpViewCore::computeAOIOffsetForExport()
@@ -4012,8 +4007,6 @@ vpProject* vpViewCore::processProject(QScopedPointer<vpProject>& project)
                                 this->TrackTypeRegistry,
                                 projPtr->Name);
 
-
-
   // Load bundled filters
   if (projPtr->IsValid(projPtr->FiltersFile) == vpProject::FILE_EXIST)
     {
@@ -4146,7 +4139,6 @@ void vpViewCore::writeSpatialFilter(
 
   out << "\n\n";
 }
-
 
 //-----------------------------------------------------------------------------
 void vpViewCore::writeTemporalFilter(int type, double start, double end,
@@ -9107,7 +9099,6 @@ void vpViewCore::startExternalProcess()
   this->FileSystemWatcher->addPath(this->ExternalProcessOutputFile);
   connect(this->FileSystemWatcher, SIGNAL(fileChanged(QString)), this,
           SLOT(reactToExternalProcessFileChanged(QString)));
-
 
   qDebug()  << "Running process with arguments "
             << this->ExternalProcessArguments;
