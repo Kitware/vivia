@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpQtViewer3d.h"
 
@@ -303,7 +301,6 @@ void vpQtViewer3d::update(const vtkVgTimeStamp& timestamp)
 // Do nothing other than render.
   this->forceRender();
 }
-
 
 //-----------------------------------------------------------------------------
 void vpQtViewer3d::forceRender()

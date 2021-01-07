@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgCellPicker.h"
 
@@ -37,7 +35,6 @@
 #include <vtkTexture.h>
 
 vtkStandardNewMacro(vtkVgCellPicker);
-
 
 //-----------------------------------------------------------------------------
 vtkVgCellPicker::vtkVgCellPicker() : vtkCellPicker()
@@ -303,7 +300,6 @@ int vtkVgCellPicker::Pick(double selectionX, double selectionY,
         this->Transform->Push();
         this->Transform->Inverse();
         this->Transform->GetScale(scale); //need to scale the tolerance
-
 
         this->PerspectiveTransform->SetMatrix(lastMatrix);
         this->PerspectiveTransform->Inverse();
@@ -681,6 +677,4 @@ double vtkVgCellPicker::IntersectActorWithLine(const double p1[3],
   // return value is parametric coordinate along pick ray where hit occurred
   return tMin;
 }
-
-
 

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgClipPolyData.h"
 
@@ -86,7 +84,6 @@ vtkPolyData* vtkVgClipPolyData::GetClippedOutput()
            this->GetExecutive()->GetOutputData(1));
 }
 
-
 //----------------------------------------------------------------------------
 //
 // Clip through data generating surface.
@@ -124,7 +121,6 @@ int vtkVgClipPolyData::RequestData(
   vtkPointData* inPD = input->GetPointData(), *outPD = output->GetPointData();
   vtkCellData* inCD = input->GetCellData(), *outCD = output->GetCellData();
   vtkCellData* outClippedCD = NULL;
-
 
   vtkIdType numLinePts = 0;
   vtkCellArray* lines = input->GetLines();
@@ -276,7 +272,6 @@ int vtkVgClipPolyData::RequestData(
 
       } //switch
 
-
     // if non-zero in skipArray, don't clip this cell
     if (skipArray && skipArray->GetValue(cellId))
       {
@@ -393,7 +388,6 @@ int vtkVgClipPolyData::RequestData(
   return 1;
 }
 
-
 //----------------------------------------------------------------------------
 // Specify a spatial locator for merging points. By default,
 // an instance of vtkMergePoints is used.
@@ -427,7 +421,6 @@ void vtkVgClipPolyData::CreateDefaultLocator()
     this->Locator = vtkMergePoints::New();
     }
 }
-
 
 //----------------------------------------------------------------------------
 void vtkVgClipPolyData::PrintSelf(ostream& os, vtkIndent indent)
