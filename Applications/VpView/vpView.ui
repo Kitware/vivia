@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>VisGUI View</string>
+   <string>VIAME VIEW</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QStatusBar QLabel { padding-left: 4px; padding-right: 4px }</string>

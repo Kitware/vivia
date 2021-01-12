@@ -30,7 +30,7 @@ int main(int argc, char** argv)
   // Force ini-style configuration files on Windows for easy editing.
   QSettings::setDefaultFormat(QSettings::IniFormat);
 
-  QApplication::setApplicationName("VisGUI View");
+  QApplication::setApplicationName("VIAME VIEW");
   QApplication::setOrganizationName("Kitware");
   QApplication::setOrganizationDomain("kitware.com");
   QApplication::setApplicationVersion(VPVIEW_VERSION_STR);
