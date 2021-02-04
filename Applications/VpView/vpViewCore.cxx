@@ -8874,7 +8874,36 @@ void vpViewCore::executeEmbeddedPipeline(
     {
     const auto& timeMap = this->FrameMap->timeMap();
 
-    auto trackModel = this->Projects[session]->TrackModel;
+    auto* const project = this->Projects[session];
+    auto trackModel = project->TrackModel;
+    auto eventModel = project->EventModel;
+
+    // Remove existing data
+    QVector<vtkIdType> allTrackIds;
+    QVector<vtkIdType> allEventIds;
+
+    eventModel->InitEventTraversal();
+    while (auto* const event = eventModel->GetNextEvent().GetEvent())
+      {
+      allEventIds.append(event->GetId());
+      }
+    for (const auto eid : allEventIds)
+      {
+      eventModel->RemoveEvent(eid);
+      }
+
+    trackModel->InitTrackTraversal();
+    while (auto* const track = trackModel->GetNextTrack().GetTrack())
+      {
+      if (!(track->GetDisplayFlags() & vtkVgTrack::DF_SceneElement))
+        {
+        allTrackIds.append(track->GetId());
+        }
+      }
+    for (const auto tid : allTrackIds)
+      {
+      trackModel->RemoveTrack(tid);
+      }
 
     // Add tracks produced by pipeline
     for (const auto tid : tracks->all_track_ids())
@@ -8893,13 +8922,17 @@ void vpViewCore::executeEmbeddedPipeline(
         newTrack->SetColor(color);
 
         this->updateTrack(trackModel, newTrack, kwiverTrack, timeMap,
-			              videoHeight, true);
+                          videoHeight, true);
 
         trackModel->AddTrack(newTrack);
         newTrack->FastDelete();
         }
       }
-    this->refreshSelectionPanel(true);
+
+    this->EventModifiedTime.Modified();
+    this->TrackModifiedTime.Modified();
+    this->updateScene();
+    this->refreshSelectionPanel();
     }
 #endif
 }
