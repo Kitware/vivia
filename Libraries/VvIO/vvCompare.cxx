@@ -12,8 +12,8 @@ bool operator==(const vvDescriptorRegionEntry& a,
 {
   return a.ImageRegion.TopLeft.X == b.ImageRegion.TopLeft.X &&
          a.ImageRegion.TopLeft.Y == b.ImageRegion.TopLeft.Y &&
-         a.ImageRegion.BottomRight.X == a.ImageRegion.BottomRight.X &&
-         a.ImageRegion.BottomRight.Y == a.ImageRegion.BottomRight.Y &&
+         a.ImageRegion.BottomRight.X == b.ImageRegion.BottomRight.X &&
+         a.ImageRegion.BottomRight.Y == b.ImageRegion.BottomRight.Y &&
          qFuzzyCompare(a.TimeStamp.Time, b.TimeStamp.Time) &&
          (!(a.TimeStamp.HasFrameNumber() && b.TimeStamp.HasFrameNumber())
           || (a.TimeStamp.FrameNumber == b.TimeStamp.FrameNumber));

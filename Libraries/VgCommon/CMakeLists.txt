@@ -75,8 +75,8 @@ vg_add_library(${PROJECT_NAME}
   "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
 )
 
-target_include_directories(${PROJECT_NAME}Headers SYSTEM
-  INTERFACE ${EIGEN3_INCLUDE_DIR}
+target_link_libraries(${PROJECT_NAME}Headers
+  INTERFACE Eigen3::Eigen
 )
 
 target_link_libraries(${PROJECT_NAME}

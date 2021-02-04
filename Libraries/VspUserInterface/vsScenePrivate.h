@@ -19,6 +19,7 @@
 #include <vtkTimeStamp.h>
 
 #include <QHash>
+#include <QMap>
 #include <QPoint>
 #include <QSet>
 #include <QSharedPointer>

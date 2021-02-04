@@ -15,30 +15,30 @@
 #include <track_oracle/track_field.h>
 #endif
 
-#include <vgl/vgl_box_2d.h>
+#include <track_oracle/data_terms/data_terms.h>
 
 //-----------------------------------------------------------------------------
 struct visgui_classifier_descriptor_type :
   public track_oracle::track_base<visgui_classifier_descriptor_type>
 {
-  track_oracle::track_field<unsigned int>& external_id;
-  track_oracle::track_field<std::vector<unsigned int>>& source_track_ids;
-  track_oracle::track_field<std::vector<double>>& descriptor_classifier;
+  TRACK_ORACLE_FIELD(tracking, external_id);
+  TRACK_ORACLE_FIELD(events, source_track_ids);
+  TRACK_ORACLE_FIELD(virat, descriptor_classifier);
 
-  track_oracle::track_field<unsigned int>& frame_number;
-  track_oracle::track_field<unsigned long long>& timestamp_usecs;
-  track_oracle::track_field<vgl_box_2d<double>>& bounding_box;
+  TRACK_ORACLE_FIELD(tracking, frame_number);
+  TRACK_ORACLE_FIELD(tracking, timestamp_usecs);
+  TRACK_ORACLE_FIELD(tracking, bounding_box);
 
-  visgui_classifier_descriptor_type() :
-    TRACK_ORACLE_INIT_FIELD(Track, external_id),
-    TRACK_ORACLE_INIT_FIELD(Track, source_track_ids),
-    TRACK_ORACLE_INIT_FIELD(Track, descriptor_classifier),
+  visgui_classifier_descriptor_type()
+  {
+    Track.add_field(external_id);
+    Track.add_field(source_track_ids);
+    Track.add_field(descriptor_classifier);
 
-    TRACK_ORACLE_INIT_FIELD(Frame, frame_number),
-    TRACK_ORACLE_INIT_FIELD(Frame, timestamp_usecs),
-    TRACK_ORACLE_INIT_FIELD(Frame, bounding_box)
-    {
-    }
+    Frame.add_field(frame_number);
+    Frame.add_field(timestamp_usecs);
+    Frame.add_field(bounding_box);
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -51,8 +51,8 @@ struct visgui_pvo_descriptor_type :
   visgui_pvo_descriptor_type() :
     TRACK_ORACLE_INIT_FIELD(Track, source_track_ids),
     TRACK_ORACLE_INIT_FIELD(Track, descriptor_pvo_raw_scores)
-    {
-    }
+  {
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -70,8 +70,8 @@ struct visgui_generic_event_type :
     TRACK_ORACLE_INIT_FIELD(Track, end_time_secs),
     TRACK_ORACLE_INIT_FIELD(Track, basic_annotation),
     TRACK_ORACLE_INIT_FIELD(Track, augmented_annotation)
-    {
-    }
+  {
+  }
 };
 
 #endif
