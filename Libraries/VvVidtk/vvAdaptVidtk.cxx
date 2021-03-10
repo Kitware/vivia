@@ -16,12 +16,11 @@
 QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
 {
   QList<vvTrackState> stateList;
-  std::vector<vidtk::image_object_sptr> objs;
-  if (vs.data_.get(vidtk::tracking_keys::img_objs, objs))
+  vidtk::image_object* obj_sptr = vs.get_image_object();
+  if (obj_sptr != nullptr)
     {
-    for (size_t i = 0; i < objs.size(); ++i)
       {
-      const vidtk::image_object& obj = *objs[i];
+      const vidtk::image_object& obj = *obj_sptr;
 
       vvTrackState state;
 
@@ -36,8 +35,8 @@ QList<vvTrackState> vvAdapt(const vidtk::track_state& vs)
         }
 
       // Set image point and box
-      const auto& img_loc = objs[i]->get_image_loc();
-      const auto& bbox = objs[i]->get_bbox();
+      const auto& img_loc = obj_sptr->get_image_loc();
+      const auto& bbox = obj_sptr->get_bbox();
       state.ImagePoint.X = img_loc[0];
       state.ImagePoint.Y = img_loc[1];
       state.ImageBox.TopLeft.X = bbox.min_x();

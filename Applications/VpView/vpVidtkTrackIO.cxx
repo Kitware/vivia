@@ -630,13 +630,14 @@ bool vpVidtkTrackIO::WriteTracks(
 
       double lat = 444.0;
       double lon = 444.0;
-      vidtk::image_object_sptr obj;
+      vidtk::image_object* obj= nullptr;
       vgl_box_2d<unsigned int> imageBox;
       bool validObject = false;
 
       if (orig_state && !orig_state->latitude_longitude(lat, lon))
         {
-        if (orig_state->image_object(obj))
+        obj = orig_state->get_image_object();
+        if (obj != nullptr)
           {
           validObject = true;
           imageBox = obj->get_bbox();
@@ -744,8 +745,7 @@ bool vpVidtkTrackIO::WriteTracks(
         new_obj->set_bbox(newBox);
         }
 
-      new_objs[0] = new_obj;
-      new_state->data_.set(vidtk::tracking_keys::img_objs, new_objs);
+      new_state->set_image_object(new_obj);
 
       track->add_state(new_state);
       }
@@ -934,7 +934,7 @@ void vpVidtkTrackIO::ReadTrack(
   points.reserve(12);
 
   bool skippedInterpolationPointSinceLastInsert = false;
-  std::vector<vidtk::image_object_sptr> objs;
+  vidtk::image_object_sptr obj;
   for (const auto& trackState : trackHistory)
     {
     const auto frameNumber = trackState->time_.frame_number();
@@ -971,12 +971,13 @@ void vpVidtkTrackIO::ReadTrack(
       timeStamp.SetTime(trackState->time_.time());
       }
 
-    if (trackState->data_.get(vidtk::tracking_keys::img_objs, objs))
+    obj = trackState->get_image_object();
+    if (obj != nullptr)
       {
       double lat, lon;
       if (!trackState->latitude_longitude(lat, lon))
         {
-        const auto& world_loc = objs[0]->get_world_loc();
+        const auto& world_loc = obj->get_world_loc();
         lon = world_loc[0];
         lat = world_loc[1];
         }
@@ -985,7 +986,7 @@ void vpVidtkTrackIO::ReadTrack(
       bool trackPointAvailable = true;
       double minY;
       double maxY;
-      const auto& vglBBox = objs[0]->get_bbox();
+      const auto& vglBBox = obj->get_bbox();
       double pt[4] = {0.0, 0.0, 0.0, 1.0};
       vpFrame frameMetaData;
       if (this->StorageMode == TSM_TransformedGeoCoords)
@@ -1003,7 +1004,7 @@ void vpVidtkTrackIO::ReadTrack(
         }
       else
         {
-        const auto& image_loc = objs[0]->get_image_loc();
+        const auto& image_loc = obj->get_image_loc();
         pt[0] = image_loc[0];
         unsigned int imageMaxY = this->Reader.GetImageHeight() - 1;
         if (this->StorageMode == TSM_InvertedImageCoords)
