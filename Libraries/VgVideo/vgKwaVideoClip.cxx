@@ -490,8 +490,9 @@ vgKwaVideoClip::vgKwaVideoClip(const vgKwaVideoClip& other,
   foreach_iter (MetadataIterator, mdIter, od->metadata)
     {
     // Get raw time
-    const double time = mdIter.key().Time;
-    if (time >= startTime && time <= endTime)
+    const auto time = mdIter.key().Time;
+    const auto fuzz = time * timeEpsilon;
+    if ((time + fuzz) >= startTime && (time - fuzz) <= endTime)
       {
       // Copy metadata, if in range
       d->metadata.insert(mdIter.key(), mdIter.value());
@@ -503,8 +504,9 @@ vgKwaVideoClip::vgKwaVideoClip(const vgKwaVideoClip& other,
   foreach_iter (FrameIterator, fIter, od->frames)
     {
     // Get raw time
-    const double time = fIter.key().Time;
-    if (time >= startTime && time <= endTime)
+    const auto time = fIter.key().Time;
+    const auto fuzz = time * timeEpsilon;
+    if ((time + fuzz) >= startTime && (time - fuzz) <= endTime)
       {
       // Copy frame, if in range
       d->frames.insert(fIter.key(), fIter.value());
@@ -588,19 +590,23 @@ bool vgKwaVideoClip::resolvePadding(
     return false;
     }
 
-  CHECK_ARG(startTime <= endTime, false);
+  if (endTime < startTime && !qFuzzyCompare(startTime, endTime))
+    {
+    qWarning() << __func__ << "called with malformed times (end < start)";
+    return false;
+    }
 
   // Fix up arguments
   if (startTime == -1 && endTime == -1)
     {
-    startTime = std::numeric_limits<qint64>::min();
-    endTime = std::numeric_limits<qint64>::max();
+    startTime = -std::numeric_limits<double>::infinity();
+    endTime = +std::numeric_limits<double>::infinity();
     }
   padding = qMax(padding, 0.0);
 
   // Check for some overlap
-  const double myStartTime = d->frames.begin().key().Time;
-  const double myEndTime = (d->frames.end() - 1).key().Time;
+  const double myStartTime = d->frames.firstKey().Time * (1.0 - timeEpsilon);
+  const double myEndTime = d->frames.lastKey().Time * (1.0 + timeEpsilon);
   CHECK_ARG(myStartTime < endTime && myEndTime > startTime, false);
 
   if (d->metadata.isEmpty() || padding == 0.0)

@@ -20,6 +20,9 @@ class VG_VIDEO_EXPORT vgKwaVideoClip : public vgVideo
 public:
   typedef vgTimeMap<vgKwaFrameMetadata> MetadataMap;
 
+  /// Factor used to "fuzz" times to account for floating point errors.
+  static constexpr auto timeEpsilon = 1e-15;
+
   explicit vgKwaVideoClip(const QUrl& indexUri);
   virtual ~vgKwaVideoClip();
 
