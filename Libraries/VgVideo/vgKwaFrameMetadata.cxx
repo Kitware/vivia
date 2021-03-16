@@ -77,22 +77,29 @@ vgKwaFrameMetadata::vgKwaFrameMetadata(
 
   d->homography = vgMatrix3d{homography.data_block()};
 
-  double max = qMax(qMax(qMax(corners[0][0], corners[0][1]),
-                         qMax(corners[1][0], corners[1][1])),
-                    qMax(qMax(corners[2][0], corners[2][1]),
-                         qMax(corners[3][0], corners[3][1])));
-
-  if (max < 400)
+  if (!corners.empty())
     {
-    d->worldCornerPoints.GCS = 4326;
-    d->worldCornerPoints.UpperLeft.Latitude   = corners[0][0];
-    d->worldCornerPoints.UpperLeft.Longitude  = corners[0][1];
-    d->worldCornerPoints.UpperRight.Latitude  = corners[1][0];
-    d->worldCornerPoints.UpperRight.Longitude = corners[1][1];
-    d->worldCornerPoints.LowerLeft.Latitude   = corners[2][0];
-    d->worldCornerPoints.LowerLeft.Longitude  = corners[2][1];
-    d->worldCornerPoints.LowerRight.Latitude  = corners[3][0];
-    d->worldCornerPoints.LowerRight.Longitude = corners[3][1];
+    double max = qMax(qMax(qMax(corners[0][0], corners[0][1]),
+                           qMax(corners[1][0], corners[1][1])),
+                      qMax(qMax(corners[2][0], corners[2][1]),
+                           qMax(corners[3][0], corners[3][1])));
+
+    if (max < 400)
+      {
+      d->worldCornerPoints.GCS = 4326;
+      d->worldCornerPoints.UpperLeft.Latitude   = corners[0][0];
+      d->worldCornerPoints.UpperLeft.Longitude  = corners[0][1];
+      d->worldCornerPoints.UpperRight.Latitude  = corners[1][0];
+      d->worldCornerPoints.UpperRight.Longitude = corners[1][1];
+      d->worldCornerPoints.LowerLeft.Latitude   = corners[2][0];
+      d->worldCornerPoints.LowerLeft.Longitude  = corners[2][1];
+      d->worldCornerPoints.LowerRight.Latitude  = corners[3][0];
+      d->worldCornerPoints.LowerRight.Longitude = corners[3][1];
+      }
+    else
+      {
+      d->worldCornerPoints.GCS = -1;
+      }
     }
   else
     {
