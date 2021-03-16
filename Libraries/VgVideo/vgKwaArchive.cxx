@@ -182,8 +182,9 @@ vgKwaVideoClip* vgKwaArchivePrivate::findClip(
         }
       }
 
-    const double clipStart = clip->firstTime().Time;
-    const double clipEnd = clip->lastTime().Time;
+    constexpr auto epsilon = vgKwaVideoClip::timeEpsilon;
+    const double clipStart = clip->firstTime().Time * (1.0 - epsilon);
+    const double clipEnd = clip->lastTime().Time * (1.0 + epsilon);
 
     // Check for overlap
     if (clipStart <= requestEnd || clipEnd >= requestStart)
