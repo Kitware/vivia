@@ -16,6 +16,12 @@
 #include <QStringList>
 
 #include <algorithm>
+#include <iostream>
+
+#ifdef VISGUI_USE_GDAL
+  #include <gdal_priv.h>
+  #include <cpl_conv.h>
+#endif
 
 //-----------------------------------------------------------------------------
 class vpFileDataSourcePrivate
@@ -106,6 +112,57 @@ void vpFileDataSource::setMonitoringEnabled(bool enable)
   }
 }
 
+bool add_mie4nitf_subdatasets (const QString &path, QStringList &list) {
+#ifdef VISGUI_USE_GDAL
+    GDALAllRegister();
+
+  GDALDataset *dataset = \
+        static_cast<GDALDataset *>(GDALOpen(path.toStdString().c_str(),
+              GA_ReadOnly));
+
+    if (!dataset)
+    {
+      qWarning().nospace()<< "GDAL could not load file." <<
+        path.toStdString().c_str();
+    }
+
+    const char* subdatasets_domain_name = "SUBDATASETS";
+    char **str = GDALGetMetadata(dataset, subdatasets_domain_name);
+
+    int num_key_val_pairs = 0;
+    while((*str) != NULL) {
+      char *key_c_str= nullptr;
+      QString key, value;
+      const char *val_c_str = CPLParseNameValue((*str), &key_c_str);
+      if (key_c_str != nullptr && val_c_str != nullptr)
+      {
+        key = QString(key_c_str);
+        value = QString(val_c_str);
+	
+	// Subdataset # 2 inside `/A.ntf` would be indicated by:
+        // SUBDATASET_2_NAME=NITF_IM:1:/A.ntf
+        // SUBDATASET_2_DESC=Image 2 of A.ntf
+
+        const QRegExp rgx = QRegExp("SUBDATASET_\\d+_NAME");
+
+        if(key.contains(rgx))
+          list.append(value);
+      }
+      CPLFree(key_c_str);
+      ++(str);
+      ++num_key_val_pairs;
+    }
+    assert(num_key_val_pairs % 2 == 0);
+    assert(num_key_val_pairs / 2 == list.size());
+    GDALClose(dataset);
+    return true;
+#else
+    qWarning() << "ERROR: GDAL reader not found to open file: " <<
+      path.toStdString();
+     return false;
+#endif
+
+}
 //-----------------------------------------------------------------------------
 void vpFileDataSource::update()
 {
@@ -132,21 +189,54 @@ void vpFileDataSource::update()
     {
       while (!file.atEnd())
       {
-        const auto line = file.readLine();
+        QString line = file.readLine().trimmed();
         if (line.isEmpty())
         {
           continue;
         }
 
-        const auto path = baseDir.absoluteFilePath(QString::fromUtf8(line));
-        if (!QFileInfo{path}.exists())
+        // The path we'd check existence of.  It may so happen, like in the case
+        // of MIE4NITF, that the `path` to a frame doesn't exist on the disk.
+        // For ex., in MIE4NITF, frame # 3 inside `/A.ntf` (0-indexed) is
+        // stored in:
+        // `NITF_IM:2:/A.ntf`.
+        QString path_to_check;
+        QStringList all_paths;
+
+        // MIE4NITF are a bunch of frames inside an `NITF` file.  Just like we
+        // use glob to get more than one frames, we use the prefix `MIE4NITF:`
+        // to indicate that this file contains more than one frame in NITF
+        // format.
+        const QString mie4nitf_prefix = "MIE4NITF:";
+
+        if (line.startsWith(mie4nitf_prefix))
         {
-          qWarning() << "Image data file" << path << "does not exist";
+          int L = mie4nitf_prefix.length();
+          QString p = line.mid(L);
+          path_to_check = baseDir.absoluteFilePath(p);
+
+          if(!add_mie4nitf_subdatasets(path_to_check, all_paths))
+          {
+            continue;
+          }
+        }
+        else
+        {
+          path_to_check = baseDir.absoluteFilePath(line);
+          all_paths.append(path_to_check);
+        }
+
+        if (!QFileInfo{path_to_check}.exists())
+        {
+          qWarning() << "Image data file" << path_to_check << "does not exist";
           continue;
         }
 
-        qDebug() << "Archiving" << path;
-        d->DataFiles.append(path);
+        for(auto path: all_paths)
+        {
+          qDebug() << "Archiving" << path;
+          d->DataFiles.append(path);
+        }
       }
     }
     else
