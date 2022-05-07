@@ -87,7 +87,8 @@ struct vtkVgSelectionBalloon
 // Comparison structure for set
 struct CompareBalloon
 {
-  bool operator()(vtkVgSelectionBalloon b1, vtkVgSelectionBalloon b2)
+  bool operator()(const vtkVgSelectionBalloon& b1,
+                  const vtkVgSelectionBalloon& b2) const
     {
     if (b1.Priority == b2.Priority)
       {
