@@ -2,7 +2,7 @@ list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
 # Boost is required.
 find_package(Boost REQUIRED
-  COMPONENTS thread signals system filesystem date_time
+  COMPONENTS thread system filesystem date_time
 )
 add_definitions(-DBOOST_ALL_NO_LIB)
 
