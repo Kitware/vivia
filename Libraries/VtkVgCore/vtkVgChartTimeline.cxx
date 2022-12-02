@@ -44,7 +44,8 @@ boost::gregorian::date GetEpoch()
 boost::posix_time::ptime GetPosixTimeSeconds(double us)
 {
   boost::posix_time::ptime pt(GetEpoch());
-  return pt + boost::posix_time::seconds(us * 1.0e-6);
+  long long seconds = static_cast<long long>(us * 1.0e-6);
+  return pt + boost::posix_time::seconds(seconds);
 }
 
 boost::posix_time::ptime GetPosixTime(double us)
