@@ -72,7 +72,7 @@ void vtkVpTrackModel::SetTrackId(vtkVgTrack* track, vtkIdType newId)
 #if __cplusplus >= 201703L
     auto tkfNode = this->TrackKeyframes.extract(tkfIter);
     tkfNode.key() = newId;
-    this->TrackKeyframes.insert(strd::move(tkfNode));
+    this->TrackKeyframes.insert(std::move(tkfNode));
 #else
     const auto& trackKeyframes = tkfIter->second;
     this->TrackKeyframes.emplace(newId, trackKeyframes);
