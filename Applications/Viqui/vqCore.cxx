@@ -359,6 +359,22 @@ vqCore::~vqCore()
 }
 
 //-----------------------------------------------------------------------------
+void vqCore::shutdown()
+{
+  // Stop any timers
+  if (this->UpdateTimer)
+    {
+    this->UpdateTimer->stop();
+    }
+
+  // End any active query session
+  this->endQuerySession(true);
+
+  // Process any pending events to allow cleanup to complete
+  QApplication::processEvents();
+}
+
+//-----------------------------------------------------------------------------
 void vqCore::setupUi(QVTKWidget* renderWidget)
 {
   if (renderWidget)

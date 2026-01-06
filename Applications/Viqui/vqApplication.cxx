@@ -519,6 +519,12 @@ vqApplication::~vqApplication()
 //-----------------------------------------------------------------------------
 void vqApplication::closeEvent(QCloseEvent* event)
 {
+  // Shutdown core to clean up any active queries/sessions
+  if (this->Core)
+    {
+    this->Core->shutdown();
+    }
+
   this->saveWindowState();
   QMainWindow::closeEvent(event);
 }

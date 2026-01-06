@@ -122,6 +122,8 @@ public:
 
   bool canIssueQuery();
 
+  void shutdown();
+
   vtkSmartPointer<vtkMatrix4x4> getLatLonToContextMatrix() const;
   vtkSmartPointer<vtkMatrix4x4> getContextToLatLonMatrix() const;
 

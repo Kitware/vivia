@@ -9,6 +9,11 @@
 #include <QMainWindow>
 #include <QScopedPointer>
 
+#ifndef _WIN32
+#include <signal.h>
+#include <unistd.h>
+#endif
+
 #include <qtCliArgs.h>
 #include <qtMap.h>
 #include <qtStlUtil.h>
@@ -29,6 +34,33 @@
 #include "vqApplication.h"
 #include "vqPredefinedQueryCache.h"
 #include "vqVersion.h"
+
+#ifndef _WIN32
+//-----------------------------------------------------------------------------
+// Signal handler for graceful shutdown on Ctrl+C
+static void signalHandler(int signum)
+{
+  Q_UNUSED(signum);
+  // Request application quit - this is safe to call from a signal handler
+  // as it just posts an event to the event queue
+  if (QCoreApplication::instance())
+    {
+    QCoreApplication::quit();
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void setupSignalHandlers()
+{
+  struct sigaction sa;
+  sa.sa_handler = signalHandler;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+
+  sigaction(SIGINT, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
+}
+#endif
 
 namespace // anonymous
 {
@@ -60,6 +92,11 @@ void parseConfigFile(const QString& filename, bool replace, bool organization)
 //-----------------------------------------------------------------------------
 int main(int argc, char** argv)
 {
+#ifndef _WIN32
+  // Set up signal handlers for graceful shutdown on Ctrl+C
+  setupSignalHandlers();
+#endif
+
   // Set application information
   QApplication::setApplicationName("VisGUI Query Interface");
   QApplication::setOrganizationName("Kitware");
