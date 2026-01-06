@@ -466,12 +466,12 @@ vqQueryDialog::vqQueryDialog(vqCore* core, bool useAdvancedUi,
   d->UI.timeLower->setDateTime(now.addMonths(-1));
 
   // Add primary query types
-  d->UI.queryType->addItem("Video Exemplar",
-                           vqQueryDialogPrivate::VideoQuery);
-  d->UI.queryType->addItem("Image Exemplar",
-                           vqQueryDialogPrivate::ImageQuery);
-  d->UI.queryType->addItem("Image Query - Draw Box",
+  d->UI.queryType->addItem("Image Query - Draw Boxes",
                            vqQueryDialogPrivate::ImageQueryDrawBox);
+  d->UI.queryType->addItem("Image Query - Auto Detect Regions",
+                           vqQueryDialogPrivate::ImageQuery);
+  d->UI.queryType->addItem("Video Query - Auto Detect Regions",
+                           vqQueryDialogPrivate::VideoQuery);
   d->UI.queryType->addItem("System Predefined",
                            vqQueryDialogPrivate::PredefinedQuery);
   d->UI.queryType->addItem("User Saved",
