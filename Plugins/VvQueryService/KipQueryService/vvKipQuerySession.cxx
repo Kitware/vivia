@@ -532,7 +532,15 @@ void vvKipQuerySession::shutdown()
   if (QThread::currentThread() != this->thread())
   {
     QMetaObject::invokeMethod(this, "shutdown", Qt::QueuedConnection);
-    this->wait();
+    // Wait for up to 2 seconds for the thread to shut down gracefully.
+    // If the thread is blocked in pipeline->receive(), it won't respond
+    // to the shutdown request until the operation completes. In that case,
+    // we allow the process to exit rather than hanging indefinitely.
+    if (!this->wait(2000))
+    {
+      qWarning() << "Query session thread did not shut down gracefully, "
+                    "allowing process to exit";
+    }
     return;
   }
 
