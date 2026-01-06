@@ -23,6 +23,7 @@
 
 #include <QApplication>
 #include <QDataStream>
+#include <QDebug>
 #include <QList>
 #include <QMap>
 #include <QSet>

@@ -162,6 +162,11 @@ int main(int argc, char** argv)
                            vqApplication::UI_Engineering);
   mainWindow.show();
 
+  // Connect aboutToQuit to ensure proper cleanup when Ctrl+C or SIGTERM is
+  // received. QCoreApplication::quit() (called from signal handler) only
+  // causes the event loop to exit but doesn't trigger closeEvent() on windows.
+  QObject::connect(&app, SIGNAL(aboutToQuit()), &mainWindow, SLOT(close()));
+
   // Pre-load plans for pre-defined query formulation
   vqPredefinedQueryCache::reload();
 
