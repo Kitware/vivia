@@ -19,6 +19,7 @@
 #include <QResizeEvent>
 #include <QSettings>
 #include <QShowEvent>
+#include <QTimer>
 #include <QVBoxLayout>
 
 #include <qtStatusManager.h>
@@ -73,11 +74,12 @@ protected:
   void showEvent(QShowEvent* event) override
     {
     QGraphicsView::showEvent(event);
-    // Only auto-fit on initial show when we have a pending fit request
-    if (NeedInitialFit)
+    // Request delayed fit via the dialog when we have a pending fit request
+    if (NeedInitialFit && Dialog)
       {
-      this->fitToImage();
       NeedInitialFit = false;
+      // Use a single-shot timer through the dialog to fit after layout completes
+      QTimer::singleShot(0, Dialog, SLOT(fitImageToView()));
       }
     }
 
@@ -527,6 +529,13 @@ void vqDrawBoxQueryDialog::updateButtonStates()
   d->UI.removeBox->setEnabled(haveSelection);
   d->UI.clearBoxes->setEnabled(haveBoxes);
   d->UI.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(haveBoxes);
+}
+
+//-----------------------------------------------------------------------------
+void vqDrawBoxQueryDialog::fitImageToView()
+{
+  QTE_D(vqDrawBoxQueryDialog);
+  d->GraphicsView->fitToImage();
 }
 
 //END vqDrawBoxQueryDialog

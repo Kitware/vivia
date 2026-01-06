@@ -371,15 +371,26 @@ void vqQueryDialogPrivate::updateQuery()
 {
   const vvSimilarityQuery* sq = this->query_.constSimilarityQuery();
   const bool haveDescriptors = sq && sq->Descriptors.size();
+  const size_t numBoxes = this->LastDrawBoxQuery.Boxes.size();
   const bool haveDrawBoxQuery =
     this->queryType_ == ImageQueryDrawBox &&
     !this->LastDrawBoxQuery.Uri.empty() &&
-    !this->LastDrawBoxQuery.Boxes.empty();
+    numBoxes > 0;
   const bool enable =
     this->query_.isRetrievalQuery() || haveDescriptors || haveDrawBoxQuery;
   const bool haveIqrModel = sq && !sq->IqrModel.empty();
 
   this->UI.queryInfo->setQuery(this->query_);
+
+  // For Draw Box queries, show the number of boxes instead of descriptors
+  if (haveDrawBoxQuery && !haveDescriptors)
+    {
+    QString boxText = QString("Using %1 drawn %2")
+                        .arg(numBoxes)
+                        .arg(numBoxes > 1 ? "boxes" : "box");
+    this->UI.queryInfo->setText(boxText);
+    }
+
   this->UI.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
   this->UI.buttonSave->setEnabled(enable);
   this->UI.useIqrModel->setEnabled(haveIqrModel);

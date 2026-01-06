@@ -51,6 +51,8 @@ protected slots:
   void updateBoxList();
   void updateButtonStates();
 
+  void fitImageToView();
+
 protected:
   QTE_DECLARE_PRIVATE_RPTR(vqDrawBoxQueryDialog)
 
