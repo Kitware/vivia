@@ -370,8 +370,13 @@ void vqQueryDialogPrivate::setQueryRegion(vgGeocodedPoly region)
 void vqQueryDialogPrivate::updateQuery()
 {
   const vvSimilarityQuery* sq = this->query_.constSimilarityQuery();
+  const bool haveDescriptors = sq && sq->Descriptors.size();
+  const bool haveDrawBoxQuery =
+    this->queryType_ == ImageQueryDrawBox &&
+    !this->LastDrawBoxQuery.Uri.empty() &&
+    !this->LastDrawBoxQuery.Boxes.empty();
   const bool enable =
-    this->query_.isRetrievalQuery() || (sq && sq->Descriptors.size());
+    this->query_.isRetrievalQuery() || haveDescriptors || haveDrawBoxQuery;
   const bool haveIqrModel = sq && !sq->IqrModel.empty();
 
   this->UI.queryInfo->setQuery(this->query_);
