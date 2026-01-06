@@ -178,6 +178,7 @@ target_link_libraries(${PROJECT_NAME}
   # OPTIONAL external libraries
   ${QT_TESTING_SUPPORT_LIBRARIES}
   # Required external libraries
+  kwiver::vital_vpm
   vtkChartsCore
   vtkCommonSystem
   vtkGUISupportQt

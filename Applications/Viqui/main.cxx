@@ -27,6 +27,8 @@
 #include <vvQueryService.h>
 #include <vvQuerySession.h>
 
+#include <vital/plugin_loader/plugin_manager.h>
+
 #ifdef ENABLE_QTTESTING
 #include <pqCoreTestUtility.h>
 #endif
@@ -151,6 +153,9 @@ int main(int argc, char** argv)
   QTE_REGISTER_METATYPE(vvQueryResult);
   QTE_REGISTER_METATYPE(vvIqr::ScoringClassifiers);
   QTE_REGISTER_METATYPE(const qtCliArgs*);
+
+  // Pre-load KWIVER plugins to avoid delay when starting queries
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
 
   vqApplication mainWindow(args.value("ui") == "analyst" ?
                            vqApplication::UI_Analyst :
