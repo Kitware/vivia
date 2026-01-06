@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DrawBoxQueryDialog</class>
+ <widget class="QDialog" name="DrawBoxQueryDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Image Query - Draw Box</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QGroupBox" name="imageGroup">
+      <property name="title">
+       <string>Query Image</string>
+      </property>
+      <layout class="QVBoxLayout" name="imageGroupLayout">
+       <item>
+        <widget class="QWidget" name="imagePlayerWidget" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>2</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>400</width>
+           <height>300</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="imageLocationLayout">
+         <item>
+          <widget class="QLineEdit" name="imageLocation">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+           <property name="placeholderText">
+            <string>No image loaded</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="chooseImage">
+           <property name="toolTip">
+            <string>Load an image...</string>
+           </property>
+           <property name="text">
+            <string>...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../Icons/vgvideo.qrc">
+             <normaloff>:/icons/16x16/load-video</normaloff>:/icons/16x16/load-video</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="boxGroup">
+      <property name="title">
+       <string>Drawn Boxes</string>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="boxGroupLayout">
+       <item>
+        <widget class="QListWidget" name="boxList">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="boxButtonsLayout">
+         <item>
+          <widget class="QPushButton" name="addBox">
+           <property name="toolTip">
+            <string>Draw a new box on the image</string>
+           </property>
+           <property name="text">
+            <string>&amp;Add Box</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../Icons/vgvideo.qrc">
+             <normaloff>:/icons/16x16/add</normaloff>:/icons/16x16/add</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="removeBox">
+           <property name="toolTip">
+            <string>Remove selected box(es)</string>
+           </property>
+           <property name="text">
+            <string>&amp;Remove</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../Icons/vgvideo.qrc">
+             <normaloff>:/icons/16x16/remove</normaloff>:/icons/16x16/remove</iconset>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="clearBoxes">
+           <property name="toolTip">
+            <string>Remove all boxes</string>
+           </property>
+           <property name="text">
+            <string>&amp;Clear All</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../../Icons/vgvideo.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DrawBoxQueryDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>300</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DrawBoxQueryDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>580</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>400</x>
+     <y>300</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

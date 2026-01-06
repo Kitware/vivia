@@ -8,6 +8,9 @@
 #define __vvQueryFormulation_h
 
 #include <string>
+#include <vector>
+
+#include <vvTrack.h>
 
 //-----------------------------------------------------------------------------
 struct vvProcessingRequest
@@ -19,6 +22,8 @@ struct vvProcessingRequest
 
   long long StartTime;
   long long EndTime;
+
+  std::vector<vvImageBoundingBox> SpatialRegions;
 };
 
 //-----------------------------------------------------------------------------

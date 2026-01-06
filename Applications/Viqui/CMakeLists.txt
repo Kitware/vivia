@@ -73,6 +73,7 @@ set(vqSources
     vqContour.cxx
     vqCore.cxx
     vqDebug.cxx
+    vqDrawBoxQueryDialog.cxx
     vqEventInfo.cxx
     vqPredefinedQueryCache.cxx
     vqPredefinedQueryDialog.cxx
@@ -101,6 +102,7 @@ set(vqSources
 set(vqUI
     classifierQuery.ui
     configure.ui
+    drawBoxQuery.ui
     predefinedQuery.ui
     query.ui
     regionEdit.ui
@@ -115,6 +117,7 @@ set(vqMocHeaders
     vqClassifierQueryDialog.h
     vqConfigureDialog.h
     vqCore.h
+    vqDrawBoxQueryDialog.h
     vqPredefinedQueryCache.h
     vqPredefinedQueryCachePrivate.h
     vqPredefinedQueryDialog.h

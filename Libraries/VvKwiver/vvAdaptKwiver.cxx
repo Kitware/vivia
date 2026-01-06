@@ -257,6 +257,19 @@ kwiver::vital::descriptor_request_sptr toKwiver(vvProcessingRequest const& in)
   auto const& videoUri = qtUrl(in.VideoUri);
   out.set_data_location(stdString(videoUri.toLocalFile()));
 
+  // Convert user-drawn spatial regions (bounding boxes)
+  if (!in.SpatialRegions.empty())
+  {
+    std::vector<kwiver::vital::bounding_box_i> boxes;
+    boxes.reserve(in.SpatialRegions.size());
+    for (auto const& bb : in.SpatialRegions)
+    {
+      boxes.emplace_back(bb.TopLeft.X, bb.TopLeft.Y,
+                         bb.BottomRight.X, bb.BottomRight.Y);
+    }
+    out.set_spatial_regions(boxes);
+  }
+
   return outPtr;
 }
 

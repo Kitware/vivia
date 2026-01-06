@@ -33,6 +33,7 @@
 
 #include "vqClassifierQueryDialog.h"
 #include "vqCore.h"
+#include "vqDrawBoxQueryDialog.h"
 #include "vqPredefinedQueryDialog.h"
 #include "vqQueryParser.h"
 #include "vqRegionEditDialog.h"
@@ -52,6 +53,7 @@ public:
     Unspecified         = 0,
     ImageQuery          = 0x10,
     VideoQuery          = 0x11,
+    ImageQueryDrawBox   = 0x12,
     DatabaseQuery       = 0x1e,
     ExemplarQuery       = 0x1f,
     ClassifierQuery     = 0x20,
@@ -64,6 +66,12 @@ public:
     {
     std::string Uri;
     std::vector<vvDescriptor> Descriptors;
+    };
+
+  struct DrawBoxQueryData
+    {
+    std::string Uri;
+    std::vector<vvImageBoundingBox> Boxes;
     };
 
   vqQueryDialogPrivate(vqQueryDialog* q) : q_ptr(q) {}
@@ -82,6 +90,7 @@ public:
   void editPredefinedQuery();
   void editClassifierQuery();
   void editTrackQuery();
+  void editDrawBoxQuery();
 
   void setQueryRegion(vgGeocodedPoly region);
 
@@ -101,6 +110,7 @@ public:
   Exemplar LastExemplarQuery;
   std::vector<vvDescriptor> LastPredefinedQueryDescriptors;
   std::vector<vvDescriptor> LastClassifierQueryDescriptors;
+  DrawBoxQueryData LastDrawBoxQuery;
 
   QueryType queryType_;
   bool editTypeOnIndexChange_;
@@ -298,6 +308,37 @@ void vqQueryDialogPrivate::editClassifierQuery()
 }
 
 //-----------------------------------------------------------------------------
+void vqQueryDialogPrivate::editDrawBoxQuery()
+{
+  QTE_Q(vqQueryDialog);
+
+  vqDrawBoxQueryDialog dialog(q);
+  dialog.initialize();
+
+  if (dialog.exec() == QDialog::Accepted)
+    {
+    // Store the draw box query data
+    this->LastDrawBoxQuery.Uri = dialog.exemplarUri();
+    this->LastDrawBoxQuery.Boxes = dialog.drawnBoxes();
+
+    // Create a processing request with the drawn boxes
+    vvProcessingRequest request;
+    request.QueryId = vvMakeId("VIQUI-DrawBox");
+    request.VideoUri = this->LastDrawBoxQuery.Uri;
+    request.SpatialRegions = this->LastDrawBoxQuery.Boxes;
+
+    // Trigger the formulation with drawn boxes
+    this->core_->formulateQuery(request, false, nullptr);
+
+    // Update query with the URI
+    vvSimilarityQuery& query = *this->query_.similarityQuery();
+    query.StreamIdLimit = this->LastDrawBoxQuery.Uri;
+    q->resetQueryId();
+    this->updateQuery();
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vqQueryDialogPrivate::editTrackQuery()
 {
   QTE_Q(vqQueryDialog);
@@ -429,6 +470,8 @@ vqQueryDialog::vqQueryDialog(vqCore* core, bool useAdvancedUi,
                            vqQueryDialogPrivate::VideoQuery);
   d->UI.queryType->addItem("Image Exemplar",
                            vqQueryDialogPrivate::ImageQuery);
+  d->UI.queryType->addItem("Image Query - Draw Box",
+                           vqQueryDialogPrivate::ImageQueryDrawBox);
   d->UI.queryType->addItem("System Predefined",
                            vqQueryDialogPrivate::PredefinedQuery);
   d->UI.queryType->addItem("User Saved",
@@ -726,6 +769,10 @@ void vqQueryDialog::setQueryType(int index)
           query.StreamIdLimit = d->LastVideoQuery.Uri;
           query.Descriptors = d->LastVideoQuery.Descriptors;
           break;
+        case vqQueryDialogPrivate::ImageQueryDrawBox:
+          query.StreamIdLimit = d->LastDrawBoxQuery.Uri;
+          query.Descriptors.clear();
+          break;
         case vqQueryDialogPrivate::ExemplarQuery:
           query.StreamIdLimit = d->LastExemplarQuery.Uri;
           query.Descriptors = d->LastExemplarQuery.Descriptors;
@@ -763,6 +810,9 @@ void vqQueryDialog::editQuery()
       break;
     case vqQueryDialogPrivate::VideoQuery:
       d->editExemplarQuery(d->LastVideoQuery, vvQueryFormulation::FromVideo);
+      break;
+    case vqQueryDialogPrivate::ImageQueryDrawBox:
+      d->editDrawBoxQuery();
       break;
     case vqQueryDialogPrivate::DatabaseQuery:
       d->editExemplarQuery(d->LastDatabaseQuery,
