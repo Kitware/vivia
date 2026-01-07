@@ -348,18 +348,15 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
     request.VideoUri = this->LastDrawBoxQuery.Uri;
     request.SpatialRegions = this->LastDrawBoxQuery.Boxes;
 
-    // Trigger the formulation with drawn boxes
+    // Trigger the formulation with drawn boxes.
+    // When boxes are provided, the pipeline will auto-execute a query and
+    // return results directly via resultAvailable/resultSetComplete signals.
+    // We do NOT call accept() because that would trigger processQuery() which
+    // would create a new session and destroy the formulation session.
     this->core_->formulateQuery(request, false, nullptr);
 
-    // Update query with the URI
-    vvSimilarityQuery& query = *this->query_.similarityQuery();
-    query.StreamIdLimit = this->LastDrawBoxQuery.Uri;
-    q->resetQueryId();
-    this->updateQuery();
-
-    // Automatically accept the main dialog to start the query
-    // Use QueuedConnection to defer accept() until after signal processing completes
-    QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
+    // Close the dialog without triggering processQuery
+    q->reject();
     }
 }
 

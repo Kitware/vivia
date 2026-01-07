@@ -295,35 +295,62 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
     vvDescriptors.append(fromKwiver(*dp));
   }
 
-  // Check if query results are also available (auto-query from boxes)
-  auto const& queryResultIter = ods->find("query_result");
-  if (queryResultIter != ods->end())
-  {
-    auto const& kwiverResults =
-      queryResultIter->second->get_datum<query_result_set_sptr>();
+  // If boxes were provided, an auto-query was started in the pipeline.
+  // The pipeline may return outputs in multiple receive() calls - descriptors
+  // come first, then query results. Keep receiving until we get query_result.
+  bool hasBoxes = !this->qfRequest.SpatialRegions.empty();
 
-    if (kwiverResults && !kwiverResults->empty())
+  if (hasBoxes)
+  {
+    q->postStatus(QString("Processing query from %1 boxes...")
+                  .arg(this->qfRequest.SpatialRegions.size()), -1.0);
+
+    // Keep receiving until we get query results or end of data
+    while (true)
     {
-      // Auto-query produced results, emit them
-      auto resultCount = 0;
-      for (auto const& kwiverResult : *kwiverResults)
+      auto const& queryOds = pipeline->receive();
+
+      if (queryOds->is_end_of_data())
       {
-        auto vvResult = fromKwiver(*kwiverResult);
-        vvResult.Rank = ++resultCount;
-        emit q->resultAvailable(vvResult);
+        // Pipeline completed without returning query results
+        q->postStatus(QString("Query %1 complete (no results)").arg(queryType), true);
+        emit q->resultSetComplete();
+        this->op = Wait;
+        return true;
       }
 
-      emit q->resultSetComplete();
-      q->postStatus(QString("Query %1 with auto-results complete (%2 results)")
-                    .arg(queryType).arg(resultCount), true);
+      auto const& queryResultIter = queryOds->find("query_result");
+      if (queryResultIter != queryOds->end())
+      {
+        auto const& kwiverResults =
+          queryResultIter->second->get_datum<query_result_set_sptr>();
 
-      // Return to wait state
-      this->op = Wait;
-      return true;
+        if (kwiverResults && !kwiverResults->empty())
+        {
+          // Auto-query produced results, emit them
+          auto resultCount = 0;
+          for (auto const& kwiverResult : *kwiverResults)
+          {
+            auto vvResult = fromKwiver(*kwiverResult);
+            vvResult.Rank = ++resultCount;
+            emit q->resultAvailable(vvResult);
+          }
+
+          emit q->resultSetComplete();
+          q->postStatus(QString("Query %1 with %2 results complete")
+                        .arg(queryType).arg(resultCount), true);
+
+          // Return to wait state
+          this->op = Wait;
+          return true;
+        }
+      }
+
+      // query_result not in this output set, keep waiting...
     }
   }
 
-  // Success; emit descriptors (no auto-query results)
+  // Success; emit descriptors (no auto-query from boxes)
   emit q->formulationComplete(vvDescriptors);
   q->postStatus(QString("Query %1 processing complete").arg(queryType), true);
 
