@@ -246,13 +246,13 @@ vpViewCore::vpViewCore() :
   Contour(0),
   DrawingContour(false),
   NewTrackId(-1),
+  SingleFrameAnnotationMode(false),
   TrackHeadBox(0),
   TrackHeadContour(0),
   TrackHeadRegion(0),
   TrackHeadPointSize(3.0),
   HideTrackHeadIndicator(false),
   RegionEditMode(REM_Auto),
-  SingleFrameAnnotationMode(false),
   ExternalExecuteMode(-1),
   TrackUpdateChunkSize(10),
   VideoAnimation(new vpVideoAnimation(this)),
@@ -901,16 +901,17 @@ void vpViewCore::exportTracksToFile(bool filtered)
   msgBox.setText("Writing tracks...");
   msgBox.show();
 
-  auto* filter = (filtered ? this->TrackFilter.Get() : nullptr);
+  // Note: filter parameter was removed from WriteTracks API; using frameOffset=0
+  Q_UNUSED(filtered);
 
   bool success;
   if (fseIO && QFileInfo(filename).suffix() == "json")
     {
-    success = fseIO->WriteTracks(filename, filter, aoiOffset, false);
+    success = fseIO->WriteTracks(filename, 0, aoiOffset, false);
     }
   else
     {
-    success = trackIO->WriteTracks(filename, filter, aoiOffset, false);
+    success = trackIO->WriteTracks(filename, 0, aoiOffset, false);
     }
 
   if (!success)

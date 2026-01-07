@@ -962,8 +962,6 @@ private:
 
   int FirstImageY;
 
-  int FirstImageY;
-
   int IconSize;
   int IconOffsetX, IconOffsetY;
 

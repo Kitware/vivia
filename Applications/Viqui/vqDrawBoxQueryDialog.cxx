@@ -43,9 +43,9 @@ public:
     QGraphicsView(parent),
     Dialog(dialog),
     Drawing(false),
+    NeedInitialFit(false),
     CurrentRect(0),
-    ImageItem(0),
-    NeedInitialFit(false)
+    ImageItem(0)
     {}
 
   void setDrawingEnabled(bool enabled) { DrawingEnabled = enabled; }
@@ -156,10 +156,13 @@ class vqDrawBoxQueryDialogPrivate
 {
 public:
   vqDrawBoxQueryDialogPrivate(vqDrawBoxQueryDialog* q) :
-    q_ptr(q),
+    Scene(nullptr),
+    GraphicsView(nullptr),
+    ImageItem(nullptr),
     NextBoxId(0),
     ImageHeight(0),
-    ImageWidth(0)
+    ImageWidth(0),
+    q_ptr(q)
     {}
 
   Ui::DrawBoxQueryDialog UI;

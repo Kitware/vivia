@@ -66,6 +66,7 @@ void vpVdfIO::SetTrackModel(
   vpTrackIO::TrackStorageMode storageMode, bool interpolateToGround,
   vpTrackIO::TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes,
+  vgAttributeSet* /*trackAttributes*/,
   vtkMatrix4x4* geoTransform,
   vpFileDataSource* imageDataSource, vpFrameMap* frameMap)
 {

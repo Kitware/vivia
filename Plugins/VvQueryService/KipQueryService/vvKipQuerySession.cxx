@@ -29,6 +29,7 @@
 #include <QSet>
 #include <QDir>
 #include <QFileInfo>
+#include <QUrlQuery>
 
 #include <sprokit/processes/adapters/embedded_pipeline.h>
 
@@ -190,7 +191,7 @@ bool vvKipQuerySessionPrivate::initialize()
     return true;
   }
 
-  auto const& pipePath = this->server.queryItemValue("Pipeline");
+  auto const& pipePath = QUrlQuery(this->server).queryItemValue("Pipeline");
   auto const& pipeDir = QFileInfo(pipePath).dir().canonicalPath();
 
   auto new_pipeline = makeUnique<kwiver::embedded_pipeline>();
@@ -245,7 +246,7 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
 
   auto const& exemplarUri = qtUrl(this->qfRequest.VideoUri);
   auto const& queryType =
-    exemplarUri.queryItemValue("FormulationType").toLower();
+    QUrlQuery(exemplarUri).queryItemValue("FormulationType").toLower();
 
   q->postStatus(QString("Processing exemplar %1...").arg(queryType), -1.0);
 

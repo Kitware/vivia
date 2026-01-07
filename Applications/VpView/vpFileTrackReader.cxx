@@ -90,7 +90,7 @@ bool vpFileTrackReader::ReadTrackClassifiers(
             reader.readReal(pvo[1], 2) &&
             reader.readReal(pvo[2], 3))
           {
-          track->SetPVO(pvo);
+          track->SetFSO(pvo);
           }
         else
           {

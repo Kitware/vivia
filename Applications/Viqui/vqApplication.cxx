@@ -520,7 +520,7 @@ vqApplication::vqApplication(UIMode uiMode) :
 
   // Load application settings
   this->reloadConfiguration();
-  this->loadWindowState();
+  // TODO: Implement loadWindowState() for window geometry persistence
 
   // Ensure required panels are visible by default
   this->UI.videoPlayerDock->setVisible(true);
@@ -550,7 +550,7 @@ void vqApplication::closeEvent(QCloseEvent* event)
     this->Core->shutdown();
     }
 
-  this->saveWindowState();
+  // TODO: Implement saveWindowState() for window geometry persistence
   QMainWindow::closeEvent(event);
 }
 

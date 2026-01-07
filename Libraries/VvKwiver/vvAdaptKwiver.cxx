@@ -4,6 +4,11 @@
  * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
  */
 
+// Include Qt global config FIRST to ensure all Qt macros are defined
+// before any KWIVER headers that might indirectly include Qt headers
+#include <QtCore/qglobal.h>
+#include <QHash>
+
 #include "vvAdaptKwiver.h"
 
 #include <vvQueryFormulation.h>

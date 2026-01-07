@@ -12,6 +12,7 @@
 #include <QUrl>
 #include <QScopedPointer>
 
+class vgAttributeSet;
 class vpVdfIOPrivate;
 
 class vpVdfIO : public vpModelIO
@@ -25,6 +26,7 @@ public:
                              bool interpolateToGround,
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
+                             vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
                              vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap) QTE_OVERRIDE;

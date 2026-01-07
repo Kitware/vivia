@@ -597,32 +597,32 @@ void vsScene::setEventThresholdInverted(int type, bool inverted)
 
   switch (type)
     {
-    case vsTrackInfo::Person:
+    case vsTrackInfo::Fish:
       if (inverted)
         {
-        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person,
-          d->TrackFilter->GetMinProbability(vtkVgTrack::Person));
-        d->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Fish,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Fish));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Fish, 0.0);
         }
       else
         {
-        d->TrackFilter->SetMinProbability(vtkVgTrack::Person,
-          d->TrackFilter->GetMaxProbability(vtkVgTrack::Person));
-        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Fish,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Fish));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Fish, 1.0);
         }
       break;
-    case vsTrackInfo::Vehicle:
+    case vsTrackInfo::Scallop:
       if (inverted)
         {
-        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle,
-          d->TrackFilter->GetMinProbability(vtkVgTrack::Vehicle));
-        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Scallop,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Scallop));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Scallop, 0.0);
         }
       else
         {
-        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle,
-          d->TrackFilter->GetMaxProbability(vtkVgTrack::Vehicle));
-        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Scallop,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Scallop));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Scallop, 1.0);
         }
       break;
     case vsTrackInfo::Other:

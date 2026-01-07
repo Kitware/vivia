@@ -99,6 +99,8 @@ QTE_IMPLEMENT_D_FUNC(vpVdfTrackIO)
 class vpVdfTrackIOPrivate
 {
 public:
+  vpVdfTrackIOPrivate(vpTrackIO* io) : FileReader{io}, Base{nullptr} {}
+
   vpFileTrackReader FileReader;
   vpVdfIO* Base;
   QUrl TracksUri;
@@ -115,7 +117,7 @@ vpVdfTrackIO::vpVdfTrackIO(
   vpFileDataSource* imageDataSource, vpFrameMap* frameMap)
   : vpTrackIO{trackModel, storageMode, interpolateToGround, timeStampMode,
               trackTypes, geoTransform, imageDataSource, frameMap},
-    d_ptr{new vpVdfTrackIOPrivate}
+    d_ptr{new vpVdfTrackIOPrivate{this}}
 {
   QTE_D();
   d->Base = base;

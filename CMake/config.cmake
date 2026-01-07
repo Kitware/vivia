@@ -29,8 +29,8 @@ endfunction()
 
 ###############################################################################
 
-# Require C++11 compiler
-set(CMAKE_CXX_STANDARD 11)
+# Require C++17 compiler (needed for KWIVER which uses std::variant)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # Set default visibility to hidden when building shared
@@ -54,7 +54,7 @@ if(MSVC)
 else()
   # Determine what flags (if any) are needed for required C++ language support
   # Note: MSVC always uses latest known C++ extensions
-  vg_add_cxx_flags_priority(-std=c++11 -std=c++0x)
+  vg_add_cxx_flags_priority(-std=c++17 -std=c++1z)
 
   # Turn on extra warnings if requested
   option(VISGUI_EXTRA_WARNINGS "Enable extra warnings" ON)

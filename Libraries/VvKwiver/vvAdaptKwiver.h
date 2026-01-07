@@ -7,6 +7,9 @@
 #ifndef __vvAdaptKwiver_h
 #define __vvAdaptKwiver_h
 
+// Include Qt global configuration first to ensure Qt macros are properly defined
+#include <QtCore/qglobal.h>
+
 #include <vvIqr.h>
 
 #include <vgExport.h>

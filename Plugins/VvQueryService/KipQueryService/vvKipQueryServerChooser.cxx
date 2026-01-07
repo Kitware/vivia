@@ -9,6 +9,8 @@
 
 #include <vgFileDialog.h>
 
+#include <QUrlQuery>
+
 QTE_IMPLEMENT_D_FUNC(vvKipQueryServerChooser)
 
 //-----------------------------------------------------------------------------
@@ -50,7 +52,7 @@ void vvKipQueryServerChooser::setUri(QUrl newUri)
 {
   QTE_D(vvKipQueryServerChooser);
 
-  d->UI.pipeline->setText(newUri.queryItemValue("Pipeline"));
+  d->UI.pipeline->setText(QUrlQuery(newUri).queryItemValue("Pipeline"));
   this->updateUri();
 }
 
@@ -60,7 +62,9 @@ void vvKipQueryServerChooser::updateUri()
   QTE_D(vvKipQueryServerChooser);
 
   d->uri = QUrl("kip:");
-  d->uri.addQueryItem("Pipeline", d->UI.pipeline->text());
+  QUrlQuery query;
+  query.addQueryItem("Pipeline", d->UI.pipeline->text());
+  d->uri.setQuery(query);
 
   emit this->uriChanged(d->uri);
 }
