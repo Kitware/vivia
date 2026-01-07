@@ -361,6 +361,7 @@ protected:
                         int value, bool events, bool markers);
 
   double                                            TerrainBounds[6];
+  bool                                              PendingViewReset;
 
   vtkSmartPointer<vtkVgVideoViewer>                 ContextViewer;
   vtkSmartPointer<vtkVgInteractorStyleRubberBand2D> ContextInteractorStyle;

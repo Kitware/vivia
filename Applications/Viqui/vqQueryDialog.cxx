@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QMetaObject>
 #include <QSettings>
 #include <QTextStream>
 
@@ -280,7 +281,8 @@ void vqQueryDialogPrivate::editExemplarQuery(
     this->updateQuery();
 
     // Automatically accept the main dialog to start the query
-    q->accept();
+    // Use QueuedConnection to defer accept() until after signal processing completes
+    QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
     }
 }
 
@@ -302,7 +304,8 @@ void vqQueryDialogPrivate::editPredefinedQuery()
     this->updateQuery();
 
     // Automatically accept the main dialog to start the query
-    q->accept();
+    // Use QueuedConnection to defer accept() until after signal processing completes
+    QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
     }
 }
 
@@ -316,7 +319,8 @@ void vqQueryDialogPrivate::editClassifierQuery()
                                 this->LastClassifierQueryDescriptors))
     {
     // Automatically accept the main dialog to start the query
-    q->accept();
+    // Use QueuedConnection to defer accept() until after signal processing completes
+    QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
     }
 }
 
@@ -325,7 +329,11 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
 {
   QTE_Q(vqQueryDialog);
 
-  vqDrawBoxQueryDialog dialog(q);
+  // Note: Do NOT pass 'q' as parent here. The dialog is stack-allocated,
+  // but q->accept() at the end triggers destruction of 'q' via QScopedPointer
+  // in executeNewQuery(). Qt's deleteChildren() would then try to delete
+  // this stack-allocated dialog, causing memory corruption.
+  vqDrawBoxQueryDialog dialog;
   dialog.initialize();
 
   if (dialog.exec() == QDialog::Accepted)
@@ -350,7 +358,8 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
     this->updateQuery();
 
     // Automatically accept the main dialog to start the query
-    q->accept();
+    // Use QueuedConnection to defer accept() until after signal processing completes
+    QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
     }
 }
 
@@ -409,7 +418,8 @@ void vqQueryDialogPrivate::editFullFrameQuery()
   this->updateQuery();
 
   // Automatically accept the main dialog to start the query
-  q->accept();
+  // Use QueuedConnection to defer accept() until after signal processing completes
+  QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
 }
 
 //-----------------------------------------------------------------------------

@@ -295,7 +295,35 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
     vvDescriptors.append(fromKwiver(*dp));
   }
 
-  // Success; emit descriptors
+  // Check if query results are also available (auto-query from boxes)
+  auto const& queryResultIter = ods->find("query_result");
+  if (queryResultIter != ods->end())
+  {
+    auto const& kwiverResults =
+      queryResultIter->second->get_datum<query_result_set_sptr>();
+
+    if (kwiverResults && !kwiverResults->empty())
+    {
+      // Auto-query produced results, emit them
+      auto resultCount = 0;
+      for (auto const& kwiverResult : *kwiverResults)
+      {
+        auto vvResult = fromKwiver(*kwiverResult);
+        vvResult.Rank = ++resultCount;
+        emit q->resultAvailable(vvResult);
+      }
+
+      emit q->resultSetComplete();
+      q->postStatus(QString("Query %1 with auto-results complete (%2 results)")
+                    .arg(queryType).arg(resultCount), true);
+
+      // Return to wait state
+      this->op = Wait;
+      return true;
+    }
+  }
+
+  // Success; emit descriptors (no auto-query results)
   emit q->formulationComplete(vvDescriptors);
   q->postStatus(QString("Query %1 processing complete").arg(queryType), true);
 
