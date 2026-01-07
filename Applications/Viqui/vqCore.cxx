@@ -294,6 +294,7 @@ vqCore::vqCore()
     vtkVgInteractorStyleRubberBand2D::ZoomCompleteEvent, interactionCallback);
 
   vtkMath::UninitializeBounds(this->TerrainBounds);
+  this->PendingViewReset = false;
 
   this->CachedLayoutNode = 0;
 
@@ -1420,13 +1421,15 @@ void vqCore::addRasterLayer(QUrl uri)
     // cache the bounds of the terrain (context) for future use (resetting view)
     static_cast<vtkVgNodeBase*>(terrain)->GetBounds(this->TerrainBounds);
 
-    this->resetView();
-
     // Might (in the future?) want to do updateSources() instead, if have some
     // other data already loaded/rendered by the time we add context data,
     // perhaps other context data?  But for now, would result in another load
     // and render immediately after having just done so for the context.
     this->postRender();
+
+    // Mark that we need to reset the view after the first proper render.
+    // This ensures the window is fully sized before computing camera parameters.
+    this->PendingViewReset = true;
     }
   else
     {
@@ -3006,6 +3009,16 @@ void vqCore::forceRender()
 {
   this->RenderPending = false;
   this->ContextViewer->ForceRender(false);
+
+  // Check if we need to reset view after terrain was loaded.
+  // Use a short delay to ensure the window is fully sized after showing.
+  if (this->PendingViewReset)
+    {
+    this->PendingViewReset = false;
+    // Schedule resetView after a short delay to ensure window is fully laid out
+    QTimer::singleShot(100, this, SLOT(resetView()));
+    }
+
   emit this->forcedRender();
 }
 
