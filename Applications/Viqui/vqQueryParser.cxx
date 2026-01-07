@@ -1,13 +1,12 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vqQueryParser.h"
 
 #include <QDir>
 #include <QFileInfo>
+#include <QUrlQuery>
 
 #include <qtKstReader.h>
 #include <qtStlUtil.h>
@@ -178,20 +177,18 @@ bool vqQueryParser::formulateQuery(
         << this->internal_->cacheLocation_
         << "video" << videoUri;
 
-    QFileInfo vfi(videoUri.encodedPath());
+    QFileInfo vfi(videoUri.path());
     QUrl cf;
-    QByteArray query;
-    if (videoUri.queryItems().count())
+    QString query;
+    const auto& vqi = QUrlQuery{videoUri}.queryItems();
+    if (vqi.count())
       {
-      typedef QPair<QString, QString> QueryItem;
-      QList<QByteArray> queryItems;
-      foreach (const QueryItem& qi, videoUri.queryItems())
+      QStringList queryItems;
+      foreach (const auto& qi, vqi)
         {
-        QByteArray key = QUrl::toPercentEncoding(qi.first);
-        QByteArray value = QUrl::toPercentEncoding(qi.second);
-        queryItems.append(key + '=' + value);
+        queryItems.append(qi.first + '=' + qi.second);
         }
-      char sep = '?';
+      QChar sep = '?';
       do
         {
         query += sep + queryItems.takeFirst();
@@ -199,15 +196,17 @@ bool vqQueryParser::formulateQuery(
         }
       while (queryItems.count());
       }
-    cf.setEncodedPath('/' + vfi.fileName().toAscii() + query + ".vsd");
-    this->internal_->DescriptorCacheFile.setEncodedPath(
-      this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
+    cf.setPath('/' + vfi.fileName() + query + ".vsd");
+    this->internal_->DescriptorCacheFile.setPath(
+      this->internal_->cacheLocation_.path(QUrl::FullyEncoded) +
+      cf.path(QUrl::FullyEncoded), QUrl::StrictMode);
     qtDebug(vqdQueryParserCache)
         << "descriptor cache file base name" << cf
         << "final URI" << this->internal_->DescriptorCacheFile;
-    cf.setEncodedPath('/' + vfi.fileName().toAscii() + query + ".vst");
-    this->internal_->TrackCacheFile.setEncodedPath(
-      this->internal_->cacheLocation_.encodedPath() + cf.encodedPath());
+    cf.setPath('/' + vfi.fileName() + query + ".vst");
+    this->internal_->TrackCacheFile.setPath(
+      this->internal_->cacheLocation_.path(QUrl::FullyEncoded) +
+      cf.path(QUrl::FullyEncoded), QUrl::StrictMode);
     qtDebug(vqdQueryParserCache)
         << "track cache file base name" << cf
         << "final URI" << this->internal_->TrackCacheFile;

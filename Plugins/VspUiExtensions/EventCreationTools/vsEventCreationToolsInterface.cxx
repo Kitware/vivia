@@ -1,31 +1,33 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsEventCreationToolsInterface.h"
 
-#include <QComboBox>
-#include <QMenu>
-#include <QSignalMapper>
-#include <QToolBar>
-#include <QToolButton>
+#include <vsCore.h>
+#include <vsMainWindow.h>
+#include <vsScene.h>
 
-#include <vtkRenderWindow.h>
+#include <vtkVgRegionWidget.h>
 
 #include <QVTKWidget.h>
 
+#include <vtkRenderWindow.h>
+
+#include <qtIndexRange.h>
 #include <qtPrioritizedMenuProxy.h>
 #include <qtPrioritizedToolBarProxy.h>
 #include <qtScopedValueChange.h>
 #include <qtUtil.h>
 
-#include <vtkVgRegionWidget.h>
+#include <QComboBox>
+#include <QDebug>
+#include <QMenu>
+#include <QSignalMapper>
+#include <QToolBar>
+#include <QToolButton>
 
-#include <vsCore.h>
-#include <vsMainWindow.h>
-#include <vsScene.h>
+#include <Eigen/LU>
 
 QTE_IMPLEMENT_D_FUNC(vsEventCreationToolsInterface)
 
@@ -203,10 +205,12 @@ vtkVgRegionWidget* vsEventCreationToolsInterfacePrivate::createRegionWidget()
 //-----------------------------------------------------------------------------
 QPolygonF vsEventCreationToolsInterfacePrivate::viewToStab(QPolygonF r) const
 {
-  const QMatrix4x4 xf = this->Scene->currentTransform().inverted();
+  const auto xf = vgMatrix4d{this->Scene->currentTransform().inverse()};
   for (int i = 0; i < r.count(); ++i)
     {
-    r[i] = xf * r[i];
+    const auto& ip = r[i];
+    const auto xp = xf * vgVector4d{ip.x(), ip.y(), 0.0, 1.0};
+    r[i] = QPointF{xp.x() / xp.w(), xp.y() / xp.w()};
     }
   return r;
 }

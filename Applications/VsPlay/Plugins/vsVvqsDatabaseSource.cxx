@@ -1,24 +1,23 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
-#include "vsVvqsDatabaseSourcePrivate.h"
+#include "moc_vsVvqsDatabaseSourcePrivate.cpp"
 
-#include <QDebug>
-#include <QRegExp>
-#include <QSettings>
+#include <vsAdapt.h>
 
-#include <qtScopedValueChange.h>
-#include <qtStlUtil.h>
+#include <vsTrackSource.h>
 
 #include <vvMakeId.h>
 #include <vvQuerySession.h>
 
-#include <vsTrackSource.h>
+#include <qtScopedValueChange.h>
+#include <qtStlUtil.h>
 
-#include <vsAdapt.h>
+#include <QDebug>
+#include <QRegExp>
+#include <QSettings>
+#include <QUrlQuery>
 
 #include <limits>
 
@@ -114,17 +113,19 @@ void vsVvqsDatabaseSourcePrivate::run()
   this->DescriptorBatchSize =
     settings.value("DescriptorBatchSize", 400).toInt();
 
+  auto requestQuery = QUrlQuery{this->RequestUri};
+
   // Create retrieval query
   this->Query.QueryId = vvMakeId("VSPLAY-DB-SOURCE");
   this->Query.StreamIdLimit =
-    stdString(this->RequestUri.queryItemValue("Stream"));
+    stdString(requestQuery.queryItemValue("Stream"));
 
   // Query initially for just tracks, as retrieving descriptors can be slow,
   // and we want the tracks available as soon as possible
   this->Query.RequestedEntities = vvRetrievalQuery::Tracks;
 
-  const QString tl = this->RequestUri.queryItemValue("TemporalLower");
-  const QString tu = this->RequestUri.queryItemValue("TemporalUpper");
+  const QString tl = requestQuery.queryItemValue("TemporalLower");
+  const QString tu = requestQuery.queryItemValue("TemporalUpper");
   if (!tl.isEmpty())
     {
     this->Query.TemporalLowerLimit = tl.toLongLong();
@@ -135,7 +136,7 @@ void vsVvqsDatabaseSourcePrivate::run()
     }
 
   const QString ec =
-    this->RequestUri.queryItemValue("ExtractClassifiers").toLower();
+    requestQuery.queryItemValue("ExtractClassifiers").toLower();
   this->ExtractClassifiers = (ec == "yes" || ec == "true");
 
   // Issue the query
@@ -309,8 +310,8 @@ QString vsVvqsDatabaseSourcePrivate::displayableRequestUri() const
 {
   // Separate query items with zero-width space for better line breaking
   QString uri = this->RequestUri.toString();
-  const QString replacement = QString::fromUtf8("\xe2\x80\x8b\\1");
-  return uri.replace(QRegExp("([?&])"), replacement);
+  static const auto replacement = QStringLiteral(u"\u200b\\1");
+  return uri.replace(QRegExp(QStringLiteral("([?&])")), replacement);
 }
 
 //-----------------------------------------------------------------------------

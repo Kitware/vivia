@@ -1,35 +1,29 @@
-/*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vqArchiveVideoSource.h"
 
-// QtExtensions includes.
-#include <qtStlUtil.h>
+#include <vtkVgVideoFrameData.h>
+#include <vtkVgVideoMetadata.h>
 
-// VG includes.
-#include <vgKwaArchive.h>
-#include <vgKwaFrameMetadata.h>
-#include <vgKwaVideoClip.h>
+#include <vtkVgAdapt.h>
 
 #include <vtkVgAdaptImage.h>
 #include <vtkVgVideoFrameMetaData.h>
 
-// vtkVgCore includes
-#include <vtkVgAdapt.h>
+#include <vgKwaArchive.h>
+#include <vgKwaFrameMetadata.h>
+#include <vgKwaVideoClip.h>
 
-// vtkVgModelView includes
-#include <vtkVgVideoFrameData.h>
-#include <vtkVgVideoMetadata.h>
-
-// STL includes.
-#include <algorithm>
-
-// VTK includes.
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
+
+#include <qtStlUtil.h>
+
+#include <QUrlQuery>
+
+#include <algorithm>
 
 vtkStandardNewMacro(vqArchiveVideoSource);
 
@@ -78,7 +72,7 @@ int vqArchiveVideoSource::AcquireVideoClip(vgKwaArchive* videoArchive)
     return VTK_ERROR; // no clip found
     }
 
-  clipUri.setEncodedQuery(QByteArray());
+  clipUri.setQuery(QUrlQuery{});
   return this->SetVideoClip(clip, clipUri);
 }
 
@@ -86,7 +80,7 @@ int vqArchiveVideoSource::AcquireVideoClip(vgKwaArchive* videoArchive)
 int vqArchiveVideoSource::AcquireVideoClip(QUrl clipUri)
 {
   // Not expecting limits in URI, but strip query just in case...
-  clipUri.setEncodedQuery(QByteArray());
+  clipUri.setQuery(QUrlQuery{});
 
   // Obtain full clip
   QScopedPointer<vgKwaVideoClip> clip(new vgKwaVideoClip(clipUri));
@@ -518,8 +512,8 @@ void vqArchiveVideoSource::CopyFrameData(vtkVgVideoFrameData* frameData)
 void vqArchiveVideoSource::CopyMetadata(vtkVgVideoMetadata* dst,
                                         const vgKwaFrameMetadata& src)
 {
-  const QMatrix3x3 hmSrc = src.homography();
-  vtkMatrix4x4* hmDst = dst->Homography;
+  const auto& hmSrc = src.homography();
+  vtkMatrix4x4* const hmDst = dst->Homography;
   hmDst->Identity();
   hmDst->SetElement(0, 0, hmSrc(0, 0));
   hmDst->SetElement(0, 1, hmSrc(0, 1));

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpFseTrackIO.h"
 
@@ -19,6 +17,8 @@
 
 #include <qtStlUtil.h>
 
+#include <QDebug>
+#include <QFileInfo>
 #include <QStringList>
 
 #include <json.h>
@@ -30,12 +30,13 @@
 //-----------------------------------------------------------------------------
 vpFseTrackIO::vpFseTrackIO(vtkVpTrackModel* trackModel,
                            TrackStorageMode storageMode,
+                           bool interpolateToGround,
                            TrackTimeStampMode timeStampMode,
                            vtkVgTrackTypeRegistry* trackTypes,
                            vtkMatrix4x4* geoTransform,
                            vpFileDataSource* imageDataSource,
                            vpFrameMap* frameMap) :
-  vpTrackIO(trackModel, storageMode, timeStampMode, trackTypes,
+  vpTrackIO(trackModel, storageMode, interpolateToGround, timeStampMode, trackTypes,
             geoTransform, imageDataSource, frameMap),
   ImageHeight(0)
 {
@@ -54,21 +55,22 @@ vpFseTrackIO::~vpFseTrackIO()
 {}
 
 //-----------------------------------------------------------------------------
-bool vpFseTrackIO::ReadTracks()
+bool vpFseTrackIO::ReadTracks(int frameOffset)
 {
-  return this->ImportTracks(0, 0.0f, 0.0f);
+  return this->ImportTracks(frameOffset, 0, 0.0f, 0.0f);
 }
 
 //-----------------------------------------------------------------------------
-bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
+bool vpFseTrackIO::ImportTracks(int vtkNotUsed(frameOffset),
+                                vtkIdType idsOffset,
                                 float offsetX, float offsetY)
 {
   assert(this->ImageHeight != 0);
-  assert(!this->TracksFileName.empty());
+  assert(!this->TracksFileName.isEmpty());
 
-  if (!vtksys::SystemTools::FileExists(this->TracksFileName.c_str(), true))
+  if (!QFileInfo{this->TracksFileName}.exists())
     {
-    std::cerr << "Track file does not exist: " << this->TracksFileName << '\n';
+    qCritical() << "Track file" << this->TracksFileName << "does not exist!";
     return false;
     }
 
@@ -82,7 +84,7 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
   JSONNode root;
   try
     {
-    std::ifstream file(this->TracksFileName.c_str());
+    std::ifstream file(stdString(this->TracksFileName));
     std::string str((std::istreambuf_iterator<char>(file)),
                     std::istreambuf_iterator<char>());
 
@@ -130,6 +132,11 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
       track->SetPoints(this->TrackModel->GetPoints());
       track->SetDisplayFlags(vtkVgTrack::DF_SceneElement);
       track->SetId(trackId);
+      // This will always be false for now, since
+      // this->StorageMode == TSM_HomographyTransformedImageCoords isn't
+      // supported for FSE
+      track->SetInterpolateToGround(this->InterpolateToGround &&
+        this->StorageMode == TSM_HomographyTransformedImageCoords);
 
       // Get optional label
       try
@@ -263,7 +270,7 @@ bool vpFseTrackIO::ImportTracks(vtkIdType idsOffset,
 //-----------------------------------------------------------------------------
 QStringList vpFseTrackIO::GetSupportedFormats() const
 {
-  return QStringList("Scene Elements (JSON) (*.json)");
+  return {"Scene Elements (JSON) (*.json)"};
 }
 
 //-----------------------------------------------------------------------------
@@ -274,7 +281,8 @@ QString vpFseTrackIO::GetDefaultFormat() const
 
 //-----------------------------------------------------------------------------
 bool vpFseTrackIO::WriteTracks(
-  const QString& filename, vtkVgTrackFilter*, bool writeSceneElements) const
+  const QString& filename, int vtkNotUsed(frameOffset),
+  QPointF aoiOffset, bool writeSceneElements) const
 {
   vtkPoints* points = this->TrackModel->GetPoints();
   double imageYExtent = this->GetImageHeight() - 1;
@@ -283,6 +291,13 @@ bool vpFseTrackIO::WriteTracks(
   JSONNode root(JSON_NODE);
   JSONNode tracks(JSON_ARRAY);
   tracks.set_name("tracks");
+
+  // Only adjust track output by the aoiOffset if the StorageMode is
+  // TSM_InvertedImageCoords.
+  if (this->StorageMode != TSM_InvertedImageCoords)
+      {
+      aoiOffset = {0, 0};
+      }
 
   this->TrackModel->InitTrackTraversal();
   while (vtkVgTrack* track = this->TrackModel->GetNextTrack().GetTrack())
@@ -362,8 +377,8 @@ bool vpFseTrackIO::WriteTracks(
         {
         pt[1] = imageYExtent - pt[1];
         }
-      frame.push_back(JSONNode("image_x", pt[0]));
-      frame.push_back(JSONNode("image_y", pt[1]));
+      frame.push_back(JSONNode("image_x", pt[0] + aoiOffset.x()));
+      frame.push_back(JSONNode("image_y", pt[1] + aoiOffset.y()));
 
       // geo coord
       vtkVgGeoCoord geoCoord = track->GetGeoCoord(ts);
@@ -385,8 +400,8 @@ bool vpFseTrackIO::WriteTracks(
           point[1] = imageYExtent - point[1];
           }
         JSONNode vertex(JSON_NODE);
-        vertex.push_back(JSONNode("image_x", point[0]));
-        vertex.push_back(JSONNode("image_y", point[1]));
+        vertex.push_back(JSONNode("image_x", point[0] + aoiOffset.x()));
+        vertex.push_back(JSONNode("image_y", point[1] + aoiOffset.y()));
         polygon.push_back(vertex);
         }
 

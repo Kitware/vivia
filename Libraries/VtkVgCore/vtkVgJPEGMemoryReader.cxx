@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgJPEGMemoryReader.h"
 
@@ -17,9 +15,7 @@ extern "C" {
 #include <setjmp.h>
 }
 
-
 vtkStandardNewMacro(vtkVgJPEGMemoryReader);
-
 
 // create an error handler for jpeg that
 // can longjmp out of the jpeg library
@@ -228,7 +224,6 @@ void vtkJPEGMemoryReaderUpdate(vtkVgJPEGMemoryReader* self, vtkImageData* data, 
     }
 }
 
-
 //----------------------------------------------------------------------------
 // This function reads a data from a file.  The datas extent/axes
 // are assumed to be the same as the file extent/order.
@@ -260,13 +255,10 @@ void vtkVgJPEGMemoryReader::ExecuteDataWithInformation(vtkDataObject* output,
     }
 }
 
-
-
 #ifdef _MSC_VER
 // Put the warning back
 #pragma warning(default : 4611)
 #endif
-
 
 //----------------------------------------------------------------------------
 void vtkVgJPEGMemoryReader::PrintSelf(ostream& os, vtkIndent indent)

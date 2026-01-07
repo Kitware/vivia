@@ -16,7 +16,7 @@ add_library(${PROJECT_NAME} vvAdaptKwiver.cxx)
 target_link_libraries(${PROJECT_NAME} PUBLIC
   vvIO
   kwiver::vital
-  ${QT_LIBRARIES}
+  Qt5::Core
 )
 
 install_library_targets(${PROJECT_NAME})

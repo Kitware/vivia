@@ -3,6 +3,7 @@ include(${qtExtensions_USE_FILE})
 add_subdirectory(ConvertTracks)
 add_subdirectory(DrawTracksOnFrame)
 add_subdirectory(FixHeaderGuards)
+add_subdirectory(KwaTool)
 add_subdirectory(MrjTranslator)
 add_subdirectory(QSettingsTool)
 

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vdfTrackOracleArchiveSourcePlugin.h"
 
@@ -27,9 +25,6 @@
 #include <QStringList>
 #include <QUrl>
 #include <QtPlugin>
-
-Q_EXPORT_PLUGIN2(vdfTrackOracleArchiveSource,
-                 vdfTrackOracleArchiveSourcePlugin)
 
 QTE_IMPLEMENT_D_FUNC(vdfTrackOracleArchiveSourcePlugin)
 
@@ -103,6 +98,14 @@ vdfTrackOracleArchiveSourcePlugin::vdfTrackOracleArchiveSourcePlugin() :
   d_ptr(new vdfTrackOracleArchiveSourcePluginPrivate)
 {
   QTE_D(vdfTrackOracleArchiveSourcePlugin);
+
+  // kwiver and csv are open-ended and should always be tried
+  d->Formats.insert(
+    track_oracle::TF_CSV,
+    track_oracle::file_format_manager::get_format(track_oracle::TF_CSV));
+  d->Formats.insert(
+    track_oracle::TF_KWIVER,
+    track_oracle::file_format_manager::get_format(track_oracle::TF_KWIVER));
 
   d->addSchemas(d->Formats, visgui_minimal_track_type());
 }

@@ -1,13 +1,13 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vvFakeQueryServerChooser.h"
 #include "ui_vvFakeQueryServerChooser.h"
 
 #include <vgFileDialog.h>
+
+#include <QUrlQuery>
 
 QTE_IMPLEMENT_D_FUNC(vvFakeQueryServerChooser)
 
@@ -50,7 +50,7 @@ void vvFakeQueryServerChooser::setUri(QUrl newUri)
 {
   QTE_D(vvFakeQueryServerChooser);
 
-  d->UI.archive->setText(newUri.queryItemValue("Archive"));
+  d->UI.archive->setText(QUrlQuery{newUri}.queryItemValue("Archive"));
   this->updateUri();
 }
 
@@ -59,8 +59,11 @@ void vvFakeQueryServerChooser::updateUri()
 {
   QTE_D(vvFakeQueryServerChooser);
 
+  auto query = QUrlQuery{};
+  query.addQueryItem("Archive", d->UI.archive->text());
+
   d->uri = QUrl("fake:");
-  d->uri.addQueryItem("Archive", d->UI.archive->text());
+  d->uri.setQuery(query);
 
   emit this->uriChanged(d->uri);
 }

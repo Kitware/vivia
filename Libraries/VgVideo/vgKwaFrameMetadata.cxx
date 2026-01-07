@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vgKwaFrameMetadata.h"
 
@@ -22,7 +20,7 @@ class vgKwaFrameMetadataData : public QSharedData
 {
 public:
   vgTimeStamp timestamp;
-  QMatrix3x3 homography;
+  vgMatrix3d homography;
   uint homographyReferenceFrameNumber;
 
   vgKwaWorldBox worldCornerPoints;
@@ -77,15 +75,7 @@ vgKwaFrameMetadata::vgKwaFrameMetadata(
 
   d->timestamp.Time = time;
 
-  d->homography(0, 0) = homography.get(0, 0);
-  d->homography(0, 1) = homography.get(0, 1);
-  d->homography(0, 2) = homography.get(0, 2);
-  d->homography(1, 0) = homography.get(1, 0);
-  d->homography(1, 1) = homography.get(1, 1);
-  d->homography(1, 2) = homography.get(1, 2);
-  d->homography(2, 0) = homography.get(2, 0);
-  d->homography(2, 1) = homography.get(2, 1);
-  d->homography(2, 2) = homography.get(2, 2);
+  d->homography = vgMatrix3d{homography.data_block()};
 
   double max;
 
@@ -165,7 +155,7 @@ vgTimeStamp vgKwaFrameMetadata::timestamp() const
 }
 
 //-----------------------------------------------------------------------------
-QMatrix3x3 vgKwaFrameMetadata::homography() const
+vgMatrix3d vgKwaFrameMetadata::homography() const
 {
   QTE_D_SHARED(vgKwaFrameMetadata);
   return d->homography;

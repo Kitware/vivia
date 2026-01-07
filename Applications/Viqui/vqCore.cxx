@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vqCore.h"
 
@@ -20,6 +18,7 @@
 #include <QTemporaryFile>
 #include <QTimer>
 #include <QTimerEvent>
+#include <QUrlQuery>
 
 // QtExtensions includes
 #include <qtMap.h>
@@ -2105,7 +2104,6 @@ void  vqCore::layoutResults()
         overlappingLayoutNodes[0]->AddChild(videoTransformNodes[i]);
         }
 
-
       int currentNumberOfLayoutNodes
         = static_cast<int>(this->LayoutNodes.size());
       for (int ii = 0; ii < currentNumberOfLayoutNodes; ++ii)
@@ -2365,7 +2363,6 @@ vtkVgVideoNode* vqCore::getResultNode(ResultId iid)
   return this->ScoringRequestNodes.value(iid);
 }
 
-
 //-----------------------------------------------------------------------------
 void vqCore::selectResult(ResultId iid)
 {
@@ -2377,7 +2374,6 @@ void vqCore::selectResult(ResultId iid)
     }
 }
 
-
 //-----------------------------------------------------------------------------
 void vqCore::activateResult(ResultId iid)
 {
@@ -2386,7 +2382,6 @@ void vqCore::activateResult(ResultId iid)
     this->activateNode(*node);
     }
 }
-
 
 //-----------------------------------------------------------------------------
 void vqCore::updateLayoutStacks()
@@ -2425,7 +2420,6 @@ void vqCore::updateStackLayoutForVideoPlaying(vtkVgNodeBase& videoNode)
       }
     }
 }
-
 
 //-----------------------------------------------------------------------------
 void vqCore::videoStopped(vtkVgNodeBase& videoNode)
@@ -3140,6 +3134,25 @@ void vqCore::exportResults(QList<vtkVgVideoNode*> results, QString exporterId)
 }
 
 //-----------------------------------------------------------------------------
+void vqCore::exportResults(QString exporterId)
+{
+  if (this->QueryResults.isEmpty())
+    {
+    QMessageBox::warning(0, "Viqui", "Unable to export;"
+                         " result set is empty");
+    }
+  else
+    {
+    vqExporter* exporter = vqExporterFactory::createExporter(exporterId);
+    if (exporter)
+      {
+      exporter->exportResults(this->QueryResults.values());
+      delete exporter;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
 void vqCore::openExternal(QUrl clipUri, QString streamId, double time)
 {
   // Get external player application
@@ -3161,9 +3174,11 @@ void vqCore::openExternal(QUrl clipUri, QString streamId, double time)
   const bool stripResults = settings.value("StripResults", true).toBool();
 
   // Get query server URI (for building database source)
-  QUrl dataUri = vqSettings().queryServerUri();
-  dataUri.addQueryItem("Stream", streamId);
-  dataUri.addQueryItem("ExtractClassifiers", extractClassifiers);
+  auto dataUri = vqSettings().queryServerUri();
+  auto dataQuery = QUrlQuery{dataUri};
+  dataQuery.addQueryItem("Stream", streamId);
+  dataQuery.addQueryItem("ExtractClassifiers", extractClassifiers);
+  dataUri.setQuery(dataQuery);
 
   // Generate argument list
   args << "--video-file" << clipUri.toLocalFile()

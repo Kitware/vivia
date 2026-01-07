@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vgGeodesy.h"
 
@@ -28,7 +26,14 @@ projPJ adaptEPSG(int gcs)
 {
   std::stringstream proj4Arg;
   proj4Arg << "+init=epsg:" << gcs;
-  return pj_init_plus(proj4Arg.str().c_str());
+  projPJ result = pj_init_plus(proj4Arg.str().c_str());
+  if (!result)
+    {
+    std::cerr << "Failed to construct GCS conversion. This may indicate a "
+              << "problem with your PROJ installation, and/or you may need to "
+              << "set the PROJ_LIB environment variable.";
+    }
+  return result;
 }
 
 //-----------------------------------------------------------------------------

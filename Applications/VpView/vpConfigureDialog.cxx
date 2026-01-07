@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include <QListWidget>
 #include <QPushButton>
@@ -92,6 +90,9 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent, vpViewCore* core,
   connect(this->UI.uiAutoAdvanceFrameDuringCreation, SIGNAL(toggled(bool)),
           this, SLOT(uiAutoAdvanceFrameDuringCreationToggled(bool)));
 
+  connect(this->UI.uiInterpolateToGround, SIGNAL(toggled(bool)),
+          this, SLOT(uiInterpolateToGroundToggled(bool)));
+
   connect(this->UI.streamingUpdateInterval, SIGNAL(valueChanged(int)),
           this, SLOT(streamingUpdateIntervalChanged(int)));
   connect(this->UI.streamingTrackUpdateChunkSize, SIGNAL(valueChanged(int)),
@@ -101,6 +102,11 @@ vpConfigureDialog::vpConfigureDialog(QWidget* parent, vpViewCore* core,
           this, SLOT(videoSequentialPlaybackToggled(bool)));
   connect(this->UI.videoSuggestedFps, SIGNAL(valueChanged(double)),
           this, SLOT(videoSuggestedFpsChanged(double)));
+
+  connect(this->UI.colorWindow, SIGNAL(valueChanged(double)),
+          core, SLOT(setColorWindow(double)));
+  connect(this->UI.colorLevel, SIGNAL(valueChanged(double)),
+          core, SLOT(setColorLevel(double)));
 
   this->reset();
 }
@@ -246,6 +252,9 @@ void vpConfigureDialog::reset()
   this->UI.uiAutoAdvanceFrameDuringCreation->setChecked(
     this->Settings->autoAdvanceDuringCreation());
 
+  this->UI.uiInterpolateToGround->setChecked(
+    this->Settings->interpolateToGround());
+
   this->UI.streamingUpdateInterval->setValue(
     this->Settings->streamingUpdateInterval());
 
@@ -377,6 +386,13 @@ void vpConfigureDialog::uiRightClickToEditToggled(bool state)
 void vpConfigureDialog::uiAutoAdvanceFrameDuringCreationToggled(bool state)
 {
   this->Settings->setAutoAdvanceDuringCreation(state);
+  this->setModified(0, true);
+}
+
+//-----------------------------------------------------------------------------
+void vpConfigureDialog::uiInterpolateToGroundToggled(bool state)
+{
+  this->Settings->setInterpolateToGround(state);
   this->setModified(0, true);
 }
 

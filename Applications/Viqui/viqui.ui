@@ -47,6 +47,24 @@
      <property name="title">
       <string>E&amp;xport Results</string>
      </property>
+     <widget class="QMenu" name="menuQueryExportAllResults">
+      <property name="title">
+       <string>&amp;All</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuQueryExportStarredResults">
+      <property name="title">
+       <string>S&amp;tarred</string>
+      </property>
+     </widget>
+     <widget class="QMenu" name="menuQueryExportSelectedResults">
+      <property name="title">
+       <string>&amp;Selected</string>
+      </property>
+     </widget>
+     <addaction name="menuQueryExportSelectedResults"/>
+     <addaction name="menuQueryExportStarredResults"/>
+     <addaction name="menuQueryExportAllResults"/>
     </widget>
     <addaction name="actionQueryNew"/>
     <addaction name="actionQueryEdit"/>

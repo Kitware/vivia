@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "ui_vpObjectInfoPanel.h"
 
@@ -327,6 +325,7 @@ void vpObjectInfoPanel::StartFrameChanged(int val)
     this->ParentTrackChangesToApply = true;
     this->UpdateParentTrackEventTimes();
     this->EventModel->Modified();
+    this->ViewCoreInstance->UpdateEventModifiedTime();
     this->ViewCoreInstance->updateScene();
     }
 }
@@ -364,6 +363,7 @@ void vpObjectInfoPanel::EndFrameChanged(int val)
     this->ParentTrackChangesToApply = true;
     this->UpdateParentTrackEventTimes();
     this->EventModel->Modified();
+    this->ViewCoreInstance->UpdateEventModifiedTime();
     this->ViewCoreInstance->updateScene();
     }
 }
@@ -398,6 +398,7 @@ void vpObjectInfoPanel::EditTrackInfo()
   else
     {
     bool ok;
+    bool modified = false;
     int id = this->Ui->trackIdEdit->text().toInt(&ok);
 
     vgObjectTypeDefinitions::enumObjectTypes objectType =
@@ -420,6 +421,7 @@ void vpObjectInfoPanel::EditTrackInfo()
         // update the id
         this->TrackModel->SetTrackId(this->Track, id);
         emit this->ObjectIdChanged(objectType, this->Track->GetId());
+        modified = true;
         }
       }
     this->Ui->trackIdWidget->setCurrentIndex(0);
@@ -466,6 +468,19 @@ void vpObjectInfoPanel::EditTrackInfo()
 
       this->TrackModel->Modified();
       emit this->ObjectTypeChanged(objectType, this->Track->GetId());
+      modified = true;
+      }
+
+    if (modified)
+      {
+      if (objectType == vgObjectTypeDefinitions::SceneElement)
+        {
+        this->ViewCoreInstance->UpdateSceneElementModifiedTime();
+        }
+      else
+        {
+        this->ViewCoreInstance->UpdateTrackModifiedTime();
+        }
       }
     }
 }

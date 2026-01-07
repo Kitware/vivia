@@ -16,9 +16,6 @@
 #include <QUrl>
 #include <QtPlugin>
 
-Q_EXPORT_PLUGIN2(vdfSimpleCsvArchiveSource,
-                 vdfSimpleCsvArchiveSourcePlugin)
-
 //-----------------------------------------------------------------------------
 vdfSimpleCsvArchiveSourcePlugin::vdfSimpleCsvArchiveSourcePlugin()
 {

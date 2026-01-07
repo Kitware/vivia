@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vdfTrackReaderPrivate_h
 #define __vdfTrackReaderPrivate_h
@@ -27,9 +25,13 @@ public slots:
   void setTrackClassification(const vdfTrackId& trackId,
                               const vvTrackObjectClassification& toc);
 
-  void setTrackState(const vdfTrackId& trackId, vvTrackState state);
+  void setTrackState(const vdfTrackId& trackId, const vvTrackState& state,
+                     const vdfTrackAttributes& attributes,
+                     const vdfTrackStateScalars& scalarData);
   void setTrackStates(const vdfTrackId& trackId,
-                      const QList<vvTrackState>& states);
+                      const QList<vvTrackState>& states,
+                      const vgTimeMap<vdfTrackAttributes>& attributes,
+                      const vdfTrackScalarDataCollection& scalarData);
 
 private:
   QTE_DISABLE_COPY(vdfTrackReaderPrivate)

@@ -1,12 +1,9 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpVidtkFileTrackIO.h"
 
-#include "vpFileTrackIOImpl.h"
 #include "vpVidtkFileReader.h"
 
 //-----------------------------------------------------------------------------
@@ -16,54 +13,59 @@ vpVidtkFileTrackIO::vpVidtkFileTrackIO(
   std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
   vtkVpTrackModel* trackModel,
   TrackStorageMode storageMode,
+  bool interpolateToGround,
   TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes,
+  vgAttributeSet* trackAttributes,
   vtkMatrix4x4* geoTransform,
   vpFileDataSource* imageDataSource,
   vpFrameMap* frameMap) :
   vpVidtkTrackIO(reader, trackMap, sourceIdToModelIdMap, trackModel,
-                 storageMode, timeStampMode, trackTypes, geoTransform,
-                 imageDataSource, frameMap)
+                 storageMode, interpolateToGround, timeStampMode, trackTypes,
+                 geoTransform, imageDataSource, frameMap),
+  FileReader{this}
 {}
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileTrackIO::ReadTracks()
+bool vpVidtkFileTrackIO::ReadTracks(int frameOffset)
 {
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
   const auto& tracksFileName = reader.GetTracksFileName();
 
-  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
-  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, 0.0f, 0.0f,
-                                     trackRegionMap);
+  vpFileTrackReader::TrackRegionMap trackRegionMap;
+  this->FileReader.ReadRegionsFile(
+    tracksFileName, 0.0f, 0.0f, trackRegionMap);
 
-  if (!vpVidtkTrackIO::ReadTracks(&trackRegionMap))
+  if (!vpVidtkTrackIO::ReadTracks(frameOffset, &trackRegionMap))
     {
     return false;
     }
 
-  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  this->FileReader.ReadTypesFile(tracksFileName);
+  this->FileReader.ReadAttributesFile(tracksFileName, this->TrackAttributes);
 
   return true;
 }
 
 //-----------------------------------------------------------------------------
-bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
+bool vpVidtkFileTrackIO::ImportTracks(int frameOffset, vtkIdType idsOffset,
                                       float offsetX, float offsetY)
 {
   auto& reader = static_cast<const vpVidtkFileReader&>(this->GetReader());
   const auto& tracksFileName = reader.GetTracksFileName();
 
-  vpFileTrackIOImpl::TrackRegionMap trackRegionMap;
-  vpFileTrackIOImpl::ReadRegionsFile(this, tracksFileName, offsetX, offsetY,
-                                     trackRegionMap);
+  vpFileTrackReader::TrackRegionMap trackRegionMap;
+  this->FileReader.ReadRegionsFile(
+    tracksFileName, offsetX, offsetY, trackRegionMap);
 
-  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, idsOffset,
-                                    offsetX, offsetY))
+  if (!vpVidtkTrackIO::ImportTracks(&trackRegionMap, frameOffset,
+                                    idsOffset, offsetX, offsetY))
     {
     return false;
     }
 
-  vpFileTrackIOImpl::ReadTypesFile(this, tracksFileName);
+  this->FileReader.ReadTypesFile(tracksFileName);
+  this->FileReader.ReadAttributesFile(tracksFileName, this->TrackAttributes);
 
   return true;
 }
@@ -71,7 +73,16 @@ bool vpVidtkFileTrackIO::ImportTracks(vtkIdType idsOffset,
 //-----------------------------------------------------------------------------
 bool vpVidtkFileTrackIO::ReadTrackTraits()
 {
-  return vpFileTrackIOImpl::ReadTrackTraits(
-           this, static_cast<const vpVidtkFileReader&>(
-                   this->GetReader()).GetTrackTraitsFileName());
+  const auto& reader =
+    static_cast<const vpVidtkFileReader&>(this->GetReader());
+  return this->FileReader.ReadTrackTraits(reader.GetTrackTraitsFileName());
+}
+
+//-----------------------------------------------------------------------------
+bool vpVidtkFileTrackIO::ReadTrackClassifiers()
+{
+  auto& reader =
+    static_cast<const vpVidtkFileReader&>(this->GetReader());
+  return this->FileReader.ReadTrackClassifiers(
+    reader.GetTrackClassifiersFileName());
 }

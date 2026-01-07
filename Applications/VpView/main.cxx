@@ -1,13 +1,14 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 // QT includes
 #include <QApplication>
-#include <QCleanlooksStyle>
 #include <QSettings>
+
+// vxl includes
+#include <vil/vil_image_view.h>
+#include <vgl/algo/vgl_h_matrix_2d.h>
 
 // QT Extensions includes
 #include <qtCliArgs.h>
@@ -58,6 +59,12 @@ int main(int argc, char** argv)
   // Create application instance and set copyright information
   vpApplication app(args.qtArgc(), args.qtArgv());
   app.setCopyright(VPVIEW_COPY_YEAR, "Kitware, Inc.");
+
+  // Register metatypes
+  QTE_REGISTER_METATYPE(vil_image_view<vxl_byte>);
+  QTE_REGISTER_METATYPE(vil_image_view<double>);
+  QTE_REGISTER_METATYPE(std::string);
+  QTE_REGISTER_METATYPE(std::vector<vgl_h_matrix_2d<double> >);
 
   // Import configuration file, if requested
   foreach (QString config, args.values("import-config"))

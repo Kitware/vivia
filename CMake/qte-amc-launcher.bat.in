@@ -1,0 +1,13 @@
+REM Launcher used to start the qte-amc executable
+
+SETLOCAL
+SET PATH=@QT_BIN_DIR@;%PATH%
+
+%*
+IF %ERRORLEVEL% NEQ 0 (
+ EXIT /B 1
+) ELSE (
+  EXIT /B 0
+)
+
+:: Exit and pass along our exit code.

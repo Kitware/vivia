@@ -48,12 +48,11 @@ vtk_module_library(${PROJECT_NAME}
   ${vtkVgIOSrcs}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vgCommon
   vtkVgCore
-  LINK_LIBRARIES
-  LINK_PRIVATE
+  PRIVATE
   ${GDAL_LIBRARY}
   ${Boost_LIBRARIES}
 )

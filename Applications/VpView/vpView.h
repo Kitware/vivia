@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpView_h
 #define __vpView_h
@@ -25,6 +23,7 @@ class vpCreateEventDialog;
 class vpGraphModelWidget;
 class vpMergeTracksDialog;
 class vpQtViewer3dDialog;
+class vpSuperResWidget;
 class vpTimelineDialog;
 class vpTrackColorDialog;
 
@@ -72,7 +71,7 @@ public slots:
   void onTreeSelectionChanged(int sessionId);
   void onTreeHoverItemChanged(int sessionId);
   void updateObject(int objectType, int id);
-  void updateColorofTracksOfType(int typeIndex, double *rgb);
+  void updateColorofTracksOfType(int typeIndex, double* rgb);
   void updateCore();
   void updateEverything();
   void onCreateEvent(int type, vtkIdList* ids);
@@ -100,12 +99,14 @@ public slots:
   void onEventExpirationModeChange(QAction* sizeAction, bool render = true);
   void onContextLODChanged(int value);
   void onWebExport();
+  void onProjectProcessed();
 
   void updateFrameTime();
   void updateObjectCounts();
   void updateUI();
 
   void handleRenderWindowMouseMove(int x, int y);
+  void updateFrameFileName(const QString& fileName);
 
   bool eventFilter(QObject* obj, QEvent* event);
 
@@ -137,7 +138,7 @@ public slots:
   void copyViewportExtentsToClipboard();
   void copyExtendedInfoToClipboard();
 
-  void updateInfoWidget();
+  void updateInfoWidget(bool trackAttributesOnly = false);
   void rebuildObjectViews();
 
   void onSettingsChanged();
@@ -250,6 +251,7 @@ private:
   pqCoreTestUtility*      TestUtility;
 
   vpGraphModelWidget*     GraphModelWidget;
+  vpSuperResWidget*       SuperResWidget;
 };
 
 #endif // __vpView_h

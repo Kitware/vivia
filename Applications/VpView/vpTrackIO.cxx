@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpTrackIO.h"
 
@@ -39,6 +37,7 @@ static const unsigned char DefaultTrackColors[NumDefaultTrackColors][3] =
 //-----------------------------------------------------------------------------
 vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
                      TrackStorageMode storageMode,
+                     bool interpolateToGround,
                      TrackTimeStampMode timeStampMode,
                      vtkVgTrackTypeRegistry* trackTypes,
                      vtkMatrix4x4* geoTransform,
@@ -50,7 +49,8 @@ vpTrackIO::vpTrackIO(vtkVpTrackModel* trackModel,
   TimeStampMode(timeStampMode),
   GeoTransform(geoTransform),
   ImageDataSource(imageDataSource),
-  FrameMap(frameMap)
+  FrameMap(frameMap),
+  InterpolateToGround(interpolateToGround)
 {
   assert(trackModel);
 }
@@ -72,7 +72,13 @@ bool vpTrackIO::ReadTrackTraits()
 }
 
 //-----------------------------------------------------------------------------
-bool vpTrackIO::ImportTracks(vtkIdType, float, float)
+bool vpTrackIO::ReadTrackClassifiers()
+{
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+bool vpTrackIO::ImportTracks(int, vtkIdType, float, float)
 {
   return false;
 }
@@ -151,6 +157,7 @@ int vpTrackIO::GetTrackTypeIndex(const char* typeName)
   type.SetId(typeName);
   type.SetColor(0.5, 0.5, 0.0);
 
+  const auto newIndex = this->TrackTypes->GetNumberOfTypes();
   this->TrackTypes->AddType(type);
-  return this->TrackTypes->GetTypeIndex(typeName);
+  return newIndex;
 }

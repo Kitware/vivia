@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsVideoHelper.h"
 
@@ -34,7 +32,7 @@ vsVideoHelper::~vsVideoHelper()
 
 //-----------------------------------------------------------------------------
 vgVideoFramePtr vsVideoHelper::updateFrame(
-  const vgVideo& video, const vgVideoSeekRequest& request)
+  const vgVideo& video, const vgVideoSeekRequest& request, vgImage& image)
 {
   QTE_D(vsVideoHelper);
 
@@ -52,7 +50,8 @@ vgVideoFramePtr vsVideoHelper::updateFrame(
   vgVideoFramePtr frame = video.frameAt(now, request.Direction);
 
   // Check if the frame is valid and has advanced
-  if (!frame.isValid() || frame.time() == lastTime || !frame.image().isValid())
+  if (!frame.isValid() || frame.time() == lastTime ||
+      !(image = frame.image()).isValid())
     {
     // Nope; return an invalid frame to indicate failure / nothing to do...
     if (request.RequestId >= 0)

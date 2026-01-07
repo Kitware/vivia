@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vdfTrackOracleTrackArchiveSource.h"
 
@@ -163,6 +161,7 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
     missingFields.remove(fieldName(schema.obj_location));
     missingFields.remove(fieldName(schema.world_location));
     missingFields.remove(fieldName(schema.world_gcs));
+    missingFields.remove(fieldName(schema.state_flags));
 
     // Check if any mandatory fields are missing
     if (!missingFields.empty())
@@ -191,8 +190,12 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
 
       // Convert track states
       QList<vvTrackState> states;
+      vgTimeMap<vdfTrackAttributes> attrs;
+      vdfTrackScalarDataCollection data;
+
       auto frameHandles =
         track_oracle::track_oracle_core::get_frames(trackHandle);
+
       for (size_t n = 0, k = frameHandles.size(); n < k; ++n)
         {
         const auto& frameHandle = frameHandles[n];
@@ -267,6 +270,27 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
               }
             }
 
+          if (oracle.state_flags.exists())
+            {
+            auto ai = oracle.state_flags().get_flags();
+            if (!ai.empty())
+              {
+              vdfTrackAttributes& ao =
+                *attrs.insert(state.TimeStamp, vdfTrackAttributes());
+
+              foreach_iter(auto, iter, ai)
+                {
+                // Distinguish between old-style attributes and new-style
+                // key/value pairs: if the value is empty, it's an old-style
+                // attribute
+                if (iter->second.empty())
+                  {
+                  ao.insert(qtString(iter->first));
+                  }
+                }
+              }
+            }
+
           // Add state
           states.append(state);
           }
@@ -276,7 +300,7 @@ bool vdfTrackOracleTrackDataSource::processArchive(const QUrl& uri)
       if (!states.isEmpty())
         {
         good = true;
-        emit d->TrackSourceInterface->trackUpdated(id, states);
+        emit d->TrackSourceInterface->trackUpdated(id, states, attrs, data);
         emit d->TrackSourceInterface->trackClosed(id);
         }
       }

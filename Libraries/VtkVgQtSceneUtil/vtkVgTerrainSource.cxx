@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgTerrainSource.h"
 
@@ -209,7 +207,6 @@ vtkSmartPointer<vtkVgTerrain> vtkVgTerrainSource::CreateTerrain()
           geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
           geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
 
-
         double bounds[6];
         this->BaseTileData->GetBounds(bounds);
         coordinateTransform->SetToPoints(bounds[0], bounds[3],
@@ -228,7 +225,6 @@ vtkSmartPointer<vtkVgTerrain> vtkVgTerrainSource::CreateTerrain()
           geoTile.Coordinate[1].Longitude, geoTile.Coordinate[1].Latitude,
           geoTile.Coordinate[2].Longitude, geoTile.Coordinate[2].Latitude,
           geoTile.Coordinate[3].Longitude, geoTile.Coordinate[3].Latitude);
-
 
         double bounds[6];
         this->OtherTilesData.back()->GetBounds(bounds);

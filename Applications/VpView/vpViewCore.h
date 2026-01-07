@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpViewCore_h
 #define __vpViewCore_h
@@ -15,10 +13,14 @@
 #include <vgNamespace.h>
 
 #include <vtkSmartPointer.h>   // Required for smart pointer internal ivars.
+#include <vtkTimeStamp.h>
 
 #include <QObject>
+#include <QPointF>
+#include <QScopedPointer>
 #include <QSet>
 #include <QSharedPointer>
+#include <QString>
 #include <QStringList>
 
 #include <map>
@@ -104,6 +106,7 @@ class vpProjectParser;
 class vpQtViewer3dWidget;
 class vpSessionView;
 class vpTimelineDialog;
+class vpTrackAttributesPanel;
 class vpTrackConfig;
 class vpVideoAnimation;
 
@@ -167,6 +170,10 @@ public:
   inline vtkVgTimeStamp getCoreTimeStamp();
   inline vtkVgTimeStamp getImageryTimeStamp();
 
+  QString cameraDirectory() const;
+  QString depthConfigFile() const;
+  QString bundleAdjustmentConfigFile() const;
+
   // Note: This is a low level function that should almost never be called
   // externally. Use the frame number or time-based functions instead.
   inline unsigned int getCurrentFrameIndex();
@@ -188,6 +195,9 @@ public:
   void setFrameNumberOffset(int offset);
   int getFrameNumberOffset() { return this->FrameNumberOffset; }
 
+  void setCurrentFrame(unsigned int frameIndex, double currentTime);
+  void setCurrentFrame(const vpFrame& frame, double currentTime);
+
   void setObjectExpirationTime(const vtkVgTimeStamp& time);
   inline vtkVgTimeStamp getObjectExpirationTime();
 
@@ -207,10 +217,10 @@ public:
   // Update and render the scene. Use this method if there have not been
   // any changes that would be visible through the ui views, such as a
   // change in filtering.
-  void updateScene();
+  void updateScene(bool forceFullUpdate = false);
 
   // Update and render the scene and object views
-  void update();
+  void update(bool forceFullUpdate = false);
 
   void updateExtents();
 
@@ -250,7 +260,7 @@ public:
   void removeUnusedTrackTypes(const QSet<QString>& typesToKeep = {});
 
   void updateTrack(vtkVpTrackModel*, vtkVgTrack*,
-	               const std::shared_ptr<kwiver::vital::track>&,
+                   const std::shared_ptr<kwiver::vital::track>&,
                    const QMap<int, vgTimeStamp>& timeMap,
                    double videoHeight, bool updateToc = false);
 
@@ -278,6 +288,21 @@ public:
   int getNumberOfEvents();
   int getNumberOfTracks();
 
+  double getImageWidth() const
+    { return this->WholeImageBounds[1]; }
+  double getImageHeight() const
+    { return this->WholeImageBounds[3]; }
+
+  vtkSmartPointer<vtkActor> getCropRegionActor() const
+    { return this->CropRegionActor; }
+  vtkSmartPointer<vtkPoints> getCropRegionPoints() const
+    { return this->CropRegionPoints; }
+
+  vtkSmartPointer<vtkActor> getBundleRegionActor() const
+    { return this->BundleRegionActor; }
+  vtkSmartPointer<vtkPoints> getBundleRegionPoints() const
+    { return this->BundleRegionPoints; }
+
   int addTemporalFilter(int type,
                         const vtkVgTimeStamp& start, const vtkVgTimeStamp& end);
 
@@ -303,6 +328,7 @@ public:
   bool displayToImage(int in[2], int out[2]);
   bool displayToAOI(int in[2], int out[2]);
   bool displayToGeo(int in[2], double& northing, double& easting);
+  vtkVgGeoCoord worldToGeo(double in[2]);
 
   // Get the distance across a single pixel
   bool getGsd(int displayPoint[2], double& latDist, double& lonDist,
@@ -313,6 +339,11 @@ public:
               double& widthPerPixel, double& heightPerPixel);
 
   vtkVgBaseImageSource* getImageSource();
+  vpFileDataSource* getImageDataSource() const
+    {
+    return this->ImageDataSource;
+    }
+
   void setImageSourceLevelOfDetailFactor(double factor);
   bool hasMultiLevelOfDetailSource();
 
@@ -368,6 +399,12 @@ public:
   void setEnableWorldDisplayIfAvailable(bool state);
   void setEnableTranslateImage(bool state);
 
+  void setUseGeoCoordinates(bool useGeoCoordinatesIfAvailable);
+  bool getUsingGeoCoordinates()
+    {
+    return this->UseGeoCoordinates;
+    }
+
   void setUseZeroBasedFrameNumbers(bool enable)
     {
     this->UseZeroBasedFrameNumbers = enable;
@@ -386,6 +423,11 @@ public:
   void setAutoAdvanceDuringCreation(bool enable)
     {
     this->AutoAdvanceDuringCreation = enable;
+    }
+
+  void setInterpolateToGround(bool enable)
+    {
+    this->InterpolateToGround = enable;
     }
 
   bool getRightClickToEditEnabled()
@@ -417,7 +459,7 @@ public:
 
   void setGraphRenderingEnabled(bool enable);
 
-  void updateColorofTracksOfType(int typeIndex, double *rgb);
+  void updateColorofTracksOfType(int typeIndex, double* rgb);
 
   void startExternalProcess(QString program, QStringList fields,
                             QString ioPath);
@@ -426,11 +468,73 @@ public:
 
   void executeEmbeddedPipeline(int session, const QString& pipelinePath);
 
-  void toWindowCoordinates(double&x, double&y);
+  void toWindowCoordinates(double& x, double& y);
   void toWindowCoordinates(double (&xy)[2]);
 
-  void toGraphicsCoordinates(double&x, double&y);
+  void toGraphicsCoordinates(double& x, double& y);
   void toGraphicsCoordinates(double (&xy)[2]);
+
+  void setHomography(int frameIndex, vtkMatrix4x4* homography);
+  bool getHomography(int frameIndex, vtkMatrix4x4* homography) const;
+
+  vpTrackIO::TrackStorageMode getTrackStorageMode()
+    {
+    return this->TrackStorageMode;
+    }
+
+  bool getImagesAreGreyscale()
+    {
+    return this->ImagesAreGreyscale;
+    }
+
+  void setHomographyReferenceFrame(int refFrame, int refImageHeight = -1);
+  int getHomographyReferenceFrame() const
+    {
+    return this->HomographyReferenceFrame;
+    }
+  int getHomographyReferenceImageHeight() const
+    {
+    return this->HomographyReferenceImageHeight;
+    }
+
+  double colorWindow() const;
+  double colorLevel() const;
+
+  bool getProjectSpecifiedReferenceFrame() const;
+
+  int getFirstImageY() const
+    {
+    return this->FirstImageY;
+    }
+
+  QPointF computeAOIOffsetForExport();
+
+  void UpdateTrackModifiedTime()
+    {
+    this->TrackModifiedTime.Modified();
+    }
+  bool isTrackExportNeeded()
+    {
+    return this->TrackExportTime < this->TrackModifiedTime;
+    }
+
+  void UpdateSceneElementModifiedTime()
+    {
+    this->SceneElementModifiedTime.Modified();
+    }
+  bool isSceneElementExportNeeded()
+    {
+    return this->SceneElementExportTime < this->SceneElementModifiedTime;
+    }
+
+  void UpdateEventModifiedTime()
+    {
+    this->EventModifiedTime.Modified();
+    }
+  bool isEventExportNeeded()
+    {
+    return this->EventExportTime < this->EventModifiedTime;
+    }
 
 public slots:
   void newProject();
@@ -466,6 +570,7 @@ public slots:
   void getAOIExtents(double extents[4]);
 
   void decreaseTrackHeadSize();
+  void toggleImageFiltering();
   void increaseTrackHeadSize();
 
   int pickScene();
@@ -483,6 +588,8 @@ public slots:
   void onViewEventIcons(bool show);
 
   void onShowObjectInfo(int sessionId, vpObjectInfoPanel* objectInfo);
+  void onShowTrackAttributes(int sessionId,
+    vpTrackAttributesPanel* trackAttributes);
 
   void onRandomEventColor(bool state);
   void onRandomTrackColor(bool state);
@@ -512,6 +619,9 @@ public slots:
 
   void onIncreaseSceneElementTransparency();
   void onDecreaseSceneElementTransparency();
+
+  void onIncreasePolygonNodeSize();
+  void onDecreasePolygonNodeSize();
 
   void onPlay();
   void onPause();
@@ -558,12 +668,13 @@ public slots:
   void initializeDisplay();
   void initializeExtentsBounds();
   void initializeScene();
-  void initializeViewInteractions();
+  void initializeViewInteractions(QVTKWidget* renderWidget);
   void initializeSources();
   void reinitialize();
 
   int loadTracks(vpProject* project);
   int loadTrackTraits(vpProject* project);
+  int loadTrackClassifiers(vpProject* project);
   int loadEvents(vpProject* project);
   int loadEventLinks(vpProject* project);
   int loadActivities(vpProject* project);
@@ -638,8 +749,13 @@ public slots:
 
   void setRulerEnabled(bool enable);
 
-protected slots:
+  void setColorWindow(double colorWindow);
+  void setColorLevel(double colorLevel);
 
+  void zoomIn();
+  void zoomOut();
+
+protected slots:
   void forceUpdate();
   void forceRender();
 
@@ -659,6 +775,7 @@ signals:
 
   void displayZoom();
   void frameChanged();
+  void frameChanged(const QString&);
   void timeChanged(double microseconds);
   void reachedPlayBoundary();
   void enterAdjudicationMode();
@@ -685,7 +802,7 @@ signals:
 
   void stoppedEditingTrack(vpViewCore::enumAnnotationMode annotationMode);
 
-  void objectInfoUpdateNeeded();
+  void objectInfoUpdateNeeded(bool onlyUpdateifTrackInfo = false);
 
   void trackPicked(int id, int session);
 
@@ -710,6 +827,8 @@ signals:
 
   void graphModelExportRequested(QString);
 
+  void projectProcessed();
+
 private:
 
   void updateRepresentation(vtkVgRepresentationBase* representation,
@@ -726,6 +845,7 @@ private:
 
   double getCurrentScale(vtkRenderer* renderer) const;
 
+  void changePolygonNodeSize(float delta);
   void changeIconOffset(int deltaX, int deltaY);
   void changeOverlayOpacity(double delta);
   void changeSceneElementOpacity(double delta);
@@ -763,9 +883,13 @@ private:
   void updateTrackFollowCamera();
 
   void worldToImage(double in[2], int out[2]);
-  vtkVgGeoCoord worldToGeo(double in[2]);
 
   bool updateImageMatrices();
+
+  void computeHomographyTransformMatrix(int referenceFrameNumber,
+                                        vtkMatrix4x4* transformMatrix);
+  void setProjectRepresentationMatrix(vpProject* project,
+                                      vtkMatrix4x4* transformMatrix);
 
   void updateEventDisplayEndFrame(vpProject* project);
 
@@ -778,9 +902,6 @@ private:
   void startFrameMapRebuild();
   bool waitForFrameMapRebuild();
 
-  void setCurrentFrame(unsigned int frameIndex, double currentTime);
-  void setCurrentFrame(const vpFrame& frame, double currentTime);
-
   void setTrackTrailLength(vpProject* project, vtkVgTimeStamp duration);
   void setSceneElementLineWidth(vpProject* project, double lineWidth);
 
@@ -790,6 +911,9 @@ private:
                     vg::SeekMode direction = vg::SeekNearest);
 
   void syncAnimationToCore();
+
+  void createCropRegionActor();
+  void createBundleRegionActor();
 
   vpContour* makeFilterContour();
 
@@ -834,6 +958,9 @@ private:
   vtkSmartPointer<vtkMatrix4x4>     LatLonToWorldMatrix;
   vtkSmartPointer<vtkMatrix4x4>     LatLonToImageReferenceMatrix;
   vtkSmartPointer<vtkMatrix4x4>     ImageToGcsMatrix;
+  vtkSmartPointer<vtkMatrix4x4>     ImageToWorkingWorldMatrix;
+
+  int FirstImageY;
 
   int FirstImageY;
 
@@ -862,6 +989,12 @@ private:
   double                                ImageSourceLODFactor;
   vtkSmartPointer<vtkActor>             AOIOutlineActor;
   vtkSmartPointer<vtkPolyData>          AOIOutlinePolyData;
+
+  vtkSmartPointer<vtkPoints>  CropRegionPoints;
+  vtkSmartPointer<vtkActor>   CropRegionActor;
+
+  vtkSmartPointer<vtkPoints>  BundleRegionPoints;
+  vtkSmartPointer<vtkActor>   BundleRegionActor;
 
   // Scene
   bool SceneInitialized;
@@ -903,6 +1036,7 @@ private:
   bool              UseZeroBasedFrameNumbers;
   bool              RightClickToEditEnabled;
   bool              AutoAdvanceDuringCreation;
+  bool              InterpolateToGround;
   double            SceneElementLineWidth;
 
   int               FrameNumberOffset;
@@ -988,6 +1122,7 @@ private:
   vpBox* TrackHeadBox;
   vpContour* TrackHeadContour;
   vpBoundingRegion* TrackHeadRegion;
+  float TrackHeadPointSize;
   vtkSmartPointer<vtkPolyData> TrackHeadRegionPolyData;
 
   vtkSmartPointer<vtkActor> TrackHeadIndicatorActor;
@@ -1021,6 +1156,24 @@ private:
   QString ExternalProcessOutputFile;
   QString ExternalProcessProgram;
   QStringList ExternalProcessArguments;
+  bool ImagesAreGreyscale;
+
+  int HomographyReferenceFrame;
+  bool ProjectSpecifiedReferenceFrame;
+  int HomographyReferenceImageHeight;
+
+  QString DepthConfigFile;
+  QString CameraDirectory;
+  QString BundleAdjustmentConfigFile;
+
+  vpTrackAttributesPanel* TrackAttributesPanel;
+
+  vtkTimeStamp TrackExportTime;
+  vtkTimeStamp TrackModifiedTime;
+  vtkTimeStamp SceneElementExportTime;
+  vtkTimeStamp SceneElementModifiedTime;
+  vtkTimeStamp EventExportTime;
+  vtkTimeStamp EventModifiedTime;
 };
 
 //-----------------------------------------------------------------------------

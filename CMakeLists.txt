@@ -1,5 +1,5 @@
 # Root cmake file.
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 set(CMAKE_CXX_STANDARD 17)
 
 project(visGUI)
@@ -19,6 +19,7 @@ option(VISGUI_ENABLE_GDAL           "Enable features that require GDAL"     OFF)
 option(VISGUI_ENABLE_KWPPT          "Enable features that require KWPPT"    OFF)
 option(VISGUI_ENABLE_VIDTK          "Enable features that require VidTK"    ON)
 option(VISGUI_ENABLE_KWIVER         "Enable features that require KWIVER"   ON)
+option(VISGUI_ENABLE_SUPER3D        "Enable features that require Super3D"  OFF)
 #   ...Python bindings
 option(VISGUI_ENABLE_PYTHON         "Enable VisGUI Python bindings"         OFF)
 #   ...Install options
@@ -49,21 +50,8 @@ if(NOT BUILD_SHARED_LIBS)
     "This configuration is NOT recommended.")
 endif()
 
-# Set default visibility to hidden when building shared
-if(BUILD_SHARED_LIBS)
-  include(CheckCCompilerFlag)
-  include(CheckCXXCompilerFlag)
-  check_c_compiler_flag(-fvisibility=hidden C_HAS_VISIBILITY_FLAG)
-  check_cxx_compiler_flag(-fvisibility=hidden CXX_HAS_VISIBILITY_FLAG)
-  if(C_HAS_VISIBILITY_FLAG)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fvisibility=hidden")
-  endif()
-  if(CXX_HAS_VISIBILITY_FLAG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
-  endif()
-else()
-  add_definitions(-DVISGUI_STATIC)
-endif()
+# Set build tool configuration options
+include(CMake/config.cmake NO_POLICY_SCOPE)
 
 # Place executable and libraries in a common location, rather than their
 # respective build directories.
@@ -83,13 +71,8 @@ vg_generate_export_header(
   "${PROJECT_BINARY_DIR}/vgExport.h"
   "${PROJECT_SOURCE_DIR}/vgExport.cmake"
 )
+add_library(${PROJECT_NAME} INTERFACE)
 install_headers("${PROJECT_BINARY_DIR}/vgExport.h" TARGET ${PROJECT_NAME})
-
-# Declare exports file
-set(VisGUI_EXPORT_FILE "${visGUI_BINARY_DIR}/VisGUIConfigTargets.cmake")
-if(EXISTS "${VisGUI_EXPORT_FILE}")
-  file(REMOVE "${VisGUI_EXPORT_FILE}")
-endif()
 
 # Create package config for build directory
 set(VisGUI_INCLUDE_DIR "${visGUI_BINARY_DIR}/include")
@@ -161,3 +144,8 @@ add_subdirectory(Documentation)
 
 # Install rules need to be in a separate directory
 add_subdirectory(CMake/InstallRules)
+
+# Create exports file
+get_property(VisGUI_EXPORT_TARGETS GLOBAL PROPERTY VisGUI_EXPORT_TARGETS)
+set(VisGUI_EXPORT_FILE "${visGUI_BINARY_DIR}/VisGUIConfigTargets.cmake")
+export(TARGETS ${VisGUI_EXPORT_TARGETS} FILE "${VisGUI_EXPORT_FILE}")

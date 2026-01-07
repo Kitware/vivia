@@ -1,11 +1,8 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
-#include "vdfTrackReader.h"
-#include "vdfTrackReaderPrivate.h"
+#include "moc_vdfTrackReaderPrivate.cpp"
 
 #include "vdfDataSource.h"
 #include "vdfTrackSource.h"
@@ -30,19 +27,33 @@ void vdfTrackReaderPrivate::setTrackClassification(
 
 //-----------------------------------------------------------------------------
 void vdfTrackReaderPrivate::setTrackState(
-  const vdfTrackId& trackId, vvTrackState state)
+  const vdfTrackId& trackId, const vvTrackState& state,
+  const vdfTrackAttributes& attributes, const vdfTrackStateScalars& scalarData)
 {
-  this->Tracks[trackId].Trajectory.insert(state.TimeStamp, state);
+  vdfTrackReader::Track& track = this->Tracks[trackId];
+  track.Trajectory.insert(state.TimeStamp, state);
+  track.Attributes.insert(state.TimeStamp, attributes);
+  foreach_iter (vdfTrackStateScalars::const_iterator, iter, scalarData)
+    {
+    track.ScalarData[iter.key()].insert(state.TimeStamp, iter.value());
+    }
 }
 
 //-----------------------------------------------------------------------------
 void vdfTrackReaderPrivate::setTrackStates(
-  const vdfTrackId& trackId, const QList<vvTrackState>& states)
+  const vdfTrackId& trackId, const QList<vvTrackState>& states,
+  const vgTimeMap<vdfTrackAttributes>& attributes,
+  const vdfTrackScalarDataCollection& scalarData)
 {
   vdfTrackReader::Track& track = this->Tracks[trackId];
   foreach (const vvTrackState& state, states)
     {
     track.Trajectory.insert(state.TimeStamp, state);
+    }
+  track.Attributes.insert(attributes);
+  foreach_iter (vdfTrackScalarDataCollection::const_iterator, ski, scalarData)
+    {
+    track.ScalarData[ski.key()].insert(ski.value());
     }
 }
 
@@ -89,8 +100,12 @@ bool vdfTrackReader::connectSource(vdfDataSource* source)
     CONNECT(trackClassificationAvailable, setTrackClassification,
             (vdfTrackId, vvTrackObjectClassification));
 
-    CONNECT(trackUpdated, setTrackState, (vdfTrackId, vvTrackState));
-    CONNECT(trackUpdated, setTrackStates, (vdfTrackId, QList<vvTrackState>));
+    CONNECT(trackUpdated, setTrackState, (vdfTrackId, vvTrackState,
+                                          vdfTrackAttributes,
+                                          vdfTrackStateScalars));
+    CONNECT(trackUpdated, setTrackStates, (vdfTrackId, QList<vvTrackState>,
+                                           vgTimeMap<vdfTrackAttributes>,
+                                           vdfTrackScalarDataCollection));
 #undef CONNECT
 
     return true;

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vdfNodeBase.h"
 
@@ -12,12 +10,7 @@
 
 #include <QChildEvent>
 #include <QSet>
-#include <QWeakPointer>
-
-namespace // anonymous
-{
-  typedef QWeakPointer<QObject> ObjectWeakPointer;
-}
+#include <QPointer>
 
 //-----------------------------------------------------------------------------
 class vdfNodeBasePrivate
@@ -35,7 +28,7 @@ public:
 
   QSet<vdfNodeProxy*> Connections;
 
-  QList<ObjectWeakPointer> NewChildren;
+  QList<QPointer<QObject>> NewChildren;
 };
 
 QTE_IMPLEMENT_D_FUNC(vdfNodeBase)
@@ -271,12 +264,11 @@ void vdfNodeBase::childEvent(QChildEvent* e)
   QObject::childEvent(e);
 }
 
-
 //-----------------------------------------------------------------------------
 void vdfNodeBase::updateChildren()
 {
   QTE_D(vdfNodeBase);
-  foreach (const ObjectWeakPointer child, d->NewChildren)
+  foreach (const auto& child, d->NewChildren)
     {
     vdfNodeBase* const childNode = qobject_cast<vdfNodeBase*>(child.data());
     if (childNode)

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vqQueryDialog.h"
 #include "ui_query.h"
@@ -13,6 +11,7 @@
 #include <QMetaObject>
 #include <QSettings>
 #include <QTextStream>
+#include <QUrlQuery>
 
 #include <qtKstReader.h>
 #include <qtStlUtil.h>
@@ -248,8 +247,9 @@ void vqQueryDialogPrivate::editExemplarQuery(
     const QUrl uri = qtUrl(this->LastDatabaseQuery.Uri);
 
     // \TODO need to pass limits as part of URI
-    QUrl bareUri = uri;
-    bareUri.setEncodedQuery(QByteArray());
+    auto bareUri = uri;
+    auto uq = QUrlQuery{uri};
+    bareUri.setQuery(QUrlQuery{});
     vqDialog.setExemplarUri(stdString(bareUri), type);
 
     // \TODO all of this should be done in the QF dialog
@@ -258,15 +258,15 @@ void vqQueryDialogPrivate::editExemplarQuery(
 
     query->QueryId = vvMakeId("VIQUI-QF");
     query->StreamIdLimit = stdString(bareUri);
-    query->TemporalLowerLimit = uri.queryItemValue("StartTime").toLongLong();
-    query->TemporalUpperLimit = uri.queryItemValue("EndTime").toLongLong();
+    query->TemporalLowerLimit = uq.queryItemValue("StartTime").toLongLong();
+    query->TemporalUpperLimit = uq.queryItemValue("EndTime").toLongLong();
     query->RequestedEntities = vvRetrievalQuery::TracksAndDescriptors;
 
     emit q->readyToProcessDatabaseVideoQuery(qi);
 
     vqDialog.setTimeRange(query->TemporalLowerLimit,
                           query->TemporalUpperLimit,
-                          uri.queryItemValue("InitialTime").toDouble());
+                          uq.queryItemValue("InitialTime").toDouble());
     }
   else
     {
@@ -697,10 +697,13 @@ void vqQueryDialog::initiateDatabaseQuery(
 {
   QTE_D(vqQueryDialog);
 
-  QUrl uri = qtUrl(videoUri);
-  uri.addQueryItem("StartTime",   QString::number(startTimeLimit));
-  uri.addQueryItem("EndTime",     QString::number(endTimeLimit));
-  uri.addQueryItem("InitialTime", QString::number(initialTime));
+  auto uri = qtUrl(videoUri);
+  auto query = QUrlQuery{uri};
+
+  query.addQueryItem("StartTime",   QString::number(startTimeLimit));
+  query.addQueryItem("EndTime",     QString::number(endTimeLimit));
+  query.addQueryItem("InitialTime", QString::number(initialTime));
+  uri.setQuery(query);
 
   d->LastDatabaseQuery.Descriptors.clear();
   d->LastDatabaseQuery.Uri = stdString(uri);

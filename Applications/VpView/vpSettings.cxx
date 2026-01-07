@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #define QTSETTINGS_SUBCLASS_NAME vpSettings
 #include <qtSettingsImpl.h>
@@ -30,6 +28,7 @@ const char keyTranslateImageEnabled[]    = "TranslateImageEnabled";
 const char keyUseZeroBasedFrameNumbers[] = "UseZeroBasedFrameNumbers";
 const char keyRightClickToEdit[]         = "RightClickToEdit";
 const char keyAutoAdvanceDuringCreation[] = "AutoAdvanceDuringCreation";
+const char keyInterpolateToGround[]      = "InterpolateToGround";
 
 const char keySceneElementLineWidth[]    = "SceneElementLineWidth";
 
@@ -73,6 +72,7 @@ vpSettings::vpSettings()
   this->declareSetting(keyUseZeroBasedFrameNumbers, QVariant(false));
   this->declareSetting(keyRightClickToEdit, QVariant(true));
   this->declareSetting(keyAutoAdvanceDuringCreation, QVariant(true));
+  this->declareSetting(keyInterpolateToGround, QVariant(false));
 
   this->declareSetting(keySceneElementLineWidth, QVariant(4));
 
@@ -216,6 +216,7 @@ qtSettings_implement(int,     streamingUpdateInterval,   StreamingUpdateInterval
 qtSettings_implement(int,     streamingTrackUpdateChunkSize, StreamingTrackUpdateChunkSize)
 qtSettings_implement(bool,    rightClickToEdit,          RightClickToEdit)
 qtSettings_implement(bool,    autoAdvanceDuringCreation, AutoAdvanceDuringCreation)
+qtSettings_implement(bool,    interpolateToGround,       InterpolateToGround)
 qtSettings_implement(double,  sceneElementLineWidth,     SceneElementLineWidth)
 qtSettings_implement(QString, videoPlaybackMode_,        VideoPlaybackMode_)
 qtSettings_implement(double,  videoSuggestedFps,         VideoSuggestedFps)

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 // .NAME vtkVgPicker - picker for visGUI application
 // .SECTION Description
@@ -97,7 +95,6 @@ public:
   // retrieve the id of the picked entity.
   vtkGetMacro(PickedId, vtkIdType);
 
-
   // Description:
   // After a successful track pick (i.e., Pick() returns PickedActivity),
   // retrieve the activity id of the picked activity. This can be used to
@@ -132,7 +129,6 @@ protected:
 
   std::vector<vtkSmartPointer<vtkVgRepresentationBase> >
   Representations;
-
 
 private:
   vtkVgPicker(const vtkVgPicker&);  // Not implemented.

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2019 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vvScoreGradientSetting.h"
 
@@ -112,10 +110,12 @@ void vvScoreGradientSetting::commit(QSettings& store)
     int counter = 0;
     foreach (const vvScoreGradient::Stop& stop, gradient.stops())
       {
-      qtScopedSettingsGroup sg(store, QString::number(++counter));
-      store.setValue("Name", stop.text);
-      store.setValue("Threshold", stop.threshold);
-      vgColor(stop.color).write(store, "Color");
+      with_expr (qtScopedSettingsGroup{store, QString::number(++counter)})
+        {
+        store.setValue("Name", stop.text);
+        store.setValue("Threshold", stop.threshold);
+        vgColor(stop.color).write(store, "Color");
+        }
       }
     }
 

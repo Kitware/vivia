@@ -1,18 +1,18 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vqApplication_h
 #define __vqApplication_h
 
-#include <QMainWindow>
-#include <QScopedPointer>
+#include "ui_viqui.h"
 
 #include <vvQueryInstance.h>
 
-#include "ui_viqui.h"
+#include <qtUiState.h>
+
+#include <QMainWindow>
+#include <QScopedPointer>
 
 class QSignalMapper;
 
@@ -47,8 +47,6 @@ public:
     {
     return this->InterfaceMode == UI_Engineering;
     }
-
-  Ui::MainWindow UI;
 
 public slots:
   void initializeTesting(const qtCliArgs*);
@@ -93,7 +91,9 @@ protected slots:
   void cancelNewQuery();
   void formulateQuery(vvProcessingRequest request, long long initialTime);
 
-  void exportResults(const QString& exporterId);
+  void exportSelectedResults(const QString& exporterId);
+  void exportStarredResults(const QString& exporterId);
+  void exportAllResults(const QString& exporterId);
 
   void setGroundTruthEventType(int index);
 
@@ -112,9 +112,6 @@ protected slots:
 protected:
   virtual void closeEvent(QCloseEvent*);
 
-  void loadWindowState();
-  void saveWindowState();
-
   void reloadConfiguration();
   void connectDockToggleAction(QAction* action, QDockWidget* dock);
   void connectTreeWidget(vqTreeView*);
@@ -126,6 +123,9 @@ protected:
   void setupTrackingClipViewer();
 
   UIMode InterfaceMode;
+
+  Ui::MainWindow UI;
+  qtUiState UiState;
 
   vqCore* Core;
   vqUserActions* UserActions;

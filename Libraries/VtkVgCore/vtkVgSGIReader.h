@@ -1,8 +1,4 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the OSI-approved BSD 3-Clause License. See top-level LICENSE file or https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vtkVgSGIReader_h
 #define __vtkVgSGIReader_h
@@ -12,8 +8,7 @@
 
 #include <vgExport.h>
 
-// Forward declaration.
-class vtkSGIReader;
+#include <memory>
 
 class VTKVG_CORE_EXPORT vtkVgSGIReader : public vtkVgBaseImageSource
 {
@@ -28,15 +23,15 @@ public:
 
   // Description:
   // Print values of the member variables.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  virtual void PrintSelf(ostream& os, vtkIndent indent) override;
 
   // Description:
   // Return number of level of detail.
-  virtual int GetNumberOfLevels() const;
+  virtual int GetNumberOfLevels() const override;
 
   // Description:
   // Return dimensions of the image.
-  virtual void GetDimensions(int dim[2]);
+  virtual void GetDimensions(int dim[2]) override;
 
   virtual bool CanRead(const std::string& source) const override;
 
@@ -48,22 +43,22 @@ public:
 
 protected:
   class vtkInternal;
-  vtkInternal* Internal;
+  std::unique_ptr<vtkInternal> Internal;
 
   vtkVgSGIReader();
   virtual ~vtkVgSGIReader();
 
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,
-                                 vtkInformationVector* outputVector);
+                                 vtkInformationVector* outputVector) override;
 
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) override;
 
 private:
-  vtkVgSGIReader(const vtkVgSGIReader&);        // Not implemented.
-  void operator= (const vtkVgSGIReader&);       // Not implemented.
+  vtkVgSGIReader(const vtkVgSGIReader&) = delete;
+  void operator=(const vtkVgSGIReader&) = delete;
 };
 
 #endif

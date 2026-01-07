@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vvKstReader.h"
 
@@ -766,7 +764,7 @@ bool vvKstReader::readQueryPlan(
       QString encodedModel;
       test_or_die(reader.readString(encodedModel, 1),
                   "Error reading query IQR model");
-      QByteArray model = QByteArray::fromBase64(encodedModel.toAscii());
+      QByteArray model = QByteArray::fromBase64(encodedModel.toLatin1());
 
       // Convert to std::vector<uchar>... oh, the pain...
       const uchar* rawModel =

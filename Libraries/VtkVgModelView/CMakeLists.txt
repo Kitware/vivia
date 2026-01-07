@@ -29,7 +29,7 @@ set(vtkVgModelViewSrcs
   vtkVgTrackLabelRepresentation.cxx
   vtkVgTrackModel.cxx
   vtkVgTrackModelCollection.cxx
-  vtkVgTrackFSOFilter.cxx
+  vtkVgTrackPVOFilter.cxx
   vtkVgTrackRepresentation.cxx
   vtkVgTrackRepresentationBase.cxx
   vtkVgTripWireManager.cxx
@@ -68,7 +68,7 @@ set(vtkVgModelViewInstallHeaders
   vtkVgTrackLabelRepresentation.h
   vtkVgTrackModelCollection.h
   vtkVgTrackModel.h
-  vtkVgTrackFSOFilter.h
+  vtkVgTrackPVOFilter.h
   vtkVgTrackRepresentationBase.h
   vtkVgTrackRepresentation.h
   vtkVgTripWireManager.h
@@ -109,8 +109,8 @@ vg_vtk_module(${PROJECT_NAME}
 # Build and link library.
 vtk_module_library(${PROJECT_NAME} ${vtkVgModelViewSrcs})
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vtkVgCore
 )
 

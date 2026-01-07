@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include <vdfDataSource.h>
 #include <vdfSourceService.h>
@@ -19,6 +17,7 @@
 #include <vtkVgJPEGReader.h>
 #include <vtkVgMultiResJpgImageReader2.h>
 #include <vtkVgPNGReader.h>
+#include <vtkVgTIFReader.h>
 #include <vtkVgRendererUtils.h>
 
 #include <vgAbstractFactory.h>
@@ -194,6 +193,7 @@ int main(int argc, char** argv)
   imageSourceFactory.Register(&vtkVgMultiResJpgImageReader2::Create);
   imageSourceFactory.Register(&vtkVgImageSource::Create);
   imageSourceFactory.Register(&vtkVgJPEGReader::Create);
+  imageSourceFactory.Register(&vtkVgTIFReader::Create);
 #if defined(VISGUI_USE_GDAL)
   imageSourceFactory.Register(&vtkVgGDALReader::Create);
 #endif

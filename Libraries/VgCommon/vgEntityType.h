@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vgEntityType_h
 #define __vgEntityType_h
@@ -17,6 +15,7 @@ public:
   void SetName(const char* name);
   const char* GetName() const { return this->Name; }
 
+  void SetColor(const double* color);
   void SetColor(double r, double g, double b);
   void GetColor(double& r, double& g, double& b) const;
   const double* GetColor() const;
@@ -27,9 +26,11 @@ public:
   void SetSecondaryColor(double r, double g, double b);
   void GetSecondaryColor(double& r, double& g, double& b) const;
 
+  void SetLabelForegroundColor(const double* color);
   void SetLabelForegroundColor(double r, double g, double b);
   void GetLabelForegroundColor(double& r, double& g, double& b) const;
 
+  void SetLabelBackgroundColor(const double* color);
   void SetLabelBackgroundColor(double r, double g, double b);
   void GetLabelBackgroundColor(double& r, double& g, double& b) const;
 

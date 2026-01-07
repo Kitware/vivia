@@ -15,8 +15,6 @@
 #include "vvKipQueryServerChooser.h"
 #include "vvKipQuerySession.h"
 
-Q_EXPORT_PLUGIN2(vvKipQueryService, vvKipQueryServicePlugin)
-
 //-----------------------------------------------------------------------------
 vvKipQueryServicePlugin::vvKipQueryServicePlugin()
 {

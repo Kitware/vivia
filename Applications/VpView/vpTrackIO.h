@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpTrackIO_h
 #define __vpTrackIO_h
@@ -10,6 +8,8 @@
 #include <vgColor.h>
 
 #include <vtkSmartPointer.h>
+
+#include <QPointF>
 
 class vpFileDataSource;
 class vpFrameMap;
@@ -51,6 +51,7 @@ public:
 public:
   vpTrackIO(vtkVpTrackModel* trackModel,
             TrackStorageMode storageMode,
+            bool interpolateToGround,
             TrackTimeStampMode timeStampMode,
             vtkVgTrackTypeRegistry* trackTypes,
             vtkMatrix4x4* geoTransform,
@@ -61,13 +62,16 @@ public:
 
   void SetOverrideColor(const vgColor&);
 
-  virtual bool ReadTracks() = 0;
+  virtual bool ReadTracks(int frameOffset) = 0;
   virtual bool ReadTrackTraits();
+  virtual bool ReadTrackClassifiers();
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const QString& filename, vtkVgTrackFilter* filter,
-                           bool writeSceneElements) const = 0;
+  virtual bool WriteTracks(
+    const QString& filename, int frameOffset, QPointF aoiOffset,
+    bool writeSceneElements) const = 0;
 
   // Return list of supported output formats as UI strings (e.g. "Foo (*.foo)")
   virtual QStringList GetSupportedFormats() const = 0;
@@ -93,7 +97,7 @@ protected:
   virtual unsigned int GetImageHeight() const = 0;
 
 protected:
-  friend class vpFileTrackIOImpl;
+  friend class vpFileTrackReader;
 
   void AddTrack(vtkVgTrack*);
 
@@ -106,6 +110,7 @@ protected:
   vpFileDataSource* ImageDataSource;
   vpFrameMap* FrameMap;
   vgColor OverrideColor;
+  bool InterpolateToGround;
 };
 
 #endif // __vpTrackIO_h

@@ -1,13 +1,13 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpProject_h
 #define __vpProject_h
 
 #include "vpProjectBase.h"
+
+#include <vgAttributeSet.h>
 
 #include <qtGlobal.h>
 
@@ -69,6 +69,7 @@ public:
   PROJECT_FIELD_TAG(DataSetSpecifier);
   PROJECT_FIELD_TAG(TracksFile);
   PROJECT_FIELD_TAG(TrackTraitsFile);
+  PROJECT_FIELD_TAG(TrackClassifiersFile);
   PROJECT_FIELD_TAG(EventsFile);
   PROJECT_FIELD_TAG(EventLinksFile);
   PROJECT_FIELD_TAG(IconsFile);
@@ -96,9 +97,13 @@ public:
   PROJECT_FIELD_TAG(FrameNumberOffset);
   PROJECT_FIELD_TAG(ImageTimeMapFile);
   PROJECT_FIELD_TAG(HomographyIndexFile);
+  PROJECT_FIELD_TAG(HomographyReferenceFrame);
 
   PROJECT_FIELD_TAG(FiltersFile);
   PROJECT_FIELD_TAG(SceneElementsFile);
+  PROJECT_FIELD_TAG(CameraDirectory);
+  PROJECT_FIELD_TAG(DepthConfigFile);
+  PROJECT_FIELD_TAG(BundleAdjustmentConfigFile);
 
   PROJECT_FIELD_TAG(ImageToGcsMatrix);
 #undef PROJECT_FIELD_TAG
@@ -136,6 +141,7 @@ public:
   // Others
   vtkSmartPointer<vtkVgPicker> Picker;
   QSharedPointer<vpModelIO> ModelIO;
+  vgAttributeSet TrackDetectionAttributes;
 
   int ProjectId;
   int NextCreateTrackId;

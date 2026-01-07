@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpModelIO_h
 #define __vpModelIO_h
@@ -14,8 +12,10 @@
 
 #include <QScopedPointer>
 
+#include <memory>
 #include <vector>
 
+class vgAttributeSet;
 class vpFileDataSource;
 class vpFrameMap;
 
@@ -27,8 +27,10 @@ public:
 
   virtual void SetTrackModel(vtkVpTrackModel* trackModel,
                              vpTrackIO::TrackStorageMode storageMode,
+                             bool interpolateToGround,
                              vpTrackIO::TrackTimeStampMode timeStampMode,
                              vtkVgTrackTypeRegistry* trackTypes,
+                             vgAttributeSet* trackAttributes,
                              vtkMatrix4x4* geoTransform,
                              vpFileDataSource* imageDataSource,
                              vpFrameMap* frameMap) = 0;
@@ -50,13 +52,15 @@ public:
   virtual int GetHomographyCount();
   virtual const std::vector<std::string>& GetImageFiles() const;
 
-  bool ReadTracks();
+  bool ReadTracks(int frameOffset);
   bool ReadTrackTraits();
+  bool ReadTrackClassifiers();
 
-  bool ImportTracks(vtkIdType idsOffset = 0,
+  bool ImportTracks(int frameOffset, vtkIdType idsOffset = 0,
                     float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteTracks(const QString& filename, vtkVgTrackFilter* filter);
+  bool WriteTracks(const QString& filename, int frameOffset,
+                   QPointF aoiOffset);
 
   bool ReadEvents();
   bool ReadEventLinks();
@@ -72,7 +76,8 @@ public:
   bool ImportFseTracks(vtkIdType idsOffset = 0,
                        float offsetX = 0.0f, float offsetY = 0.0f);
 
-  bool WriteFseTracks(const QString& filename, bool writeSceneElements = true);
+  bool WriteFseTracks(const QString& filename, QPointF aoiOffset,
+                      bool writeSceneElements = true);
 
   const vpTrackIO* GetTrackIO() const { return this->TrackIO.data(); }
   const vpEventIO* GetEventIO() const { return this->EventIO.data(); }

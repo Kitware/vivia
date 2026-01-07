@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpActivityConfig.h"
 
@@ -90,8 +88,8 @@ void vpActivityConfig::ReadActivityTypes(QSettings& settings)
     settings.setArrayIndex(i);
 
     vgActivityType type;
-    type.SetId(settings.value("Id").toString().toAscii());
-    type.SetName(settings.value("Name").toString().toAscii());
+    type.SetId(qPrintable(settings.value("Id").toString()));
+    type.SetName(qPrintable(settings.value("Name").toString()));
 
     QColor color = vpConfigUtils::ReadColor("Color", settings);
     type.SetColor(color.redF(), color.greenF(), color.blueF());
@@ -111,10 +109,10 @@ void vpActivityConfig::ReadActivityTypes(QSettings& settings)
     type.SetUseRandomColors(settings.value("UseRandomColors").toBool());
     type.SetIconIndex(settings.value("IconIndex", -1).toInt());
 
+    const auto& displayMode =
+      settings.value("DisplayMode", vgActivityType::GetDisplayModeString(0));
     type.SetDisplayMode(
-      this->GetDisplayModeFromString(
-        settings.value("DisplayMode", vgActivityType::GetDisplayModeString(0))
-        .toString().toAscii()));
+      this->GetDisplayModeFromString(qPrintable(displayMode.toString())));
 
     int id = this->GetIdInternal(type.GetId());
     if (id == -1)

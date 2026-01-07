@@ -34,13 +34,10 @@ set(vvKipQueryService_UiFiles
   vvKipQueryServerChooser.ui
 )
 
-qt4_wrap_cpp(vvKipQueryService_MocSources ${vvKipQueryService_MocHeaders})
-qt4_wrap_ui(vvKipQueryService_UiSources ${vvKipQueryService_UiFiles})
-
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vvKipQueryService_Sources}
-  ${vvKipQueryService_MocSources}
-  ${vvKipQueryService_UiSources}
+  ${vvKipQueryService_MocHeaders}
+  ${vvKipQueryService_UiFiles}
 )
 
 target_link_libraries(${PROJECT_NAME} LINK_PRIVATE

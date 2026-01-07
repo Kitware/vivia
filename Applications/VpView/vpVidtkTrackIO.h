@@ -1,20 +1,19 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpVidtkTrackIO_h
 #define __vpVidtkTrackIO_h
 
 #include "vpTrackIO.h"
 
-#include "vpFileTrackIOImpl.h"
+#include "vpFileTrackReader.h"
 
 #include <tracking_data/track.h>
 
 class vpVidtkReader;
 class vtkVgTrack;
+class vgAttributeSet;
 
 class vpVidtkTrackIO : public vpTrackIO
 {
@@ -24,6 +23,7 @@ public:
                  std::map<unsigned int, vtkIdType>& sourceIdToModelIdMap,
                  vtkVpTrackModel* trackModel,
                  vpTrackIO::TrackStorageMode storageMode,
+                 bool interpolateToGround,
                  vpTrackIO::TrackTimeStampMode timeStampMode,
                  vtkVgTrackTypeRegistry* trackTypes = nullptr,
                  vtkMatrix4x4* geoTransform = nullptr,
@@ -32,12 +32,13 @@ public:
 
   virtual ~vpVidtkTrackIO();
 
-  virtual bool ReadTracks();
+  virtual bool ReadTracks(int frameOffset);
 
-  virtual bool ImportTracks(vtkIdType idsOffset, float offsetX, float offsetY);
+  virtual bool ImportTracks(int frameOffset, vtkIdType idsOffset,
+                            float offsetX, float offsetY);
 
-  virtual bool WriteTracks(const QString& filename,
-                           bool writeSceneElements) const;
+  virtual bool WriteTracks(const QString& filename, int frameOffset,
+                           QPointF aoiOffset, bool writeSceneElements) const;
 
   virtual QStringList GetSupportedFormats() const;
   virtual QString GetDefaultFormat() const;
@@ -56,20 +57,25 @@ public:
   virtual vtkIdType GetModelTrackId(unsigned int sourceId) const;
 
 protected:
-  bool ReadTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
+  bool ReadTracks(int frameOffset,
+                  const vpFileTrackReader::TrackRegionMap* trackRegionMap);
 
-  bool ImportTracks(const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
-                    vtkIdType idsOffset, float offsetX, float offsetY);
+  bool ImportTracks(const vpFileTrackReader::TrackRegionMap* trackRegionMap,
+                    int frameOffset, vtkIdType idsOffset,
+                    float offsetX, float offsetY);
 
   const vpVidtkReader& GetReader() const { return this->Reader; }
 
   virtual unsigned int GetImageHeight() const;
 
+  vgAttributeSet* TrackAttributes;
+
 private:
   vtkIdType ComputeNumberOfPoints(
-    const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap);
-  void ReadTrack(const vidtk::track_sptr vidtkTrack,
-                 const vpFileTrackIOImpl::TrackRegionMap* trackRegionMap,
+    const vpFileTrackReader::TrackRegionMap* trackRegionMap);
+
+  void ReadTrack(const vidtk::track_sptr vidtkTrack, int frameOffset,
+                 const vpFileTrackReader::TrackRegionMap* trackRegionMap,
                  float offsetX = 0.0f, float offsetY = 0.0f,
                  bool update = false,
                  unsigned int updateStartFrame = 0,

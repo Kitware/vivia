@@ -20,6 +20,7 @@ class vdfSimpleCsvArchiveSourcePlugin : public QObject,
 {
   Q_OBJECT
   Q_INTERFACES(vdfArchiveSourceInterface)
+  Q_PLUGIN_METADATA(IID "org.visgui.vdfArchiveSourceInterface")
 
 public:
   vdfSimpleCsvArchiveSourcePlugin();

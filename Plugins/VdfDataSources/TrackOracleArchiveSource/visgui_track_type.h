@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __visgui_track_type_h
 #define __visgui_track_type_h
@@ -10,9 +8,11 @@
 #include "track_oracle_utils.h"
 
 #ifdef KWIVER_TRACK_ORACLE
+#include <track_oracle/core/state_flags.h>
 #include <track_oracle/core/track_base.h>
 #include <track_oracle/core/track_field.h>
 #else
+#include <track_oracle/state_flags.h>
 #include <track_oracle/track_base.h>
 #include <track_oracle/track_field.h>
 #endif
@@ -48,6 +48,7 @@ struct visgui_track_type :
   TRACK_ORACLE_FIELD(tracking, frame_number);
   TRACK_ORACLE_FIELD(tracking, world_location);
   TRACK_ORACLE_FIELD(tracking, world_gcs);
+  TRACK_ORACLE_FIELD(utility, state_flags);
 
   visgui_track_type()
     {
@@ -56,6 +57,7 @@ struct visgui_track_type :
     Frame.add_field(frame_number);
     Frame.add_field(world_location);
     Frame.add_field(world_gcs);
+    Frame.add_field(state_flags);
     }
 };
 

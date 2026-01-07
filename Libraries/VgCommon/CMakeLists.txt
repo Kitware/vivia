@@ -22,6 +22,7 @@ set(vgCommonInstallHeaders
   vgFlags.h
   vgGeodesy.h
   vgGeoTypes.h
+  vgMatrix.h
   vgNamespace.h
   vgPointerInt.h
   vgRange.h
@@ -61,19 +62,25 @@ else ()
     -D GIT_STATUS_OUTPUT_FILE:PATH="${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
     -P ${CMAKE_SOURCE_DIR}/CMake/GetGitStatus.cmake
     COMMENT "Generating build identification"
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
   )
   set_source_files_properties(
     "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
-    PROPERTIES GENERATED TRUE
+    PROPERTIES SKIP_AUTOGEN TRUE
   )
 endif ()
 
-add_library(${PROJECT_NAME}
+vg_add_library(${PROJECT_NAME}
   ${vgCommonSources}
   "${CMAKE_CURRENT_BINARY_DIR}/vgFingerprint.cxx"
 )
 
-target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
+target_link_libraries(${PROJECT_NAME}Headers
+  INTERFACE Eigen3::Eigen
+)
+
+target_link_libraries(${PROJECT_NAME}
+  PRIVATE
   GeographicLib::GeographicLib
   ${PROJ4_LIBRARY}
 )

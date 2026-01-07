@@ -1,8 +1,4 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the OSI-approved BSD 3-Clause License. See top-level LICENSE file or https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgSGIReader.h"
 
@@ -97,7 +93,6 @@ vtkVgSGIReader::vtkVgSGIReader() : Internal{new vtkInternal}
 //-----------------------------------------------------------------------------
 vtkVgSGIReader::~vtkVgSGIReader()
 {
-  delete this->Internal;
 }
 
 //-----------------------------------------------------------------------------
@@ -135,8 +130,7 @@ bool vtkVgSGIReader::CanRead(const std::string& source) const
 
   // Check if it is a filename or if the argument is just an extension.
   std::string ext = vtksys::SystemTools::GetFilenameLastExtension(ciSource);
-  if (ext.compare(".sgi") == 0 || (ciSource.compare("sgi") == 0) ||
-      (ciSource.compare(".sgi") == 0))
+  if (ext == ".sgi" || (ciSource == "sgi" || ciSource == ".sgi"))
     {
     return true;
     }
@@ -173,13 +167,13 @@ int vtkVgSGIReader::RequestInformation(
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.");
-    return 1;
+    return 0;
     }
 
   // Open file
@@ -187,7 +181,7 @@ int vtkVgSGIReader::RequestInformation(
   if (!in.good())
     {
     vtkErrorMacro("Failed to open input file.");
-    return 1;
+    return 0;
     }
 
   // Read header
@@ -196,7 +190,7 @@ int vtkVgSGIReader::RequestInformation(
   if (!in.good())
     {
     vtkErrorMacro("Failed to read SGI header.");
-    return 1;
+    return 0;
     }
   DiskToHardware(header.Magic);
   DiskToHardware(header.StorageFormat);
@@ -211,7 +205,7 @@ int vtkVgSGIReader::RequestInformation(
   if (header.Magic != 474)
     {
     vtkErrorMacro("Failed to read SGI file: bad magic.");
-    return 1;
+    return 0;
     }
 
   // Check for supported formats
@@ -219,7 +213,7 @@ int vtkVgSGIReader::RequestInformation(
     vtkErrorMacro( \
       "Failed to read SGI file: " << pre << (pre && *pre ? " " : "") << val << \
       post << (post && *post ? " " : "") << " is not supported."); \
-    return 1
+    return 0
 
   if (header.BytesPerPixelChannel < 1 || header.BytesPerPixelChannel > 2)
     {
@@ -228,7 +222,7 @@ int vtkVgSGIReader::RequestInformation(
   if (header.StorageFormat != SGI_SF_Normal)
     {
     // TODO also support RLE?
-    NOT_SUPPORTED("storage format", header.StorageFormat, "");
+    NOT_SUPPORTED("storage format", static_cast<int>(header.StorageFormat), "");
     }
   if (header.ColorMap != SGI_CM_Normal)
     {
@@ -253,7 +247,7 @@ int vtkVgSGIReader::RequestInformation(
   if (!in.good())
     {
     vtkErrorMacro("Failed to read SGI file image data.");
-    return 1;
+    return 0;
     }
 
   // Byte swap input data if needed
@@ -316,40 +310,40 @@ int vtkVgSGIReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (!outputVector)
     {
     vtkErrorMacro("Invalid output information vector.") ;
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   vtkDataObject* dataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!dataObj)
     {
     vtkErrorMacro("Invalid output data object.");
-    return 1;
+    return 0;
     }
 
   vtkImageData* outputImage = vtkImageData::SafeDownCast(dataObj);
   if (!outputImage)
     {
     vtkErrorMacro("Output data object is not an image data object.");
-    return 1;
+    return 0;
     }
 
   if (!this->Internal->ImageData)
     {
     vtkErrorMacro("Failed to create valid output.");
-    return 1;
+    return 0;
     }
 
   outputImage->ShallowCopy(this->Internal->ImageData);

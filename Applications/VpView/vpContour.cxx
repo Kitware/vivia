@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpContour.h"
 
@@ -13,7 +11,6 @@
 
 #include "vtkVgContourRepresentation.h"
 #include "vtkVgContourWidget.h"
-
 
 //-----------------------------------------------------------------------------
 vpContour::vpContour(vtkRenderWindowInteractor* iren)
@@ -105,6 +102,36 @@ bool vpContour::CanInteract(int X, int Y)
 {
   double pos[3];
   return this->ContourRepresentation->FindClosestPoint(X, Y, pos) != 0;
+}
+
+//-----------------------------------------------------------------------------
+void vpContour::SetPointSize(float pointSize)
+{
+  if (pointSize > 0)
+    {
+    this->ContourRepresentation->GetProperty()->SetPointSize(pointSize);
+    }
+}
+
+//-----------------------------------------------------------------------------
+float vpContour::GetPointSize()
+{
+  return this->ContourRepresentation->GetProperty()->GetPointSize();
+}
+
+//-----------------------------------------------------------------------------
+void vpContour::SetActivePointSize(float pointSize)
+{
+  if (pointSize > 0)
+    {
+    this->ContourRepresentation->GetActiveProperty()->SetPointSize(pointSize);
+    }
+}
+
+//-----------------------------------------------------------------------------
+float vpContour::GetActivePointSize()
+{
+  return this->ContourRepresentation->GetActiveProperty()->GetPointSize();
 }
 
 //-----------------------------------------------------------------------------

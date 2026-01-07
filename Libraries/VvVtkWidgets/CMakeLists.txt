@@ -13,17 +13,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(vvVtkWidgetsMocHeaders
-  vvAbstractSimilarityQueryDialog.h
-  vvClipVideoRepresentation.h
-  vvGenerateReportDialog.h
-  vvQueryVideoPlayer.h
-  vvReportWriter.h
-  vvVideoPlayer.h
-  vvVideoPlayerModel.h
-  vvVideoQueryDialog.h
-)
-
 set(vvVtkWidgetsSources
   vvAbstractSimilarityQueryDialog.cxx
   vvClipVideoRepresentation.cxx
@@ -38,11 +27,14 @@ set(vvVtkWidgetsSources
   vvVideoQueryDialogPrivate.cxx
 )
 
-set(vvVtkWidgetsUiFiles
-  generateReport.ui
-  videoQuery.ui
-  videoView.ui
-)
+get_property(_is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(_is_multi_config)
+  set(${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/include_$<CONFIG>)
+else()
+  set(${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_autogen/include)
+endif()
 
 set(vvVtkWidgetsInstallHeaders
   vvAbstractSimilarityQueryDialog.h
@@ -50,16 +42,19 @@ set(vvVtkWidgetsInstallHeaders
   vvEventInfo.h
   vvGenerateReportDialog.h
   vvQueryVideoPlayer.h
-  vvQueryVideoPlayerPrivate.h
   vvReportWriter.h
   vvTrackInfo.h
   vvVideoPlayer.h
   vvVideoPlayerModel.h
-  vvVideoPlayerPrivate.h
   vvVideoQueryDialog.h
+)
+
+set(vvVtkWidgetsPrivateHeaders
+  vvQueryVideoPlayerPrivate.h
+  vvVideoPlayerPrivate.h
   vvVideoQueryDialogPrivate.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ui_videoQuery.h
-  ${CMAKE_CURRENT_BINARY_DIR}/ui_videoView.h
+  ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoQuery.h
+  ${${PROJECT_NAME}_AUTOGEN_INCLUDE_DIR}/ui_videoView.h
 )
 
 #END common sources
@@ -80,20 +75,14 @@ if (${VISGUI_ENABLE_KWPPT})
     vvPowerPointTrackSlideGenerator.cxx
     vvPowerPointWriter.cxx
   )
-  list(APPEND vvVtkWidgetsMocHeaders
-    vvGeneratePowerPointDialog.h
-    vvPowerPointWriter.h
-  )
-  list(APPEND vvVtkWidgetsInstallHeaders
+
+ list(APPEND vvVtkWidgetsInstallHeaders
     vvGeneratePowerPointDialog.h
     vvPowerPointEventSlideGenerator.h
     vvPowerPointExtensionInterface.h
     vvPowerPointSlideGenerator.h
     vvPowerPointTrackSlideGenerator.h
     vvPowerPointWriter.h
-  )
-  list(APPEND vvVtkWidgetsUiFiles
-    generatePowerPoint.ui
   )
 endif()
 
@@ -103,39 +92,35 @@ endif()
 
 # BEGIN build rules
 
-qt4_wrap_cpp(mocSources ${vvVtkWidgetsMocHeaders})
-qt4_wrap_ui(uiSources ${vvVtkWidgetsUiFiles})
+add_library(${PROJECT_NAME} ${vvVtkWidgetsSources})
 
-add_library(${PROJECT_NAME}
-  ${vvVtkWidgetsSources}
-  ${mocSources}
-  ${uiSources}
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vvWidgets
   qtVgWidgets
   qtVgCommon
   qtExtensions
   vgVtkVideo
   vtkVgQtWidgets
-  PRIVATE_INTERFACE_TARGETS
+  PRIVATE
   vtkVgModelView
   vtkVgSceneGraph
   vtkVgQtUtil
-  LINK_LIBRARIES
-  LINK_PRIVATE
   ${VTK_OPENGL_RENDERING_COMPONENTS}
   vtkCommonSystem
   vtkGUISupportQt
   ${KWPPT_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})
 install_headers(${vvVtkWidgetsInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VvVtkWidgets)
+if(_is_multi_config)
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/$<CONFIG>/VvVtkWidgets)
+else()
+  vg_export_headers(${vvVtkWidgetsPrivateHeaders} TARGET ${PROJECT_NAME}
+                    DESTINATION include/VvVtkWidgets)
+endif()
 
 # END build rules

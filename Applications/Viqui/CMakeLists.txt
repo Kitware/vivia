@@ -51,8 +51,6 @@ set(vgSdkTargets
   vvWidgets
 )
 
-vg_include_library_sdk_directories(${vgSdkTargets})
-
 # Configure file here
 include(vqVersion.cmake)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/vqVersion.h.in
@@ -86,6 +84,7 @@ set(vqSources
     vqResultInfo.cxx
     vqSettings.cxx
     vqTimeline.cxx
+    vqTrackingClipBuilder.cxx
     vqTrackingClipViewer.cxx
     vqTreeView.cxx
     vqUserActions.cxx
@@ -99,45 +98,12 @@ set(vqSources
     Backends/vqNoaaCsvExporter.cxx
 )
 
-set(vqUI
-    classifierQuery.ui
-    configure.ui
-    drawBoxQuery.ui
-    predefinedQuery.ui
-    query.ui
-    regionEdit.ui
-    resultFilter.ui
-    resultInfo.ui
-    viqui.ui
+set(vqResSources
+  ../../Icons/stdbutton.qrc
+  ../../Icons/viqui.qrc
+  ../../Icons/vgvideo.qrc
 )
 
-set(vqMocHeaders
-    vqApplication.h
-    vqArchiveVideoSource.h
-    vqClassifierQueryDialog.h
-    vqConfigureDialog.h
-    vqCore.h
-    vqDrawBoxQueryDialog.h
-    vqPredefinedQueryCache.h
-    vqPredefinedQueryCachePrivate.h
-    vqPredefinedQueryDialog.h
-    vqQueryDialog.h
-    vqQueryParser.h
-    vqQueryVideoPlayer.h
-    vqRegionEditDialog.h
-    vqResultFilterDialog.h
-    vqResultInfo.h
-    vqTimeline.h
-    vqTrackingClipBuilder.h
-    vqTrackingClipViewer.h
-    vqTreeView.h
-    vqUserActions.h
-    vqVideoPlayer.h
-    vqVideoQueryDialog.h
-    vtkVQBlastLayoutNode.h
-)
-
-set(vqResources ../../Icons/stdbutton.qrc ../../Icons/viqui.qrc ../../Icons/vgvideo.qrc)
 
 # END core program code
 
@@ -145,31 +111,8 @@ set(vqResources ../../Icons/stdbutton.qrc ../../Icons/viqui.qrc ../../Icons/vgvi
 
 # BEGIN build rules
 
-qt4_wrap_ui(uiSources ${vqUI})
-qt4_wrap_cpp(mocSources ${vqMocHeaders})
-qt4_add_resources(resSources ${vqResources})
-
-source_group("User Interface" FILES
-  ${vqUI}
-)
-
-source_group("Resources" FILES
-  ${vqUI}
-  ${EXE_ICON}
-)
-
-source_group("Generated" FILES
-  ${uiSources}
-  ${mocSources}
-  ${resSources}
-)
-
-set_source_files_properties(${vqSources}
-  PROPERTIES OBJECT_DEPENDS "${uiSources}"
-)
-
 add_executable(${PROJECT_NAME} WIN32 MACOSX_BUNDLE
-  ${vqSources} ${uiSources} ${mocSources} ${resSources}
+  ${vqSources} ${vqResSources}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -188,7 +131,6 @@ target_link_libraries(${PROJECT_NAME}
   vil_io
   vnl_io
   vgl_algo
-  ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES}
 )
 
 install_executable_target(${PROJECT_NAME} ${PROJECT_NAME})

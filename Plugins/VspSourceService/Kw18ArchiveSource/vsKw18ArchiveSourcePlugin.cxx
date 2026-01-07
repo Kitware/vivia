@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsKw18ArchiveSourcePlugin.h"
 
@@ -17,8 +15,6 @@
 #include <vsStaticSourceFactory.h>
 
 #include "vsKw18TrackArchiveSource.h"
-
-Q_EXPORT_PLUGIN2(vsKw18ArchiveSource, vsKw18ArchiveSourcePlugin)
 
 //-----------------------------------------------------------------------------
 vsKw18ArchiveSourcePlugin::vsKw18ArchiveSourcePlugin()
@@ -73,7 +69,7 @@ vsSimpleSourceFactory* vsKw18ArchiveSourcePlugin::createArchiveSource(
   forever
     {
     CHECK_ARG(!file.atEnd(), 0);
-    const QString line = QString::fromAscii(file.readLine());
+    const QString line = QString::fromUtf8(file.readLine());
     if (line.startsWith("# 1:Track-id"))
       {
       // This looks like a valid header; accept the file

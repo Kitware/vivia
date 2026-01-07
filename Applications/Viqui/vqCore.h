@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vqCore_h
 #define __vqCore_h
@@ -196,6 +194,7 @@ public slots:
   void saveQueryPlan();
   void saveResults();
   void exportResults(QList<vtkVgVideoNode*> results, QString exporterId);
+  void exportResults(QString exporterId);
 
   void openExternal(QUrl clipUri, QString streamId, double time);
 
@@ -238,7 +237,6 @@ public slots:
   void updateTrackVisibility();
 
   void videoStopped(vtkVgNodeBase& videoNode);
-
 
   void updateStackLayoutForVideoStopped();
   void onSelectInStackLayoutWidget(vtkObject* caller);

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vgGeoUtil.h"
 
@@ -26,12 +24,12 @@ namespace // anonymous
   } while(0)
 
 //-----------------------------------------------------------------------------
-const char* UTM_REGEXP =
-  "(?:[1-9]|[1-5][0-9]|60)[NS]\\s+\\d+(?:\\.\\d*)?[,\\s]\\s*\\d+(?:\\.\\d*)?";
-const char* UPS_REGEXP =
-  "[ABYZ]\\s+\\d+(?:\\.\\d*)?[,\\s]\\s*\\d+(?:\\.\\d*)?";
-const char* LLC_REGEXP =
-  "([+-]?\\d+):(\\d+):(\\d+(?:\\.\\d*)?)\\s*([nsew])?";
+const auto UTM_REGEXP = QStringLiteral(
+  "(?:[1-9]|[1-5][0-9]|60)[NS]\\s+\\d+(?:\\.\\d*)?[,\\s]\\s*\\d+(?:\\.\\d*)?");
+const auto UPS_REGEXP = QStringLiteral(
+  "[ABYZ]\\s+\\d+(?:\\.\\d*)?[,\\s]\\s*\\d+(?:\\.\\d*)?");
+const auto LLC_REGEXP = QStringLiteral(
+  "([+-]?\\d+):(\\d+):(\\d+(?:\\.\\d*)?)\\s*([nsew])?");
 
 //-----------------------------------------------------------------------------
 void resolveFormatMode(vgGeodesy::CoordFormatMode& fm)
@@ -39,7 +37,8 @@ void resolveFormatMode(vgGeodesy::CoordFormatMode& fm)
   if (fm == vgGeodesy::FormatFromSettings)
     {
     const int ifm =
-      QSettings().value("CoordFormatMode", vgGeodesy::FormatDmsLatin1).toInt();
+      QSettings().value(QStringLiteral("CoordFormatMode"),
+                        vgGeodesy::FormatDmsLatin1).toInt();
     fm = static_cast<vgGeodesy::CoordFormatMode>(ifm);
     }
 }
@@ -48,7 +47,7 @@ void resolveFormatMode(vgGeodesy::CoordFormatMode& fm)
 vgGeocodedCoordinate parseUcs(const QString& text, QString& zone)
 {
   const QStringList parts =
-    text.split(QRegExp("[,\\s]"), QString::SkipEmptyParts);
+    text.split(QRegExp(QStringLiteral("[,\\s]")), QString::SkipEmptyParts);
 
   if (parts.count() != 3)
     {
@@ -73,10 +72,10 @@ bool parseLlPart(QString part, double& out)
   QRegExp re(LLC_REGEXP);
   if (re.exactMatch(part))
     {
-    part = QString("%1d%2'%3\"%4").arg(re.cap(1), re.cap(2),
-                                       re.cap(3), re.cap(4));
+    part = QStringLiteral("%1d%2'%3\"%4").arg(re.cap(1), re.cap(2),
+                                              re.cap(3), re.cap(4));
     }
-  qtKstReader kst(part + ";\n");
+  qtKstReader kst(part + QStringLiteral(";\n"));
   return kst.readReal(out);
 }
 
@@ -109,17 +108,16 @@ QString dmsString(double coord, const QString& dp, const QString& dn,
   switch (fm)
     {
     case vgGeodesy::FormatDmsColon:
-      resultTemplate = QString::fromAscii("%1:%2:%3 %4");
+      resultTemplate = QStringLiteral("%1:%2:%3 %4");
       break;
     case vgGeodesy::FormatDmsAscii:
-      resultTemplate = QString::fromAscii("%1d%2\'%3\"%4");
+      resultTemplate = QStringLiteral("%1d%2\'%3\"%4");
       break;
     case vgGeodesy::FormatDmsLatin1:
-      resultTemplate = QString::fromUtf8("%1\xc2\xb0%2\'%3\"%4");
+      resultTemplate = QStringLiteral(u"%1\u00b0%2\'%3\"%4");
       break;
     case vgGeodesy::FormatDmsUnicode:
-      resultTemplate =
-        QString::fromUtf8("%1\xc2\xb0%2\xe2\x80\xb2%3\xe2\x80\xb3%4");
+      resultTemplate = QStringLiteral(u"%1\u00b0%2\u2032%3\u2033%4");
       break;
     default:
       qWarning().nospace() << __FUNCTION__ << ": invalid format mode " << fm;
@@ -147,7 +145,7 @@ vgGeocodedCoordinate vgGeodesy::parseCoordinate(
   // Ensure coordinate system is valid
   if (gcs != LatLon_Wgs84 && gcs != LatLon_Nad83)
     {
-    die("Coordinate system not recognized.");
+    die(QStringLiteral("Coordinate system not recognized."));
     }
 
   // Check if this looks like UTM
@@ -174,8 +172,9 @@ vgGeocodedCoordinate vgGeodesy::parseCoordinate(
         }
       else
         {
-        static const char* format = "UTM zone %1 not supported with NAD '83.";
-        die(QString(format).arg(zoneNum));
+        static const auto format =
+          QStringLiteral("UTM zone %1 not supported with NAD '83.");
+        die(format.arg(zoneNum));
         }
       }
     else
@@ -193,7 +192,7 @@ vgGeocodedCoordinate vgGeodesy::parseCoordinate(
     {
     if (gcs == LatLon_Nad83)
       {
-      die("UPS coordinates not supported with NAD '83.");
+      die(QStringLiteral("UPS coordinates not supported with NAD '83."));
       }
 
     QString zone;
@@ -201,7 +200,7 @@ vgGeocodedCoordinate vgGeodesy::parseCoordinate(
     // \TODO set coordinate GCS and return result; might have to adjust
     //       depending on zone
     Q_UNUSED(result);
-    die("UPS coordinates not supported at this time");
+    die(QStringLiteral("UPS coordinates not supported at this time"));
     }
 
   // Try to parse as lat/long, which we do by taking advantage of qtKstParser's
@@ -227,7 +226,7 @@ vgGeocodedCoordinate vgGeodesy::parseCoordinate(
       }
     }
 
-  die("Coordinate syntax not recognized.");
+  die(QStringLiteral("Coordinate syntax not recognized."));
 }
 
 //-----------------------------------------------------------------------------
@@ -283,11 +282,11 @@ QString vgGeodesy::coordString(
       return coordString(coord.Latitude, coord.Longitude, fm) + " (NAD '83)";
     case -1:
       valid = false;
-      return "(empty or invalid)";
+      return QStringLiteral("(empty or invalid)");
     default:
       // TODO convert to lat/lon?
       valid = false;
-      return QString("(Unable to convert from GCS %1)").arg(coord.GCS);
+      return QStringLiteral("(Unable to convert from GCS %1)").arg(coord.GCS);
     }
 }
 

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vtkVgNodeVisitorBase_h
 #define __vtkVgNodeVisitorBase_h
@@ -25,7 +23,6 @@ class vtkVgNodeBase;
 class vtkVgTransformNode;
 class vtkVgVideoNode;
 
-
 class vtkVgPropCollection;
 
 class VTKVG_SCENEGRAPH_EXPORT vtkVgNodeVisitorBase
@@ -33,7 +30,6 @@ class VTKVG_SCENEGRAPH_EXPORT vtkVgNodeVisitorBase
 public:
   vtkVgNodeVisitorBase();
   virtual ~vtkVgNodeVisitorBase();
-
 
   // Description:
   // Types of node visitor.
@@ -69,7 +65,6 @@ public:
   // Traverse a node.
   virtual void Traverse(vtkVgNodeBase& node);
 
-
   void SetTimeStamp(const vtkVgTimeStamp& timeStamp);
   const vtkVgTimeStamp& GetTimeStamp() const;
   vtkVgTimeStamp& GetTimeStamp();
@@ -80,7 +75,6 @@ public:
 
   virtual void ShallowCopy(vtkVgNodeVisitorBase* other);
 
-
 protected:
 
   VisitorType                           NodeVisitorType;
@@ -90,7 +84,6 @@ protected:
   vtkTimeStamp                          ModifiedTimeStamp;
 
   vtkSmartPointer<vtkVgPropCollection>  PropCollection;
-
 
 private:
   vtkVgNodeVisitorBase(const vtkVgNodeVisitorBase&); // Not implemented.

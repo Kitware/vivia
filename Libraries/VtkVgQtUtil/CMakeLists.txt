@@ -4,17 +4,11 @@ include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
 )
 
-vg_include_library_sdk_directories(
-  vtkVgCore
-)
-
 set(vtkVgQtUtilSources
-  vtkVgQtAdapt.cxx
   vtkVgQtUtil.cxx
 )
 
 set(vtkVgQtUtilInstallHeaders
-  vtkVgQtAdapt.h
   vtkVgQtUtil.h
 )
 
@@ -30,10 +24,9 @@ vtk_module_library(${PROJECT_NAME}
   ${vtkVgQtUtilSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  vtkVgCoreHeaders
 )
 
 install_library_targets(${PROJECT_NAME})

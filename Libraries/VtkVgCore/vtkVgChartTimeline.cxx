@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgChartTimeline.h"
 
@@ -44,8 +42,7 @@ boost::gregorian::date GetEpoch()
 boost::posix_time::ptime GetPosixTimeSeconds(double us)
 {
   boost::posix_time::ptime pt(GetEpoch());
-  long long seconds = static_cast<long long>(us * 1.0e-6);
-  return pt + boost::posix_time::seconds(seconds);
+  return pt + boost::posix_time::seconds(static_cast<int64_t>(us * 1.0e-6));
 }
 
 boost::posix_time::ptime GetPosixTime(double us)

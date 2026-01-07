@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 // Manages a set of grouped attributes (i.e. named bitmasks)
 
@@ -20,7 +18,7 @@ struct vgAttribute
   vgAttribute() : Mask(0) {}
 
   std::string Name;
-  unsigned int Mask;
+  unsigned long long Mask;
 };
 
 // Disable warning about the STL member of vgAttributeGroup not being exported.
@@ -43,16 +41,16 @@ public:
   // Description:
   // Define or update an attribute mask
   void SetMask(const std::string& group, const std::string& name,
-               unsigned int mask);
+               unsigned long long mask);
 
   // Description:
   // Get the mask for a defined attribute
-  unsigned int GetMask(const std::string& group,
-                       const std::string& name) const;
+  unsigned long long GetMask(const std::string& group,
+                             const std::string& name) const;
 
   // Description:
   // Get the OR'ed mask of all attributes currently defined for a group
-  unsigned int GetGroupMask(const std::string& group) const;
+  unsigned long long GetGroupMask(const std::string& group) const;
 
   // Description:
   // Set the enabled flag for a group. The group will be added if it didn't

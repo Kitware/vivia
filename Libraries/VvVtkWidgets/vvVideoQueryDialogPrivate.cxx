@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vvVideoQueryDialogPrivate.h"
 
@@ -293,9 +291,9 @@ void vvVideoQueryDialogPrivate::setTimeConstraint(
 void vvVideoQueryDialogPrivate::updateKeyframeItem(
   QTreeWidgetItem* item, vtkIdType id, const vgRegionKeyframe& keyframe)
 {
-  QString name = QString::fromUtf8("%1,%2 %3\xc3\x97%4");
+  static const auto name = QStringLiteral(u"%1,%2 %3\u00d7%4");
   QRect r = keyframe.Region;
-  item->setText(NameColumn, "keyframe-" + QString::number(id));
+  item->setText(NameColumn, QStringLiteral("keyframe-") + QString::number(id));
   item->setText(RegionColumn, name.arg(r.left()).arg(r.top())
                                   .arg(r.width()).arg(r.height()));
   vgUnixTime time(keyframe.Time.Time);

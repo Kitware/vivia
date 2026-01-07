@@ -16,12 +16,9 @@ set(vdfSimpleCsvArchiveSource_MocHeaders
   vdfSimpleCsvTrackArchiveSource.h
 )
 
-qt4_wrap_cpp(vdfSimpleCsvArchiveSource_MocSources
-             ${vdfSimpleCsvArchiveSource_MocHeaders})
-
 vg_add_qt_plugin(${PROJECT_NAME}
   ${vdfSimpleCsvArchiveSource_Sources}
-  ${vdfSimpleCsvArchiveSource_MocSources}
+  ${vdfSimpleCsvArchiveSource_MocHeaders}
 )
 
 target_link_libraries(${PROJECT_NAME}

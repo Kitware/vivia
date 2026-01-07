@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkGDALReader.h"
 
@@ -26,6 +24,7 @@
 #include <vtkUnsignedShortArray.h>
 
 // GDAL includes
+#include <gdal_alg.h>
 #include <gdal_priv.h>
 #include <ogr_spatialref.h>
 
@@ -65,7 +64,7 @@ public:
 
   template <typename VTK_TYPE, typename RAW_TYPE>
   void Convert(std::vector<RAW_TYPE>& rawImageData,
-               int targetWidth, int targetHeight);
+               int targetWidth, int targetHeight, int numberOfUsedBands);
 
   bool GetGeoCornerPoint(GDALDataset* dataset,
                          OGRCoordinateTransformationH htransform,
@@ -267,6 +266,7 @@ void vtkGDALReader::vtkGDALReaderInternal::GenericReadData()
   GDALRasterBand* alphaBand = 0;
   GDALRasterBand* greyBand = 0;
 
+  int numberOfUsedBands = 0;
   for (int i = 1; i <= this->NumberOfBands; ++i)
     {
     GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(i);
@@ -290,24 +290,29 @@ void vtkGDALReader::vtkGDALReaderInternal::GenericReadData()
         (rasterBand->GetColorInterpretation() == GCI_YCbCr_YBand))
       {
       redBand = rasterBand;
+      ++numberOfUsedBands;
       }
     else if ((rasterBand->GetColorInterpretation() == GCI_GreenBand) ||
              (rasterBand->GetColorInterpretation() == GCI_YCbCr_CbBand))
       {
       greenBand = rasterBand;
+      ++numberOfUsedBands;
       }
     else if ((rasterBand->GetColorInterpretation() == GCI_BlueBand) ||
              (rasterBand->GetColorInterpretation() == GCI_YCbCr_CrBand))
       {
       blueBand = rasterBand;
+      ++numberOfUsedBands;
       }
     else if (rasterBand->GetColorInterpretation() == GCI_AlphaBand)
       {
       alphaBand = rasterBand;
+      ++numberOfUsedBands;
       }
     else if (rasterBand->GetColorInterpretation() == GCI_GrayIndex)
       {
       greyBand = rasterBand;
+      ++numberOfUsedBands;
       }
     }
 
@@ -412,7 +417,8 @@ void vtkGDALReader::vtkGDALReaderInternal::GenericReadData()
                              this->Reader->DataOrigin[1],
                              this->Reader->DataOrigin[2]);
 
-  this->Convert<VTK_TYPE, RAW_TYPE>(rawImageData, destWidth, destHeight);
+  this->Convert<VTK_TYPE, RAW_TYPE>(rawImageData, destWidth, destHeight,
+                                    numberOfUsedBands);
 }
 
 //----------------------------------------------------------------------------
@@ -429,7 +435,7 @@ void vtkGDALReader::vtkGDALReaderInternal::ReleaseData()
 template <typename VTK_TYPE, typename RAW_TYPE>
 void vtkGDALReader::vtkGDALReaderInternal::Convert(
   std::vector<RAW_TYPE>& rawImageData, int targetWidth,
-  int targetHeight)
+  int targetHeight, int numberOfUsedBands)
 {
   if (!this->ImageData)
     {
@@ -440,7 +446,7 @@ void vtkGDALReader::vtkGDALReaderInternal::Convert(
   vtkIdType sourceIndex;
 
   vtkSmartPointer<VTK_TYPE> scArr(vtkSmartPointer<VTK_TYPE>::New());
-  scArr->SetNumberOfComponents(this->NumberOfBands);
+  scArr->SetNumberOfComponents(numberOfUsedBands);
   scArr->SetNumberOfTuples(targetWidth * targetHeight);
 
   for (int j = 0, k = (targetHeight - 1); j < targetHeight; ++j, --k)
@@ -448,10 +454,10 @@ void vtkGDALReader::vtkGDALReaderInternal::Convert(
     for (int i = 0; i < targetWidth; ++i)
       {
       // Each band GDALData is stored in width * height size array.
-      for (int bandIndex = 0; bandIndex < this->NumberOfBands; ++bandIndex)
+      for (int bandIndex = 0; bandIndex < numberOfUsedBands; ++bandIndex)
         {
-        targetIndex = i * NumberOfBands +
-                      j * targetWidth * NumberOfBands + bandIndex;
+        targetIndex = i * numberOfUsedBands +
+                      j * targetWidth * numberOfUsedBands + bandIndex;
         sourceIndex = i + k * targetWidth +
                       bandIndex * targetWidth * targetHeight;
 
@@ -500,10 +506,34 @@ bool vtkGDALReader::vtkGDALReaderInternal::GetGeoCornerPoint(GDALDataset* datase
       }
     else
       {
-      dfGeoX = x;
-      dfGeoY = y;
+      // If an RPC model is available, use it to compute the corner point.
+      // The RPCCoefficientTag is always describing a transformation to WGS84.
+      char** metadata;
+      GDALRPCInfo rpcInfo;
+      if ((metadata = GDALGetMetadata(this->GDALData, "RPC")) &&
+          GDALExtractRPCInfo(metadata, &rpcInfo))
+        {
+        // Specifying FALSE for second argument in this call and following
+        // GDALRPCTransform() indicates we're transforming from source
+        // (pixel/line) to destination (georeferenced).
+        void* pTransformArg =
+          GDALCreateRPCTransformer(&rpcInfo, FALSE, 0.1, NULL);
 
-      retVal = false;
+        dfGeoX = x;
+        dfGeoY = y;
+        double dfGeoZ = 0;
+        int success;
+        GDALRPCTransform(pTransformArg, FALSE, 1, &dfGeoX, &dfGeoY, &dfGeoZ,
+                         &success);
+
+        retVal = !!success;
+        }
+      else
+        {
+        dfGeoX = x;
+        dfGeoY = y;
+        retVal = false;
+        }
       }
     }
   else
@@ -511,7 +541,7 @@ bool vtkGDALReader::vtkGDALReaderInternal::GetGeoCornerPoint(GDALDataset* datase
     // 1st pass: we should realy have a call to the reader that returns
     // the homography, but for now, look for mathcing corner and pass back
     // the matching corner point ("0" pixel on input means "0.5" as far as
-    // GDAL goes
+    // GDAL is concerned)
     bool leftCorner = (x == 0);
     bool upperCorner = (y == 0);
     for (int i = 0; i < 4; ++i)
@@ -524,6 +554,7 @@ bool vtkGDALReader::vtkGDALReaderInternal::GetGeoCornerPoint(GDALDataset* datase
         dfGeoY = gcps[i].dfGCPY;
         }
       }
+    retVal = true;
     }
 
   out[0] = dfGeoX;
@@ -579,12 +610,12 @@ vtkGDALReader::vtkGDALReader() :
   this->DataSpacing[1] = 1.0;
   this->DataSpacing[2] = 1.0;
 
-  this->DataExtents[0] = -1;
-  this->DataExtents[1] = -1;
-  this->DataExtents[2] = -1;
-  this->DataExtents[3] = -1;
-  this->DataExtents[4] = -1;
-  this->DataExtents[5] = -1;
+  this->DataExtent[0] = -1;
+  this->DataExtent[1] = -1;
+  this->DataExtent[2] = -1;
+  this->DataExtent[3] = -1;
+  this->DataExtent[4] = -1;
+  this->DataExtent[5] = -1;
 
   this->TargetDimensions[0] = -1;
   this->TargetDimensions[1] = -1;
@@ -618,12 +649,6 @@ const char* vtkGDALReader::GetProjectionString() const
 const double* vtkGDALReader::GetGeoCornerPoints()
 {
   return this->Implementation->GetGeoCornerPoints();
-}
-
-//-----------------------------------------------------------------------------
-int* vtkGDALReader::GetDataExtent()
-{
-  return this->DataExtents;
 }
 
 //-----------------------------------------------------------------------------
@@ -752,25 +777,25 @@ int vtkGDALReader::RequestInformation(vtkInformation * vtkNotUsed(request),
     this->TargetDimensions[1] = this->RasterDimensions[1];
     }
 
-  if (this->DataExtents[0] == -1)
+  if (this->DataExtent[0] == -1)
     {
-    this->DataExtents[0] = 0;
-    this->DataExtents[1] = this->RasterDimensions[0] - 1;
-    this->DataExtents[2] = 0;
-    this->DataExtents[3] = this->RasterDimensions[1] - 1;
-    this->DataExtents[4] = 0;
-    this->DataExtents[5] = 0;
+    this->DataExtent[0] = 0;
+    this->DataExtent[1] = this->RasterDimensions[0] - 1;
+    this->DataExtent[2] = 0;
+    this->DataExtent[3] = this->RasterDimensions[1] - 1;
+    this->DataExtent[4] = 0;
+    this->DataExtent[5] = 0;
     }
 
   // GDAL top left is at 0,0
-  this->Implementation->SourceOffset[0] = this->DataExtents[0];
+  this->Implementation->SourceOffset[0] = this->DataExtent[0];
   this->Implementation->SourceOffset[1] = this->RasterDimensions[1] -
-                                          (this->DataExtents[3] + 1);
+                                          (this->DataExtent[3] + 1);
 
   this->Implementation->SourceDimensions[0] =
-    this->DataExtents[1] - this->DataExtents[0] + 1;
+    this->DataExtent[1] - this->DataExtent[0] + 1;
   this->Implementation->SourceDimensions[1] =
-    this->DataExtents[3] - this->DataExtents[2] + 1;
+    this->DataExtent[3] - this->DataExtent[2] + 1;
 
   // Clamp pixel offset and image dimension
   this->Implementation->SourceOffset[0] =
@@ -803,15 +828,15 @@ int vtkGDALReader::RequestInformation(vtkInformation * vtkNotUsed(request),
       this->RasterDimensions[1] - this->Implementation->SourceOffset[1];
     }
 
-  this->DataExtents[0] = this->Implementation->SourceOffset[0];
-  this->DataExtents[1] = this->DataExtents[0] +
-                         this->Implementation->SourceDimensions[0] - 1;
-  this->DataExtents[3] = this->RasterDimensions[1] -
-                         this->Implementation->SourceOffset[1] - 1;
-  this->DataExtents[2] = this->DataExtents[3] -
-                         this->Implementation->SourceDimensions[1] + 1;
-  this->DataExtents[4] = 0;
-  this->DataExtents[5] = 0;
+  this->DataExtent[0] = this->Implementation->SourceOffset[0];
+  this->DataExtent[1] = this->DataExtent[0] +
+                        this->Implementation->SourceDimensions[0] - 1;
+  this->DataExtent[3] = this->RasterDimensions[1] -
+                        this->Implementation->SourceOffset[1] - 1;
+  this->DataExtent[2] = this->DataExtent[3] -
+                        this->Implementation->SourceDimensions[1] + 1;
+  this->DataExtent[4] = 0;
+  this->DataExtent[5] = 0;
 
   this->DataSpacing[0] =
     static_cast<double>(this->Implementation->SourceDimensions[0]) /
@@ -821,11 +846,11 @@ int vtkGDALReader::RequestInformation(vtkInformation * vtkNotUsed(request),
     this->TargetDimensions[1];
   this->DataSpacing[2] = 1.0;
 
-  this->DataOrigin[0] = this->DataExtents[0];
-  this->DataOrigin[1] = this->DataExtents[2];
+  this->DataOrigin[0] = this->DataExtent[0];
+  this->DataOrigin[1] = this->DataExtent[2];
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
-               this->DataExtents, 6);
+               this->DataExtent, 6);
   outInfo->Set(vtkDataObject::SPACING(), this->DataSpacing, 3);
   outInfo->Set(vtkDataObject::ORIGIN(), this->DataOrigin, 3);
 

@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgPNGReader.h"
 
@@ -109,13 +107,13 @@ int vtkVgPNGReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   if (this->ImageCache)
@@ -150,40 +148,40 @@ int vtkVgPNGReader::RequestData(vtkInformation* vtkNotUsed(request),
   if (!outputVector)
     {
     vtkErrorMacro("Invalid output information vector.") ;
-    return 1;
+    return 0;
     }
 
   if (!this->FileName)
     {
     vtkErrorMacro("Requires valid input file name.") ;
-    return 1;
+    return 0;
     }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if (!outInfo)
     {
     vtkErrorMacro("Invalid output information object.");
-    return 1;
+    return 0;
     }
 
   vtkDataObject* dataObj = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (!dataObj)
     {
     vtkErrorMacro("Invalid output data object.");
-    return 1;
+    return 0;
     }
 
   vtkImageData* outputImage = vtkImageData::SafeDownCast(dataObj);
   if (!outputImage)
     {
     vtkErrorMacro("Output data object is not an image data object.");
-    return 1;
+    return 0;
     }
 
   if (!this->ImageCache)
     {
     vtkErrorMacro("Failed to create valid output.");
-    return 1;
+    return 0;
     }
 
   outputImage->ShallowCopy(this->ImageCache);

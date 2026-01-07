@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vtkVgHull2D.h"
 
@@ -258,7 +256,6 @@ void vtkVgHull2D::AddSquareVertexLines()
   this->AddLine(-1.0, -1.0);
 }
 
-
 // Add the lines that represent the normals of the vertices of a
 // circle formed by recursively subdividing the edges in a
 // square.  The level indicates how many subdivisions to do with a
@@ -331,7 +328,6 @@ void vtkVgHull2D::AddRecursiveCircleLines(int level)
   delete [] points;
   delete [] edges;
 }
-
 
 // Create the n-sided convex hull from the input geometry according to the
 // set of lines.
@@ -524,7 +520,6 @@ void vtkVgHull2D::CreateInitialSegment(double* verts, int line, double* bounds)
   verts[1 * 3 + 1] = lineCenter[1] - d * lineVec[1];
   verts[1 * 3 + 2] = center[2];
 }
-
 
 void vtkVgHull2D::GenerateHull(vtkPolyData* pd, double xmin, double xmax,
                                double ymin, double ymax, double zmin, double zmax)

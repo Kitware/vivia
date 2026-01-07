@@ -1,5 +1,27 @@
 list(APPEND CMAKE_MODULE_PATH ${visGUI_SOURCE_DIR}/CMake/Modules)
 
+find_package(Eigen3 REQUIRED NO_MODULE)
+
+find_package(Qt5 5.8.0 REQUIRED COMPONENTS
+  Core
+  Gui
+  Widgets
+  Network
+  Concurrent
+  Xml
+)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+# Generally, Boost is built shared, but give an advanced option to find a static build.
+option(USE_STATIC_BOOST
+  "Find a static build of Boost"
+  OFF)
+mark_as_advanced(USE_STATIC_BOOST)
+set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
+
 # Boost is required.
 find_package(Boost REQUIRED
   COMPONENTS thread system filesystem date_time
@@ -114,10 +136,18 @@ if (VISGUI_ENABLE_VIDTK)
   find_package(vidtk REQUIRED)
   add_definitions(-DVISGUI_USE_VIDTK)
 
+  if (VISGUI_ENABLE_SUPER3D)
+    add_definitions(-DVISGUI_USE_SUPER3D)
+  endif()
+
   # This is a fix for a change in VIDTK. It is required or else
   # class definitions and other code would be different when seen
   # by VISGUI.
   add_definitions(-DUUIDABLE)
+else()
+  if (VISGUI_ENABLE_SUPER3D)
+    message(ERROR_FATAL "Enabling vivia_super3d requires enabling vidtk")
+  endif()
 endif()
 
 if (VISGUI_ENABLE_KWIVER)
@@ -134,14 +164,7 @@ else()
    message("QtTesting was not found; GUI testing will not be enabled")
 endif()
 
-set(QT_USE_QTNETWORK TRUE)
-set(QT_USE_QTXML TRUE)
-find_package(Qt4 4.7.0 REQUIRED)
-
 find_package(qtExtensions REQUIRED)
-
-# This adds ${QT_INCLUDE_DIR} to the build (via include_directories)
-include(${QT_USE_FILE})
 
 find_package(PROJ4 REQUIRED)
 find_package(KML REQUIRED)
@@ -152,3 +175,9 @@ if(VISGUI_ENABLE_GDAL)
 endif()
 
 find_package(GeographicLib REQUIRED)
+
+if(VISGUI_ENABLE_SUPER3D)
+  find_package(super3d REQUIRED)
+  find_package(maptk REQUIRED)
+  find_package(OpenCV REQUIRED)
+endif()

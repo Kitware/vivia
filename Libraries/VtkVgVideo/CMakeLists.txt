@@ -34,14 +34,13 @@ vtk_module_library(${PROJECT_NAME}
   ${vtkVgVideoMocSources}
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vtkVgCore
-  PRIVATE_INTERFACE_TARGETS
+  PRIVATE
   vgVideo
-  LINK_LIBRARIES
-  LINK_PRIVATE
   vgl_algo
+  Qt5::Core
 )
 
 install_library_targets(${PROJECT_NAME})

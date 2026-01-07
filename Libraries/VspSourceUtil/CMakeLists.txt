@@ -16,38 +16,31 @@ set(vspSourceUtil_Sources
     vsVideoHelper.cxx
 )
 
-set(vspSourceUtil_MocHeaders
-    vsStreamSource.h
-    vsStreamSourcePrivate.h
-    vsVideoArchive.h
-    vsVideoHelper.h
-)
-
 set(vspSourceUtilInstallHeaders
   vsAdapt.h
   vsAdaptTracks.h
   vsArchiveSource.h
-  vsArchiveSourcePrivate.h
   vsSourceFactoryPlugin.h
   vsStreamFactory.h
   vsStreamSource.h
-  vsStreamSourcePrivate.h
   vsVideoArchive.h
   vsVideoHelper.h
 )
 
-qt4_wrap_cpp(vspSourceUtil_MocSources ${vspSourceUtil_MocHeaders})
-
-add_library(${PROJECT_NAME}
-  ${vspSourceUtil_Sources}
-  ${vspSourceUtil_MocSources}
+set(vspSourceUtilPrivateHeaders
+  vsArchiveSourcePrivate.h
+  vsStreamSourcePrivate.h
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+add_library(${PROJECT_NAME} ${vspSourceUtil_Sources})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   vspData
 )
 
 install_library_targets(${PROJECT_NAME})
 install_headers(${vspSourceUtilInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VspSourceUtil)
+vg_export_headers(${vspSourceUtilPrivateHeaders} TARGET ${PROJECT_NAME}
+                  DESTINATION include/VspSourceUtil)

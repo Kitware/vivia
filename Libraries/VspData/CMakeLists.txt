@@ -11,6 +11,8 @@ set(vspData_Sources
     vsSourceService.cxx
     # Data sources
     vsDataSource.cxx
+    vsDescriptorSource.cxx
+    vsTrackSource.cxx
     vsVideoSource.cxx
     vsSimpleSourceFactory.cxx
     vsSourceFactory.cxx
@@ -26,18 +28,6 @@ set(vspData_Sources
     vtkVsTrackInfo.cxx
 )
 
-set(vspData_MocHeaders
-    # Live descriptors
-    vsLiveDescriptor.h
-    vsLiveDescriptorPrivate.h
-    # Data sources
-    vsDataSource.h
-    vsVideoSource.h
-    vsVideoSourcePrivate.h
-    vsTrackSource.h
-    vsDescriptorSource.h
-)
-
 set(vspDataInstallHeaders
   vsArchiveSourceInfo.h
   vsArchiveSourceInterface.h
@@ -51,7 +41,6 @@ set(vspDataInstallHeaders
   vsEventInfo.h
   vsFactoryAction.h
   vsLiveDescriptor.h
-  vsLiveDescriptorPrivate.h
   vsSimpleSourceFactory.h
   vsSourceFactory.h
   vsSourceFactoryInterface.h
@@ -64,19 +53,18 @@ set(vspDataInstallHeaders
   vsTrackSource.h
   vsTrackState.h
   vsVideoSource.h
-  vsVideoSourcePrivate.h
   vtkVsTrackInfo.h
 )
-
-qt4_wrap_cpp(vspData_MocSources ${vspData_MocHeaders})
-
-add_library(${PROJECT_NAME}
-  ${vspData_Sources}
-  ${vspData_MocSources}
+set(vspDataPrivateHeaders
+  vsLiveDescriptorPrivate.h
+  vsVideoSourcePrivate.h
 )
 
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
+
+add_library(${PROJECT_NAME} ${vspData_Sources})
+
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
   qtExtensions
   qtVgCommon
   vgVideo
@@ -84,11 +72,15 @@ vg_add_dependencies(${PROJECT_NAME}
   vvIO
   vgVtkVideo
   vvVtkWidgets
-  LINK_LIBRARIES
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
 )
 
 install_library_targets(${PROJECT_NAME})
 install_headers(${vspDataInstallHeaders} TARGET ${PROJECT_NAME}
                 DESTINATION include/VspData)
+vg_export_headers(${vspDataPrivateHeaders} TARGET ${PROJECT_NAME}
+                  DESTINATION include/VspData)
+
+vg_add_documentation(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}
+  Qt
+  qtExtensions
+)

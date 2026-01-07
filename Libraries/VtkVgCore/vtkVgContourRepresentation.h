@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2013 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vtkVgContourRepresentation_h
 #define __vtkVgContourRepresentation_h
@@ -61,6 +59,11 @@ public:
   // no part of the contour comes near the display point.
   int FindClosestPoint(int X, int Y, double pos[3]);
 
+  // Description:
+  // Set/Get the Z offset to be applied to the lines actor
+  void SetZOffset(double offset);
+  vtkGetMacro(ZOffset, double);
+
 protected:
   vtkVgContourRepresentation();
   ~vtkVgContourRepresentation();
@@ -76,6 +79,7 @@ private:
   vtkPoints* TransformedPoints;
   vtkPoints* Points;
   vtkTimeStamp PointsBuildTime;
+  double ZOffset;
 };
 
 #endif

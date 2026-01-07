@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpProjectParser.h"
 
@@ -21,9 +19,11 @@
 #include <vtkMatrix4x4.h>
 #include <vtksys/SystemTools.hxx>
 
+#include <QApplication>
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QSettings>
 #include <QTemporaryFile>
 
@@ -35,10 +35,23 @@ namespace
 {
 
 //-----------------------------------------------------------------------------
-template <typename T>
-bool readValue(const QSettings& reader, const QString& key, T& value)
+struct SettingsContext
 {
-  const QVariant& var = reader.value(key, QVariant::fromValue(value));
+  const QSettings& reader;
+  QStringList errors;
+
+  QDebug warn()
+  {
+    errors.append(QString{});
+    return QDebug{&errors.last()};
+  }
+};
+
+//-----------------------------------------------------------------------------
+template <typename T>
+bool readValue(SettingsContext& context, const QString& key, T& value)
+{
+  const QVariant& var = context.reader.value(key, QVariant::fromValue(value));
   if (var.isValid())
     {
     if (var.canConvert<T>())
@@ -46,7 +59,7 @@ bool readValue(const QSettings& reader, const QString& key, T& value)
       value = var.value<T>();
       return true;
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
 
   return false;
@@ -54,9 +67,9 @@ bool readValue(const QSettings& reader, const QString& key, T& value)
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key, QPointF& value)
+bool readValue(SettingsContext& context, const QString& key, QPointF& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toList();
@@ -71,16 +84,16 @@ bool readValue(const QSettings& reader, const QString& key, QPointF& value)
         return true;
         }
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
+bool readValue(SettingsContext& context, const QString& key, QSizeF& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toList();
@@ -95,17 +108,17 @@ bool readValue(const QSettings& reader, const QString& key, QSizeF& value)
         return true;
         }
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
 
 //-----------------------------------------------------------------------------
 template <>
-bool readValue(const QSettings& reader, const QString& key,
+bool readValue(SettingsContext& context, const QString& key,
                vgGeoRawCoordinate& value)
 {
-  const QVariant& var = reader.value(key);
+  const QVariant& var = context.reader.value(key);
   if (var.isValid())
     {
     const auto& l = var.toStringList();
@@ -117,7 +130,23 @@ bool readValue(const QSettings& reader, const QString& key,
       value = {values[0], values[1]};
       return true;
       }
-    qWarning() << "WARNING:" << key << "has invalid value" << var;
+    context.warn() << key << "has invalid value" << var;
+    }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+template <>
+bool readValue(SettingsContext& context, const QString& key, vgColor& value)
+{
+  const QVariant& var = context.reader.value(key);
+  if (var.isValid())
+    {
+    if (value.read(context.reader, key))
+      {
+      return true;
+      }
+    context.warn() << key << "has invalid value" << var;
     }
   return false;
 }
@@ -152,6 +181,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->DataSetSpecifierTag, "", "Filename with list of images for each frame or glob for sequence of images");
   blk.add_parameter(prj->TracksFileTag, "", "Filename or glob containing the tracks data");
   blk.add_parameter(prj->TrackTraitsFileTag, "", "Filename containing extra track data (normalcy, etc.)");
+  blk.add_parameter(prj->TrackClassifiersFileTag, "", "Filename containing TOC data for the tracks");
   blk.add_parameter(prj->EventsFileTag, "", "Filename containing the events data");
   blk.add_parameter(prj->EventLinksFileTag, "", "Filename containing the event linking data");
   blk.add_parameter(prj->ActivitiesFileTag, "", "Filename containing the activities data");
@@ -171,11 +201,15 @@ bool vpProjectParser::Parse(vpProject* prj)
   blk.add_parameter(prj->ColorLevelTag, "127.5", "Specify color value mean (level) for data set");
   blk.add_parameter(prj->ColorMultiplierTag, "1.0", "Specify color multiplier for objects");
   blk.add_parameter(prj->FrameNumberOffsetTag, "0", "Frame number offset of imagery data");
+  blk.add_parameter(prj->HomographyReferenceFrameTag, "0", "Frame number of reference for homographies");
   blk.add_parameter(prj->ImageTimeMapFileTag, "", "Filename containing image timestamps");
   blk.add_parameter(prj->HomographyIndexFileTag, "", "Filename containing image homographies");
   blk.add_parameter(prj->FiltersFileTag, "", "Filename containing filters to import");
   blk.add_parameter(prj->ImageToGcsMatrixTag, "", "Image to geographic coordinate matrix");
   blk.add_parameter(prj->SceneElementsFileTag, "", "Filename containing scene element data");
+  blk.add_parameter(prj->CameraDirectoryTag, "", "Path to KRTD camera files");
+  blk.add_parameter(prj->DepthConfigFileTag, "", "Path to config file for depth estimation");
+  blk.add_parameter(prj->BundleAdjustmentConfigFileTag, "", "Path to config file for bundle adjustment");
 
   vidtk::config_block_parser blkParser;
   std::istringstream iss;
@@ -244,6 +278,7 @@ bool vpProjectParser::Parse(vpProject* prj)
   prj->ColorLevel = blk.get<double>(prj->ColorLevelTag);
   prj->ColorMultiplier = blk.get<double>(prj->ColorMultiplierTag);
   prj->FrameNumberOffset = blk.get<double>(prj->FrameNumberOffsetTag);
+  prj->HomographyReferenceFrame = blk.get<int>(prj->HomographyReferenceFrameTag);
 
   // Read various fields that consist of two numbers
   double pt[2];
@@ -380,6 +415,7 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   QSettings reader{projectFileName, QSettings::IniFormat};
+  SettingsContext context{reader, {}};
 
   // Read file path fields
   foreach (const auto& fileTag, qtEnumerate(prj->TagFileMap))
@@ -411,38 +447,47 @@ bool vpProjectParser::Parse(vpProject* prj)
     }
 
   // Read non-string fields
-  readValue(reader, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
-  readValue(reader, prj->OverviewSpacingTag,    prj->OverviewSpacing);
-  readValue(reader, prj->ColorWindowTag,        prj->ColorWindow);
-  readValue(reader, prj->ColorLevelTag,         prj->ColorLevel);
-  readValue(reader, prj->ColorMultiplierTag,    prj->ColorMultiplier);
-  readValue(reader, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
-  readValue(reader, prj->OverviewOriginTag,     prj->OverviewOrigin);
-  readValue(reader, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
-
-  // Read track override color
-  prj->TrackColorOverride.read(reader, prj->TrackColorOverrideTag);
+  readValue(context, prj->PrecomputeActivityTag, prj->PrecomputeActivity);
+  readValue(context, prj->OverviewSpacingTag,    prj->OverviewSpacing);
+  readValue(context, prj->ColorWindowTag,        prj->ColorWindow);
+  readValue(context, prj->ColorLevelTag,         prj->ColorLevel);
+  readValue(context, prj->ColorMultiplierTag,    prj->ColorMultiplier);
+  readValue(context, prj->FrameNumberOffsetTag,  prj->FrameNumberOffset);
+  readValue(context, prj->OverviewOriginTag,     prj->OverviewOrigin);
+  readValue(context, prj->AnalysisDimensionsTag, prj->AnalysisDimensions);
+  readValue(context, prj->TrackColorOverrideTag, prj->TrackColorOverride);
+  readValue(context, prj->HomographyReferenceFrameTag,
+            /*    */ prj->HomographyReferenceFrame);
 
   // Read AOI
   reader.beginGroup("AOI");
-  if (readValue(reader, "TopLeft", prj->AOI.Coordinate[0]))
+  if (readValue(context, "TopLeft", prj->AOI.Coordinate[0]))
     {
-    readValue(reader, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
+    readValue(context, "GCS", prj->AOI.GCS = vgGeodesy::LatLon_Wgs84);
 
     prj->AOI.Coordinate[2] = prj->AOI.Coordinate[0];
-    readValue(reader, "BottomRight", prj->AOI.Coordinate[2]);
+    readValue(context, "BottomRight", prj->AOI.Coordinate[2]);
 
     prj->AOI.Coordinate[1].Easting  = prj->AOI.Coordinate[2].Easting;
     prj->AOI.Coordinate[1].Northing = prj->AOI.Coordinate[0].Northing;
     prj->AOI.Coordinate[3].Easting  = prj->AOI.Coordinate[0].Easting;
     prj->AOI.Coordinate[3].Northing = prj->AOI.Coordinate[2].Northing;
-    readValue(reader, "TopRight", prj->AOI.Coordinate[1]);
-    readValue(reader, "BottomLeft", prj->AOI.Coordinate[3]);
+    readValue(context, "TopRight", prj->AOI.Coordinate[1]);
+    readValue(context, "BottomLeft", prj->AOI.Coordinate[3]);
     }
   reader.endGroup();
 
   // Read image-to-GCS matrix
   // TODO
+
+  if (!context.errors.isEmpty())
+    {
+    QMessageBox mb{QMessageBox::Warning, "Load Project",
+                   "Warnings were reported while parsing the project",
+                   QMessageBox::Ok, qApp->activeWindow()};
+    mb.setDetailedText(context.errors.join("\n"));
+    mb.exec();
+    }
 
   return true;
 #endif

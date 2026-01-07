@@ -19,6 +19,7 @@ set(vvIO_Sources
   vvXmlUtil.cxx
   # Query Server Interface
   vvQueryInstance.cxx
+  vvQueryNotifier.cxx
   vvQueryService.cxx
   vvQuerySession.cxx
   # Utility Functions
@@ -28,12 +29,6 @@ set(vvIO_Sources
   vvKmlLine.cxx
   vvMakeId.cxx
   vvUtil.cxx
-)
-
-set(vvIO_MocHeaders
-  # Query Server Interface
-  vvQueryNotifier.h
-  vvQuerySession.h
 )
 
 set(vvIOInstallHeaders
@@ -53,6 +48,7 @@ set(vvIOInstallHeaders
   vvQueryServiceInterface.h
   vvQuerySession.h
   vvReader.h
+  vvTrackHash.h
   vvUtil.h
   vvWriterData.h
   vvWriter.h
@@ -71,24 +67,16 @@ set(vvIOWrapObjects
   vvTrackId
 )
 
-qt4_wrap_cpp(vvIO_MocSources ${vvIO_MocHeaders})
+add_library(${PROJECT_NAME} ${vvIO_Sources})
 
-add_library(${PROJECT_NAME} ${vvIO_Sources} ${vvIO_MocSources})
-
-vg_include_library_sdk_directories(
-  TARGET ${PROJECT_NAME} INTERFACE vvData
-)
-
-vg_add_dependencies(${PROJECT_NAME}
-  PUBLIC_INTERFACE_TARGETS
-  qtExtensions
+target_link_libraries(${PROJECT_NAME}
+  PUBLIC
+  vvData
   qtVgCommon
-  LINK_LIBRARIES
-  LINK_PRIVATE
+  qtExtensions
+  PRIVATE
   ${Boost_LIBRARIES}
-  ${KML_LIBRARY}
-  LINK_PUBLIC
-  ${QT_LIBRARIES}
+  kml
 )
 
 vg_add_test_subdirectory()

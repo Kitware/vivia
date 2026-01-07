@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vpProjectBase_h
 #define __vpProjectBase_h
@@ -21,6 +19,7 @@ struct vpProjectBase
   QString DataSetSpecifier;
   QString TracksFile;
   QString TrackTraitsFile;
+  QString TrackClassifiersFile;
   QString EventsFile;
   QString EventLinksFile;
   QString IconsFile;
@@ -31,6 +30,9 @@ struct vpProjectBase
   QString HomographyIndexFile;
   QString FiltersFile;
   QString SceneElementsFile;
+  QString CameraDirectory;
+  QString DepthConfigFile;
+  QString BundleAdjustmentConfigFile;
 
   int PrecomputeActivity = 0;
 
@@ -48,6 +50,7 @@ struct vpProjectBase
   vgColor TrackColorOverride;
 
   int FrameNumberOffset = 0;
+  int HomographyReferenceFrame = 0;
 };
 
 #endif

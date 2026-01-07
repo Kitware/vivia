@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsTrackOracleArchiveSourcePlugin.h"
 
@@ -31,8 +29,6 @@
 #include "visgui_track_type.h"
 #include "vsTrackOracleTrackArchiveSource.h"
 #include "vsTrackOracleDescriptorArchiveSource.h"
-
-Q_EXPORT_PLUGIN2(vsTrackOracleArchiveSource, vsTrackOracleArchiveSourcePlugin)
 
 QTE_IMPLEMENT_D_FUNC(vsTrackOracleArchiveSourcePlugin)
 
@@ -192,6 +188,7 @@ vsSimpleSourceFactory* vsTrackOracleArchiveSourcePlugin::createArchiveSource(
   CHECK_ARG(file.open(QIODevice::ReadOnly | QIODevice::Text), 0);
 
   auto* const format_instance = d->inspect(stdString(fileName), type);
+  CHECK_ARG(format_instance, 0);
 
   if (type == vs::ArchiveTrackSource)
     {

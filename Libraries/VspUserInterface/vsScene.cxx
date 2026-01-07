@@ -1,63 +1,9 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsScene.h"
 #include "vsScenePrivate.h"
-
-#include <QApplication>
-#include <QClipboard>
-#include <QMenu>
-
-#include <qtGradient.h>
-#include <qtStlUtil.h>
-
-#include <vtkAssembly.h>
-#include <vtkCamera.h>
-#include <vtkImageActor.h>
-#include <vtkImageProperty.h>
-#include <vtkLookupTable.h>
-#include <vtkPoints.h>
-#include <vtkProp3DCollection.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkPNGReader.h>
-#include <vtkPNGWriter.h>
-#include <vtkTimerLog.h>
-#include <vtkWindowToImageFilter.h>
-#include <QVTKWidget.h>
-
-#include <vtkVgContourOperatorManager.h>
-#include <vtkVgEvent.h>
-#include <vtkVgEventFilter.h>
-#include <vtkVgEventTypeRegistry.h>
-#include <vtkVgInteractorStyleRubberBand2D.h>
-#include <vtkVgSpaceConversion.h>
-#include <vtkVgTrack.h>
-#include <vtkVgUtil.h>
-
-#include <vtkVgEventLabelRepresentation.h>
-#include <vtkVgEventModel.h>
-#include <vtkVgEventRegionRepresentation.h>
-#include <vtkVgEventRepresentation.h>
-#include <vtkVgTrackFSOFilter.h>
-#include <vtkVgTrackHeadRepresentation.h>
-#include <vtkVgTrackLabelRepresentation.h>
-#include <vtkVgTrackModel.h>
-#include <vtkVgTrackRepresentation.h>
-
-#include <vgCheckArg.h>
-#include <vgRange.h>
-
-#include <vtkVgQtAdapt.h>
-#include <vtkVgQtUtil.h>
-
-#include <vgMixerWidget.h>
-#include <vgTextEditDialog.h>
-
-#include <vsDisplayInfo.h>
 
 #include "vsAlertList.h"
 #include "vsContourWidget.h"
@@ -75,6 +21,60 @@
 #include "vsTrackTreeModel.h"
 #include "vsTrackTreeSelectionModel.h"
 #include "vsTrackTreeWidget.h"
+
+#include <vsDisplayInfo.h>
+
+#include <vtkVgQtUtil.h>
+
+#include <vtkVgEventLabelRepresentation.h>
+#include <vtkVgEventModel.h>
+#include <vtkVgEventRegionRepresentation.h>
+#include <vtkVgEventRepresentation.h>
+#include <vtkVgTrackPVOFilter.h>
+#include <vtkVgTrackHeadRepresentation.h>
+#include <vtkVgTrackLabelRepresentation.h>
+#include <vtkVgTrackModel.h>
+#include <vtkVgTrackRepresentation.h>
+
+#include <vtkVgAdapt.h>
+#include <vtkVgContourOperatorManager.h>
+#include <vtkVgEvent.h>
+#include <vtkVgEventFilter.h>
+#include <vtkVgEventTypeRegistry.h>
+#include <vtkVgInteractorStyleRubberBand2D.h>
+#include <vtkVgSpaceConversion.h>
+#include <vtkVgTrack.h>
+#include <vtkVgUtil.h>
+
+#include <vgMixerWidget.h>
+#include <vgTextEditDialog.h>
+
+#include <vgCheckArg.h>
+#include <vgRange.h>
+
+#include <vtkAssembly.h>
+#include <vtkCamera.h>
+#include <vtkImageActor.h>
+#include <vtkImageProperty.h>
+#include <vtkLookupTable.h>
+#include <vtkPoints.h>
+#include <vtkProp3DCollection.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkPNGReader.h>
+#include <vtkPNGWriter.h>
+#include <vtkTimerLog.h>
+#include <vtkWindowToImageFilter.h>
+#include <QVTKWidget.h>
+
+#include <qtGradient.h>
+#include <qtStlUtil.h>
+
+#include <QApplication>
+#include <QClipboard>
+#include <QMenu>
+
+#include <Eigen/LU>
 
 QTE_IMPLEMENT_D_FUNC(vsScene)
 
@@ -240,6 +240,8 @@ void vsScene::setupFilterWidget(vgMixerWidget* filterWidget)
           this, SLOT(setEventVisibility(int, bool)));
   connect(filterWidget, SIGNAL(valueChanged(int, double)),
           this, SLOT(setEventThreshold(int, double)));
+  connect(filterWidget, SIGNAL(invertedChanged(int, bool)),
+          this, SLOT(setEventThresholdInverted(int, bool)));
 
   // Set up object type filters
   int groupId = filterWidget->addGroup("Object Type");
@@ -589,6 +591,63 @@ void vsScene::setEventThreshold(int type, double threshold)
 }
 
 //-----------------------------------------------------------------------------
+void vsScene::setEventThresholdInverted(int type, bool inverted)
+{
+  QTE_D(vsScene);
+
+  switch (type)
+    {
+    case vsTrackInfo::Person:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Person));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Person, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Person,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Person));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Person, 1.0);
+        }
+      break;
+    case vsTrackInfo::Vehicle:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Vehicle));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Vehicle,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Vehicle));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Vehicle, 1.0);
+        }
+      break;
+    case vsTrackInfo::Other:
+      if (inverted)
+        {
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Other,
+          d->TrackFilter->GetMinProbability(vtkVgTrack::Other));
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Other, 0.0);
+        }
+      else
+        {
+        d->TrackFilter->SetMinProbability(vtkVgTrack::Other,
+          d->TrackFilter->GetMaxProbability(vtkVgTrack::Other));
+        d->TrackFilter->SetMaxProbability(vtkVgTrack::Other, 1.0);
+        }
+      break;
+    default:
+      d->EventFilter->SetInverse(type, inverted);
+      break;
+    }
+
+  this->postUpdate();
+}
+
+//-----------------------------------------------------------------------------
 void vsScene::resetView()
 {
   QTE_D(vsScene);
@@ -891,8 +950,10 @@ void vsScene::beginDrawing(vsContour::Type type)
   this->cancelInteraction();
 
   emit this->contourStarted();
-  emit this->statusMessageAvailable("Drawing contour;"
-                                    " right click to enter adjustment mode");
+  emit this->statusMessageAvailable(
+    "Drawing contour"
+    "(<b>left click</b> to add points;"
+    " <b>right click</b> to enter editing mode)");
 
   d->EditContour.reset(
     new vsContourWidget(d->Core->createContourId(),
@@ -995,7 +1056,8 @@ void vsScene::beginContourManipulation()
   QTE_D(vsScene);
   if (d->EditContour->isClosed())
     emit this->contourClosed();
-  emit this->statusMessageAvailable("Editing contour; right click when done");
+  emit this->statusMessageAvailable(
+    "Editing contour (<b>right click</b> when done)");
 }
 
 //-----------------------------------------------------------------------------
@@ -1029,6 +1091,7 @@ void vsScene::finalizeContour()
 
       // Emit completed contour and destroy widget
       emit this->contourCompleted(d->EditContour.data()->toContour());
+      emit this->statusMessageAvailable("");
       d->EditContour.reset();
       }
 
@@ -1185,7 +1248,7 @@ void vsScene::addUserEventType(
 {
   Q_UNUSED(id);
   QTE_D(vsScene);
-  d->addFilter(info, vsEventInfo::User, true, initialThreshold);
+  d->addFilter(info, info.group, true, initialThreshold);
 }
 
 //-----------------------------------------------------------------------------
@@ -1614,10 +1677,10 @@ vgGeocodedCoordinate vsScene::viewToLatLon(const QPointF& in)
 }
 
 //-----------------------------------------------------------------------------
-QMatrix4x4 vsScene::currentTransform() const
+vgMatrix4d vsScene::currentTransform() const
 {
   QTE_D_CONST(vsScene);
-  return d->CurrentTransformQt;
+  return d->CurrentTransformEigen;
 }
 
 //-----------------------------------------------------------------------------
@@ -1797,25 +1860,25 @@ void vsScene::updateVideoFrame(vtkVgVideoFrame frame, qint64 requestId)
   this->postUpdate(metadata.Time);
 
   // Generate the transform matrix
-  QMatrix4x4 hi, fy;
   double ib[6];
   d->ImageActor->GetBounds(ib);
-  hi = qtAdapt(metadata.Homography).inverted();
+  const auto& hi = vtkVgAdapt(metadata.Homography).inverse();
+  auto fy = vgMatrix4d{vgMatrix4d::Identity()};
   fy(1, 1) = -1.0;
   fy(1, 3) = ib[3] - ib[2];
-  d->CurrentTransformQt = fy * hi;
+  d->CurrentTransformEigen = fy * hi;
 
-  if (d->CurrentTransformQt(3, 3) < 0)
+  if (d->CurrentTransformEigen(3, 3) < 0)
     {
     // If the 3,3 component is negative, we're like to run into an OpenGL issue
     // where points are not rendered when the homogeneous coordinate after
     // transformation is < 0.  This is a temporary fix.
-    d->CurrentTransformQt *= -1.0;
+    d->CurrentTransformEigen *= -1.0;
     }
 
-  // Copy Qt matrix to VTK matrix
+  // Copy Eigen matrix to VTK matrix
   vtkVgInstance<vtkMatrix4x4> xf;
-  qtAdapt(d->CurrentTransformQt, xf);
+  vtkVgAdapt(d->CurrentTransformEigen, xf);
 
   d->CurrentTransformVtk->DeepCopy(xf);
 
@@ -1839,7 +1902,7 @@ void vsScene::updateVideoFrame(vtkVgVideoFrame frame, qint64 requestId)
   emit this->locationTextUpdated(d->buildLocationTextFromDisplay(x, y));
 
   // Pass along metadata
-  emit this->transformChanged(d->CurrentTransformQt);
+  emit this->transformChanged(d->CurrentTransformEigen);
   emit this->videoMetadataUpdated(metadata, requestId);
   emit this->currentTimeChanged(metadata.Time.GetRawTimeStamp());
 }
@@ -2388,14 +2451,14 @@ void vsScene::writeRenderedImages()
     const QString outputFileName =
       d->ImageOutputDirectory +
       QString("/vsPlayImage%1.png").arg(d->ImageCounter++, 6, 10, zero);
-    d->PngWriter->SetFileName(outputFileName.toAscii());
+    d->PngWriter->SetFileName(qPrintable(outputFileName));
     d->PngWriter->Write();
     }
   if (d->SaveScreenShot)
     {
     d->SaveScreenShot = false; // this is one shot
     d->WindowToImageFilter->Modified();
-    d->PngWriter->SetFileName(d->ScreenShotFileName.toAscii());
+    d->PngWriter->SetFileName(qPrintable(d->ScreenShotFileName));
     d->PngWriter->Write();
     }
 }

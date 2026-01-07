@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vpVdfIO.h"
 
@@ -45,6 +43,8 @@ class vpVdfIOPrivate
 public:
   unsigned int ImageHeight;
   QUrl TracksUri;
+  QString TrackTraitsFilePath;
+  QString TrackClassifiersFilePath;
 };
 
 //-----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ vpVdfIO::~vpVdfIO()
 //-----------------------------------------------------------------------------
 void vpVdfIO::SetTrackModel(
   vtkVpTrackModel* trackModel,
-  vpTrackIO::TrackStorageMode storageMode,
+  vpTrackIO::TrackStorageMode storageMode, bool interpolateToGround,
   vpTrackIO::TrackTimeStampMode timeStampMode,
   vtkVgTrackTypeRegistry* trackTypes,
   vtkMatrix4x4* geoTransform,
@@ -72,17 +72,20 @@ void vpVdfIO::SetTrackModel(
   QTE_D();
 
   auto* const trackIO =
-    new vpVdfTrackIO{this, trackModel, storageMode, timeStampMode,
-                     trackTypes, geoTransform, imageDataSource, frameMap};
+    new vpVdfTrackIO{this, trackModel, storageMode, interpolateToGround,
+                     timeStampMode, trackTypes, geoTransform,
+                     imageDataSource, frameMap};
   this->TrackIO.reset(trackIO);
 
   this->FseTrackIO.reset(
-    new vpFseTrackIO(trackModel, storageMode, timeStampMode,
+    new vpFseTrackIO(trackModel, storageMode, interpolateToGround, timeStampMode,
       trackTypes, geoTransform, imageDataSource, frameMap));
   this->FseTrackIO->SetTracksFileName(this->FseTracksFileName.c_str());
   this->FseTrackIO->SetImageHeight(d->ImageHeight);
 
   trackIO->SetTracksUri(d->TracksUri);
+  trackIO->SetTrackTraitsFilePath(d->TrackTraitsFilePath);
+  trackIO->SetTrackClassifiersFilePath(d->TrackClassifiersFilePath);
 }
 
 //-----------------------------------------------------------------------------
@@ -125,6 +128,28 @@ void vpVdfIO::SetTracksUri(const QUrl& uri)
   if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.data()))
     {
     trackIO->SetTracksUri(uri);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetTrackTraitsFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackTraitsFilePath = filePath;
+  if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.data()))
+    {
+    trackIO->SetTrackTraitsFilePath(filePath);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vpVdfIO::SetTrackClassifiersFilePath(const QString& filePath)
+{
+  QTE_D();
+  d->TrackClassifiersFilePath = filePath;
+  if (auto* const trackIO = dynamic_cast<vpVdfTrackIO*>(this->TrackIO.data()))
+    {
+    trackIO->SetTrackClassifiersFilePath(filePath);
     }
 }
 

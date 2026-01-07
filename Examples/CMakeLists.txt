@@ -22,13 +22,13 @@ set(ExamplesHeaders
 
 #SET(ExamplesResources Icons/icons.qrc)
 
-qt4_wrap_ui(UISrcs
+qt5_wrap_ui(UISrcs
   ${ExamplesUI}
 )
-qt4_wrap_cpp(MOCSrcs
+qt5_wrap_cpp(MOCSrcs
   ${ExamplesHeaders}
 )
-qt4_add_resources(ResourceSrcs
+qt5_add_resources(ResourceSrcs
   ${ExamplesResources}
 )
 
@@ -62,7 +62,6 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 #)
 
 #target_link_libraries( Examples
-#  ${QT_LIBRARIES}
 #  QVTK
 #  vtkRendering
 #  vtkVgCore
@@ -75,7 +74,6 @@ ENDIF (${CMAKE_BUILD_TOOL} MATCHES "devenv")
 foreach(example ${ExampleSrcs})
   add_executable(${example} ${example}.cxx)
   target_link_libraries(${example} 
-    ${QT_LIBRARIES}
     vtkGUISupportQt
     vtkRendering
     vtkVgCore

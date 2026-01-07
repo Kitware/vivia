@@ -13,6 +13,7 @@ class vvKipQueryServicePlugin : public QObject, public vvQueryServiceInterface
 {
   Q_OBJECT
   Q_INTERFACES(vvQueryServiceInterface)
+  Q_PLUGIN_METADATA(IID "org.visgui.vvQueryServiceInterface")
 
 public:
   vvKipQueryServicePlugin();

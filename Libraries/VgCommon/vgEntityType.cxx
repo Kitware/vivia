@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vgEntityType.h"
 
@@ -60,6 +58,10 @@ void vgEntityType::SetName(const char* name)
 }
 
 //-----------------------------------------------------------------------------
+void vgEntityType::SetColor(const double* color)
+{ SetColorInternal(this->Color, color[0], color[1], color[2]); }
+
+//-----------------------------------------------------------------------------
 void vgEntityType::SetColor(double r, double g, double b)
 { SetColorInternal(this->Color, r, g, b); }
 
@@ -80,12 +82,20 @@ void vgEntityType::GetSecondaryColor(double& r, double& g, double& b) const
 { GetColorInternal(this->SecondaryColor, r, g, b); }
 
 //-----------------------------------------------------------------------------
+void vgEntityType::SetLabelForegroundColor(const double* color)
+{ SetColorInternal(this->LabelForegroundColor, color[0], color[1], color[2]); }
+
+//-----------------------------------------------------------------------------
 void vgEntityType::SetLabelForegroundColor(double r, double g, double b)
 { SetColorInternal(this->LabelForegroundColor, r, g, b); }
 
 //-----------------------------------------------------------------------------
 void vgEntityType::GetLabelForegroundColor(double& r, double& g, double& b) const
 { GetColorInternal(this->LabelForegroundColor, r, g, b); }
+
+//-----------------------------------------------------------------------------
+void vgEntityType::SetLabelBackgroundColor(const double* color)
+{ SetColorInternal(this->LabelBackgroundColor, color[0], color[1], color[2]); }
 
 //-----------------------------------------------------------------------------
 void vgEntityType::SetLabelBackgroundColor(double r, double g, double b)

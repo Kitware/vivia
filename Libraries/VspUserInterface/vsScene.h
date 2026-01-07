@@ -1,32 +1,31 @@
-/*ckwg +5
- * Copyright 2015 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #ifndef __vsScene_h
 #define __vsScene_h
 
-#include <QColor>
-#include <QMatrix4x4>
-#include <QObject>
+#include "vsAlert.h"
 
-#include <qtGlobal.h>
+#include <vsContour.h>
+#include <vsEventInfo.h>
+#include <vsVideoSource.h>
 
-#include <vgExport.h>
+#include <vgfItemReference.h>
 
 #include <vgVideoPlayer.h>
 #include <vgVtkVideoFrame.h>
 
 #include <vtkVgTrackRepresentationBase.h>
 
-#include <vgfItemReference.h>
+#include <vgMatrix.h>
 
-#include <vsContour.h>
-#include <vsEventInfo.h>
-#include <vsVideoSource.h>
+#include <vgExport.h>
 
-#include "vsAlert.h"
+#include <qtGlobal.h>
+
+#include <QColor>
+#include <QObject>
 
 class QAbstractItemModel;
 
@@ -103,7 +102,7 @@ public:
   QPointF viewToFrame(const QPointF&);
   vgGeocodedCoordinate viewToLatLon(const QPointF& in);
 
-  QMatrix4x4 currentTransform() const;
+  vgMatrix4d currentTransform() const;
 
   const vtkVgVideoFrameMetaData& currentFrameMetaData() const;
 
@@ -116,7 +115,7 @@ signals:
   void videoSeekRequestDiscarded(qint64 id,
                                  vtkVgTimeStamp lastFrameAvailable);
 
-  void transformChanged(const QMatrix4x4& newTransform);
+  void transformChanged(const vgMatrix4d& newTransform);
 
   void currentTimeChanged(vgTimeStamp);
 
@@ -232,8 +231,9 @@ protected slots:
   void setSourceStreaming(bool);
   void setSourceFrameRange(vtkVgTimeStamp, vtkVgTimeStamp);
 
-  void setEventVisibility(int, bool);
-  void setEventThreshold(int, double);
+  void setEventVisibility(int type, bool visibility);
+  void setEventThreshold(int type, double threshold);
+  void setEventThresholdInverted(int type, bool inverted);
 
   void updateTrackSelection(QSet<vtkIdType> trackIds);
   void updateEventSelection(QSet<vtkIdType> eventIds);

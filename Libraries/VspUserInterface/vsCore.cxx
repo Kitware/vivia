@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2014 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vsCore.h"
 #include "vsCorePrivate.h"
@@ -767,18 +765,27 @@ void vsCore::addEventType(
 {
   QTE_D(vsCore);
 
+  QHash<int, vsCorePrivate::UserEventType>& typeMap =
+    d->UserEventTypeMap[source];
+
   // Check for existing type
-  QHash<int, int>& typeMap = d->UserEventTypeMap[source];
   if (!typeMap.contains(info.type))
     {
     // Generate new type
-    typeMap.insert(info.type, d->NextUserType--);
+    vsCorePrivate::UserEventType uet;
+    uet.id = d->NextUserType--;
+    uet.group = info.group;
+
+    typeMap.insert(info.type, uet);
     }
-  info.type = typeMap[info.type];
+  info.type = typeMap[info.type].id;
 
   // Register user type with event type registry
   this->registerEventType(info);
-  d->expectEventGroup(vsEventInfo::User);
+  if (info.group == vsEventInfo::User)
+    {
+    d->expectEventGroup(vsEventInfo::User);
+    }
 
   // Emit user event type to interested observers
   emit this->userEventTypeAdded(info.type, info, initialThreshold);

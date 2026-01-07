@@ -1,8 +1,6 @@
-/*ckwg +5
- * Copyright 2018 by Kitware, Inc. All Rights Reserved. Please refer to
- * KITWARE_LICENSE.TXT for licensing information, or contact General Counsel,
- * Kitware, Inc., 28 Corporate Drive, Clifton Park, NY 12065.
- */
+// This file is part of ViViA, and is distributed under the
+// OSI-approved BSD 3-Clause License. See top-level LICENSE file or
+// https://github.com/Kitware/vivia/blob/master/LICENSE for details.
 
 #include "vqApplication.h"
 
@@ -177,18 +175,37 @@ vqApplication::vqApplication(UIMode uiMode) :
   this->Core->registerStatusWidget(statusLabel);
   this->Core->registerStatusWidget(statusProgress);
 
-  // Set up Export menu
-  QSignalMapper* mapper = new QSignalMapper(this);
+  // Set up Export menus
+  QSignalMapper* selectedMapper = new QSignalMapper(this);
+  QSignalMapper* starredMapper = new QSignalMapper(this);
+  QSignalMapper* allMapper = new QSignalMapper(this);
   foreach (vqExporterFactory::Identifier e, vqExporterFactory::exporters())
     {
     QString text = e.displayString + "...";
-    QAction* action = this->UI.menuQueryExportResults->addAction(text);
-    connect(action, SIGNAL(triggered()), mapper, SLOT(map()));
-    mapper->setMapping(action, e.id);
+
+    QAction* selectedAction =
+      this->UI.menuQueryExportSelectedResults->addAction(text);
+    connect(selectedAction, SIGNAL(triggered()), selectedMapper, SLOT(map()));
+    selectedMapper->setMapping(selectedAction, e.id);
+
+    QAction* starredAction =
+      this->UI.menuQueryExportStarredResults->addAction(text);
+    connect(starredAction, SIGNAL(triggered()), starredMapper, SLOT(map()));
+    starredMapper->setMapping(starredAction, e.id);
+
+    QAction* allAction = this->UI.menuQueryExportAllResults->addAction(text);
+    connect(allAction, SIGNAL(triggered()), allMapper, SLOT(map()));
+    allMapper->setMapping(allAction, e.id);
     }
-  connect(mapper, SIGNAL(mapped(const QString&)),
-          this, SLOT(exportResults(const QString&)));
-  this->UI.menuQueryExportResults->addAction(this->UI.actionExportKml);
+
+  connect(selectedMapper, SIGNAL(mapped(const QString&)),
+          this, SLOT(exportSelectedResults(const QString&)));
+  connect(starredMapper, SIGNAL(mapped(const QString&)),
+          this, SLOT(exportStarredResults(const QString&)));
+  connect(allMapper, SIGNAL(mapped(const QString&)),
+          this, SLOT(exportAllResults(const QString&)));
+
+  this->UI.menuQueryExportStarredResults->addAction(this->UI.actionExportKml);
 
   // Set up Export tool button
   QWidget* spacer = new QWidget;
@@ -197,7 +214,7 @@ vqApplication::vqApplication(UIMode uiMode) :
   QToolButton* button = new QToolButton;
   button->setText("Export");
   button->setPopupMode(QToolButton::MenuButtonPopup);
-  button->setMenu(this->UI.menuQueryExportResults);
+  button->setMenu(this->UI.menuQueryExportAllResults);
   this->UI.resultToolBar->addWidget(spacer);
   this->UI.resultToolBar->addWidget(button);
   connect(button, SIGNAL(pressed()), button, SLOT(showMenu()));
@@ -501,6 +518,7 @@ vqApplication::vqApplication(UIMode uiMode) :
           SIGNAL(queryFormulationRequested(vvProcessingRequest, long long)),
           this, SLOT(formulateQuery(vvProcessingRequest, long long)));
 
+  // Load application settings
   this->reloadConfiguration();
   this->loadWindowState();
 
@@ -534,34 +552,6 @@ void vqApplication::closeEvent(QCloseEvent* event)
 
   this->saveWindowState();
   QMainWindow::closeEvent(event);
-}
-
-//-----------------------------------------------------------------------------
-#define SET_DOCK_CORNER(_c, _d) do { \
-  const int v = settings.value(#_c, _d).toInt(); \
-  this->setCorner(Qt::_c##Corner, static_cast<Qt::DockWidgetArea>(v)); \
-  } while (0)
-void vqApplication::loadWindowState()
-{
-  QSettings settings;
-  settings.beginGroup("Window");
-  this->restoreGeometry(settings.value("geometry").toByteArray());
-  this->restoreState(settings.value("state").toByteArray());
-
-  settings.beginGroup("DockCorners");
-  SET_DOCK_CORNER(TopLeft, Qt::TopDockWidgetArea);
-  SET_DOCK_CORNER(TopRight, Qt::TopDockWidgetArea);
-  SET_DOCK_CORNER(BottomLeft, Qt::BottomDockWidgetArea);
-  SET_DOCK_CORNER(BottomRight, Qt::BottomDockWidgetArea);
-}
-
-//-----------------------------------------------------------------------------
-void vqApplication::saveWindowState()
-{
-  QSettings settings;
-  settings.beginGroup("Window");
-  settings.setValue("geometry", this->saveGeometry());
-  settings.setValue("state",    this->saveState());
 }
 
 //-----------------------------------------------------------------------------
@@ -1050,10 +1040,23 @@ void vqApplication::initializeTesting(const qtCliArgs* args)
 }
 
 //-----------------------------------------------------------------------------
-void vqApplication::exportResults(const QString& exporterId)
+void vqApplication::exportSelectedResults(const QString& exporterId)
 {
   this->Core->exportResults(this->UI.resultView->GetSelectedNodes(),
                             exporterId);
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::exportStarredResults(const QString& exporterId)
+{
+  this->Core->exportResults(this->UI.resultView->GetStarredNodes(),
+                            exporterId);
+}
+
+//-----------------------------------------------------------------------------
+void vqApplication::exportAllResults(const QString& exporterId)
+{
+  this->Core->exportResults(exporterId);
 }
 
 //-----------------------------------------------------------------------------

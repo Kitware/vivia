@@ -313,17 +313,23 @@ endfunction()
 function(install_library_targets)
   foreach(_target ${ARGN})
     if(TARGET ${_target})
+      if(TARGET ${_target}Headers)
+        install_library_targets(${_target}Headers)
+      endif()
       get_target_property(_type ${_target} TYPE)
-      if(${_type} MATCHES "(SHARED|STATIC|MODULE)_LIBRARY")
+      if(_type MATCHES "(SHARED|STATIC|MODULE)_LIBRARY")
         install(TARGETS ${_target}
                 EXPORT VisGUI
                 RUNTIME COMPONENT Runtime     DESTINATION bin
                 LIBRARY COMPONENT Runtime     DESTINATION lib${LIB_SUFFIX}
                 ARCHIVE COMPONENT Development DESTINATION lib${LIB_SUFFIX}
         )
-        if(${_type} STREQUAL SHARED_LIBRARY)
-          export(TARGETS ${_target} APPEND FILE "${VisGUI_EXPORT_FILE}")
+        if(_type STREQUAL "SHARED_LIBRARY")
+          set_property(GLOBAL APPEND PROPERTY VisGUI_EXPORT_TARGETS ${_target})
         endif()
+      elseif(_type STREQUAL "INTERFACE_LIBRARY")
+        install(TARGETS ${_target} EXPORT VisGUI)
+        set_property(GLOBAL APPEND PROPERTY VisGUI_EXPORT_TARGETS ${_target})
       else()
         message(WARNING
           "install_library_targets given non-library target '${_target}'"
@@ -411,20 +417,34 @@ function(vg_install_files_with_prefix)
   add_custom_target(${_install_TARGET} ALL DEPENDS ${_target_depends})
 endfunction()
 
-# Function to install headers
-function(install_headers)
-  extract_args("_target=TARGET;_dest=DESTINATION" ${ARGN})
-  if(NOT _dest)
+# Function to add target include interface directories
+function(vg_add_include_interface TARGET)
+  target_include_directories(${TARGET} INTERFACE ${ARGN})
+  if(TARGET ${TARGET}Headers)
+    target_include_directories(${TARGET}Headers INTERFACE ${ARGN})
+  endif()
+endfunction()
+
+# Function to export headers (from origin/master)
+function(vg_export_headers)
+  cmake_parse_arguments(_export
+    "INSTALL"
+    "TARGET;DESTINATION"
+    ""
+    ${ARGN})
+  if(NOT _export_DESTINATION)
     set(_dest include)
+  else()
+    set(_dest "${_export_DESTINATION}")
   endif()
 
-  if("x_${_target}" STREQUAL "x_")
-    message(FATAL_ERROR "install_headers: no TARGET specified")
+  if("x_${_export_TARGET}" STREQUAL "x_")
+    message(FATAL_ERROR "vg_export_headers: no TARGET specified")
   endif()
 
-  if(NOT "x_${ARGN}" STREQUAL "x_")
+  if(NOT "x_${_export_UNPARSED_ARGUMENTS}" STREQUAL "x_")
     # Iterate over file list
-    foreach(_file ${ARGN})
+    foreach(_file IN LISTS _export_UNPARSED_ARGUMENTS)
       # Get name, canonical path and subdirectory
       string(REPLACE "${CMAKE_CURRENT_BINARY_DIR}/" "" _relfile "${_file}")
       get_filename_component(_name "${_file}" NAME)
@@ -443,36 +463,51 @@ function(install_headers)
       endif()
       # Create SDK wrapper header
       set(_wrapper "${CMAKE_BINARY_DIR}/${_dest}/${_subdir}/${_name}")
-      file(WRITE "${_wrapper}.tmp" "#include \"${_realpath}\"\n")
-      execute_process(
-        COMMAND ${CMAKE_COMMAND}
-                -E copy_if_different "${_wrapper}.tmp" "${_wrapper}"
-      )
-      file(REMOVE "${_wrapper}.tmp")
+      file(GENERATE OUTPUT "${_wrapper}" CONTENT "#include \"${_realpath}\"\n")
     endforeach()
 
     # Iterate over subdirectory groups and install headers
     foreach(_dir ${_dirs})
       if("x_${_dir}" STREQUAL "x_.")
-        vg_target_include_directories(
-          ${_target} "${CMAKE_BINARY_DIR}/${_dest}"
-        )
-        install(FILES ${_dir__}
-                COMPONENT Development
-                DESTINATION "${_dest}"
-        )
+        vg_add_include_interface(${_export_TARGET}
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}>")
+
+        if(_export_INSTALL)
+          vg_add_include_interface(${_export_TARGET}
+            "$<INSTALL_INTERFACE:${_dest}>")
+          install(FILES ${_dir__}
+                  COMPONENT Development
+                  DESTINATION "${_dest}"
+          )
+        endif()
       else()
         string(REGEX REPLACE "[^A-Za-z0-9]" "_" _dirvar "${_dir}")
-        vg_target_include_directories(
-          ${_target} "${CMAKE_BINARY_DIR}/${_dest}/${_dir}"
-        )
-        install(FILES ${_dir_${_dirvar}}
-                COMPONENT Development
-                DESTINATION "${_dest}/${_dir}"
-        )
+        vg_add_include_interface(${_export_TARGET}
+          "$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/${_dest}/${_dir}>")
+
+        if(_export_INSTALL)
+          vg_add_include_interface(${_export_TARGET}
+            "$<INSTALL_INTERFACE:${_dest}/${_dir}>")
+          install(FILES ${_dir_${_dirvar}}
+                  COMPONENT Development
+                  DESTINATION "${_dest}/${_dir}"
+          )
+        endif()
       endif()
     endforeach()
   endif()
+endfunction()
+
+# Function to install headers
+function(install_headers)
+  vg_export_headers(INSTALL ${ARGN})
+endfunction()
+
+# Function to add a library with an include-only interface
+function(vg_add_library NAME)
+  add_library(${NAME}Headers INTERFACE)
+  add_library(${NAME} ${ARGN})
+  target_link_libraries(${NAME} PUBLIC ${NAME}Headers)
 endfunction()
 
 # Function to install plugin targets
