@@ -296,8 +296,8 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
   }
 
   // If boxes were provided, an auto-query was started in the pipeline.
-  // The pipeline may return outputs in multiple receive() calls - descriptors
-  // come first, then query results. Keep receiving until we get query_result.
+  // All outputs (track_descriptor_set, query_result, etc.) come together in one receive().
+  // Check if query_result is already in the first receive's output.
   bool hasBoxes = !this->qfRequest.SpatialRegions.empty();
 
   if (hasBoxes)
@@ -305,49 +305,82 @@ bool vvKipQuerySessionPrivate::stQueryFormulate()
     q->postStatus(QString("Processing query from %1 boxes...")
                   .arg(this->qfRequest.SpatialRegions.size()), -1.0);
 
-    // Keep receiving until we get query results or end of data
-    while (true)
-    {
-      auto const& queryOds = pipeline->receive();
+    // First check if query_result is already in the first receive() output
+    auto const& queryResultIter = ods->find("query_result");
 
-      if (queryOds->is_end_of_data())
+    if (queryResultIter != ods->end())
+    {
+      auto const& kwiverResults =
+        queryResultIter->second->get_datum<query_result_set_sptr>();
+
+      if (kwiverResults && !kwiverResults->empty())
       {
-        // Pipeline completed without returning query results
-        q->postStatus(QString("Query %1 complete (no results)").arg(queryType), true);
+        // Auto-query produced results, emit them
+        auto resultCount = 0;
+        for (auto const& kwiverResult : *kwiverResults)
+        {
+          auto vvResult = fromKwiver(*kwiverResult);
+          vvResult.Rank = ++resultCount;
+          emit q->resultAvailable(vvResult);
+        }
+
+        // Handle iqr_model for refinement
+        auto const& iqrModelIter = ods->find("iqr_model");
+        if (iqrModelIter != ods->end())
+        {
+          std::lock_guard<std::mutex> lock(modelMutex);
+          computedModel = iqrModelIter->second->get_datum<iqr_model_sptr>();
+        }
+
+        // Handle feedback_request
+        auto const& feedbackIter = ods->find("feedback_request");
+        vvRequests.clear();
+        if (feedbackIter != ods->end())
+        {
+          auto const& kwiverRequests =
+            feedbackIter->second->get_datum<query_result_set_sptr>();
+
+          if (kwiverRequests)
+          {
+            for (auto const& kwiverRequest : *kwiverRequests)
+            {
+              auto vvRequest = fromKwiver(*kwiverRequest);
+              vvRequest.Rank = ++resultCount;
+              vvRequests.push_back(vvRequest);
+            }
+          }
+        }
+
+        // Store query instance for subsequent refinements
+        // Extract QueryId from first result and construct a similarity query
+        if (!kwiverResults->empty())
+        {
+          vvSimilarityQuery simQuery;
+          simQuery.QueryId = kwiverResults->front()->query_id().value();
+          simQuery.Descriptors.reserve(vvDescriptors.size());
+          for (auto const& d : vvDescriptors)
+          {
+            simQuery.Descriptors.push_back(d);
+          }
+          simQuery.SimilarityThreshold = 0.0;
+          this->query = simQuery;
+        }
+
         emit q->resultSetComplete();
+        q->postStatus(QString("Query %1 with %2 results complete")
+                      .arg(queryType).arg(resultCount), true);
+
+        // Return to wait state
         this->op = Wait;
         return true;
       }
-
-      auto const& queryResultIter = queryOds->find("query_result");
-      if (queryResultIter != queryOds->end())
-      {
-        auto const& kwiverResults =
-          queryResultIter->second->get_datum<query_result_set_sptr>();
-
-        if (kwiverResults && !kwiverResults->empty())
-        {
-          // Auto-query produced results, emit them
-          auto resultCount = 0;
-          for (auto const& kwiverResult : *kwiverResults)
-          {
-            auto vvResult = fromKwiver(*kwiverResult);
-            vvResult.Rank = ++resultCount;
-            emit q->resultAvailable(vvResult);
-          }
-
-          emit q->resultSetComplete();
-          q->postStatus(QString("Query %1 with %2 results complete")
-                        .arg(queryType).arg(resultCount), true);
-
-          // Return to wait state
-          this->op = Wait;
-          return true;
-        }
-      }
-
-      // query_result not in this output set, keep waiting...
     }
+
+    // query_result not in first output, this shouldn't happen but handle gracefully
+    q->postStatus(QString("Query %1 complete (no results)").arg(queryType), true);
+    emit q->resultSetComplete();
+    this->op = Wait;
+    return true;
   }
 
   // Success; emit descriptors (no auto-query from boxes)
@@ -421,12 +454,19 @@ bool vvKipQuerySessionPrivate::stQueryRefine()
   }
   auto const& queryId = query->QueryId;
 
+  // Get the computed model from previous query/refinement
+  iqr_model_sptr inputModel;
+  {
+    std::lock_guard<std::mutex> lock(modelMutex);
+    inputModel = this->computedModel;
+  }
+
   // Set pipeline inputs and start the pipe executing
   auto ids = kwiver::adapter::adapter_data_set::create();
   ids->add_value("descriptor_request", descriptor_request_sptr{});
   ids->add_value("database_query", database_query_sptr{});
   ids->add_value("iqr_feedback", toKwiver(queryId, this->feedback));
-  ids->add_value("iqr_model", iqr_model_sptr{});
+  ids->add_value("iqr_model", inputModel);
   pipeline->send(ids);
 
   // Switch state
