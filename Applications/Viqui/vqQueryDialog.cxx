@@ -278,6 +278,9 @@ void vqQueryDialogPrivate::editExemplarQuery(
     query.StreamIdLimit = vqDialog.exemplarUri();
     exemplar.Uri = query.StreamIdLimit;
     this->updateQuery();
+
+    // Automatically accept the main dialog to start the query
+    q->accept();
     }
 }
 
@@ -297,6 +300,9 @@ void vqQueryDialogPrivate::editPredefinedQuery()
     // \TODO: remove when user set relevancy is functional
     this->UI.relevancySpin->setValue(pqDialog.similarity());
     this->updateQuery();
+
+    // Automatically accept the main dialog to start the query
+    q->accept();
     }
 }
 
@@ -306,8 +312,12 @@ void vqQueryDialogPrivate::editClassifierQuery()
   QTE_Q(vqQueryDialog);
 
   vqClassifierQueryDialog cqDialog(q);
-  this->editSimilarityQuery(&cqDialog, 10,
-                            this->LastClassifierQueryDescriptors);
+  if (this->editSimilarityQuery(&cqDialog, 10,
+                                this->LastClassifierQueryDescriptors))
+    {
+    // Automatically accept the main dialog to start the query
+    q->accept();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -338,6 +348,9 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
     query.StreamIdLimit = this->LastDrawBoxQuery.Uri;
     q->resetQueryId();
     this->updateQuery();
+
+    // Automatically accept the main dialog to start the query
+    q->accept();
     }
 }
 
@@ -394,6 +407,9 @@ void vqQueryDialogPrivate::editFullFrameQuery()
   query.StreamIdLimit = this->LastFullFrameQuery.Uri;
   q->resetQueryId();
   this->updateQuery();
+
+  // Automatically accept the main dialog to start the query
+  q->accept();
 }
 
 //-----------------------------------------------------------------------------
