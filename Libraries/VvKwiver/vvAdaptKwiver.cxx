@@ -248,14 +248,20 @@ kwiver::vital::descriptor_request_sptr toKwiver(vvProcessingRequest const& in)
   auto outPtr = std::make_shared<kwiver::vital::descriptor_request>();
   auto& out = *outPtr;
 
-  out.set_id({in.QueryId});
+  if (!in.QueryId.empty())
+  {
+    out.set_id({in.QueryId});
+  }
 
   auto const& st = utcTimestamp(in.StartTime);
   auto const& et = utcTimestamp(in.EndTime);
   out.set_temporal_bounds(st, et);
 
-  auto const& videoUri = qtUrl(in.VideoUri);
-  out.set_data_location(stdString(videoUri.toLocalFile()));
+  if (!in.VideoUri.empty())
+  {
+    auto const& videoUri = qtUrl(in.VideoUri);
+    out.set_data_location(stdString(videoUri.toLocalFile()));
+  }
 
   // Convert user-drawn spatial regions (bounding boxes)
   if (!in.SpatialRegions.empty())

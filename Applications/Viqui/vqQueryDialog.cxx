@@ -54,6 +54,7 @@ public:
     ImageQuery          = 0x10,
     VideoQuery          = 0x11,
     ImageQueryDrawBox   = 0x12,
+    ImageQueryFullFrame = 0x13,
     DatabaseQuery       = 0x1e,
     ExemplarQuery       = 0x1f,
     ClassifierQuery     = 0x20,
@@ -91,6 +92,7 @@ public:
   void editClassifierQuery();
   void editTrackQuery();
   void editDrawBoxQuery();
+  void editFullFrameQuery();
 
   void setQueryRegion(vgGeocodedPoly region);
 
@@ -111,6 +113,7 @@ public:
   std::vector<vvDescriptor> LastPredefinedQueryDescriptors;
   std::vector<vvDescriptor> LastClassifierQueryDescriptors;
   DrawBoxQueryData LastDrawBoxQuery;
+  DrawBoxQueryData LastFullFrameQuery;
 
   QueryType queryType_;
   bool editTypeOnIndexChange_;
@@ -339,6 +342,61 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
 }
 
 //-----------------------------------------------------------------------------
+void vqQueryDialogPrivate::editFullFrameQuery()
+{
+  QTE_Q(vqQueryDialog);
+
+  QString fileName = vgFileDialog::getOpenFileName(
+    q, "Select Query Image...", QString(),
+    "Image files (*.png *.jpg *.jpeg *.bmp *.tif *.tiff);;"
+    "All files (*)");
+
+  if (fileName.isEmpty())
+    {
+    return;
+    }
+
+  // Load image to get dimensions
+  QPixmap pixmap(fileName);
+  if (pixmap.isNull())
+    {
+    QMessageBox::warning(q, "Failed to load image",
+      "Could not load the selected image file. Please check the path and "
+      "try again.");
+    return;
+    }
+
+  // Store the URI
+  QUrl uri = QUrl::fromLocalFile(fileName);
+  this->LastFullFrameQuery.Uri = stdString(uri);
+
+  // Create a single bounding box for the full image
+  vvImageBoundingBox fullBox;
+  fullBox.TopLeft.X = 0;
+  fullBox.TopLeft.Y = 0;
+  fullBox.BottomRight.X = pixmap.width();
+  fullBox.BottomRight.Y = pixmap.height();
+
+  this->LastFullFrameQuery.Boxes.clear();
+  this->LastFullFrameQuery.Boxes.push_back(fullBox);
+
+  // Create a processing request with the full frame box
+  vvProcessingRequest request;
+  request.QueryId = vvMakeId("VIQUI-FullFrame");
+  request.VideoUri = this->LastFullFrameQuery.Uri;
+  request.SpatialRegions = this->LastFullFrameQuery.Boxes;
+
+  // Trigger the formulation with the full frame box
+  this->core_->formulateQuery(request, false, nullptr);
+
+  // Update query with the URI
+  vvSimilarityQuery& query = *this->query_.similarityQuery();
+  query.StreamIdLimit = this->LastFullFrameQuery.Uri;
+  q->resetQueryId();
+  this->updateQuery();
+}
+
+//-----------------------------------------------------------------------------
 void vqQueryDialogPrivate::editTrackQuery()
 {
   QTE_Q(vqQueryDialog);
@@ -376,8 +434,13 @@ void vqQueryDialogPrivate::updateQuery()
     this->queryType_ == ImageQueryDrawBox &&
     !this->LastDrawBoxQuery.Uri.empty() &&
     numBoxes > 0;
+  const bool haveFullFrameQuery =
+    this->queryType_ == ImageQueryFullFrame &&
+    !this->LastFullFrameQuery.Uri.empty() &&
+    !this->LastFullFrameQuery.Boxes.empty();
   const bool enable =
-    this->query_.isRetrievalQuery() || haveDescriptors || haveDrawBoxQuery;
+    this->query_.isRetrievalQuery() || haveDescriptors || haveDrawBoxQuery ||
+    haveFullFrameQuery;
   const bool haveIqrModel = sq && !sq->IqrModel.empty();
 
   this->UI.queryInfo->setQuery(this->query_);
@@ -389,6 +452,12 @@ void vqQueryDialogPrivate::updateQuery()
                         .arg(numBoxes)
                         .arg(numBoxes > 1 ? "boxes" : "box");
     this->UI.queryInfo->setText(boxText);
+    }
+
+  // For Full Frame queries, show that the full frame is being used
+  if (haveFullFrameQuery && !haveDescriptors)
+    {
+    this->UI.queryInfo->setText("Using full frame");
     }
 
   this->UI.buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enable);
@@ -484,6 +553,8 @@ vqQueryDialog::vqQueryDialog(vqCore* core, bool useAdvancedUi,
   // Add primary query types
   d->UI.queryType->addItem("Image Query - Draw Boxes",
                            vqQueryDialogPrivate::ImageQueryDrawBox);
+  d->UI.queryType->addItem("Image Query - Full Frame",
+                           vqQueryDialogPrivate::ImageQueryFullFrame);
   d->UI.queryType->addItem("Image Query - Auto Detect Regions",
                            vqQueryDialogPrivate::ImageQuery);
   d->UI.queryType->addItem("Video Query - Auto Detect Regions",
@@ -789,6 +860,10 @@ void vqQueryDialog::setQueryType(int index)
           query.StreamIdLimit = d->LastDrawBoxQuery.Uri;
           query.Descriptors.clear();
           break;
+        case vqQueryDialogPrivate::ImageQueryFullFrame:
+          query.StreamIdLimit = d->LastFullFrameQuery.Uri;
+          query.Descriptors.clear();
+          break;
         case vqQueryDialogPrivate::ExemplarQuery:
           query.StreamIdLimit = d->LastExemplarQuery.Uri;
           query.Descriptors = d->LastExemplarQuery.Descriptors;
@@ -829,6 +904,9 @@ void vqQueryDialog::editQuery()
       break;
     case vqQueryDialogPrivate::ImageQueryDrawBox:
       d->editDrawBoxQuery();
+      break;
+    case vqQueryDialogPrivate::ImageQueryFullFrame:
+      d->editFullFrameQuery();
       break;
     case vqQueryDialogPrivate::DatabaseQuery:
       d->editExemplarQuery(d->LastDatabaseQuery,
