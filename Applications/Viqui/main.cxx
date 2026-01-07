@@ -160,7 +160,7 @@ int main(int argc, char** argv)
   vqApplication mainWindow(args.value("ui") == "analyst" ?
                            vqApplication::UI_Analyst :
                            vqApplication::UI_Engineering);
-  mainWindow.show();
+  mainWindow.showMaximized();
 
   // Connect aboutToQuit to ensure proper cleanup when Ctrl+C or SIGTERM is
   // received. QCoreApplication::quit() (called from signal handler) only

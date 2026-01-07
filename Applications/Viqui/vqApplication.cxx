@@ -503,6 +503,13 @@ vqApplication::vqApplication(UIMode uiMode) :
 
   this->reloadConfiguration();
   this->loadWindowState();
+
+  // Ensure required panels are visible by default
+  this->UI.videoPlayerDock->setVisible(true);
+  this->UI.resultDock->setVisible(true);
+  this->UI.scoreDock->setVisible(true);  // Feedback Requests
+  this->UI.resultInfoDock->setVisible(true);
+
   this->Core->start();
 }
 
