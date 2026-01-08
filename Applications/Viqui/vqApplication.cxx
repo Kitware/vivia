@@ -5,14 +5,17 @@
 #include "vqApplication.h"
 
 #include <QActionGroup>
+#include <QApplication>
 #include <QIcon>
 #include <QInputDialog>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QScreen>
 #include <QSettings>
 #include <QSignalMapper>
+#include <QTimer>
 #include <QToolButton>
 #include <QUrl>
 
@@ -531,7 +534,7 @@ vqApplication::vqApplication(UIMode uiMode) :
   this->UI.groundTruthDock->setVisible(false);
 
   // Set up default layout:
-  // - Video Player on left side
+  // - Video Player on left side (half screen width)
   // - Context View (central widget) on right side
   // - Results and Feedback Requests side by side at the bottom
 
@@ -543,6 +546,13 @@ vqApplication::vqApplication(UIMode uiMode) :
   this->addDockWidget(Qt::BottomDockWidgetArea, this->UI.scoreDock);
   this->splitDockWidget(this->UI.resultDock, this->UI.scoreDock,
                         Qt::Horizontal);
+
+  // Use screen geometry to get reliable half-screen width
+  QScreen* screen = QApplication::primaryScreen();
+  int halfScreenWidth = screen ? screen->availableGeometry().width() / 2 : 800;
+
+  // Force video player to half screen width and keep it there
+  this->UI.videoPlayerDock->setMinimumWidth(halfScreenWidth);
 
   this->Core->start();
 }
