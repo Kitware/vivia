@@ -522,11 +522,27 @@ vqApplication::vqApplication(UIMode uiMode) :
   this->reloadConfiguration();
   // TODO: Implement loadWindowState() for window geometry persistence
 
-  // Ensure required panels are visible by default
+  // Set up default panel visibility - only show essential panels
   this->UI.videoPlayerDock->setVisible(true);
   this->UI.resultDock->setVisible(true);
   this->UI.scoreDock->setVisible(true);  // Feedback Requests
-  this->UI.resultInfoDock->setVisible(true);
+  // Hide panels that should be off by default
+  this->UI.resultInfoDock->setVisible(false);
+  this->UI.groundTruthDock->setVisible(false);
+
+  // Set up default layout:
+  // - Video Player on left side
+  // - Context View (central widget) on right side
+  // - Results and Feedback Requests side by side at the bottom
+
+  // Place Video Player on left side
+  this->addDockWidget(Qt::LeftDockWidgetArea, this->UI.videoPlayerDock);
+
+  // Place Results and Feedback Requests at the bottom, side by side
+  this->addDockWidget(Qt::BottomDockWidgetArea, this->UI.resultDock);
+  this->addDockWidget(Qt::BottomDockWidgetArea, this->UI.scoreDock);
+  this->splitDockWidget(this->UI.resultDock, this->UI.scoreDock,
+                        Qt::Horizontal);
 
   this->Core->start();
 }
