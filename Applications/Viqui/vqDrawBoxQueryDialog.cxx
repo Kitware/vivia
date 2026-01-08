@@ -92,6 +92,9 @@ protected:
       CurrentRect = scene()->addRect(QRectF(StartPoint, StartPoint),
                                      QPen(Qt::red, 2),
                                      QBrush(QColor(255, 0, 0, 50)));
+      // Prevent the temporary rect from receiving mouse events
+      CurrentRect->setAcceptedMouseButtons(Qt::NoButton);
+      CurrentRect->setFlag(QGraphicsItem::ItemIsSelectable, false);
       }
     else
       {
@@ -410,6 +413,13 @@ void vqDrawBoxQueryDialog::finalizeBoxEdit()
   // Add permanent rectangle to scene
   QGraphicsRectItem* rectItem = d->Scene->addRect(
     region, QPen(Qt::green, 2), QBrush(QColor(0, 255, 0, 50)));
+
+  // Make the rect item ignore mouse events so it doesn't interfere with
+  // drawing new boxes. Without this, Qt's internal event dispatch can try
+  // to interact with existing items during mouse handling, causing crashes.
+  rectItem->setAcceptedMouseButtons(Qt::NoButton);
+  rectItem->setFlag(QGraphicsItem::ItemIsSelectable, false);
+  rectItem->setFlag(QGraphicsItem::ItemIsMovable, false);
 
   // Add to our list
   vqDrawBoxQueryDialogPrivate::DrawnBox box;

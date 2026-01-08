@@ -355,8 +355,11 @@ void vqQueryDialogPrivate::editDrawBoxQuery()
     // would create a new session and destroy the formulation session.
     this->core_->formulateQuery(request, false, nullptr);
 
-    // Close the dialog without triggering processQuery
-    q->reject();
+    // Close the dialog without triggering processQuery.
+    // Use QueuedConnection to defer reject() until after signal processing
+    // completes - calling reject() directly here would delete the dialog
+    // while the combo box's activated signal is still being processed.
+    QMetaObject::invokeMethod(q, "reject", Qt::QueuedConnection);
     }
 }
 
@@ -405,18 +408,18 @@ void vqQueryDialogPrivate::editFullFrameQuery()
   request.VideoUri = this->LastFullFrameQuery.Uri;
   request.SpatialRegions = this->LastFullFrameQuery.Boxes;
 
-  // Trigger the formulation with the full frame box
+  // Trigger the formulation with the full frame box.
+  // When boxes are provided, the pipeline will auto-execute a query and
+  // return results directly via resultAvailable/resultSetComplete signals.
+  // We do NOT call accept() because that would trigger processQuery() which
+  // would create a new session and destroy the formulation session.
   this->core_->formulateQuery(request, false, nullptr);
 
-  // Update query with the URI
-  vvSimilarityQuery& query = *this->query_.similarityQuery();
-  query.StreamIdLimit = this->LastFullFrameQuery.Uri;
-  q->resetQueryId();
-  this->updateQuery();
-
-  // Automatically accept the main dialog to start the query
-  // Use QueuedConnection to defer accept() until after signal processing completes
-  QMetaObject::invokeMethod(q, "accept", Qt::QueuedConnection);
+  // Close the dialog without triggering processQuery.
+  // Use QueuedConnection to defer reject() until after signal processing
+  // completes - calling reject() directly here would delete the dialog
+  // while the combo box's activated signal is still being processed.
+  QMetaObject::invokeMethod(q, "reject", Qt::QueuedConnection);
 }
 
 //-----------------------------------------------------------------------------
@@ -897,9 +900,11 @@ void vqQueryDialog::setQueryType(int index)
         case vqQueryDialogPrivate::PredefinedQuery:
           query.StreamIdLimit.clear();
           query.Descriptors = d->LastPredefinedQueryDescriptors;
+          break;
         case vqQueryDialogPrivate::ClassifierQuery:
           query.StreamIdLimit.clear();
           query.Descriptors = d->LastClassifierQueryDescriptors;
+          break;
         default:
           query.StreamIdLimit.clear();
           break;

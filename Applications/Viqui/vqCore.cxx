@@ -2343,7 +2343,7 @@ vvQueryResult* vqCore::getGroundTruthResult(ResultId iid)
   QHash<ResultId, vvQueryResult>::iterator itr =
     this->GroundTruthResults.find(iid);
 
-  if (itr != this->QueryResults.end())
+  if (itr != this->GroundTruthResults.end())
     {
     return &itr.value();
     }
