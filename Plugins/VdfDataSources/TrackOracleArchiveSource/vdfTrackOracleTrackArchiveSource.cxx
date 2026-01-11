@@ -6,9 +6,11 @@
 
 #include "visgui_track_type.h"
 
+#include <vdfTrackData.h>
 #include <vdfTrackSource.h>
 
 #include <vgGeodesy.h>
+#include <vgTimeMap.h>
 
 #include <qtStlUtil.h>
 

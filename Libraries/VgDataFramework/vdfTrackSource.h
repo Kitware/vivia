@@ -8,7 +8,10 @@
 #define __vdfTrackSource_h
 
 #include "vdfDataSourceInterface.h"
+#include "vdfTrackData.h"
 #include "vdfTrackId.h"
+
+#include <vgTimeMap.h>
 
 #include <vvTrack.h>
 
@@ -73,6 +76,22 @@ signals:
   /// and/or are interleaved with states from this batch, and batches for
   /// multiple tracks may be interleaved.
   void trackUpdated(vdfTrackId trackId, QList<vvTrackState> states);
+
+  /// Emitted when a track has a new or updated state available with attributes.
+  ///
+  /// This is an extended version of trackUpdated that also provides track
+  /// attributes and scalar data associated with the state.
+  void trackUpdated(vdfTrackId trackId, vvTrackState state,
+                    vdfTrackAttributes attributes,
+                    vdfTrackStateScalars scalarData);
+
+  /// Emitted when a track has new or updated states available with attributes.
+  ///
+  /// This is an extended version of trackUpdated that also provides track
+  /// attributes and scalar data associated with the states.
+  void trackUpdated(vdfTrackId trackId, QList<vvTrackState> states,
+                    vgTimeMap<vdfTrackAttributes> attributes,
+                    vdfTrackScalarDataCollection scalarData);
 
   /// Emitted when a track is closed (terminated).
   ///
