@@ -37,6 +37,7 @@ set(vgDataFrameworkInstallHeaders
   vdfSourceService.h
   vdfTemporalSelector.h
   vdfThreadedArchiveSource.h
+  vdfTrackData.h
   vdfTrackId.h
   vdfTrackReader.h
   vdfTrackSource.h
