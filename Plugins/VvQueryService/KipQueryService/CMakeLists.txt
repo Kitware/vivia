@@ -1,9 +1,5 @@
 project(vvKipQueryService)
 
-# Use viame-3 install for Qt5, VTK, and KWIVER since they're all built against Qt5
-set(VIAME3_INSTALL_DIR "/home/local/KHQ/matt.dawkins/Dev/viame-3/build/install")
-include_directories(BEFORE SYSTEM ${VIAME3_INSTALL_DIR}/include)
-
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
