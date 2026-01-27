@@ -12,6 +12,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QFont>
 #include <QMenu>
 #include <QSettings>
 #include <QStyle>
@@ -82,6 +83,15 @@ QTE_IMPLEMENT_D_FUNC(vgApplication)
 vgApplication::vgApplication(int& argc, char** argv) :
   QApplication(argc, argv), d_ptr(new vgApplicationPrivate)
 {
+  // Fix Qt5 font initialization issue - ensure valid default font
+  // Qt5 can sometimes return fonts with invalid point sizes which causes
+  // "QFont::setPointSizeF: Point size <= 0" warnings and missing text
+  QFont defaultFont = this->font();
+  if (defaultFont.pointSize() <= 0 && defaultFont.pointSizeF() <= 0)
+    {
+    defaultFont.setPointSize(10);
+    this->setFont(defaultFont);
+    }
 }
 
 //-----------------------------------------------------------------------------
