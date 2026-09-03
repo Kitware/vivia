@@ -25,8 +25,11 @@
 #include "vtkTransform2D.h"
 #include "vtkVector.h"
 
+#include <vgCalendarUtils.h>
+
+#include <cstdint>
+#include <iomanip>
 #include <sstream>
-#include "boost/date_time/posix_time/posix_time.hpp"
 
 #define TIMELINE_MIN_RANGE 1.0e7  // 10 s
 #define TIMELINE_MAX_RANGE 1.0e15 // ~30 yrs
@@ -34,27 +37,36 @@
 namespace
 {
 
-boost::gregorian::date GetEpoch()
+const int64_t UsPerDay = 86400000000LL;
+
+// Whole days from the epoch to the day containing \p us.
+int64_t GetDayNumber(double us)
 {
-  return boost::gregorian::date(1970, 1, 1);
+  const int64_t t = static_cast<int64_t>(us);
+  return (t >= 0 ? t : t - UsPerDay + 1) / UsPerDay;
 }
 
-boost::posix_time::ptime GetPosixTimeSeconds(double us)
+double GetInputTime(int64_t dayNumber)
 {
-  boost::posix_time::ptime pt(GetEpoch());
-  return pt + boost::posix_time::seconds(static_cast<int64_t>(us * 1.0e-6));
+  return static_cast<double>(dayNumber) * static_cast<double>(UsPerDay);
 }
 
-boost::posix_time::ptime GetPosixTime(double us)
+bool IsMidnight(double us)
 {
-  long long micros = static_cast<long long>(us);
-  return GetPosixTimeSeconds(us) +
-         boost::posix_time::microseconds(micros % 1000000);
+  return static_cast<int64_t>(us) % UsPerDay == 0;
 }
 
-double GetInputTime(boost::posix_time::ptime pt)
+// \p date must be the first of a month.
+vgCalendar::Date AddMonths(const vgCalendar::Date& date, int64_t count)
 {
-  return (pt - boost::posix_time::ptime(GetEpoch())).total_microseconds();
+  const int64_t m = date.Month - 1 + count;
+  const int64_t years = (m >= 0 ? m / 12 : (m - 11) / 12);
+
+  vgCalendar::Date result;
+  result.Year = date.Year + static_cast<int>(years);
+  result.Month = static_cast<int>(m - 12 * years) + 1;
+  result.Day = 1;
+  return result;
 }
 
 enum { NumFixedTickMarks = 5 };
@@ -153,14 +165,13 @@ void vtkVgChartTimeline::BuildAxis()
   int maxTicks = 1 +
                  vtkContext2D::FloatToInt((width - 2.0f * padding) / 100.0f);
 
-  boost::posix_time::ptime mint = GetPosixTime(this->MinX);
-  boost::posix_time::ptime maxt = GetPosixTime(this->MaxX);
-
   bool showFixedTicks = true;
 
   // Figure out a good interval for floating ticks.
   TickInterval tickInterval = TI_Day;
-  int days = (maxt - mint).hours() / 24;
+  int days = static_cast<int>(
+    (static_cast<int64_t>(this->MaxX) - static_cast<int64_t>(this->MinX)) /
+    UsPerDay);
   int daysPerTick = 1;
   if (days >= 3)
     {
@@ -200,7 +211,12 @@ void vtkVgChartTimeline::BuildAxis()
       {
       double t = this->MinX + x * (this->MaxX - this->MinX);
       std::ostringstream ostr;
-      ostr << GetPosixTimeSeconds(t).time_of_day() << 'Z';
+      const int64_t secs = static_cast<int64_t>(t * 1.0e-6);
+      const int64_t timeOfDay = ((secs % 86400) + 86400) % 86400;
+      ostr << std::setfill('0')
+           << std::setw(2) << timeOfDay / 3600 << ':'
+           << std::setw(2) << (timeOfDay / 60) % 60 << ':'
+           << std::setw(2) << timeOfDay % 60 << 'Z';
 
       newLabels->SetValue(i, ostr.str());
       newPositions->SetValue(i, x);
@@ -221,10 +237,9 @@ void vtkVgChartTimeline::BuildAxis()
     return;
     }
 
-  boost::posix_time::ptime pt = GetPosixTime(this->MinX);
-
-  // Need a reference point to test stride against.
-  boost::gregorian::date epoch = GetEpoch();
+  const int64_t startDay = GetDayNumber(this->MinX);
+  const bool startsAtMidnight = IsMidnight(this->MinX);
+  const vgCalendar::Date start = vgCalendar::civilFromDays(startDay);
 
   // Compute the position of the first floating tick mark by 'rounding up'
   // to the start of the next day, month, or year in the calendar that is
@@ -234,43 +249,45 @@ void vtkVgChartTimeline::BuildAxis()
     {
     case TI_Day:
       {
-      boost::posix_time::ptime tmp = pt + boost::gregorian::days(1);
-      tmp -= boost::posix_time::microseconds(1);
-      boost::gregorian::date d = tmp.date();
-      long days = (d - epoch).days();
-      if (long rem = days % stride)
+      int64_t days = startDay + (startsAtMidnight ? 0 : 1);
+      if (const int64_t rem = days % stride)
         {
-        d += boost::gregorian::days(stride - rem);
+        days += stride - rem;
         }
-      t = GetInputTime(boost::posix_time::ptime(d));
+      t = GetInputTime(days);
       break;
       }
 
     case TI_Month:
       {
-      boost::posix_time::ptime tmp = pt + boost::gregorian::months(1);
-      tmp -= boost::posix_time::microseconds(1);
-      boost::gregorian::date d(tmp.date().year(), tmp.date().month(), 1);
-      long months = 12 * (d.year() - epoch.year()) + d.month() - epoch.month();
-      if (long rem = months % stride)
+      vgCalendar::Date d = {start.Year, start.Month, 1};
+      if (start.Day != 1 || !startsAtMidnight)
         {
-        d += boost::gregorian::months(stride - rem);
+        d = AddMonths(d, 1);
         }
-      t = GetInputTime(boost::posix_time::ptime(d));
+      // Months from the epoch, which is the first of January.
+      const int64_t months = 12 * (d.Year - 1970) + d.Month - 1;
+      if (const int64_t rem = months % stride)
+        {
+        d = AddMonths(d, stride - rem);
+        }
+      t = GetInputTime(vgCalendar::daysFromCivil(d));
       break;
       }
 
     case TI_Year:
       {
-      boost::posix_time::ptime tmp = pt + boost::gregorian::years(1);
-      tmp -= boost::posix_time::microseconds(1);
-      boost::gregorian::date d(tmp.date().year(), 1, 1);
-      long years = d.year() - epoch.year();
-      if (long rem = years % stride)
+      vgCalendar::Date d = {start.Year, 1, 1};
+      if (start.Month != 1 || start.Day != 1 || !startsAtMidnight)
         {
-        d += boost::gregorian::years(stride - rem);
+        ++d.Year;
         }
-      t = GetInputTime(boost::posix_time::ptime(d));
+      const int64_t years = d.Year - 1970;
+      if (const int64_t rem = years % stride)
+        {
+        d.Year += static_cast<int>(stride - rem);
+        }
+      t = GetInputTime(vgCalendar::daysFromCivil(d));
       break;
       }
     }
@@ -299,26 +316,31 @@ void vtkVgChartTimeline::BuildAxis()
       }
 
     std::ostringstream ostr;
-    boost::posix_time::ptime pt = GetPosixTimeSeconds(t);
+    const int64_t day = GetDayNumber(t);
+    const vgCalendar::Date d = vgCalendar::civilFromDays(day);
     double prevt = t;
 
     // Add a label and compute the position of the next floating tick.
     switch (tickInterval)
       {
       case TI_Day:
-        ostr << pt.date();
-        t = GetInputTime(pt + boost::gregorian::days(stride));
+        ostr << d.Year << '-' << vgCalendar::monthAbbreviation(d.Month) << '-'
+             << std::setfill('0') << std::setw(2) << d.Day;
+        t = GetInputTime(day + stride);
         break;
 
       case TI_Month:
-        ostr << pt.date().year() << '-' << pt.date().month();
-        t = GetInputTime(pt + boost::gregorian::months(stride));
+        ostr << d.Year << '-' << vgCalendar::monthAbbreviation(d.Month);
+        t = GetInputTime(vgCalendar::daysFromCivil(AddMonths(d, stride)));
         break;
 
       case TI_Year:
-        ostr << pt.date().year();
-        t = GetInputTime(pt + boost::gregorian::years(stride));
+        {
+        ostr << d.Year;
+        const vgCalendar::Date next = {d.Year + stride, 1, 1};
+        t = GetInputTime(vgCalendar::daysFromCivil(next));
         break;
+        }
       }
 
     // Escape hatch in case we overflow.
@@ -840,11 +862,6 @@ void vtkVgChartTimeline::SetXExtents(double min, double max)
   this->ExtentsAreValid = true;
 
   this->GetAxis(vtkAxis::TOP)->SetRange(this->MinX, this->MaxX);
-
-  // Show the date that the chart is centered on.
-  double center = 0.5 * (this->MinX + this->MaxX);
-  boost::posix_time::ptime pt = GetPosixTime(center);
-  //this->SetTitle(boost::gregorian::to_simple_string(pt.date()));
 
   this->Modified();
 }

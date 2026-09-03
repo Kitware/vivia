@@ -1,7 +1,6 @@
 project(vsKw18ArchiveSource)
 
 include_directories(SYSTEM
-  ${Boost_INCLUDE_DIRS}
   ${VIDTK_INCLUDE_DIRS}
 )
 

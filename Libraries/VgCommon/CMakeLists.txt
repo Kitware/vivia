@@ -15,6 +15,7 @@ set(vgCommonInstallHeaders
   vgAbstractFactory.h
   vgActivityType.h
   vgAttributeSet.h
+  vgCalendarUtils.h
   vgCheckArg.h
   vgEntityType.h
   vgEventType.h

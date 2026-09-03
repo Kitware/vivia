@@ -6,32 +6,17 @@
 
 #include "vtkVgNitfEngrda.h"
 
+#include <vgCalendarUtils.h>
 #include <vgStringUtils.h>
 
 #include <vtkVgTimeStamp.h>
 
-// Boost includes
-#include <boost/date_time/gregorian/conversion.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 // C/C++ includes
-#include <ctime>
-
-namespace bt = boost::posix_time;
+#include <cstdint>
 
 //----------------------------------------------------------------------------
 namespace
 {
-  // FIXME Move this code somewhere else
-  // Convert boost posix time to std time
-  std::time_t Convert(const bt::ptime& pt)
-    {
-      bt::ptime timet_start(boost::gregorian::date(1970,1,1));
-      bt::time_duration diff = pt - timet_start;
-      return diff.total_milliseconds();
-    }
-
   int ConvertToInt(const std::string& str)
     {
     int result;
@@ -75,7 +60,6 @@ bool vtkVgNitfMetaDataParser::ParseDateTime(
     }
 
   std::string nitfTime = tokens[1];
-  std::tm utm;
 
   int years = 1970;
   int months = 0;
@@ -148,16 +132,13 @@ bool vtkVgNitfMetaDataParser::ParseDateTime(
       }
     }
 
-  utm.tm_mday = days;
-  utm.tm_mon = months;
-  utm.tm_year = years;
-
-  boost::posix_time::ptime pt (boost::gregorian::date_from_tm(utm),
-    bt::hours(hrs) + bt::minutes(mins) + bt::seconds(secs) +
-    bt::milliseconds(ms > -1 ? ms : 0));
+  const vgCalendar::Date date = {years + 1900, months + 1, days};
+  const int64_t msecs =
+    ((vgCalendar::daysFromCivil(date) * 24 + hrs) * 60 + mins) * 60000 +
+    secs * 1000 + (ms > -1 ? ms : 0);
 
   // To micoseconds
-  time.SetTime(static_cast<double>(Convert(pt)) * 1e3);
+  time.SetTime(static_cast<double>(msecs) * 1e3);
 
   return true;
 }

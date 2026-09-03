@@ -1,7 +1,6 @@
 project(vvIO)
 
 include_directories(SYSTEM
-  ${Boost_INCLUDE_DIRS}
   ${KML_INCLUDE_DIRS}
 )
 
@@ -75,7 +74,7 @@ target_link_libraries(${PROJECT_NAME}
   qtVgCommon
   qtExtensions
   PRIVATE
-  ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
   kml
 )
 

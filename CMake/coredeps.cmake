@@ -15,22 +15,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Generally, Boost is built shared, but give an advanced option to find a static build.
-option(USE_STATIC_BOOST
-  "Find a static build of Boost"
-  OFF)
-mark_as_advanced(USE_STATIC_BOOST)
-set(Boost_USE_STATIC_LIBS ${USE_STATIC_BOOST})
-
-# Boost is required.
-find_package(Boost REQUIRED
-  COMPONENTS thread system filesystem date_time
-)
-add_definitions(-DBOOST_ALL_NO_LIB)
-
 set(CMAKE_THREAD_PREFER_PTHREAD 1)
 find_package(Threads)
-set(Boost_LIBRARIES ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 if(VISGUI_ENABLE_VPVIEW OR VISGUI_ENABLE_WEB)
   # libjson is required for vpView and vtkVwCore

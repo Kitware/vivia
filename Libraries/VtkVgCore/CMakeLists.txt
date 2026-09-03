@@ -8,7 +8,6 @@ endif(NOT VTK_USE_SYSTEM_JPEG)
 include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
   ${VXL_JPEG_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
 )
 
 # Source files.
@@ -224,7 +223,7 @@ target_link_libraries(${PROJECT_NAME}
   vpl
   vil
   ${VTK_JPEG_LIBRARIES}
-  ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 vg_add_test_subdirectory()

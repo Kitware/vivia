@@ -33,7 +33,6 @@ if(VPVIEW_ASSIGN_FAKE_TRACK_ATTRIBUTES)
 endif()
 
 include_directories(SYSTEM
-  ${Boost_INCLUDE_DIRS}
   ${LIBJSON_INCLUDE_DIR}
   ${VTK_INCLUDE_DIRS}
 )
@@ -70,11 +69,6 @@ set(vgSdkTargets
   vtkVgVideo
   vgDataFramework
 )
-
-# If this is true, boost is required
-if(VIDTK_IS_UUIDABLE)
-  link_directories(${Boost_LIBRARY_DIRS})
-endif()
 
 # Needed for GDAL readers
 if(VISGUI_ENABLE_GDAL)

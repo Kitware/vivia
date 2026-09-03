@@ -47,7 +47,7 @@ target_link_libraries(${PROJECT_NAME} LINK_PRIVATE
   kwiver::vital
   ${vvKipQueryService_SdkTargets}
   ${QT_LIBRARIES}
-  ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 install_plugin_targets(${PROJECT_NAME})

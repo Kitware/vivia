@@ -1,7 +1,6 @@
 project(vvVidtk)
 
 include_directories(
-  ${Boost_INCLUDE_DIRS}
   ${VIDTK_INCLUDE_DIRS}
 )
 

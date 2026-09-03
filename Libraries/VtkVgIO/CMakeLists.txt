@@ -12,7 +12,6 @@ endif(NOT VTK_USE_SYSTEM_JPEG)
 include_directories(SYSTEM
   ${VTK_INCLUDE_DIRS}
   ${GDAL_INCLUDE_DIR}
-  ${Boost_INCLUDE_DIRS}
 )
 
 # Source files.
@@ -54,7 +53,7 @@ target_link_libraries(${PROJECT_NAME}
   vtkVgCore
   PRIVATE
   ${GDAL_LIBRARY}
-  ${Boost_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
 )
 
 vg_add_test_subdirectory()
