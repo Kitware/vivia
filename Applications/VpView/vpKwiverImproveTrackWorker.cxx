@@ -11,6 +11,7 @@
 
 #include <qtStlUtil.h>
 
+#include <vital/algo/algorithm.txx>
 #include <vital/algo/interpolate_track.h>
 #include <vital/exceptions/plugin.h>
 
@@ -85,7 +86,8 @@ bool vpKwiverImproveTrackWorker::initialize(
   try
     {
     d->Algorithm =
-      kv::algo::interpolate_track::create(stdString(algorithmClass));
+      kv::create_algorithm<kv::algo::interpolate_track>(
+        stdString(algorithmClass));
     }
   catch (kv::plugin_factory_not_found)
     {

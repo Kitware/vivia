@@ -59,25 +59,19 @@ bool vpKwiverVideoSource::good() const
 }
 
 //-----------------------------------------------------------------------------
-bool vpKwiverVideoSource::next_frame(kv::timestamp& ts, uint32_t)
+bool vpKwiverVideoSource::next_frame(kv::time_usec_t)
 {
   if (this->CurrentFrame < 0 || this->good())
     {
     ++this->CurrentFrame;
     }
 
-  if (this->good())
-    {
-    ts = this->frame_timestamp();
-    return true;
-    }
-
-  return false;
+  return this->good();
 }
 
 //-----------------------------------------------------------------------------
 bool vpKwiverVideoSource::seek_frame(
-  kv::timestamp& ts, kv::frame_id_t frame, uint32_t)
+  kv::timestamp::frame_t frame, kv::time_usec_t)
 {
   if (frame < 0 || frame > static_cast<frame_id_t>(this->num_frames()))
     {
@@ -85,9 +79,14 @@ bool vpKwiverVideoSource::seek_frame(
     }
 
   this->CurrentFrame = static_cast<frame_id_t>(frame);
-  ts = this->frame_timestamp();
 
   return true;
+}
+
+//-----------------------------------------------------------------------------
+bool vpKwiverVideoSource::seek_time(kv::timestamp::time_t, kv::time_usec_t)
+{
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,10 +126,4 @@ kv::image_container_sptr vpKwiverVideoSource::frame_image()
 kv::metadata_vector vpKwiverVideoSource::frame_metadata()
 {
   return {};
-}
-
-//-----------------------------------------------------------------------------
-kv::metadata_map_sptr vpKwiverVideoSource::metadata_map()
-{
-  return std::make_shared<kv::simple_metadata_map>();
 }
